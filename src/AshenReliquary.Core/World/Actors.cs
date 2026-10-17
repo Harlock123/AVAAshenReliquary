@@ -87,6 +87,7 @@ public sealed class HeroActor : Actor
     internal (double X, double Y)? Goal { get; set; }
     internal Dictionary<string, double> ReadyAt { get; } = [];
     internal GroundItem? PickupTarget { get; set; }
+    internal Vendor? TalkTarget { get; set; }
     internal double FlourishReadyAt { get; set; }
     internal double StaggerRemaining { get; set; }
     internal double RespawnIn { get; set; }

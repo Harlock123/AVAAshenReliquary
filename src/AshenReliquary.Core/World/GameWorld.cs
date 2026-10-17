@@ -42,6 +42,8 @@ public sealed class GameWorld
     private readonly LootGenerator? _loot;
     private readonly HashSet<int> _slain = [];
     private readonly List<SoundEvent> _sounds = [];
+    private readonly List<Vendor> _vendors = [];
+    private readonly int _seed;
 
     /// <summary>The sounds since the last call, oldest first; the app plays them and the list starts again.</summary>
     public IReadOnlyList<SoundEvent> DrainSounds()
@@ -130,11 +132,18 @@ public sealed class GameWorld
         _creatures = creatures;
         Map = new TileMap(zone);
         Random = new SeededRandom(seed);
+        _seed = seed;
         Hero = new HeroActor(hero) { X = zone.PlayerStart[0] + 0.5, Y = zone.PlayerStart[1] + 0.5 };
         _explored = new bool[Map.Width * Map.Height];
         RespawnPoint = (Hero.X, Hero.Y);
         hero.HeroPoints.GainForZone();
         Experience = new Experience();
+        foreach (var vendor in zone.Vendors ?? [])
+        {
+            var v = new Vendor(vendor);
+            _vendors.Add(v);
+            Restock(v);
+        }
 
         var packId = 0;
         foreach (var spawn in zone.Spawns)
@@ -158,12 +167,20 @@ public sealed class GameWorld
     public IReadOnlyList<Projectile> Projectiles => _projectiles;
     public IReadOnlyList<Impact> Impacts => _impacts;
     public IReadOnlyList<GroundItem> GroundItems => _ground;
+    public IReadOnlyList<Vendor> Vendors => _vendors;
+
+    /// <summary>The trader whose wares are open, or null. Walking away (or dying) closes it.</summary>
+    public Vendor? OpenVendor { get; private set; }
 
     public const double PickupRadius = 1.0;
     public const double GoldMagnetRadius = 1.3;
     public double Time { get; private set; }
     public (double X, double Y) RespawnPoint { get; private set; }
     public bool ZoneComplete { get; private set; }
+
+    /// <summary>The town last walked into and when, for its banner; null until the hero reaches one this session.</summary>
+    public (ExitDefinition Exit, double At)? Arrival { get; private set; }
+    private ExitDefinition? _insideExit;
     public string? LastMessage { get; private set; }
     public double LastMessageAt { get; private set; } = double.NegativeInfinity;
     public IReadOnlyCollection<string> ActivatedShrines => _activatedShrines;
@@ -186,6 +203,7 @@ public sealed class GameWorld
             return;
         Hero.Order = null;
         Hero.PickupTarget = null;
+        Hero.TalkTarget = null;
         Hero.Goal = (x, y);
         PlanPath(Hero, x, y);
     }
@@ -213,6 +231,7 @@ public sealed class GameWorld
         }
         Hero.Order = new HeroOrder(ability, target);
         Hero.PickupTarget = null;
+        Hero.TalkTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
     }
@@ -223,6 +242,7 @@ public sealed class GameWorld
         if (Hero.IsDead || !_ground.Contains(item))
             return;
         Hero.Order = null;
+        Hero.TalkTarget = null;
         Hero.PickupTarget = item;
         Hero.Goal = (item.X, item.Y);
         PlanPath(Hero, item.X, item.Y);
@@ -235,6 +255,182 @@ public sealed class GameWorld
             return false;
         _ground.Add(new GroundItem(Hero.X + 0.4, Hero.Y + 0.4, new LootDrop(item), Time));
         return true;
+    }
+
+    // ----- Trading -------------------------------------------------------------------
+
+    /// <summary>Walk to a trader (a click on them) and open their wares on arrival.</summary>
+    public void TalkTo(Vendor vendor)
+    {
+        if (Hero.IsDead || !_vendors.Contains(vendor))
+            return;
+        Hero.Order = null;
+        Hero.PickupTarget = null;
+        if (vendor.DistanceTo(Hero.X, Hero.Y) <= Vendor.TalkRadius)
+        {
+            Open(vendor);
+            return;
+        }
+        Hero.TalkTarget = vendor;
+        var (fx, fy) = InFrontOf(vendor);
+        Hero.Goal = (fx, fy);
+        PlanPath(Hero, fx, fy);
+    }
+
+    /// <summary>The walkable spot next to a trader closest to the hero, so the walk ends facing them.</summary>
+    private (double X, double Y) InFrontOf(Vendor vendor)
+    {
+        var best = (vendor.X + 1, vendor.Y + 1);
+        var bestDistance = double.MaxValue;
+        for (var dy = -1; dy <= 1; dy++)
+        for (var dx = -1; dx <= 1; dx++)
+        {
+            var (x, y) = (vendor.X + dx, vendor.Y + dy);
+            if ((dx == 0 && dy == 0) || !Map.IsWalkable(x, y))
+                continue;
+            var d = Hero.DistanceTo(x, y);
+            if (d < bestDistance)
+                (best, bestDistance) = ((x, y), d);
+        }
+        return best;
+    }
+
+    private void Open(Vendor vendor)
+    {
+        Hero.TalkTarget = null;
+        Hero.Goal = null;
+        Hero.Path.Clear();
+        if (OpenVendor == vendor)
+            return;
+        OpenVendor = vendor;
+        vendor.ClearBuyback();
+        Hero.Face(vendor.X, vendor.Y);
+        Say($"{vendor.Definition.Name}: \"{vendor.Definition.Greeting}\"");
+    }
+
+    /// <summary>Raised when the hero leaves a trader (Esc or walking away): an autosave moment.</summary>
+    public event Action<Vendor>? TradeClosed;
+
+    public void CloseVendor()
+    {
+        if (OpenVendor is not { } vendor)
+            return;
+        OpenVendor = null;
+        TradeClosed?.Invoke(vendor);
+    }
+
+    /// <summary>Buys item <paramref name="index"/> of the open trader's stock into the bag.</summary>
+    public bool Buy(int index)
+    {
+        if (OpenVendor is not { } vendor || index < 0 || index >= vendor.Stock.Count)
+            return false;
+        var item = vendor.Stock[index];
+        if (!Pay(Pricing.BuyPrice(item, Hero.Character)) || !GiveOrRefund(item, Pricing.BuyPrice(item, Hero.Character)))
+            return false;
+        vendor.Take(item);
+        Say($"Bought {item.Name}.");
+        return true;
+    }
+
+    /// <summary>Buys back something sold this visit, for what the trader paid.</summary>
+    public bool BuyBack(int index)
+    {
+        if (OpenVendor is not { } vendor || index < 0 || index >= vendor.Buyback.Count)
+            return false;
+        var item = vendor.Buyback[index];
+        if (!Pay(Pricing.SellPrice(item)) || !GiveOrRefund(item, Pricing.SellPrice(item)))
+            return false;
+        vendor.Unsold(item);
+        Say($"Bought back {item.Name}.");
+        return true;
+    }
+
+    /// <summary>Sells bag item <paramref name="index"/> to the open trader.</summary>
+    public bool Sell(int index)
+    {
+        if (OpenVendor is not { } vendor || Hero.Equipment.TakeFromBag(index) is not { } item)
+            return false;
+        var price = Pricing.SellPrice(item);
+        Hero.Equipment.AddGold(price);
+        vendor.Sold(item);
+        Sound(SoundCue.Gold, Hero);
+        Say($"Sold {item.Name} for {price} gold.");
+        return true;
+    }
+
+    /// <summary>Buys one healing potion charge from the open trader.</summary>
+    public bool BuyPotion()
+    {
+        if (OpenVendor is null)
+            return false;
+        if (Hero.Character.Potion.Charges >= HealingPotion.MaxCharges)
+        {
+            Say("Your potion charges are already full.");
+            return false;
+        }
+        if (!Pay(Pricing.PotionPrice(Hero.Character)))
+            return false;
+        Hero.Character.Potion.AddCharge();
+        Sound(SoundCue.Potion, Hero);
+        Say("Bought a potion charge.");
+        return true;
+    }
+
+    private bool Pay(int price)
+    {
+        if (!Hero.Equipment.TrySpend(price))
+        {
+            Say($"You need {price} gold.");
+            return false;
+        }
+        Sound(SoundCue.Gold, Hero);
+        return true;
+    }
+
+    private bool GiveOrRefund(Item item, int price)
+    {
+        if (Hero.Equipment.TryAdd(item))
+            return true;
+        Hero.Equipment.AddGold(price);
+        Say("Your bag is full.");
+        return false;
+    }
+
+    /// <summary>
+    /// Rolls a trader's wares for the hero's level: two thirds common, the rest uncommon, at the zone's level or the
+    /// hero's, whichever is higher. Its own dice (from the world seed, the trader and the level), so stocking a
+    /// table never changes a fight's rolls.
+    /// </summary>
+    private void Restock(Vendor vendor)
+    {
+        var level = Hero.Character.Level;
+        vendor.StockedForLevel = level;
+        if (_loot is null)
+        {
+            vendor.SetStock([]);
+            return;
+        }
+        var random = new SeededRandom(unchecked(_seed * 31 + StableHash(vendor.Definition.Id) * 17 + level));
+        var itemLevel = Math.Max(Zone.Level, level);
+        var count = vendor.Definition.StockSize;
+        var uncommon = count / 3;
+        var items = Enumerable.Range(0, count)
+            .Select(i => _loot.Generate(itemLevel, i < count - uncommon ? Rarity.Common : Rarity.Uncommon, random))
+            .OrderBy(i => i.Definition.Slot)
+            .ThenBy(i => i.Rarity)
+            .ToList();
+        vendor.SetStock(items);
+    }
+
+    private static int StableHash(string text)
+    {
+        unchecked
+        {
+            var hash = 17;
+            foreach (var ch in text)
+                hash = hash * 31 + ch;
+            return hash;
+        }
     }
 
     public void Stop()
@@ -334,17 +530,30 @@ public sealed class GameWorld
             if (hero.DistanceTo(shrine.At[0] + 0.5, shrine.At[1] + 0.5) <= ShrineRadius)
                 ActivateShrine(shrine);
         }
+        ExitDefinition? inside = null;
         foreach (var exit in Zone.Exits)
         {
-            if (!ZoneComplete && hero.DistanceTo(exit.At[0] + 0.5, exit.At[1] + 0.5) <= exit.Radius)
+            if (hero.DistanceTo(exit.At[0] + 0.5, exit.At[1] + 0.5) <= exit.Radius)
+                inside = exit;
+        }
+        // Walking into a town shows its banner, every time you come back in; the first time also completes the zone.
+        if (inside is not null && inside != _insideExit)
+        {
+            Arrival = (inside, Time);
+            if (!ZoneComplete)
             {
                 ZoneComplete = true;
-                Say($"You reach {exit.Label}.");
+                Say($"You reach {inside.Label}.");
                 Sound(SoundCue.ZoneComplete, hero);
             }
         }
+        _insideExit = inside;
 
         CollectLoot();
+        if (hero.TalkTarget is { } talk && talk.DistanceTo(hero.X, hero.Y) <= Vendor.TalkRadius)
+            Open(talk);
+        if (OpenVendor is { } open && open.DistanceTo(hero.X, hero.Y) > Vendor.TalkRadius + 2.5)
+            CloseVendor();
 
         if (hero.StaggerRemaining > 0)
         {
@@ -730,7 +939,7 @@ public sealed class GameWorld
         _ => Encounter.RankWeight(rank),
     };
 
-    private void GainXp(int xp, Actor at)
+    internal void GainXp(int xp, Actor at)
     {
         Float(at, $"+{xp} XP", FloatingTextKind.Xp, 0.6);
         var gained = Experience.Add(xp);
@@ -747,6 +956,8 @@ public sealed class GameWorld
             Sound(SoundCue.LevelUp, Hero);
             Float(Hero, "LEVEL UP", FloatingTextKind.Info, 1.2);
         }
+        foreach (var vendor in _vendors.Where(v => v.StockedForLevel < Hero.Character.Level))
+            Restock(vendor);
     }
 
     private void UpdateMonster(MonsterActor m, double dt)
@@ -928,6 +1139,8 @@ public sealed class GameWorld
         Hero.Order = null;
         Hero.Action = null;
         Hero.PickupTarget = null;
+        Hero.TalkTarget = null;
+        OpenVendor = null;
         Hero.Goal = null;
         Hero.Path.Clear();
         _projectiles.Clear();
@@ -1039,6 +1252,15 @@ public sealed class GameWorld
     }
 
     // ----- Restoring a save -------------------------------------------------------------
+
+    /// <summary>Puts back a trader's saved wares (unknown traders, from an older zone file, are skipped).</summary>
+    internal void RestoreVendor(string id, int stockedForLevel, IEnumerable<Item> stock)
+    {
+        if (_vendors.FirstOrDefault(v => v.Definition.Id == id) is not { } vendor)
+            return;
+        vendor.SetStock(stock);
+        vendor.StockedForLevel = stockedForLevel;
+    }
 
     /// <summary>
     /// Puts a saved world back: the hero's place, the respawn point and shrines, the monsters already killed, the

@@ -45,6 +45,12 @@ public sealed class TileMap
                 _blocksSight[x, y] = entry.BlocksSight;
             }
         }
+        // Traders stand on their tile: walk round them, not through.
+        foreach (var vendor in zone.Vendors ?? [])
+        {
+            if (InBounds(vendor.At[0], vendor.At[1]))
+                _blocked[vendor.At[0], vendor.At[1]] = true;
+        }
     }
 
     public int Width { get; }

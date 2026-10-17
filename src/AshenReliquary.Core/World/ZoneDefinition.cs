@@ -33,7 +33,8 @@ public sealed record ZoneDefinition(
     int[] PlayerStart,
     IReadOnlyList<SpawnDefinition> Spawns,
     IReadOnlyList<ShrineDefinition> Shrines,
-    IReadOnlyList<ExitDefinition> Exits)
+    IReadOnlyList<ExitDefinition> Exits,
+    IReadOnlyList<VendorDefinition>? Vendors = null)
 {
     public int Height => Rows.Count;
     public int Width => Rows.Max(r => r.Length);

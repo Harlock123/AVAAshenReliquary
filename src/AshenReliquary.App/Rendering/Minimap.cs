@@ -57,6 +57,18 @@ internal sealed class Minimap
                 [new(s.Name, new SKColor(120, 190, 255), lit ? "awake" : "asleep", true), new("Touch it to refill potions. You rise at the nearest shrine when you fall.", Palette.Dim)],
                 new SKColor(120, 190, 255));
         }
+        foreach (var vendor in world.Vendors)
+        {
+            var (vx, vy) = ((int)vendor.X, (int)vendor.Y);
+            if (!world.IsExplored(vx, vy))
+                continue;
+            var at = At(vendor.X, vendor.Y);
+            paint.Color = Palette.Gold;
+            canvas.DrawCircle(at, 3.5f, paint);
+            var v = vendor;
+            region(SKRect.Create(at.X - 6, at.Y - 6, 12, 12), () => [new(v.Definition.Name, Palette.Gold, v.Definition.Title, true), new("Click them to trade.", Palette.Dim)],
+                Palette.Gold);
+        }
         foreach (var exit in world.Zone.Exits)
         {
             var at = At(exit.At[0] + 0.5, exit.At[1] + 0.5);

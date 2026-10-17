@@ -78,7 +78,9 @@ internal sealed class InventoryPanel
         var gear = world.Hero.Equipment;
         if (bag is { } index && gear.Bag[index] is not null)
         {
-            if (right)
+            if (right && world.OpenVendor is not null)
+                world.Sell(index);
+            else if (right)
                 world.DropFromBag(index);
             else
                 gear.EquipFromBag(index);
@@ -179,7 +181,9 @@ internal sealed class InventoryPanel
             if (i == hoverBag)
                 Highlight(canvas, rect, new SKColor(255, 225, 140), null);
         }
-        canvas.DrawText("Bag: left-click wear · right-click drop      Worn: left-click take off", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
+        var trading = world.OpenVendor is not null;
+        canvas.DrawText(trading ? "Bag: left-click wear · right-click sell      Worn: left-click take off"
+            : "Bag: left-click wear · right-click drop      Worn: left-click take off", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
 
         // Tooltip, outside the panel so it never covers the slots being compared.
         if (pointer is { } p)
@@ -187,7 +191,8 @@ internal sealed class InventoryPanel
             if (hoveredBagItem is { } bagItem)
             {
                 var worn = targetSlot is { } t ? gear.In(t) : null;
-                Tooltip(canvas, size, p, bagItem, worn, "In your bag", gear.PreviewEquip(bagItem), "If you wear it:", Bounds);
+                var where = trading ? $"In your bag · sells for {Pricing.SellPrice(bagItem)} gold" : "In your bag";
+                Tooltip(canvas, size, p, bagItem, worn, where, gear.PreviewEquip(bagItem), "If you wear it:", Bounds);
             }
             else if (hoverSlot is { } s && gear.In(s) is { } wornItem)
             {
@@ -284,7 +289,8 @@ internal sealed class InventoryPanel
         float x, y;
         if (avoid is { } panel && panel.Contains(at))
         {
-            x = panel.Left - width - 10;
+            // Beside the panel: to its left, or to its right when there is no room (a panel on the left edge).
+            x = panel.Left - width - 10 >= 8 ? panel.Left - width - 10 : panel.Right + 10;
             y = Math.Clamp(at.Y - 24, 8, size.Height - height - 8);
         }
         else

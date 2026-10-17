@@ -193,6 +193,31 @@ public class WorldTests
     }
 
     [Fact]
+    public void Walking_into_a_town_completes_the_zone_once_and_shows_its_banner_each_time()
+    {
+        var zone = Arena(Enumerable.Repeat("....................", 10).ToArray()) with
+        {
+            Exits = [new ExitDefinition("town", "Test Town", [16, 2], 1.5)],
+        };
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 1);
+        Assert.Null(world.Arrival);
+        world.MoveTo(16.5, 2.5);
+        Run(world, 8);
+        Assert.True(world.ZoneComplete);
+        var first = Assert.NotNull(world.Arrival);
+        Assert.Equal("Test Town", first.Exit.Label);
+
+        // Standing about in town doesn't restart it; leaving and coming back does.
+        Run(world, 1);
+        Assert.Equal(first.At, world.Arrival!.Value.At);
+        world.MoveTo(5.5, 5.5);
+        Run(world, 8);
+        world.MoveTo(16.5, 2.5);
+        Run(world, 8);
+        Assert.True(world.Arrival!.Value.At > first.At);
+    }
+
+    [Fact]
     public void Same_seed_same_fight()
     {
         static string Fight()

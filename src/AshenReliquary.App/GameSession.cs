@@ -58,7 +58,11 @@ public sealed class GameSession
     }
 
     /// <summary>Autosave whenever a shrine is touched (the spec's checkpoint moments).</summary>
-    private void HookAutosave() => World.ShrineActivated += _ => Save(announce: false);
+    private void HookAutosave()
+    {
+        World.ShrineActivated += _ => Save(announce: false);
+        World.TradeClosed += _ => Save(announce: false);
+    }
     public string ClassId { get; }
 
     /// <summary>The paper-doll layers to draw: each worn item's Flare layer, or the bare body where nothing is worn.</summary>

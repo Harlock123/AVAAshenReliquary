@@ -155,13 +155,15 @@ internal sealed class Hud(IconStore icons)
             canvas.DrawText(message, size.Width / 2, target is { IsDead: false } ? 108 : 90, SKTextAlign.Center, font, paint);
         }
 
-        if (world.ZoneComplete)
+        if (world.Arrival is { } arrival && TownBanner.Alpha(world.Time - arrival.At) is var fade and > 0)
         {
-            using var shade = new SKPaint { Color = new SKColor(0, 0, 0, 150) };
+            using var shade = new SKPaint { Color = new SKColor(0, 0, 0, (byte)(150 * fade)) };
             canvas.DrawRect(SKRect.Create(0, size.Height / 2 - 60, size.Width, 120), shade);
             using var title = new SKFont(WorldOverlay.Serif, 34);
-            canvas.DrawText("Fort Gallowmere", size.Width / 2, size.Height / 2, SKTextAlign.Center, title, ink);
-            canvas.DrawText("The refugees open the gate. End of the vertical slice.", size.Width / 2, size.Height / 2 + 30, SKTextAlign.Center, font, dim);
+            using var titleInk = new SKPaint { IsAntialias = true, Color = Palette.Ink.WithAlpha((byte)(255 * fade)) };
+            using var subtitleInk = new SKPaint { IsAntialias = true, Color = Palette.Dim.WithAlpha((byte)(255 * fade)) };
+            canvas.DrawText(arrival.Exit.Label, size.Width / 2, size.Height / 2, SKTextAlign.Center, title, titleInk);
+            canvas.DrawText("The refugees open the gate. End of the vertical slice.", size.Width / 2, size.Height / 2 + 30, SKTextAlign.Center, font, subtitleInk);
         }
 
         // The block behind the bottom bar (orbs to orbs) swallows world clicks too.
@@ -464,4 +466,17 @@ internal sealed class Hud(IconStore icons)
         canvas.Restore();
         canvas.DrawCircle(centre, radius, rim);
     }
+}
+
+/// <summary>The banner shown on walking into a town.</summary>
+public static class TownBanner
+{
+    public const double FadeIn = 1.0, Hold = 4.0, FadeOut = 1.5;
+
+    /// <summary>The banner's opacity <paramref name="age"/> seconds after arriving: fade in, hold, fade out, gone.</summary>
+    public static double Alpha(double age) =>
+        age < 0 ? 0
+        : age < FadeIn ? age / FadeIn
+        : age < FadeIn + Hold ? 1
+        : Math.Clamp(1 - (age - FadeIn - Hold) / FadeOut, 0, 1);
 }

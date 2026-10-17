@@ -75,4 +75,14 @@ public class HudTests
         kit.Capture(Shot("target-frame"));
         Assert.Contains(DamageType.Fire, zombie.Creature.Persistent.Types);
     }
+
+    [Fact]
+    public void The_town_banner_fades_in_holds_and_fades_out()
+    {
+        Assert.Equal(0, AshenReliquary.App.Rendering.TownBanner.Alpha(0));
+        Assert.Equal(0.5, AshenReliquary.App.Rendering.TownBanner.Alpha(0.5), 6);
+        Assert.Equal(1, AshenReliquary.App.Rendering.TownBanner.Alpha(3));
+        Assert.InRange(AshenReliquary.App.Rendering.TownBanner.Alpha(5.75), 0.4, 0.6);
+        Assert.Equal(0, AshenReliquary.App.Rendering.TownBanner.Alpha(7));
+    }
 }

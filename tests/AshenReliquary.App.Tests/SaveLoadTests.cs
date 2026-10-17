@@ -123,6 +123,31 @@ public class SaveLoadTests
     }
 
     [AvaloniaFact]
+    public void Save_and_quit_saves_but_just_quit_leaves_the_last_save_alone()
+    {
+        FreshSaves();
+        var saved = new MainWindow { Width = 1288, Height = 770, Session = GameSession.NewGame("fighter", 8) };
+        saved.Show();
+        Pump();
+        saved.FindControl<Avalonia.Controls.Button>("QuitGameButton")!.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+        Pump();
+        Assert.Single(SaveStore.List());
+
+        FreshSaves();
+        var session = GameSession.NewGame("fighter", 9);
+        session.Save(announce: false);
+        var before = File.ReadAllText(SaveStore.PathFor(session.SaveId));
+        var window = new MainWindow { Width = 1288, Height = 770, Session = session };
+        window.Show();
+        Pump();
+        Play(window, 1);
+        session.World.Hero.Equipment.AddGold(77);
+        window.FindControl<Avalonia.Controls.Button>("JustQuitButton")!.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+        Pump();
+        Assert.Equal(before, File.ReadAllText(SaveStore.PathFor(session.SaveId)));
+    }
+
+    [AvaloniaFact]
     public void Deleting_a_character_needs_confirmation()
     {
         FreshSaves();

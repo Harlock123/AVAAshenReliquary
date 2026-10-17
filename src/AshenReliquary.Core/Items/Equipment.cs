@@ -31,6 +31,15 @@ public sealed class Equipment
 
     public void AddGold(int amount) => Gold += Math.Max(0, amount);
 
+    /// <summary>Pays <paramref name="amount"/> gold; false (and nothing spent) when there isn't enough.</summary>
+    public bool TrySpend(int amount)
+    {
+        if (amount < 0 || amount > Gold)
+            return false;
+        Gold -= amount;
+        return true;
+    }
+
     /// <summary>Puts an item in the first free bag cell. False when the bag is full.</summary>
     public bool TryAdd(Item item)
     {

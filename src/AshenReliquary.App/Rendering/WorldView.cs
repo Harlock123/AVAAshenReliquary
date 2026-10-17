@@ -57,6 +57,37 @@ public sealed class WorldView : Control
 
     private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawIcon);
 
+    private VendorPanel? _vendorPanel;
+    private VendorPanel Trade => _vendorPanel ??= new VendorPanel(DrawIcon);
+
+    /// <summary>The trader whose table was open last frame: opening one opens the bag, leaving closes it again.</summary>
+    private Vendor? _trading;
+    private bool _tradeOpenedInventory;
+
+    /// <summary>Opens the bag beside a trader's table when trading starts, and closes it again when it ends.</summary>
+    private void FollowTrade(GameWorld world)
+    {
+        // Closing the bag (I) mid-trade leaves the trader too.
+        if (world.OpenVendor is not null && world.OpenVendor == _trading && !InventoryOpen)
+        {
+            _tradeOpenedInventory = false;
+            world.CloseVendor();
+        }
+        if (world.OpenVendor == _trading)
+            return;
+        if (world.OpenVendor is not null && _trading is null)
+        {
+            _tradeOpenedInventory = !InventoryOpen;
+            InventoryOpen = true;
+        }
+        else if (world.OpenVendor is null && _tradeOpenedInventory)
+        {
+            InventoryOpen = false;
+            _tradeOpenedInventory = false;
+        }
+        _trading = world.OpenVendor;
+    }
+
     /// <summary>Draws icon <paramref name="icon"/> from Flare's icon sheet into <paramref name="rect"/> (UI canvas).</summary>
     private void DrawIcon(SKCanvas canvas, int icon, SKRect rect)
     {
@@ -121,6 +152,12 @@ public sealed class WorldView : Control
         var p = e.GetPosition(this);
         var props = e.GetCurrentPoint(this).Properties;
         var sp = new SKPoint((float)p.X, (float)p.Y);
+        if (world.OpenVendor is not null && props.IsLeftButtonPressed && Trade.Click(sp, world))
+        {
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
         if (InventoryOpen && Inventory.Click(sp, props.IsRightButtonPressed, world))
         {
             e.Handled = true;
@@ -151,6 +188,11 @@ public sealed class WorldView : Control
         if (MonsterUnder(p) is { } monster)
         {
             world.Attack(monster);
+            _holding = false;
+        }
+        else if (VendorUnder(p) is { } vendor)
+        {
+            world.TalkTo(vendor);
             _holding = false;
         }
         else
@@ -231,6 +273,21 @@ public sealed class WorldView : Control
             }
         }
         return best;
+    }
+
+    /// <summary>The trader whose sprite is under a screen point.</summary>
+    public Vendor? VendorUnder(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        var z = (float)Zoom;
+        foreach (var v in world.Vendors)
+        {
+            var foot = ToScreen(v.X, v.Y);
+            if (p.X >= foot.X - 38 * z && p.X <= foot.X + 38 * z && p.Y >= foot.Y - 150 * z && p.Y <= foot.Y + 12 * z)
+                return v;
+        }
+        return null;
     }
 
     // ----- Rendering -------------------------------------------------------------------------
@@ -318,6 +375,7 @@ public sealed class WorldView : Control
         _uiScale = deviceScale;
         _viewport = SKRect.Create(size);
         DrawLootLabels(canvas, world);
+        DrawVendorLabels(canvas, world);
         WorldOverlay.DrawFloatingText(this, canvas, world);
         var pointer = _pointer is { } pt ? new SKPoint((float)pt.X, (float)pt.Y) : (SKPoint?)null;
         var hud = HudLayer;
@@ -332,12 +390,19 @@ public sealed class WorldView : Control
             _sheet.Draw(canvas, size, world, hud.AddRegion);
             hud.Block(_sheet.Bounds);
         }
+        FollowTrade(world);
         if (InventoryOpen)
         {
             Inventory.Draw(canvas, size, world, pointer, PortraitImage());
             hud.Block(Inventory.Bounds);
         }
-        if (!(InventoryOpen && pointer is { } over && Inventory.Bounds.Contains(over)))
+        if (world.OpenVendor is not null)
+        {
+            Trade.Draw(canvas, size, world, pointer);
+            hud.Block(Trade.Bounds);
+        }
+        var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over)));
+        if (!overPanel)
             hud.DrawTooltip(canvas, size, pointer);
         Stats.Mark("text+hud");
 
@@ -527,6 +592,11 @@ public sealed class WorldView : Control
             items.Add((m.IsDead ? m.X + m.Y - 0.6 : m.X + m.Y, m.X, () => DrawMonster(canvas, monster, world)));
         }
         items.Add((world.Hero.X + world.Hero.Y, world.Hero.X, () => DrawHero(canvas, world)));
+        foreach (var v in world.Vendors)
+        {
+            var vendor = v;
+            items.Add((v.X + v.Y, v.X, () => DrawVendor(canvas, vendor)));
+        }
         foreach (var g in world.GroundItems)
         {
             var ground = g;
@@ -596,6 +666,50 @@ public sealed class WorldView : Control
             if (Pick(set, animation) is not { } anim)
                 continue;
             DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(hero.AnimationTime), hero.Direction), foot, 1f, null);
+        }
+    }
+
+    private static readonly string[] BareBody = ["head", "chest", "legs", "feet", "hands"];
+
+    /// <summary>A trader: Flare's avatar in the clothes their zone file gives them, idling, brighter when hovered.</summary>
+    private void DrawVendor(SKCanvas canvas, Vendor vendor)
+    {
+        var foot = ToScreen(vendor.X, vendor.Y);
+        var look = vendor.Definition.Look;
+        var direction = vendor.Definition.Facing;
+        var hovered = _pointer is { } p && VendorUnder(p) == vendor;
+        using var paint = hovered ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(35, 35, 35)) } : null;
+        foreach (var slot in _assets.LayerOrder(direction))
+        {
+            var layer = look.GetValueOrDefault(slot) ?? (BareBody.Contains(slot) ? (slot == "head" ? "head_short" : $"default_{slot}") : null);
+            if (layer is null)
+                continue;
+            var set = _assets.AvatarLayer(layer);
+            if (Pick(set, "stance") is not { } anim)
+                continue;
+            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(World!.Time), direction), foot, 1f, paint);
+        }
+    }
+
+    /// <summary>A trader's name and calling over their head, when near or hovered.</summary>
+    private void DrawVendorLabels(SKCanvas canvas, GameWorld world)
+    {
+        using var nameFont = new SKFont(WorldOverlay.Serif, 14);
+        using var small = new SKFont(WorldOverlay.Serif, 11);
+        using var gold = new SKPaint { IsAntialias = true, Color = Palette.Gold };
+        using var dim = new SKPaint { IsAntialias = true, Color = Palette.Dim };
+        using var back = new SKPaint { Color = new SKColor(0, 0, 0, 160) };
+        foreach (var v in world.Vendors)
+        {
+            var hovered = _pointer is { } p && VendorUnder(p) == v;
+            if (!hovered && world.Hero.DistanceTo(v.X, v.Y) > 9)
+                continue;
+            var foot = ToScreen(v.X, v.Y);
+            var top = foot.Y - 150 * (float)Zoom - 30;
+            var width = Math.Max(nameFont.MeasureText(v.Definition.Name), small.MeasureText(v.Definition.Title)) + 16;
+            canvas.DrawRect(SKRect.Create(foot.X - width / 2, top, width, 32), back);
+            canvas.DrawText(v.Definition.Name, foot.X, top + 14, SKTextAlign.Center, nameFont, gold);
+            canvas.DrawText(v.Definition.Title, foot.X, top + 27, SKTextAlign.Center, small, dim);
         }
     }
 
@@ -743,6 +857,9 @@ public sealed class WorldView : Control
                     lights.Add((ToScreen(x + 0.5, y + 0.5), 3.5f + flicker * 0.3f, new SKColor(110, 170, 255, 60)));
             }
         }
+        // A trader's lantern, so the stall reads from across the camp.
+        foreach (var v in world.Vendors)
+            lights.Add((ToScreen(v.X, v.Y), 3.4f + (float)Math.Sin(time * 7.3 + v.X) * 0.1f, new SKColor(255, 190, 110, 60)));
         foreach (var m in world.Monsters)
         {
             if (!m.IsDead && m.Definition.IsSpawner)

@@ -14,6 +14,9 @@ public sealed record SavedItem(string Base, Rarity Rarity, int ItemLevel, int Po
 
 public sealed record SavedAffix(string Id, int Value);
 
+/// <summary>A trader's wares, so reloading doesn't reroll the table.</summary>
+public sealed record SavedVendor(string Id, int StockedForLevel, List<SavedItem> Stock);
+
 /// <summary>Loot left on the ground.</summary>
 public sealed record SavedGroundItem(double X, double Y, SavedItem? Item, int Gold, bool Draught);
 
@@ -56,6 +59,9 @@ public sealed record SaveGame
     public List<int> Slain { get; init; } = [];
     public List<SavedGroundItem> Ground { get; init; } = [];
     public bool ZoneComplete { get; init; }
+
+    /// <summary>Each trader's stock; missing in older saves, whose traders roll fresh wares.</summary>
+    public List<SavedVendor> Vendors { get; init; } = [];
 
     /// <summary>The explored map cells (base64 bitset); missing in older saves, which start unexplored.</summary>
     public string? Explored { get; init; }
@@ -117,6 +123,7 @@ public sealed record SaveGame
             Slain = world.Slain.Order().ToList(),
             Ground = world.GroundItems.Select(g => new SavedGroundItem(g.X, g.Y, g.Drop.Item is { } item ? Save(item) : null, g.Drop.Gold, g.Drop.Draught)).ToList(),
             ZoneComplete = world.ZoneComplete,
+            Vendors = world.Vendors.Select(v => new SavedVendor(v.Definition.Id, v.StockedForLevel, v.Stock.Select(Save).ToList())).ToList(),
             Explored = world.ExploredBits(),
             PlaySeconds = playSeconds,
         };
@@ -161,6 +168,8 @@ public sealed record SaveGame
         var ground = Ground.Select(g => new GroundItem(g.X, g.Y,
             new LootDrop(g.Item is { } item ? Load(content, item) : null, g.Gold, g.Draught), 0));
         world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp, Explored);
+        foreach (var vendor in Vendors)
+            world.RestoreVendor(vendor.Id, vendor.StockedForLevel, vendor.Stock.Select(i => Load(content, i)));
         return world;
     }
 

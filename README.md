@@ -17,8 +17,8 @@ dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
-**Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, **F5** saves,
-**Escape** opens the menu (resume, save, return to the title, quit),
+**Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, **F5** saves,
+**Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the ruined farmstead and the bog to the refugee camp at Fort Gallowmere.
 
@@ -45,8 +45,9 @@ choices and level-up boosts. The HUD: game-icons.net icons (CC BY 3.0, rasterise
 the hero and reveals as you explore (saved with the game), the target's weaknesses, resistances and conditions, a
 character sheet (C), and a tooltip on every element: every number is one hover away. Audio: OpenAL Soft (the AVA1942
 audio layer) with positional sound effects, footsteps, crossfading exploration and battle music, and an ambience loop,
-from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Still to come
-in M1: vendors.
+from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. A peddler in the camp at
+the end of the road buys and sells (click her; right-click bag items to sell). Still to come in M1: the 20-minute
+play-through and tuning pass.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 Art is from [Flare](https://github.com/flareteam/flare-game) (CC-BY-SA 3.0) and, for portraits, also

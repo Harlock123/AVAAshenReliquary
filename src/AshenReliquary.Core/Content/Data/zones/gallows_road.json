@@ -463,5 +463,27 @@
    ],
    "radius": 3.0
   }
+ ],
+ "vendors": [
+  {
+   "id": "wenna",
+   "name": "Wenna Marsh",
+   "title": "Peddler",
+   "at": [
+    20,
+    12
+   ],
+   "facing": 5,
+   "stockSize": 12,
+   "greeting": "Coin for kit, kit for coin. The fort pays worse.",
+   "look": {
+    "head": "leather_hood",
+    "chest": "cloth_shirt",
+    "hands": "cloth_gloves",
+    "legs": "cloth_pants",
+    "feet": "cloth_sandals",
+    "main": "dagger"
+   }
+  }
  ]
 }

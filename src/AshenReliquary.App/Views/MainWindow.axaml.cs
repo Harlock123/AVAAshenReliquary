@@ -29,7 +29,12 @@ public partial class MainWindow : Window
         SaveButton.Click += (_, _) => { SaveNow(); MenuNote.Text = "Saved."; };
         TitleButton.Click += (_, _) => { SaveNow(); ShowTitle(); };
         QuitGameButton.Click += (_, _) => Close();
-        Closing += (_, _) => SaveNow(announce: false);
+        JustQuitButton.Click += (_, _) => { _quitWithoutSaving = true; Close(); };
+        Closing += (_, _) =>
+        {
+            if (!_quitWithoutSaving)
+                SaveNow(announce: false);
+        };
         // Every button in the game clicks.
         AddHandler(Button.ClickEvent, (_, _) => Audio.Play("click", 0.6f), RoutingStrategies.Bubble, handledEventsToo: true);
         var settings = Services.Settings.Load();
@@ -167,6 +172,9 @@ public partial class MainWindow : Window
         World.Focus();
     }
 
+    /// <summary>Set by "Just quit": the window closes without writing the save.</summary>
+    private bool _quitWithoutSaving;
+
     public void Tick(TimeSpan elapsed)
     {
         if (!Paused && _session is not null && World.IsVisible)
@@ -204,7 +212,9 @@ public partial class MainWindow : Window
             return;
         if (e.Key == Key.Escape)
         {
-            if (GameMenu.IsVisible) CloseMenu(); else OpenMenu();
+            if (GameMenu.IsVisible) CloseMenu();
+            else if (world.OpenVendor is not null) world.CloseVendor();
+            else OpenMenu();
             e.Handled = true;
             return;
         }

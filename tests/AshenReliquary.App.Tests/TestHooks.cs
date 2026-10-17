@@ -18,6 +18,13 @@ internal static class TestHooks
     public static void Sound(GameWorld world, SoundEvent sound) =>
         ((List<SoundEvent>)typeof(GameWorld).GetField("_sounds", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(world)!).Add(sound);
 
+    /// <summary>Moves the hero to a map point at once.</summary>
+    public static void Place(GameWorld world, double x, double y)
+    {
+        typeof(Actor).GetProperty(nameof(Actor.X))!.SetValue(world.Hero, x);
+        typeof(Actor).GetProperty(nameof(Actor.Y))!.SetValue(world.Hero, y);
+    }
+
     /// <summary>Places drops on the ground around a point, as if a monster had died there.</summary>
     public static void Drop(GameWorld world, IEnumerable<LootDrop> drops, double x, double y)
     {
