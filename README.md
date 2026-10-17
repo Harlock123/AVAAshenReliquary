@@ -6,6 +6,10 @@ modifiers, proficiency ranks, typed bonuses, degrees of success and conditions, 
 combat. The full design is in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) (exported from the shared
 [Claude Doc](https://claude.ai/code/artifact/e51b5134-d298-4316-a238-95ebd9e9b470); the repo copy is the working one).
 
+![A wizard casts Force Bolt at a fen zombie in the Gallows Road graveyard](Images/AVAAshenReliquary-gameplay.png)
+
+![Trading with Wenna Marsh, the peddler at the end of the road](Images/AVAAshenReliquary-trade.png)
+
 ## Running it
 
 ```bash
