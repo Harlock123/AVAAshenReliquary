@@ -56,6 +56,9 @@ public sealed record SaveGame
     public List<int> Slain { get; init; } = [];
     public List<SavedGroundItem> Ground { get; init; } = [];
     public bool ZoneComplete { get; init; }
+
+    /// <summary>The explored map cells (base64 bitset); missing in older saves, which start unexplored.</summary>
+    public string? Explored { get; init; }
     public double PlaySeconds { get; init; }
 
     /// <summary>What the load screen shows without rebuilding the game.</summary>
@@ -114,6 +117,7 @@ public sealed record SaveGame
             Slain = world.Slain.Order().ToList(),
             Ground = world.GroundItems.Select(g => new SavedGroundItem(g.X, g.Y, g.Drop.Item is { } item ? Save(item) : null, g.Drop.Gold, g.Drop.Draught)).ToList(),
             ZoneComplete = world.ZoneComplete,
+            Explored = world.ExploredBits(),
             PlaySeconds = playSeconds,
         };
     }
@@ -156,7 +160,7 @@ public sealed record SaveGame
 
         var ground = Ground.Select(g => new GroundItem(g.X, g.Y,
             new LootDrop(g.Item is { } item ? Load(content, item) : null, g.Gold, g.Draught), 0));
-        world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp);
+        world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp, Explored);
         return world;
     }
 

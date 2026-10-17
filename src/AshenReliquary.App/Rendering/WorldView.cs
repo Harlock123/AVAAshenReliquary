@@ -29,6 +29,15 @@ public sealed class WorldView : Control
     private readonly SpriteCache _uiSprites = new(FlareAssets.Shared);
     private readonly List<(SKRect Rect, GroundItem Item)> _lootLabels = [];
     private InventoryPanel? _inventory;
+    private readonly IconStore _icons = new();
+    private readonly Minimap _minimap = new();
+    private readonly CharacterSheet _sheet = new();
+    private Hud? _hud;
+
+    private Hud HudLayer => _hud ??= new Hud(_icons);
+
+    /// <summary>The character sheet (C).</summary>
+    public bool CharacterSheetOpen { get; set; }
     private float _uiScale = 1f;
 
     private (string Id, SKImage Image)? _portrait;
@@ -116,6 +125,12 @@ public sealed class WorldView : Control
         {
             e.Handled = true;
             InvalidateVisual();
+            return;
+        }
+        // Clicks on the HUD, the minimap or the character sheet never walk the hero there.
+        if (HudLayer.Contains(sp))
+        {
+            e.Handled = true;
             return;
         }
         if (props.IsLeftButtonPressed && _lootLabels.LastOrDefault(l => l.Rect.Contains(sp)).Item is { } loot)
@@ -304,9 +319,26 @@ public sealed class WorldView : Control
         _viewport = SKRect.Create(size);
         DrawLootLabels(canvas, world);
         WorldOverlay.DrawFloatingText(this, canvas, world);
-        Hud.Draw(canvas, size, world, MonsterUnderPointer());
+        var pointer = _pointer is { } pt ? new SKPoint((float)pt.X, (float)pt.Y) : (SKPoint?)null;
+        var hud = HudLayer;
+        hud.Draw(canvas, size, world, MonsterUnderPointer(), pointer);
+        if (!InventoryOpen)
+        {
+            _minimap.Draw(canvas, size, world, hud.AddRegion);
+            hud.Block(_minimap.Bounds);
+        }
+        if (CharacterSheetOpen)
+        {
+            _sheet.Draw(canvas, size, world, hud.AddRegion);
+            hud.Block(_sheet.Bounds);
+        }
         if (InventoryOpen)
-            Inventory.Draw(canvas, size, world, _pointer is { } pt ? new SKPoint((float)pt.X, (float)pt.Y) : null, PortraitImage());
+        {
+            Inventory.Draw(canvas, size, world, pointer, PortraitImage());
+            hud.Block(Inventory.Bounds);
+        }
+        if (!(InventoryOpen && pointer is { } over && Inventory.Bounds.Contains(over)))
+            hud.DrawTooltip(canvas, size, pointer);
         Stats.Mark("text+hud");
 
         var now = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -326,9 +358,11 @@ public sealed class WorldView : Control
             using var font = new SKFont(WorldOverlay.Serif, 13);
             using var ink = new SKPaint { IsAntialias = true, Color = new SKColor(255, 230, 140) };
             using var back = new SKPaint { Color = new SKColor(0, 0, 0, 170) };
-            canvas.DrawRect(SKRect.Create(size.Width - 760, 8, 752, 44), back);
-            canvas.DrawText($"{fps:0} fps", size.Width - 14, 26, SKTextAlign.Right, font, ink);
-            canvas.DrawText(_statsLine, size.Width - 14, 44, SKTextAlign.Right, font, ink);
+            // Under the minimap, so it never covers it.
+            var top = InventoryOpen ? 8f : 14 + Minimap.Height + 8;
+            canvas.DrawRect(SKRect.Create(size.Width - 760, top, 752, 44), back);
+            canvas.DrawText($"{fps:0} fps", size.Width - 14, top + 18, SKTextAlign.Right, font, ink);
+            canvas.DrawText(_statsLine, size.Width - 14, top + 36, SKTextAlign.Right, font, ink);
         }
     }
 

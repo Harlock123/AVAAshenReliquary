@@ -1,0 +1,205 @@
+[
+ {
+  "id": "strike",
+  "file": "strike.png",
+  "source": "https://game-icons.net/1x1/lorc/broadsword.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "power_attack",
+  "file": "power_attack.png",
+  "source": "https://game-icons.net/1x1/lorc/hammer-drop.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "sudden_charge",
+  "file": "sudden_charge.png",
+  "source": "https://game-icons.net/1x1/delapouite/charging-bull.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "ignition",
+  "file": "ignition.png",
+  "source": "https://game-icons.net/1x1/lorc/fireball.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "force_bolt",
+  "file": "force_bolt.png",
+  "source": "https://game-icons.net/1x1/delapouite/bolt-spell-cast.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "staff_strike",
+  "file": "staff_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/wizard-staff.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Frightened",
+  "file": "Frightened.png",
+  "source": "https://game-icons.net/1x1/lorc/terror.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Sickened",
+  "file": "Sickened.png",
+  "source": "https://game-icons.net/1x1/lorc/vomiting.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Clumsy",
+  "file": "Clumsy.png",
+  "source": "https://game-icons.net/1x1/lorc/tripwire.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Enfeebled",
+  "file": "Enfeebled.png",
+  "source": "https://game-icons.net/1x1/sbed/weight-crush.html",
+  "author": "Sbed",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Stupefied",
+  "file": "Stupefied.png",
+  "source": "https://game-icons.net/1x1/delapouite/tired-eye.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Drained",
+  "file": "Drained.png",
+  "source": "https://game-icons.net/1x1/lorc/heart-drop.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Slowed",
+  "file": "Slowed.png",
+  "source": "https://game-icons.net/1x1/lorc/snail.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Stunned",
+  "file": "Stunned.png",
+  "source": "https://game-icons.net/1x1/delapouite/knocked-out-stars.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "OffGuard",
+  "file": "OffGuard.png",
+  "source": "https://game-icons.net/1x1/skoll/shield-disabled.html",
+  "author": "Skoll",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Prone",
+  "file": "Prone.png",
+  "source": "https://game-icons.net/1x1/sbed/falling.html",
+  "author": "Sbed",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Grabbed",
+  "file": "Grabbed.png",
+  "source": "https://game-icons.net/1x1/lorc/grab.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Immobilized",
+  "file": "Immobilized.png",
+  "source": "https://game-icons.net/1x1/lorc/manacles.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Blinded",
+  "file": "Blinded.png",
+  "source": "https://game-icons.net/1x1/delapouite/blindfold.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "Dazzled",
+  "file": "Dazzled.png",
+  "source": "https://game-icons.net/1x1/lorc/sunbeams.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "persistent-Fire",
+  "file": "persistent-Fire.png",
+  "source": "https://game-icons.net/1x1/carl-olsen/flame.html",
+  "author": "Carl Olsen",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "persistent-Bleed",
+  "file": "persistent-Bleed.png",
+  "source": "https://game-icons.net/1x1/lorc/bleeding-wound.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "persistent-Poison",
+  "file": "persistent-Poison.png",
+  "source": "https://game-icons.net/1x1/lorc/poison-bottle.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "persistent",
+  "file": "persistent.png",
+  "source": "https://game-icons.net/1x1/lorc/dripping-blade.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "healing",
+  "file": "healing.png",
+  "source": "https://game-icons.net/1x1/lorc/heart-bottle.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "tainted",
+  "file": "tainted.png",
+  "source": "https://game-icons.net/1x1/lorc/daemon-skull.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hero-point",
+  "file": "hero-point.png",
+  "source": "https://game-icons.net/1x1/lorc/laurel-crown.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "flourish",
+  "file": "flourish.png",
+  "source": "https://game-icons.net/1x1/lorc/hourglass.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "potion",
+  "file": "potion.png",
+  "source": "https://game-icons.net/1x1/lorc/heart-bottle.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ }
+]

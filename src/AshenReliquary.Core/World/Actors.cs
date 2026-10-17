@@ -91,7 +91,8 @@ public sealed class HeroActor : Actor
     internal double StaggerRemaining { get; set; }
     internal double RespawnIn { get; set; }
     internal double RepathIn { get; set; }
-    internal double HealRemaining { get; set; }
+    /// <summary>Potion healing still to arrive (the HUD shows it as a buff).</summary>
+    public double HealRemaining { get; internal set; }
     internal double HealPerSecond { get; set; }
 
     /// <summary>True while winding up, swinging, casting or dashing.</summary>

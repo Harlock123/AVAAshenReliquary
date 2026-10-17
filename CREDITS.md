@@ -1,6 +1,6 @@
 # Credits
 
-Generated from `assets.manifest.json`. Every third-party asset the game ships is listed here.
+Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-party asset the game ships is listed here.
 
 ## Flare: Empyrean Campaign / fantasycore art
 
@@ -33,6 +33,14 @@ Generated from `assets.manifest.json`. Every third-party asset the game ships is
 - Authors: The Adonthell project's artists, submitted to OpenGameArt by Grumbel / bart
 - Changes: White page and flat backdrop panels removed, cropped to the painted head, resized to 320x320, colour-graded and vignetted by tools/AssetTool 'portrait --auto' (see tools/build_portraits.py). Released under CC-BY-SA 3.0.
 - Files: 12 (listed in `assets.manifest.json`)
+
+## game-icons.net
+
+- Source: [https://game-icons.net](https://game-icons.net) (retrieved 2026-10-17)
+- Licence: CC BY 3.0 (`src/AshenReliquary.App/Assets/Icons/LICENSE-game-icons.txt`)
+- Authors: Carl Olsen, Delapouite, Lorc, Sbed, Skoll (each icon's author and page are in Assets/Icons/icons.json)
+- Changes: Rasterised from SVG to 96x96 PNG with a transparent background and the glyph filled in one ivory tint, by tools/AssetTool 'icon' (see tools/build_icons.py).
+- Files: 29 (listed in `assets.manifest.json`)
 
 ## Code
 

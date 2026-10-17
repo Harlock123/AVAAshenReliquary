@@ -678,7 +678,7 @@ The build order proves the rules engine and one playable act before widening con
 ### Milestones
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
-2. **M1 — Vertical slice.** *In progress.* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading are done too. Still to do: the full HUD (icons, minimap), audio, vendors, and the exit play-through.
+2. **M1 — Vertical slice.** *In progress.* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading and the full HUD are done too. Still to do: audio, vendors, and the exit play-through.
 3. **M2 — Act 1 complete.** 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
@@ -783,4 +783,13 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **On load:** killed monsters stay dead; the living ones return at full health and summoned minions are gone. Saving while dead resumes at the shrine with full HP. The dice are reseeded from the saved seed and the save time, so a reload doesn't replay the same rolls.
 - **When it saves:** a new character is saved at once; autosave when a shrine is touched; F5; the Escape menu's Save, Save and return to title, and Save and quit; and closing the window.
 - **Title screen:** shown at start when any save exists (otherwise character creation): the characters with portrait, level, ancestry, class, zone, when saved and time played; Continue, New character, Delete (asks first) and Quit.
+
+### HUD (M1)
+
+- **Icons:** 29 game-icons.net icons (CC BY 3.0) for the abilities, conditions, persistent damage and HUD extras. `tools/build_icons.py` lists which icon serves which id; `AssetTool icon` draws each SVG's path with Skia's own SVG path parser into a 96 px ivory glyph on transparency, tinted when drawn.
+- **Tooltips everywhere:** every HUD element registers a hover region. Abilities show actions, cost, cooldown, range, traits, the description and the live numbers (dice, attack or spell attack at the current rank); the orbs, potions, Hero Points, Taint and XP explain their rules; the target frame shows level, AC, attack, strike damage, weaknesses, resistances and immunities.
+- **Buffs and conditions:** a row above the health orb with value badges and timers (conditions, potion healing, Tainted at 50%+, the Flourish lockout); the target's conditions and persistent damage (burning from Ignition) under its frame.
+- **Minimap:** top right, isometric, centred on the hero at 3.5 px per tile. Cells within 9 tiles of the hero are explored as you move; the explored map is saved (a base64 bitset; older saves start unexplored). Markers: shrines (bright once awake), the exit, living monsters within 14 tiles (champions larger and orange), Uncommon and better loot, and the hero with a facing tick.
+- **Character sheet (C):** attributes (hover for what each drives, the key attribute and partial boosts), then hit points, AC, saves, resistances, attack, damage, class DC, spell attack and DC for casters, Perception, speed and proficiency ranks. Hovering a number lists every part of it, with bonuses the stacking rule drops shown greyed.
+- Clicks on the HUD, minimap or open panels never move the hero.
 

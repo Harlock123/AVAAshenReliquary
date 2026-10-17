@@ -188,8 +188,11 @@ public partial class MainWindow : Window
             case >= Key.D1 and <= Key.D6:
                 World.UseSlot(((int)(e.Key - Key.D1) + 1).ToString());
                 break;
-            case Key.I or Key.Tab or Key.C:
+            case Key.I or Key.Tab:
                 World.InventoryOpen = !World.InventoryOpen;
+                break;
+            case Key.C:
+                World.CharacterSheetOpen = !World.CharacterSheetOpen;
                 break;
             case Key.F3:
                 World.ShowStats = !World.ShowStats;

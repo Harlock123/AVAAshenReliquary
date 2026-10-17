@@ -26,6 +26,9 @@ public sealed class GameWorld
     public const double PackAggroRadius = 6.0;
     public const double LeashDistance = 24.0;
     public const double FlourishLockoutSeconds = 3.0;
+
+    /// <summary>How far around the hero the minimap reveals, in tiles.</summary>
+    public const int RevealRadius = 9;
     public const double DashSpeed = 12.0;
     public const double ProjectileSpeed = 11.0;
 
@@ -38,7 +41,60 @@ public sealed class GameWorld
     private readonly List<GroundItem> _ground = [];
     private readonly LootGenerator? _loot;
     private readonly HashSet<int> _slain = [];
+    private bool[] _explored = [];
+    private (int X, int Y) _lastRevealCell = (int.MinValue, int.MinValue);
     private int _nextSpawnIndex;
+
+    /// <summary>Changes whenever more of the map is explored, so the minimap knows to redraw.</summary>
+    public int ExploredVersion { get; private set; }
+
+    public bool IsExplored(int x, int y) => Map.InBounds(x, y) && _explored.Length > 0 && _explored[y * Map.Width + x];
+
+    /// <summary>The explored cells as a base64 bitset (row by row), for saving.</summary>
+    public string ExploredBits()
+    {
+        var bytes = new byte[(_explored.Length + 7) / 8];
+        for (var i = 0; i < _explored.Length; i++)
+        {
+            if (_explored[i])
+                bytes[i / 8] |= (byte)(1 << (i % 8));
+        }
+        return Convert.ToBase64String(bytes);
+    }
+
+    private void RestoreExplored(string? bits)
+    {
+        if (string.IsNullOrEmpty(bits))
+            return;
+        var bytes = Convert.FromBase64String(bits);
+        for (var i = 0; i < _explored.Length && i / 8 < bytes.Length; i++)
+            _explored[i] = (bytes[i / 8] & (1 << (i % 8))) != 0;
+        ExploredVersion++;
+        _lastRevealCell = (int.MinValue, int.MinValue);
+    }
+
+    /// <summary>Marks the cells within <see cref="RevealRadius"/> of the hero as explored (only when the hero changes cell).</summary>
+    private void Reveal()
+    {
+        var cell = ((int)Math.Floor(Hero.X), (int)Math.Floor(Hero.Y));
+        if (cell == _lastRevealCell)
+            return;
+        _lastRevealCell = cell;
+        var changed = false;
+        for (var dy = -RevealRadius; dy <= RevealRadius; dy++)
+        for (var dx = -RevealRadius; dx <= RevealRadius; dx++)
+        {
+            if (dx * dx + dy * dy > RevealRadius * RevealRadius)
+                continue;
+            int x = cell.Item1 + dx, y = cell.Item2 + dy;
+            if (!Map.InBounds(x, y) || _explored[y * Map.Width + x])
+                continue;
+            _explored[y * Map.Width + x] = true;
+            changed = true;
+        }
+        if (changed)
+            ExploredVersion++;
+    }
 
     /// <summary>The placed monsters killed so far (their <see cref="MonsterActor.SpawnIndex"/>), for saving.</summary>
     public IReadOnlyCollection<int> Slain => _slain;
@@ -57,6 +113,7 @@ public sealed class GameWorld
         Map = new TileMap(zone);
         Random = new SeededRandom(seed);
         Hero = new HeroActor(hero) { X = zone.PlayerStart[0] + 0.5, Y = zone.PlayerStart[1] + 0.5 };
+        _explored = new bool[Map.Width * Map.Height];
         RespawnPoint = (Hero.X, Hero.Y);
         hero.HeroPoints.GainForZone();
         Experience = new Experience();
@@ -213,6 +270,7 @@ public sealed class GameWorld
     {
         Time += dt;
         UpdateHero(dt);
+        Reveal();
         UpdateProjectiles(dt);
         foreach (var monster in _monsters.ToList())
             UpdateMonster(monster, dt);
@@ -891,8 +949,9 @@ public sealed class GameWorld
     /// loot left lying around and whether the zone was finished. Called right after construction.
     /// </summary>
     internal void Restore(double heroX, double heroY, (double X, double Y) respawn, IEnumerable<string> shrines,
-        IEnumerable<int> slain, IEnumerable<GroundItem> ground, bool complete, int level, int xp)
+        IEnumerable<int> slain, IEnumerable<GroundItem> ground, bool complete, int level, int xp, string? explored = null)
     {
+        RestoreExplored(explored);
         Hero.X = heroX;
         Hero.Y = heroY;
         RespawnPoint = respawn;

@@ -16,7 +16,7 @@ dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a rec
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
-**Q** drinks a potion, **I** (or Tab / C) opens the inventory, click a loot label to pick it up, **F5** saves,
+**Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, quit),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the ruined farmstead and the bog to the refugee camp at Fort Gallowmere.
@@ -39,7 +39,11 @@ and a live preview of the level-1 character), with a portrait picker per ancestr
 `tools/build_portraits.py` (halflings use youthful stand-ins until real halfling art is found). Saving and loading: one JSON save per character in `~/.local/share/AshenReliquary/saves` (the app-data folder on
 Windows), written atomically; autosave at shrines, on leaving through the menu and on closing the window; a title
 screen to continue, load or delete characters. Loading rebuilds the character through the rules from its creation
-choices and level-up boosts. Still to come in M1: audio, vendors and the full HUD.
+choices and level-up boosts. The HUD: game-icons.net icons (CC BY 3.0, rasterised by
+`tools/build_icons.py`) on the ability bar, buff and condition icons with values and timers, a minimap that follows
+the hero and reveals as you explore (saved with the game), the target's weaknesses, resistances and conditions, a
+character sheet (C), and a tooltip on every element: every number is one hover away. Still to come in M1: audio and
+vendors.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 Art is from [Flare](https://github.com/flareteam/flare-game) (CC-BY-SA 3.0) and, for portraits, also

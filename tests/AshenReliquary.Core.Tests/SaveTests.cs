@@ -76,6 +76,26 @@ public class SaveTests
     }
 
     [Fact]
+    public void Exploring_reveals_the_map_around_the_hero_and_saves_it()
+    {
+        var world = NewWorld();
+        Run(world, 0.1);
+        var (hx, hy) = ((int)world.Hero.X, (int)world.Hero.Y);
+        Assert.True(world.IsExplored(hx, hy));
+        Assert.True(world.IsExplored(hx + GameWorld.RevealRadius - 1, hy));
+        Assert.False(world.IsExplored(hx, hy - 40));
+        var version = world.ExploredVersion;
+        world.MoveTo(world.Hero.X - 6, world.Hero.Y - 6);
+        Run(world, 3);
+        Assert.True(world.ExploredVersion > version);
+
+        var loaded = SaveGame.FromJson(SaveGame.Capture(world, "s", 3, null).ToJson()).Restore(Content);
+        for (var y = 0; y < world.Map.Height; y++)
+        for (var x = 0; x < world.Map.Width; x++)
+            Assert.Equal(world.IsExplored(x, y), loaded.IsExplored(x, y));
+    }
+
+    [Fact]
     public void Shrines_and_the_respawn_point_are_kept()
     {
         var world = NewWorld();

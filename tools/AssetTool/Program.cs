@@ -77,6 +77,36 @@ switch (args[0])
         Console.WriteLine($"{Path.GetFileName(args[1])} -> {args[2]}");
         break;
     }
+    case "icon":
+    {
+        // AssetTool icon <in.svg> <out.png> [--size 96]: a game-icons.net SVG is a black 512x512 square plus white
+        // path(s). The white paths are parsed with Skia's own SVG path reader and filled with one ivory tint on a
+        // transparent background, which the game can recolour. No SVG library needed.
+        var size = Option("--size", 96);
+        var svg = File.ReadAllText(args[1]);
+        var box = System.Text.RegularExpressions.Regex.Match(svg, "viewBox=\"([\\d. -]+)\"");
+        var view = box.Success ? box.Groups[1].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(float.Parse).ToArray() : [0f, 0, 512, 512];
+        var paths = System.Text.RegularExpressions.Regex.Matches(svg, "<path[^>]*fill=\"#fff(?:fff)?\"[^>]*d=\"([^\"]+)\"|<path[^>]*d=\"([^\"]+)\"[^>]*fill=\"#fff(?:fff)?\"")
+            .Select(m => m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value).ToList();
+        if (paths.Count == 0)
+            throw new InvalidDataException($"{args[1]} has no white path to draw.");
+        using var icon = new SKBitmap(new SKImageInfo(size, size, SKColorType.Rgba8888, SKAlphaType.Premul));
+        using (var canvas = new SKCanvas(icon))
+        using (var glyph = new SKPaint { IsAntialias = true, Color = new SKColor(236, 224, 200) })
+        {
+            canvas.Clear(SKColors.Transparent);
+            canvas.Scale(size / view[2], size / view[3]);
+            canvas.Translate(-view[0], -view[1]);
+            foreach (var d in paths)
+            {
+                using var path = SKPath.ParseSvgPathData(d) ?? throw new InvalidDataException($"Bad path data in {args[1]}.");
+                canvas.DrawPath(path, glyph);
+            }
+        }
+        Save(icon, args[2]);
+        Console.WriteLine($"{Path.GetFileName(args[1])} -> {args[2]}");
+        break;
+    }
     case "grid":
     {
         // AssetTool grid <folder> <out.png> [cell]: every PNG in a folder, labelled by file name.
@@ -149,6 +179,9 @@ switch (args[0])
         Console.WriteLine($"{anim.Name}: {anim.FrameCount} frames x 8 directions -> {args[4]}");
         break;
     }
+    default:
+        Console.Error.WriteLine($"Unknown command '{args[0]}'.");
+        return 2;
 }
 return 0;
 
