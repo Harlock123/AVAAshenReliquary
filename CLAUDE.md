@@ -30,5 +30,6 @@ implementation decisions made so far). `README.md` has the run commands and cont
 - Every asset is in `assets.manifest.json`; `python3 tools/build_credits.py` regenerates `CREDITS.md`.
 - The asset build scripts in `tools/` take the downloaded source packs' folder as an argument; the packs are not in
   the repo (only the converted files are), so they only need re-downloading to rebuild assets.
-- Saves and `settings.json` live in the user's app-data folder (`Services/SaveStore.cs`), not in the repo; App tests
-  point `SaveStore.FolderOverride` at a temporary folder.
+- Saves and `settings.json` live in the user's app-data folder (`Services/SaveStore.cs`); App tests point
+  `SaveStore.FolderOverride` at a temporary folder. `saves/` holds the user's character from the VM, to copy into
+  that folder on a new machine (see `saves/README.md`).

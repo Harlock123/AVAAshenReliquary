@@ -1,0 +1,362 @@
+{
+  "Version": 1,
+  "SaveId": "the-ashbound-e9f063",
+  "SavedAt": "2026-10-17T17:48:08.605034-04:00",
+  "PortraitId": "flare/male01",
+  "Choices": {
+    "Name": "The Ashbound",
+    "AncestryId": "human",
+    "BackgroundId": "deserter",
+    "ClassId": "fighter",
+    "KeyAttribute": "Strength",
+    "AncestryFreeBoosts": [
+      "Strength",
+      "Constitution"
+    ],
+    "BackgroundBoost": "Strength",
+    "BackgroundFreeBoost": "Constitution",
+    "FreeBoosts": [
+      "Strength",
+      "Constitution",
+      "Dexterity",
+      "Wisdom"
+    ],
+    "HeritageId": "skilled"
+  },
+  "LevelUpBoosts": {},
+  "Level": 1,
+  "Xp": 60,
+  "HitPoints": 17,
+  "Taint": 0,
+  "HeroPoints": 0,
+  "PotionCharges": 3,
+  "Resource": 0,
+  "Worn": {
+    "MainHand": {
+      "Base": "longsword",
+      "Rarity": "Common",
+      "ItemLevel": 1,
+      "Potency": 0,
+      "Striking": 0,
+      "Resilient": 0,
+      "Affixes": [],
+      "Name": null
+    },
+    "Chest": {
+      "Base": "leather_chest",
+      "Rarity": "Common",
+      "ItemLevel": 1,
+      "Potency": 0,
+      "Striking": 0,
+      "Resilient": 0,
+      "Affixes": [],
+      "Name": null
+    },
+    "Legs": {
+      "Base": "leather_pants",
+      "Rarity": "Common",
+      "ItemLevel": 1,
+      "Potency": 0,
+      "Striking": 0,
+      "Resilient": 0,
+      "Affixes": [],
+      "Name": null
+    },
+    "Feet": {
+      "Base": "leather_boots",
+      "Rarity": "Common",
+      "ItemLevel": 1,
+      "Potency": 0,
+      "Striking": 0,
+      "Resilient": 0,
+      "Affixes": [],
+      "Name": null
+    },
+    "Hands": {
+      "Base": "leather_gloves",
+      "Rarity": "Common",
+      "ItemLevel": 1,
+      "Potency": 0,
+      "Striking": 0,
+      "Resilient": 0,
+      "Affixes": [],
+      "Name": null
+    },
+    "Head": {
+      "Base": "mage_hood",
+      "Rarity": "Uncommon",
+      "ItemLevel": 1,
+      "Potency": 0,
+      "Striking": 0,
+      "Resilient": 0,
+      "Affixes": [
+        {
+          "Id": "hearth",
+          "Value": 1
+        }
+      ],
+      "Name": null
+    }
+  },
+  "Bag": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "Gold": 84,
+  "ZoneId": "gallows_road",
+  "Seed": -1410101387,
+  "HeroX": 28.056363247330307,
+  "HeroY": 14.979334310739343,
+  "RespawnX": 9.5,
+  "RespawnY": 53.5,
+  "Shrines": [
+    "gallows_shrine",
+    "farmstead_shrine"
+  ],
+  "Slain": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25
+  ],
+  "Ground": [],
+  "ZoneComplete": true,
+  "Vendors": [
+    {
+      "Id": "wenna",
+      "StockedForLevel": 1,
+      "Stock": [
+        {
+          "Base": "mace",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "leather_hood",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "leather_hood",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "leather_chest",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "chain_cuirass",
+          "Rarity": "Uncommon",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [
+            {
+              "Id": "sturdy",
+              "Value": 4
+            },
+            {
+              "Id": "north",
+              "Value": 2
+            }
+          ],
+          "Name": null
+        },
+        {
+          "Base": "leather_gloves",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "mage_sleeves",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "leather_gloves",
+          "Rarity": "Uncommon",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [
+            {
+              "Id": "quick",
+              "Value": 8
+            },
+            {
+              "Id": "barrow",
+              "Value": 1
+            }
+          ],
+          "Name": null
+        },
+        {
+          "Base": "chain_gloves",
+          "Rarity": "Uncommon",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [
+            {
+              "Id": "purity",
+              "Value": 2
+            }
+          ],
+          "Name": null
+        },
+        {
+          "Base": "leather_gloves",
+          "Rarity": "Uncommon",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [
+            {
+              "Id": "hearth",
+              "Value": 3
+            }
+          ],
+          "Name": null
+        },
+        {
+          "Base": "leather_pants",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        },
+        {
+          "Base": "mage_boots",
+          "Rarity": "Common",
+          "ItemLevel": 1,
+          "Potency": 0,
+          "Striking": 0,
+          "Resilient": 0,
+          "Affixes": [],
+          "Name": null
+        }
+      ]
+    }
+  ],
+  "Explored": "APj///8BwP///x8A/P///wHA////HwD8////A\u002BD///8fAP7///8BwP///x8A/P///wHA////DwD8//9/AID///8HAPj//38AgP///wMA8P//PwAA////AwDg//8/AAD\u002B//8BAMD//x8AAPj//wAAAP//BwAA8P9/AAAA//8PAADw//8AAAD//wcAAPj/fwAAgP//BwAA/P9/AADA//8DAAD//z8AAPj//wMAwP//PwAA/v//AwDw//8/AID///8DAPj//z8AgP///wEA/P//HwDg////AQD///8fAPD///8AgP///w8A\u002BP//fwDA////AwD8//8fAOD///8AAP///wcA8P//PwAA////AQDw//8PAAD///8BAPD//z8AAP///wcA8P///wAA////DwDw////AAD///8PAOD///8BAPz//x8AgP///wEA8P//HwAA/v//AwAA/v8/AADg//8DAAD//38AAPD//w8AAP///wAA8P//HwCA////AQD4//8fAID///8DAPD//z8AAP///wcA8P///wAA////DwDg////AQD8//8fAID///8BAPD//x8AAP7//wMAgP//PwAA\u002BP//BwAA//9/AADg//8PAAD\u002B//8AAMD//x8AwP///wEA/v//HwDw////AYD///8/APz///8DwP///z8A/P///wHA////HwD\u002B////AeD///8fAPz///8AwP///wcA/P//PwDA////AQD4//8PAAD//38AAOD//wMAAPz/HwA=",
+  "PlaySeconds": 517.0194706999981
+}
