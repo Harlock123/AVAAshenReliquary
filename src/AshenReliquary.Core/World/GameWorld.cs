@@ -963,14 +963,15 @@ public sealed class GameWorld
     private void UpdateMonster(MonsterActor m, double dt)
     {
         m.Advance(dt);
+        // Before the corpse check: the killing blow's flinch would otherwise tint the corpse for good.
+        if (m.HitFlinch > 0)
+            m.HitFlinch -= dt;
         if (m.IsDead)
         {
             m.DeadFor += dt;
             return;
         }
         m.Creature.Conditions.Update(dt);
-        if (m.HitFlinch > 0)
-            m.HitFlinch -= dt;
         foreach (var (type, amount) in m.Creature.Persistent.Update(dt, Random))
         {
             var dealt = DamageCalculator.ApplyDefenses(amount, type, m.Creature.Defenses);

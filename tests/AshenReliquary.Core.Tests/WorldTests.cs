@@ -104,6 +104,23 @@ public class WorldTests
     }
 
     [Fact]
+    public void A_corpse_stops_flinching_from_the_killing_blow()
+    {
+        var zone = Arena(Enumerable.Repeat("............", 12).ToArray(),
+            new SpawnDefinition([6, 6], [new PackMember("fen_zombie")], Radius: 0));
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 7);
+        var zombie = world.Monsters.Single();
+        world.Attack(zombie);
+        for (var i = 0; i < 600 && !zombie.IsDead; i++)
+            world.Update(1 / 30.0);
+        Assert.True(zombie.IsDead);
+        Assert.True(zombie.HitFlinch > 0);
+        for (var i = 0; i < 10; i++)
+            world.Update(1 / 30.0);
+        Assert.True(zombie.HitFlinch <= 0);
+    }
+
+    [Fact]
     public void Monsters_aggro_on_sight_and_their_pack_follows()
     {
         var zone = Arena(Enumerable.Repeat("....................", 20).ToArray(),
