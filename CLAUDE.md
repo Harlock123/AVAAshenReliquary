@@ -31,5 +31,5 @@ implementation decisions made so far). `README.md` has the run commands and cont
 - The asset build scripts in `tools/` take the downloaded source packs' folder as an argument; the packs are not in
   the repo (only the converted files are), so they only need re-downloading to rebuild assets.
 - Saves and `settings.json` live in the user's app-data folder (`Services/SaveStore.cs`); App tests point
-  `SaveStore.FolderOverride` at a temporary folder. `saves/` holds the user's character from the VM, to copy into
-  that folder on a new machine (see `saves/README.md`).
+  `SaveStore.FolderOverride` at a temporary folder. `userdata/` holds the user's saves and settings from the VM, laid
+  out like that folder, to copy across or use in place with `ASHEN_SAVE_DIR=userdata/saves` (see `userdata/README.md`).
