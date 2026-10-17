@@ -20,6 +20,17 @@ public class RenderTests
         Assert.Equal(1440, frame.PixelSize.Width);
     }
 
+    [Fact]
+    public void The_F3_stats_break_before_the_timings_in_a_narrow_window()
+    {
+        using var font = new SkiaSharp.SKFont(SkiaSharp.SKTypeface.Default, 13);
+        const string stats = "GPU renderer, world at 2x of 2x  ·  draw 7.0 ms/frame: ground 2.5, objects+actors 2.4, darkness 1.4, ash 0.2, vignette 0.0, text+hud 0.5";
+        Assert.Equal(["60 fps", stats], AshenReliquary.App.Rendering.WorldView.StatsLines("60 fps", stats, font, 2000));
+        var narrow = AshenReliquary.App.Rendering.WorldView.StatsLines("60 fps", stats, font, 700);
+        Assert.Equal(3, narrow.Count);
+        Assert.All(narrow, line => Assert.True(font.MeasureText(line) <= 700, line));
+    }
+
     [AvaloniaFact]
     public void Clicking_the_ground_walks_the_hero_there()
     {

@@ -97,6 +97,7 @@ public sealed class WorldView : Control
         canvas.DrawImage(image, rect, new SKSamplingOptions(SKFilterMode.Linear));
     }
     private SKImage? _vignette;
+    private bool _worldOnGpu;
     private SKSurface? _darknessSurface;
     private float _deviceScale = 1f;
     private int _zoomIndex = 1;
@@ -344,6 +345,7 @@ public sealed class WorldView : Control
 
         if (Math.Abs(scale - deviceScale) < 0.01f)
         {
+            _worldOnGpu = gpu;
             DrawWorld(canvas, size, world);
         }
         else
@@ -360,6 +362,7 @@ public sealed class WorldView : Control
             offscreen.ResetMatrix();
             offscreen.Clear(new SKColor(8, 7, 10));
             offscreen.Scale(scale);
+            _worldOnGpu = false;
             DrawWorld(offscreen, size, world);
             using var snapshot = _worldSurface.Snapshot();
             // A whole-number stretch (1x world on a 2x screen) needs no smoothing: nearest is a fast pixel double
@@ -425,9 +428,11 @@ public sealed class WorldView : Control
             using var back = new SKPaint { Color = new SKColor(0, 0, 0, 170) };
             // Under the minimap, so it never covers it.
             var top = InventoryOpen ? 8f : 14 + Minimap.Height + 8;
-            canvas.DrawRect(SKRect.Create(size.Width - 760, top, 752, 44), back);
-            canvas.DrawText($"{fps:0} fps", size.Width - 14, top + 18, SKTextAlign.Right, font, ink);
-            canvas.DrawText(_statsLine, size.Width - 14, top + 36, SKTextAlign.Right, font, ink);
+            var lines = StatsLines($"{fps:0} fps", _statsLine, font, size.Width - 28);
+            var width = lines.Max(line => font.MeasureText(line)) + 20;
+            canvas.DrawRect(SKRect.Create(size.Width - 8 - width, top, width, 8 + 18 * lines.Count), back);
+            for (var i = 0; i < lines.Count; i++)
+                canvas.DrawText(lines[i], size.Width - 14, top + 18 * (i + 1), SKTextAlign.Right, font, ink);
         }
     }
 
@@ -437,6 +442,17 @@ public sealed class WorldView : Control
     private readonly Queue<double> _frameIntervals = new();
     private long _lastPresent;
     private string _statsLine = "measuring...";
+
+    /// <summary>The F3 overlay's lines: in a narrow window the stats line breaks before the timings, so none of it runs off the left edge.</summary>
+    public static List<string> StatsLines(string fps, string stats, SKFont font, float maxWidth)
+    {
+        var lines = new List<string> { fps };
+        if (font.MeasureText(stats) > maxWidth)
+            lines.AddRange(stats.Split("  ·  "));
+        else
+            lines.Add(stats);
+        return lines;
+    }
 
     private void DrawWorld(SKCanvas canvas, SKSize size, GameWorld world)
     {
@@ -454,8 +470,9 @@ public sealed class WorldView : Control
         DrawDarkness(canvas, size, world, time);
         Stats.Mark("darkness");
         DrawAsh(canvas, size, time);
+        Stats.Mark("ash");
         DrawVignette(canvas, size);
-        Stats.Mark("ash+vignette");
+        Stats.Mark("vignette");
     }
 
     /// <summary>How long each stage of the last frames took (CPU side), for the F3 overlay and performance tests.</summary>
@@ -927,27 +944,42 @@ public sealed class WorldView : Control
         }
     }
 
-    /// <summary>The vignette only changes with the window size, so it is drawn once into an image and reused.</summary>
+    /// <summary>
+    /// On a GPU the gradient is drawn straight onto the canvas: one shaded rectangle, nearly free, where a
+    /// window-sized cached image cost about 9 ms a frame on an Ice Lake laptop. A software renderer pays per pixel
+    /// for the gradient, so there it is drawn once into an image (it only changes with the window size) and copied.
+    /// </summary>
     private void DrawVignette(SKCanvas canvas, SKSize size)
     {
+        if (_worldOnGpu)
+        {
+            using var shaded = VignettePaint(size);
+            canvas.DrawRect(SKRect.Create(size), shaded);
+            return;
+        }
         int vw = Math.Max(1, (int)(size.Width * _deviceScale)), vh = Math.Max(1, (int)(size.Height * _deviceScale));
         if (_vignette is null || _vignette.Width != vw || _vignette.Height != vh)
         {
             _vignette?.Dispose();
             using var surface = SKSurface.Create(new SKImageInfo(vw, vh));
             surface.Canvas.Scale(_deviceScale);
-            var centre = new SKPoint(size.Width / 2, size.Height / 2);
-            var radius = (float)Math.Sqrt(size.Width * size.Width + size.Height * size.Height) / 2;
-            using var paint = new SKPaint
-            {
-                Shader = SKShader.CreateRadialGradient(centre, radius,
-                    [SKColors.Transparent, SKColors.Transparent, new SKColor(0, 0, 0, 215)], [0f, 0.5f, 1f], SKShaderTileMode.Clamp),
-            };
+            using var paint = VignettePaint(size);
             surface.Canvas.Clear(SKColors.Transparent);
             surface.Canvas.DrawRect(SKRect.Create(size), paint);
             _vignette = surface.Snapshot();
         }
         canvas.DrawImage(_vignette, SKRect.Create(size));
+    }
+
+    private static SKPaint VignettePaint(SKSize size)
+    {
+        var centre = new SKPoint(size.Width / 2, size.Height / 2);
+        var radius = (float)Math.Sqrt(size.Width * size.Width + size.Height * size.Height) / 2;
+        return new SKPaint
+        {
+            Shader = SKShader.CreateRadialGradient(centre, radius,
+                [SKColors.Transparent, SKColors.Transparent, new SKColor(0, 0, 0, 215)], [0f, 0.5f, 1f], SKShaderTileMode.Clamp),
+        };
     }
 
     private static double Hash01(int n)
