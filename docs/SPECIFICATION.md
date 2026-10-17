@@ -62,7 +62,9 @@ Oct 17, 2026 · @Lonnie Watson
 | [FLARE Avatar Clothes Spritesheet](https://opengameart.org/content/flare-avatar-clothes-spritesheet-modular-isometric-fantasy-character-sprite) | NPC townsfolk with modular clothes | CC-BY-SA 3.0 |
 | [Game-icons.net](https://game-icons.net/about.html) | Ability, feat, condition and item icons (4,100+ icons in SVG, recoloured to the palette) | CC-BY 3.0 |
 | [50 RPG sound effects](https://opengameart.org/content/50-rpg-sound-effects), Kenney | UI, inventory and loot sounds | CC0 |
-| [Fantasy Sound Effects Library](https://opengameart.org/node/21999), Little Robot Sound Factory | Ambience, spells, creature growls, jingles | CC-BY 3.0 |
+| [RPG Sound Pack](https://opengameart.org/content/rpg-sound-pack), artisticdude | Swings, magic, monster voices, inventory | CC0 |
+| [20 sword sound effects](https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes), StarNinjas | Critical hits, armour clashes | CC0 |
+| [Fantasy Sound Effects Library](https://opengameart.org/content/fantasy-sound-effects-library), Little Robot Sound Factory | Ambience, spells, creature growls, jingles | CC-BY 3.0 |
 | Flare portraits (mods/fantasycore/images/portraits) | Character-creation portraits: humans and elves | CC-BY-SA 3.0 |
 | [Fantasy Portrait Set 1](https://gearhead.itch.io/fantasy-portait-set-1), Joseph Hewitt (GearHead) | Portraits: humans, elves, dwarves, orcs, Ashborn | CC BY 4.0 |
 | [Adonthell portraits](https://opengameart.org/content/adonthell-portraits) | Portraits: dwarves, elves, Ashborn, halfling stand-ins | CC-BY-SA 3.0 |
@@ -437,7 +439,7 @@ Bosses get **diminishing returns**: each control effect within 10 s has its dura
 
 - **Potions** are limited by charges, not a stack: 3 charges, which refill at shrines. Heal 1d8 + 2 × level over 2 s; 8 s cooldown.
 - **Medicine** (Treat Wounds) heals out of combat only, after a 3 s channel.
-- At 0 HP the character becomes **Dying 1**. If a Hero Point is held, it is spent and the character revives with half HP. Otherwise they die and respawn at the last shrine, losing 10% of current-level XP. In Hardcore the death is permanent.
+- At 0 HP the character becomes **Dying 1**. If a Hero Point is held, it is spent and the character revives with half HP. Otherwise they die and respawn at the nearest shrine (by walking distance from where they fell), losing 10% of current-level XP. In Hardcore the death is permanent.
 
 ## 11. Equipment and loot
 
@@ -678,7 +680,7 @@ The build order proves the rules engine and one playable act before widening con
 ### Milestones
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
-2. **M1 — Vertical slice.** *In progress.* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading and the full HUD are done too. Still to do: audio, vendors, and the exit play-through.
+2. **M1 — Vertical slice.** *In progress.* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD and audio are done too. Still to do: vendors and the exit play-through.
 3. **M2 — Act 1 complete.** 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
@@ -711,7 +713,7 @@ The MVP is M0 + M1. It proves the real-time conversion of the Pathfinder rules f
 - [Old Ruins tileset](https://opengameart.org/content/old-ruins-tileset)
 - [Game-icons.net licence](https://game-icons.net/about.html)
 - [50 RPG sound effects](https://opengameart.org/content/50-rpg-sound-effects)
-- [Fantasy Sound Effects Library](https://opengameart.org/node/21999)
+- [Fantasy Sound Effects Library](https://opengameart.org/content/fantasy-sound-effects-library)
 - [Kevin MacLeod music library (incompetech)](https://incompetech.com/music/royalty-free/music.html)
 - [Incompetech licences](https://incompetech.com/music/royalty-free/licenses/)
 - [Battle Themes (Alexandr Zhelanov)](https://opengameart.org/node/76534)
@@ -731,7 +733,7 @@ Building the rules core and the vertical slice settled these. Where a number her
 | Bonus stacking | Typed bonuses (item, status, circumstance): only the best bonus and the worst penalty of each type apply; untyped all add up. Every derived number keeps its parts, for tooltips |
 | Attack cadence | An attack before 90% of the weapon's swing time has passed is chained: −2, then −4 (agile −1/−2). Plain attacks at the weapon's rhythm take no penalty. Power Attack counts as two attacks |
 | Taint | At 100 the whispers reverse movement for 2 s and the meter drops to 50. Each point of CON slows Taint by 5% (never below half speed); Ashborn multiply by 0.75 |
-| Death | Hit 0 HP: a held Hero Point revives at half HP; otherwise respawn at the last shrine after 3 s, losing 100 XP (a tenth of a level) but never a level. 1,000 XP per level |
+| Death | Hit 0 HP: a held Hero Point revives at half HP; otherwise respawn after 3 s at the shrine nearest (by walking distance) to where the hero fell, touched or not, losing 100 XP (a tenth of a level) but never a level. 1,000 XP per level |
 | Proficiency tracks | Armour, saves, Perception and class DC follow Pathfinder-style tracks per class in `classes.json` |
 | Armour training | Classes list the armour categories they are trained in. In armour a class isn't trained in, AC gets no proficiency bonus. Unarmoured defence is always trained |
 | Body armour | Only the chest slot is armour in the rules sense (AC, DEX cap, check and speed penalty, STR requirement). Head, hands, legs, feet, belt, rings and amulet carry looks and affixes, never extra AC |
@@ -792,4 +794,12 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **Minimap:** top right, isometric, centred on the hero at 3.5 px per tile. Cells within 9 tiles of the hero are explored as you move; the explored map is saved (a base64 bitset; older saves start unexplored). Markers: shrines (bright once awake), the exit, living monsters within 14 tiles (champions larger and orange), Uncommon and better loot, and the hero with a facing tick.
 - **Character sheet (C):** attributes (hover for what each drives, the key attribute and partial boosts), then hit points, AC, saves, resistances, attack, damage, class DC, spell attack and DC for casters, Perception, speed and proficiency ranks. Hovering a number lists every part of it, with bonuses the stacking rule drops shown greyed.
 - Clicks on the HUD, minimap or open panels never move the hero.
+
+### Audio (M1)
+
+- **Engine:** AVA1942's OpenAL Soft layer (Silk.NET): effects decoded once onto a pool of 16 voices; music and an ambience loop streamed with half-second crossfades; every file levelled to a common loudness (effects −20 dB RMS, music −30, ambience −36). Windows x64/x86 use the official OpenAL Soft DLLs that need no Visual C++ runtime. In a virtual machine the mixing period is 4096 frames (the emulated sound card stutters at OpenAL's default). `--mute` starts silent; if sound can't start, the Escape menu says why.
+- **Files:** 79 Ogg Vorbis files (13 MB) built by `tools/build_audio.py` with ffmpeg from seven packs: Kenney, artisticdude and StarNinjas (CC0), Little Robot Sound Factory (CC-BY 3.0), Kevin MacLeod's *Ossuary* tracks (CC BY 4.0), Alexandr Zhelanov's battle themes (CC-BY 4.0) and JaggedStone's dungeon ambience (CC0). Effects are mono so they can be panned. `audio.json` maps each game sound to its variants and each file to its original.
+- **Sounds:** the world queues sound events with a position (swing, hit, critical, hurt, a creature's aggro and death in its own voice, bow, witch cast, grave rising, Ignition, Force Bolt, impacts, loot, gold, pickups by material, potion, level up, shrine, death, zone complete); the app plays a random variant, fading with distance (full within ~3 tiles, quiet by ~18) and panned by screen position. Footsteps play every 0.34 s while running. A sound can't repeat within 60 ms.
+- **Music:** the title theme off the road (*Ossuary 1*), exploration on it (*Ossuary 5* or *6* at random), and a battle theme (Zhelanov 1 or 2) while any monster within 16 tiles is hunting the hero, held 5 s after the last. A dungeon-wind ambience loop plays under the music on the road.
+- **Settings:** Master, Effects, Music and Ambience sliders in the Escape menu, saved to `settings.json` beside the saves folder. Every button clicks.
 

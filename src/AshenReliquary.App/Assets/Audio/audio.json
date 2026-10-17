@@ -1,0 +1,704 @@
+{
+ "effects": {
+  "swing": [
+   "sfx/swing-swing.ogg",
+   "sfx/swing-swing2.ogg",
+   "sfx/swing-swing3.ogg"
+  ],
+  "hit": [
+   "sfx/hit-knifeslice.ogg",
+   "sfx/hit-knifeslice2.ogg",
+   "sfx/hit-chop.ogg"
+  ],
+  "crit": [
+   "sfx/crit-sword-1.ogg",
+   "sfx/crit-sword-2.ogg",
+   "sfx/crit-sword-3.ogg",
+   "sfx/crit-sword-4.ogg"
+  ],
+  "hero-hurt": [
+   "sfx/hero-hurt-sword_clash-1.ogg",
+   "sfx/hero-hurt-sword_clash-2.ogg",
+   "sfx/hero-hurt-sword_clash-3.ogg",
+   "sfx/hero-hurt-sword_clash-4.ogg",
+   "sfx/hero-hurt-sword_clash-5.ogg"
+  ],
+  "zombie": [
+   "sfx/zombie-mnstr1.ogg",
+   "sfx/zombie-mnstr2.ogg",
+   "sfx/zombie-mnstr3.ogg",
+   "sfx/zombie-mnstr4.ogg",
+   "sfx/zombie-mnstr5.ogg",
+   "sfx/zombie-mnstr6.ogg"
+  ],
+  "zombie-death": [
+   "sfx/zombie-death-mnstr10.ogg",
+   "sfx/zombie-death-mnstr11.ogg",
+   "sfx/zombie-death-mnstr12.ogg"
+  ],
+  "skeleton": [
+   "sfx/skeleton-shade1.ogg",
+   "sfx/skeleton-shade2.ogg",
+   "sfx/skeleton-shade3.ogg",
+   "sfx/skeleton-shade4.ogg",
+   "sfx/skeleton-shade5.ogg"
+  ],
+  "skeleton-death": [
+   "sfx/skeleton-death-shade10.ogg",
+   "sfx/skeleton-death-shade11.ogg",
+   "sfx/skeleton-death-shade12.ogg"
+  ],
+  "grave-rise": [
+   "sfx/grave-rise-slime1.ogg",
+   "sfx/grave-rise-slime2.ogg",
+   "sfx/grave-rise-slime3.ogg"
+  ],
+  "bow": [
+   "sfx/bow-drawknife1.ogg",
+   "sfx/bow-drawknife2.ogg"
+  ],
+  "witch-cast": [
+   "sfx/witch-cast-spell_02.ogg"
+  ],
+  "ignition": [
+   "sfx/ignition-spell_00.ogg",
+   "sfx/ignition-spell_01.ogg"
+  ],
+  "force-bolt": [
+   "sfx/force-bolt-magic1.ogg",
+   "sfx/force-bolt-spell.ogg"
+  ],
+  "impact": [
+   "sfx/impact-spell_03.ogg",
+   "sfx/impact-spell_04.ogg"
+  ],
+  "gold": [
+   "sfx/gold-pickup_gold_00.ogg",
+   "sfx/gold-pickup_gold_01.ogg",
+   "sfx/gold-pickup_gold_02.ogg",
+   "sfx/gold-pickup_gold_03.ogg",
+   "sfx/gold-pickup_gold_04.ogg"
+  ],
+  "loot-drop": [
+   "sfx/loot-drop-dropleather.ogg",
+   "sfx/loot-drop-metalpot1.ogg"
+  ],
+  "pickup-cloth": [
+   "sfx/pickup-cloth-cloth.ogg",
+   "sfx/pickup-cloth-cloth-heavy.ogg"
+  ],
+  "pickup-metal": [
+   "sfx/pickup-metal-metal-small1.ogg",
+   "sfx/pickup-metal-metal-small2.ogg",
+   "sfx/pickup-metal-chainmail1.ogg"
+  ],
+  "pickup-jewel": [
+   "sfx/pickup-jewel-beads.ogg"
+  ],
+  "potion": [
+   "sfx/potion-bubble.ogg",
+   "sfx/potion-bubble2.ogg"
+  ],
+  "level-up": [
+   "sfx/level-up-jingle_achievement_00.ogg"
+  ],
+  "shrine": [
+   "sfx/shrine-jingle_win_00.ogg"
+  ],
+  "death": [
+   "sfx/death-jingle_lose_00.ogg"
+  ],
+  "zone-complete": [
+   "sfx/zone-complete-jingle_win_00.ogg"
+  ],
+  "footstep": [
+   "sfx/footstep-footstep_dirt_00.ogg",
+   "sfx/footstep-footstep_dirt_01.ogg",
+   "sfx/footstep-footstep_dirt_02.ogg",
+   "sfx/footstep-footstep_dirt_03.ogg",
+   "sfx/footstep-footstep_dirt_04.ogg",
+   "sfx/footstep-footstep_dirt_05.ogg"
+  ],
+  "inventory": [
+   "sfx/inventory-inventory_open_00.ogg",
+   "sfx/inventory-inventory_open_01.ogg"
+  ],
+  "click": [
+   "sfx/click-interface1.ogg",
+   "sfx/click-interface2.ogg"
+  ]
+ },
+ "music": {
+  "title": [
+   "music/title-ossuary-1---a-beginning.ogg"
+  ],
+  "explore": [
+   "music/explore-ossuary-5---rest.ogg",
+   "music/explore-ossuary-6---air.ogg"
+  ],
+  "combat": [
+   "music/combat-battle-theme-1.ogg",
+   "music/combat-battle-theme-2.ogg"
+  ]
+ },
+ "ambience": {
+  "road": [
+   "ambience/road-dungeon_ambient_1_0.ogg"
+  ]
+ },
+ "files": [
+  {
+   "file": "sfx/swing-swing.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "swing.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/swing-swing2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "swing2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/swing-swing3.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "swing3.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hit-knifeslice.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "knifeSlice.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hit-knifeslice2.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "knifeSlice2.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hit-chop.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "chop.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/crit-sword-1.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword.1.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/crit-sword-2.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword.2.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/crit-sword-3.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword.3.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/crit-sword-4.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword.4.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hero-hurt-sword_clash-1.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword_clash.1.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hero-hurt-sword_clash-2.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword_clash.2.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hero-hurt-sword_clash-3.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword_clash.3.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hero-hurt-sword_clash-4.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword_clash.4.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/hero-hurt-sword_clash-5.ogg",
+   "source": "StarNinjas, 20 sword sound effects",
+   "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+   "original": "sword_clash.5.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-mnstr1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-mnstr2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-mnstr3.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr3.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-mnstr4.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr4.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-mnstr5.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr5.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-mnstr6.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr6.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-death-mnstr10.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr10.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-death-mnstr11.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr11.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/zombie-death-mnstr12.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "mnstr12.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-shade1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-shade2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-shade3.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade3.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-shade4.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade4.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-shade5.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade5.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-death-shade10.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade10.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-death-shade11.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade11.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/skeleton-death-shade12.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "shade12.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/grave-rise-slime1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "slime1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/grave-rise-slime2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "slime2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/grave-rise-slime3.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "slime3.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/bow-drawknife1.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "drawKnife1.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/bow-drawknife2.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "drawKnife2.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/witch-cast-spell_02.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Spell_02.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/ignition-spell_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Spell_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/ignition-spell_01.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Spell_01.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/force-bolt-magic1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "magic1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/force-bolt-spell.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "spell.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/impact-spell_03.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Spell_03.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/impact-spell_04.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Spell_04.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/gold-pickup_gold_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Pickup_Gold_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/gold-pickup_gold_01.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Pickup_Gold_01.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/gold-pickup_gold_02.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Pickup_Gold_02.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/gold-pickup_gold_03.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Pickup_Gold_03.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/gold-pickup_gold_04.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Pickup_Gold_04.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/loot-drop-dropleather.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "dropLeather.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/loot-drop-metalpot1.ogg",
+   "source": "Kenney, 50 RPG sound effects",
+   "url": "https://opengameart.org/content/50-rpg-sound-effects",
+   "original": "metalPot1.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/pickup-cloth-cloth.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "cloth.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/pickup-cloth-cloth-heavy.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "cloth-heavy.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/pickup-metal-metal-small1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "metal-small1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/pickup-metal-metal-small2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "metal-small2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/pickup-metal-chainmail1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "chainmail1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/pickup-jewel-beads.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "beads.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/potion-bubble.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "bubble.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/potion-bubble2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "bubble2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/level-up-jingle_achievement_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Jingle_Achievement_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/shrine-jingle_win_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Jingle_Win_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/death-jingle_lose_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Jingle_Lose_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/zone-complete-jingle_win_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Jingle_Win_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/footstep-footstep_dirt_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Footstep_Dirt_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/footstep-footstep_dirt_01.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Footstep_Dirt_01.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/footstep-footstep_dirt_02.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Footstep_Dirt_02.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/footstep-footstep_dirt_03.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Footstep_Dirt_03.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/footstep-footstep_dirt_04.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Footstep_Dirt_04.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/footstep-footstep_dirt_05.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Footstep_Dirt_05.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/inventory-inventory_open_00.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Inventory_Open_00.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/inventory-inventory_open_01.ogg",
+   "source": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+   "original": "Inventory_Open_01.wav",
+   "licence": "CC-BY 3.0"
+  },
+  {
+   "file": "sfx/click-interface1.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "interface1.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/click-interface2.ogg",
+   "source": "artisticdude, RPG Sound Pack",
+   "url": "https://opengameart.org/content/rpg-sound-pack",
+   "original": "interface2.wav",
+   "licence": "CC0"
+  },
+  {
+   "file": "music/title-ossuary-1---a-beginning.ogg",
+   "source": "Kevin MacLeod, incompetech.com",
+   "url": "https://incompetech.com/music/royalty-free/music.html",
+   "original": "Ossuary 1 - A Beginning.mp3",
+   "licence": "CC BY 4.0"
+  },
+  {
+   "file": "music/explore-ossuary-5---rest.ogg",
+   "source": "Kevin MacLeod, incompetech.com",
+   "url": "https://incompetech.com/music/royalty-free/music.html",
+   "original": "Ossuary 5 - Rest.mp3",
+   "licence": "CC BY 4.0"
+  },
+  {
+   "file": "music/explore-ossuary-6---air.ogg",
+   "source": "Kevin MacLeod, incompetech.com",
+   "url": "https://incompetech.com/music/royalty-free/music.html",
+   "original": "Ossuary 6 - Air.mp3",
+   "licence": "CC BY 4.0"
+  },
+  {
+   "file": "music/combat-battle-theme-1.ogg",
+   "source": "Alexandr Zhelanov, Battle themes",
+   "url": "https://opengameart.org/node/76534",
+   "original": "Battle Theme 1.mp3",
+   "licence": "CC-BY 4.0"
+  },
+  {
+   "file": "music/combat-battle-theme-2.ogg",
+   "source": "Alexandr Zhelanov, Battle themes",
+   "url": "https://opengameart.org/node/76534",
+   "original": "Battle Theme 2.mp3",
+   "licence": "CC-BY 4.0"
+  },
+  {
+   "file": "ambience/road-dungeon_ambient_1_0.ogg",
+   "source": "JaggedStone, Loopable Dungeon Ambience",
+   "url": "https://opengameart.org/content/loopable-dungeon-ambience",
+   "original": "dungeon_ambient_1_0.ogg",
+   "licence": "CC0"
+  }
+ ]
+}

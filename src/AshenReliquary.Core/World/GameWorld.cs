@@ -41,6 +41,24 @@ public sealed class GameWorld
     private readonly List<GroundItem> _ground = [];
     private readonly LootGenerator? _loot;
     private readonly HashSet<int> _slain = [];
+    private readonly List<SoundEvent> _sounds = [];
+
+    /// <summary>The sounds since the last call, oldest first; the app plays them and the list starts again.</summary>
+    public IReadOnlyList<SoundEvent> DrainSounds()
+    {
+        var sounds = _sounds.ToList();
+        _sounds.Clear();
+        return sounds;
+    }
+
+    private void Sound(SoundCue cue, double x, double y, string? variant = null)
+    {
+        // Nobody drains the list in pure simulation (tests): keep it from growing forever.
+        if (_sounds.Count < 256)
+            _sounds.Add(new SoundEvent(cue, x, y, variant));
+    }
+
+    private void Sound(SoundCue cue, Actor at, string? variant = null) => Sound(cue, at.X, at.Y, variant);
     private bool[] _explored = [];
     private (int X, int Y) _lastRevealCell = (int.MinValue, int.MinValue);
     private int _nextSpawnIndex;
@@ -243,6 +261,7 @@ public sealed class GameWorld
             return false;
         Hero.HealRemaining = heal;
         Hero.HealPerSecond = heal / HealingPotion.HealDurationSeconds;
+        Sound(SoundCue.Potion, Hero);
         Say($"Potion: +{heal} HP over 2 s");
         return true;
     }
@@ -321,6 +340,7 @@ public sealed class GameWorld
             {
                 ZoneComplete = true;
                 Say($"You reach {exit.Label}.");
+                Sound(SoundCue.ZoneComplete, hero);
             }
         }
 
@@ -423,6 +443,7 @@ public sealed class GameWorld
                     continue;
                 }
                 Say($"Picked up {item.Name}.");
+                Sound(SoundCue.Pickup, hero, PickupVariant(item));
             }
             else if (g.Drop.Draught)
             {
@@ -433,15 +454,26 @@ public sealed class GameWorld
                     continue;
                 }
                 Float(hero, "+1 potion", FloatingTextKind.Heal, 0.6);
+                Sound(SoundCue.Potion, hero);
             }
             else
             {
                 hero.Equipment.AddGold(g.Drop.Gold);
+                Sound(SoundCue.Gold, hero);
                 Float(hero, $"+{g.Drop.Gold} gold", FloatingTextKind.Info, 0.3);
             }
             _ground.Remove(g);
         }
     }
+
+    /// <summary>What a picked-up item sounds like: jewellery, metal (weapons, chain) or cloth and leather.</summary>
+    private static string PickupVariant(Item item) => item.Definition switch
+    {
+        { IsJewelry: true } => "jewel",
+        { IsWeapon: true } or { ArmorCategory: ArmorCategory.Medium or ArmorCategory.Heavy } => "metal",
+        { Loot: "steel_armor" } => "metal",
+        _ => "cloth",
+    };
 
     private void DropLoot(MonsterActor monster)
     {
@@ -464,6 +496,8 @@ public sealed class GameWorld
             }
             _ground.Add(new GroundItem(x, y, drop, Time));
         }
+        if (drops.Count > 0)
+            Sound(drops.Any(d => d.Gold > 0 && d.Item is null) && drops.All(d => d.Item is null) ? SoundCue.Gold : SoundCue.LootDrop, monster);
     }
 
     /// <summary>Weapon abilities need melee reach; spells their range; reach grows with the target's size.</summary>
@@ -505,6 +539,8 @@ public sealed class GameWorld
             hero.Play("run", 2.0, restart: true);
         else
             hero.Play(ability.IsSpell ? "cast" : "swing", AnimationRate(ability, duration), restart: true);
+        if (!ability.IsSpell && !dashing)
+            Sound(SoundCue.Swing, hero);
     }
 
     private static double AnimationRate(AbilityDefinition ability, double duration) =>
@@ -530,6 +566,7 @@ public sealed class GameWorld
                 action.Dashing = false;
                 hero.Face(target.X, target.Y);
                 hero.Play("swing", AnimationRate(action.Ability, action.Duration), restart: true);
+                Sound(SoundCue.Swing, hero);
                 return true;
             }
             hero.X = nx;
@@ -559,11 +596,13 @@ public sealed class GameWorld
                 break;
             case AbilityKind.SpellBolt:
                 _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, 0));
+                Sound(SoundCue.Ignition, Hero);
                 break;
             case AbilityKind.Missiles:
                 var count = ability.MissilesAt(rank);
                 for (var i = 0; i < count; i++)
                     _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, i));
+                Sound(SoundCue.ForceBolt, Hero);
                 break;
         }
     }
@@ -629,6 +668,7 @@ public sealed class GameWorld
         target.HitFlinch = 0.15;
         Aggro(target);
         AddImpact(target.X, target.Y, ability.DamageType);
+        Sound(SoundCue.Impact, target);
         if (target.IsDead)
             Kill(target, critical);
     }
@@ -640,6 +680,7 @@ public sealed class GameWorld
         var result = Strike.Resolve(Hero.Character, target.Creature, Hero.Cadence, Time, Random,
             attackSpeedBonus: Hero.Character.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
+        Sound(result.Damage > 0 ? (critical ? SoundCue.Crit : SoundCue.Hit) : SoundCue.Miss, target);
         if (result.Damage > 0)
         {
             target.Creature.TakeDamage(result.Damage);
@@ -665,6 +706,7 @@ public sealed class GameWorld
             _slain.Add(monster.SpawnIndex);
         monster.State = MonsterState.Dead;
         monster.Path.Clear();
+        Sound(SoundCue.MonsterDeath, monster, monster.Definition.Voice);
         monster.Play(critical && HasAnimation(monster, "critdie") ? "critdie" : "die", restart: true);
         if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
         {
@@ -702,6 +744,7 @@ public sealed class GameWorld
                 : null;
             Hero.Character.LevelUp(boosts);
             Say($"Level {Hero.Character.Level}!");
+            Sound(SoundCue.LevelUp, Hero);
             Float(Hero, "LEVEL UP", FloatingTextKind.Info, 1.2);
         }
     }
@@ -736,7 +779,10 @@ public sealed class GameWorld
         if (m.State == MonsterState.Idle)
         {
             if (!hero.IsDead && distance <= def.AggroRadius && Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y))
+            {
                 Aggro(m);
+                Sound(SoundCue.MonsterAggro, m, def.Voice);
+            }
             else
             {
                 m.Play("stance");
@@ -795,6 +841,8 @@ public sealed class GameWorld
                 m.AttackElapsed = 0;
                 m.AttackLanded = false;
                 var anim = def.Ranged ? (def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";
+                if (def.Ranged)
+                    Sound(anim == "cast" ? SoundCue.WitchCast : SoundCue.Bow, m);
                 var windup = Math.Min(0.6, 0.6 / def.AttacksPerSecond);
                 m.Play(anim, 0.5 / windup, restart: true);
             }
@@ -838,6 +886,7 @@ public sealed class GameWorld
         var child = SpawnNear(def.Summons, CreatureRank.Minion, m.X, m.Y, 1.5, m.PackId);
         child.SummonedBy = m;
         child.Play("spawn", restart: true);
+        Sound(SoundCue.GraveRise, m, "grave");
         Aggro(child);
         m.Play("spawn", restart: true);
     }
@@ -849,6 +898,7 @@ public sealed class GameWorld
         {
             var outcome = Hero.Character.TakeDamage(result.Damage);
             Hero.Resource.OnCombat(taken: true);
+            Sound(SoundCue.HeroHurt, Hero);
             Float(Hero, result.Damage.ToString(), FloatingTextKind.DamageTaken);
             if (outcome == DeathOutcome.RevivedByHeroPoint)
             {
@@ -874,19 +924,64 @@ public sealed class GameWorld
     {
         Hero.Play("die", restart: true);
         Hero.RespawnIn = RespawnSeconds;
+        Sound(SoundCue.Death, Hero);
         Hero.Order = null;
         Hero.Action = null;
         Hero.PickupTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
         _projectiles.Clear();
-        Say("You have fallen. The Ember Heart drags you back to the shrine...");
+        if (NearestShrine(Hero.X, Hero.Y) is { } shrine)
+        {
+            RespawnPoint = ShrineRespawnPoint(shrine);
+            Say($"You have fallen. The Ember Heart drags you back to {shrine.Name}...");
+        }
+        else
+        {
+            Say("You have fallen. The Ember Heart drags you back to the road...");
+        }
     }
+
+    /// <summary>The shrine the hero would walk to soonest from (x, y), awake or not; null when the zone has none.</summary>
+    internal ShrineDefinition? NearestShrine(double x, double y)
+    {
+        ShrineDefinition? best = null;
+        var bestDistance = double.PositiveInfinity;
+        foreach (var shrine in Zone.Shrines)
+        {
+            var (sx, sy) = ShrineRespawnPoint(shrine);
+            var path = Pathfinder.Find(Map, ((int)x, (int)y), ((int)sx, (int)sy), maxNodes: Map.Width * Map.Height);
+            // A shrine that can't be walked to only wins when none can: then the closest as the crow flies.
+            var distance = path is null ? 1e6 + Math.Sqrt((sx - x) * (sx - x) + (sy - y) * (sy - y)) : PathLength(x, y, path);
+            if (distance < bestDistance)
+            {
+                best = shrine;
+                bestDistance = distance;
+            }
+        }
+        return best;
+    }
+
+    private static double PathLength(double x, double y, List<(double X, double Y)> path)
+    {
+        var total = 0.0;
+        foreach (var (px, py) in path)
+        {
+            total += Math.Sqrt((px - x) * (px - x) + (py - y) * (py - y));
+            (x, y) = (px, py);
+        }
+        return total;
+    }
+
+    private static (double X, double Y) ShrineRespawnPoint(ShrineDefinition shrine) => (shrine.At[0] + 0.5, shrine.At[1] + 1.5);
 
     private void Respawn()
     {
         Experience.ApplyDeathPenalty();
         Hero.Character.RestAtShrine();
+        // HeroDied picks it too (for the message and a save made while dead); deaths outside a monster's strike only arrive here.
+        if (NearestShrine(Hero.X, Hero.Y) is { } shrine)
+            RespawnPoint = ShrineRespawnPoint(shrine);
         Hero.X = RespawnPoint.X;
         Hero.Y = RespawnPoint.Y;
         Hero.HealRemaining = 0;
@@ -904,7 +999,7 @@ public sealed class GameWorld
 
     private void ActivateShrine(ShrineDefinition shrine)
     {
-        var at = (shrine.At[0] + 0.5, shrine.At[1] + 1.5);
+        var at = ShrineRespawnPoint(shrine);
         var first = _activatedShrines.Add(shrine.Id);
         if (!first && RespawnPoint == at)
             return;
@@ -916,7 +1011,8 @@ public sealed class GameWorld
         if (first)
         {
             c.Heal(c.MaxHitPoints);
-            Say($"{shrine.Name} awakens. Potions refilled; you will return here if you fall.");
+            Say($"{shrine.Name} awakens. Potions refilled.");
+            Sound(SoundCue.Shrine, Hero);
             Float(Hero, "SHRINE", FloatingTextKind.Info, 1.0);
         }
     }

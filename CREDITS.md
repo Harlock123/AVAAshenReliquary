@@ -42,6 +42,63 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Changes: Rasterised from SVG to 96x96 PNG with a transparent background and the glyph filled in one ivory tint, by tools/AssetTool 'icon' (see tools/build_icons.py).
 - Files: 29 (listed in `assets.manifest.json`)
 
+## artisticdude, RPG Sound Pack
+
+- Source: [https://opengameart.org/content/rpg-sound-pack](https://opengameart.org/content/rpg-sound-pack) (retrieved 2026-10-17)
+- Licence: CC0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: artisticdude
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 35 (listed in `assets.manifest.json`)
+
+## Kenney, 50 RPG sound effects
+
+- Source: [https://opengameart.org/content/50-rpg-sound-effects](https://opengameart.org/content/50-rpg-sound-effects) (retrieved 2026-10-17)
+- Licence: CC0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: Kenney (kenney.nl)
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 7 (listed in `assets.manifest.json`)
+
+## StarNinjas, 20 sword sound effects
+
+- Source: [https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes](https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes) (retrieved 2026-10-17)
+- Licence: CC0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: StarNinjas
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 9 (listed in `assets.manifest.json`)
+
+## Little Robot Sound Factory, Fantasy Sound Effects Library
+
+- Source: [https://opengameart.org/content/fantasy-sound-effects-library](https://opengameart.org/content/fantasy-sound-effects-library) (retrieved 2026-10-17)
+- Licence: CC-BY 3.0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: Little Robot Sound Factory (www.littlerobotsoundfactory.com)
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 22 (listed in `assets.manifest.json`)
+
+## Kevin MacLeod, incompetech.com
+
+- Source: [https://incompetech.com/music/royalty-free/music.html](https://incompetech.com/music/royalty-free/music.html) (retrieved 2026-10-17)
+- Licence: CC BY 4.0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: Kevin MacLeod (incompetech.com)
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 3 (listed in `assets.manifest.json`)
+- Credit line: "Ossuary 1 - A Beginning", "Ossuary 5 - Rest", "Ossuary 6 - Air" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/
+
+## Alexandr Zhelanov, Battle themes
+
+- Source: [https://opengameart.org/node/76534](https://opengameart.org/node/76534) (retrieved 2026-10-17)
+- Licence: CC-BY 4.0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: Alexandr Zhelanov
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 2 (listed in `assets.manifest.json`)
+
+## JaggedStone, Loopable Dungeon Ambience
+
+- Source: [https://opengameart.org/content/loopable-dungeon-ambience](https://opengameart.org/content/loopable-dungeon-ambience) (retrieved 2026-10-17)
+- Licence: CC0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: JaggedStone
+- Changes: Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.
+- Files: 1 (listed in `assets.manifest.json`)
+
 ## Code
 
 The game's code is MIT licensed (`LICENSE`). Game mechanics follow Pathfinder 2e Remaster rules published under the ORC licence; the Pathfinder name, setting and trademarks are not used.

@@ -21,6 +21,18 @@
           <Button x:Name="SaveButton" Content="Save game" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
           <Button x:Name="TitleButton" Content="Save and return to title" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
           <Button x:Name="QuitGameButton" Content="Save and quit" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
+          <TextBlock Text="Sound" FontSize="15" Foreground="#F0C860" Margin="0,14,0,2" />
+          <Grid ColumnDefinitions="80,180" RowDefinitions="Auto,Auto,Auto,Auto">
+            <TextBlock Grid.Row="0" Text="Master" VerticalAlignment="Center" Foreground="#C8BCA4" />
+            <Slider Grid.Row="0" Grid.Column="1" x:Name="MasterSlider" Minimum="0" Maximum="1" />
+            <TextBlock Grid.Row="1" Text="Effects" VerticalAlignment="Center" Foreground="#C8BCA4" />
+            <Slider Grid.Row="1" Grid.Column="1" x:Name="EffectsSlider" Minimum="0" Maximum="1" />
+            <TextBlock Grid.Row="2" Text="Music" VerticalAlignment="Center" Foreground="#C8BCA4" />
+            <Slider Grid.Row="2" Grid.Column="1" x:Name="MusicSlider" Minimum="0" Maximum="1" />
+            <TextBlock Grid.Row="3" Text="Ambience" VerticalAlignment="Center" Foreground="#C8BCA4" />
+            <Slider Grid.Row="3" Grid.Column="1" x:Name="AmbienceSlider" Minimum="0" Maximum="1" />
+          </Grid>
+          <TextBlock x:Name="SoundNote" Foreground="#E8695E" FontSize="11" TextWrapping="Wrap" MaxWidth="260" />
           <TextBlock x:Name="MenuNote" Foreground="#A59B87" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0" />
         </StackPanel>
       </Border>

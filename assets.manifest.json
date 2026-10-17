@@ -286,6 +286,170 @@
         "Icons/sudden_charge.png",
         "Icons/tainted.png"
       ]
+    },
+    {
+      "id": "audio-artisticdude",
+      "title": "artisticdude, RPG Sound Pack",
+      "url": "https://opengameart.org/content/rpg-sound-pack",
+      "retrieved": "2026-10-17",
+      "licence": "CC0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "artisticdude",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/sfx/click-interface1.ogg (from interface1.wav)",
+        "Audio/sfx/click-interface2.ogg (from interface2.wav)",
+        "Audio/sfx/force-bolt-magic1.ogg (from magic1.wav)",
+        "Audio/sfx/force-bolt-spell.ogg (from spell.wav)",
+        "Audio/sfx/grave-rise-slime1.ogg (from slime1.wav)",
+        "Audio/sfx/grave-rise-slime2.ogg (from slime2.wav)",
+        "Audio/sfx/grave-rise-slime3.ogg (from slime3.wav)",
+        "Audio/sfx/pickup-cloth-cloth-heavy.ogg (from cloth-heavy.wav)",
+        "Audio/sfx/pickup-cloth-cloth.ogg (from cloth.wav)",
+        "Audio/sfx/pickup-jewel-beads.ogg (from beads.wav)",
+        "Audio/sfx/pickup-metal-chainmail1.ogg (from chainmail1.wav)",
+        "Audio/sfx/pickup-metal-metal-small1.ogg (from metal-small1.wav)",
+        "Audio/sfx/pickup-metal-metal-small2.ogg (from metal-small2.wav)",
+        "Audio/sfx/potion-bubble.ogg (from bubble.wav)",
+        "Audio/sfx/potion-bubble2.ogg (from bubble2.wav)",
+        "Audio/sfx/skeleton-death-shade10.ogg (from shade10.wav)",
+        "Audio/sfx/skeleton-death-shade11.ogg (from shade11.wav)",
+        "Audio/sfx/skeleton-death-shade12.ogg (from shade12.wav)",
+        "Audio/sfx/skeleton-shade1.ogg (from shade1.wav)",
+        "Audio/sfx/skeleton-shade2.ogg (from shade2.wav)",
+        "Audio/sfx/skeleton-shade3.ogg (from shade3.wav)",
+        "Audio/sfx/skeleton-shade4.ogg (from shade4.wav)",
+        "Audio/sfx/skeleton-shade5.ogg (from shade5.wav)",
+        "Audio/sfx/swing-swing.ogg (from swing.wav)",
+        "Audio/sfx/swing-swing2.ogg (from swing2.wav)",
+        "Audio/sfx/swing-swing3.ogg (from swing3.wav)",
+        "Audio/sfx/zombie-death-mnstr10.ogg (from mnstr10.wav)",
+        "Audio/sfx/zombie-death-mnstr11.ogg (from mnstr11.wav)",
+        "Audio/sfx/zombie-death-mnstr12.ogg (from mnstr12.wav)",
+        "Audio/sfx/zombie-mnstr1.ogg (from mnstr1.wav)",
+        "Audio/sfx/zombie-mnstr2.ogg (from mnstr2.wav)",
+        "Audio/sfx/zombie-mnstr3.ogg (from mnstr3.wav)",
+        "Audio/sfx/zombie-mnstr4.ogg (from mnstr4.wav)",
+        "Audio/sfx/zombie-mnstr5.ogg (from mnstr5.wav)",
+        "Audio/sfx/zombie-mnstr6.ogg (from mnstr6.wav)"
+      ]
+    },
+    {
+      "id": "audio-kenney",
+      "title": "Kenney, 50 RPG sound effects",
+      "url": "https://opengameart.org/content/50-rpg-sound-effects",
+      "retrieved": "2026-10-17",
+      "licence": "CC0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "Kenney (kenney.nl)",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/sfx/bow-drawknife1.ogg (from drawKnife1.ogg)",
+        "Audio/sfx/bow-drawknife2.ogg (from drawKnife2.ogg)",
+        "Audio/sfx/hit-chop.ogg (from chop.ogg)",
+        "Audio/sfx/hit-knifeslice.ogg (from knifeSlice.ogg)",
+        "Audio/sfx/hit-knifeslice2.ogg (from knifeSlice2.ogg)",
+        "Audio/sfx/loot-drop-dropleather.ogg (from dropLeather.ogg)",
+        "Audio/sfx/loot-drop-metalpot1.ogg (from metalPot1.ogg)"
+      ]
+    },
+    {
+      "id": "audio-starninjas",
+      "title": "StarNinjas, 20 sword sound effects",
+      "url": "https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes",
+      "retrieved": "2026-10-17",
+      "licence": "CC0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "StarNinjas",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/sfx/crit-sword-1.ogg (from sword.1.ogg)",
+        "Audio/sfx/crit-sword-2.ogg (from sword.2.ogg)",
+        "Audio/sfx/crit-sword-3.ogg (from sword.3.ogg)",
+        "Audio/sfx/crit-sword-4.ogg (from sword.4.ogg)",
+        "Audio/sfx/hero-hurt-sword_clash-1.ogg (from sword_clash.1.ogg)",
+        "Audio/sfx/hero-hurt-sword_clash-2.ogg (from sword_clash.2.ogg)",
+        "Audio/sfx/hero-hurt-sword_clash-3.ogg (from sword_clash.3.ogg)",
+        "Audio/sfx/hero-hurt-sword_clash-4.ogg (from sword_clash.4.ogg)",
+        "Audio/sfx/hero-hurt-sword_clash-5.ogg (from sword_clash.5.ogg)"
+      ]
+    },
+    {
+      "id": "audio-little-robot-sound-factory",
+      "title": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+      "url": "https://opengameart.org/content/fantasy-sound-effects-library",
+      "retrieved": "2026-10-17",
+      "licence": "CC-BY 3.0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "Little Robot Sound Factory (www.littlerobotsoundfactory.com)",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/sfx/death-jingle_lose_00.ogg (from Jingle_Lose_00.wav)",
+        "Audio/sfx/footstep-footstep_dirt_00.ogg (from Footstep_Dirt_00.wav)",
+        "Audio/sfx/footstep-footstep_dirt_01.ogg (from Footstep_Dirt_01.wav)",
+        "Audio/sfx/footstep-footstep_dirt_02.ogg (from Footstep_Dirt_02.wav)",
+        "Audio/sfx/footstep-footstep_dirt_03.ogg (from Footstep_Dirt_03.wav)",
+        "Audio/sfx/footstep-footstep_dirt_04.ogg (from Footstep_Dirt_04.wav)",
+        "Audio/sfx/footstep-footstep_dirt_05.ogg (from Footstep_Dirt_05.wav)",
+        "Audio/sfx/gold-pickup_gold_00.ogg (from Pickup_Gold_00.wav)",
+        "Audio/sfx/gold-pickup_gold_01.ogg (from Pickup_Gold_01.wav)",
+        "Audio/sfx/gold-pickup_gold_02.ogg (from Pickup_Gold_02.wav)",
+        "Audio/sfx/gold-pickup_gold_03.ogg (from Pickup_Gold_03.wav)",
+        "Audio/sfx/gold-pickup_gold_04.ogg (from Pickup_Gold_04.wav)",
+        "Audio/sfx/ignition-spell_00.ogg (from Spell_00.wav)",
+        "Audio/sfx/ignition-spell_01.ogg (from Spell_01.wav)",
+        "Audio/sfx/impact-spell_03.ogg (from Spell_03.wav)",
+        "Audio/sfx/impact-spell_04.ogg (from Spell_04.wav)",
+        "Audio/sfx/inventory-inventory_open_00.ogg (from Inventory_Open_00.wav)",
+        "Audio/sfx/inventory-inventory_open_01.ogg (from Inventory_Open_01.wav)",
+        "Audio/sfx/level-up-jingle_achievement_00.ogg (from Jingle_Achievement_00.wav)",
+        "Audio/sfx/shrine-jingle_win_00.ogg (from Jingle_Win_00.wav)",
+        "Audio/sfx/witch-cast-spell_02.ogg (from Spell_02.wav)",
+        "Audio/sfx/zone-complete-jingle_win_00.ogg (from Jingle_Win_00.wav)"
+      ]
+    },
+    {
+      "id": "audio-kevin-macleod",
+      "title": "Kevin MacLeod, incompetech.com",
+      "url": "https://incompetech.com/music/royalty-free/music.html",
+      "retrieved": "2026-10-17",
+      "licence": "CC BY 4.0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "Kevin MacLeod (incompetech.com)",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/music/explore-ossuary-5---rest.ogg (from Ossuary 5 - Rest.mp3)",
+        "Audio/music/explore-ossuary-6---air.ogg (from Ossuary 6 - Air.mp3)",
+        "Audio/music/title-ossuary-1---a-beginning.ogg (from Ossuary 1 - A Beginning.mp3)"
+      ],
+      "credit": "\"Ossuary 1 - A Beginning\", \"Ossuary 5 - Rest\", \"Ossuary 6 - Air\" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"
+    },
+    {
+      "id": "audio-alexandr-zhelanov",
+      "title": "Alexandr Zhelanov, Battle themes",
+      "url": "https://opengameart.org/node/76534",
+      "retrieved": "2026-10-17",
+      "licence": "CC-BY 4.0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "Alexandr Zhelanov",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/music/combat-battle-theme-1.ogg (from Battle Theme 1.mp3)",
+        "Audio/music/combat-battle-theme-2.ogg (from Battle Theme 2.mp3)"
+      ]
+    },
+    {
+      "id": "audio-jaggedstone",
+      "title": "JaggedStone, Loopable Dungeon Ambience",
+      "url": "https://opengameart.org/content/loopable-dungeon-ambience",
+      "retrieved": "2026-10-17",
+      "licence": "CC0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)",
+      "authors": "JaggedStone",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: effects to mono 44.1 kHz Ogg Vorbis (q4), music to stereo Ogg Vorbis (q3, about 112 kbps), ambience to Ogg Vorbis (q2). No trimming or mixing. audio.json maps every file to its original.",
+      "files": [
+        "Audio/ambience/road-dungeon_ambient_1_0.ogg (from dungeon_ambient_1_0.ogg)"
+      ]
     }
   ]
 }

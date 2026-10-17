@@ -12,7 +12,10 @@ for s in manifest["sources"]:
               f"- Licence: {s['licence']} (`{s['licenceFile']}`)",
               f"- Authors: {s['authors']}",
               f"- Changes: {s['changes']}",
-              f"- Files: {len(s['files'])} (listed in `assets.manifest.json`)", ""]
+              f"- Files: {len(s['files'])} (listed in `assets.manifest.json`)"]
+    if "credit" in s:
+        lines.append(f"- Credit line: {s['credit']}")
+    lines.append("")
 lines += ["## Code", "", "The game's code is MIT licensed (`LICENSE`). Game mechanics follow Pathfinder 2e Remaster rules published under the ORC licence; the Pathfinder name, setting and trademarks are not used.", ""]
 open(os.path.join(root, "CREDITS.md"), "w").write("\n".join(lines))
 print(f"{len(manifest['sources'])} sources")

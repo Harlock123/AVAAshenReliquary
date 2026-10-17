@@ -12,6 +12,7 @@ combat. The full design is in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) (
 dotnet run --project src/AshenReliquary.App               # character creation, then Gallows Road
 dotnet run --project src/AshenReliquary.App -- --fighter  # skip creation: a recommended Human Fighter
 dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a recommended Human Wizard
+dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 ```
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
@@ -42,8 +43,10 @@ screen to continue, load or delete characters. Loading rebuilds the character th
 choices and level-up boosts. The HUD: game-icons.net icons (CC BY 3.0, rasterised by
 `tools/build_icons.py`) on the ability bar, buff and condition icons with values and timers, a minimap that follows
 the hero and reveals as you explore (saved with the game), the target's weaknesses, resistances and conditions, a
-character sheet (C), and a tooltip on every element: every number is one hover away. Still to come in M1: audio and
-vendors.
+character sheet (C), and a tooltip on every element: every number is one hover away. Audio: OpenAL Soft (the AVA1942
+audio layer) with positional sound effects, footsteps, crossfading exploration and battle music, and an ambience loop,
+from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Still to come
+in M1: vendors.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 Art is from [Flare](https://github.com/flareteam/flare-game) (CC-BY-SA 3.0) and, for portraits, also

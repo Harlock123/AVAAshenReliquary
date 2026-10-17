@@ -146,6 +146,53 @@ public class WorldTests
     }
 
     [Fact]
+    public void A_dead_hero_respawns_at_the_nearest_shrine_even_one_not_yet_touched()
+    {
+        var zone = Arena(Enumerable.Repeat("....................", 10).ToArray()) with
+        {
+            PlayerStart = [1, 1],
+            Shrines = [new ShrineDefinition("near-start", "Start Shrine", [1, 2]), new ShrineDefinition("far", "Far Shrine", [17, 6])],
+        };
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 1);
+        world.Update(0.1);
+        Assert.Contains("near-start", world.ActivatedShrines);
+        world.Hero.X = 14.5;
+        world.Hero.Y = 5.5;
+        world.Hero.Character.HeroPoints.TrySpend();
+        world.Hero.Character.TakeDamage(999);
+        world.Update(0.05);
+        Assert.Equal((17.5, 7.5), world.RespawnPoint);
+        Run(world, GameWorld.RespawnSeconds + 0.2);
+        Assert.False(world.Hero.IsDead);
+        Assert.Equal((17.5, 7.5), (world.Hero.X, world.Hero.Y));
+        Assert.Contains("far", world.ActivatedShrines);
+    }
+
+    [Fact]
+    public void The_nearest_shrine_is_measured_by_walking_not_through_walls()
+    {
+        // The west shrine is closer as the crow flies, but the wall means a long walk round.
+        var zone = Arena([
+            "..........",
+            "....T.....",
+            "....T.....",
+            "....T.....",
+            "....T.....",
+            "....T.....",
+            "....T.....",
+            "....T.....",
+            "....T.....",
+            "..........",
+        ]) with
+        {
+            Shrines = [new ShrineDefinition("west", "West", [2, 4]), new ShrineDefinition("east", "East", [9, 0])],
+        };
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 1);
+        Assert.Equal("east", world.NearestShrine(5.5, 5.5)?.Id);
+        Assert.Equal("west", world.NearestShrine(3.5, 5.5)?.Id);
+    }
+
+    [Fact]
     public void Same_seed_same_fight()
     {
         static string Fight()

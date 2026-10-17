@@ -59,7 +59,8 @@ public sealed record CreatureDefinition(
     double SummonEverySeconds = 0,
     int SummonCap = 0,
     bool Stationary = false,
-    string? Tint = null)
+    string? Tint = null,
+    string Voice = "zombie")
 {
     [JsonIgnore]
     public bool IsSpawner => Summons is not null;

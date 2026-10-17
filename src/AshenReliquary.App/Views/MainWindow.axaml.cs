@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using AshenReliquary.App.Audio;
 using AshenReliquary.App.Rendering;
 using AshenReliquary.App.Services;
 using AshenReliquary.App.ViewModels;
@@ -29,6 +30,39 @@ public partial class MainWindow : Window
         TitleButton.Click += (_, _) => { SaveNow(); ShowTitle(); };
         QuitGameButton.Click += (_, _) => Close();
         Closing += (_, _) => SaveNow(announce: false);
+        // Every button in the game clicks.
+        AddHandler(Button.ClickEvent, (_, _) => Audio.Play("click", 0.6f), RoutingStrategies.Bubble, handledEventsToo: true);
+        var settings = Services.Settings.Load();
+        MasterSlider.Value = settings.Master;
+        EffectsSlider.Value = settings.Effects;
+        MusicSlider.Value = settings.Music;
+        AmbienceSlider.Value = settings.Ambience;
+        foreach (var slider in new[] { MasterSlider, EffectsSlider, MusicSlider, AmbienceSlider })
+            slider.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) VolumesChanged(); };
+    }
+
+    private Services.AudioDirector _audio = new(new NullAudioEngine());
+
+    /// <summary>What plays: the window drives it each frame. Silent (NullAudioEngine) until the app gives it OpenAL.</summary>
+    public Services.AudioDirector Audio
+    {
+        get => _audio;
+        set
+        {
+            _audio = value;
+            SoundNote.Text = value.Engine is NullAudioEngine { Reason: { } reason } ? reason : "";
+        }
+    }
+
+    private void VolumesChanged()
+    {
+        var settings = new Services.Settings
+        {
+            Master = (float)MasterSlider.Value, Effects = (float)EffectsSlider.Value,
+            Music = (float)MusicSlider.Value, Ambience = (float)AmbienceSlider.Value,
+        };
+        Audio.Apply(settings);
+        settings.Save();
     }
 
     public WorldView View => World;
@@ -140,6 +174,10 @@ public partial class MainWindow : Window
             _session.World.Update(elapsed.TotalSeconds);
             _session.AddPlayTime(elapsed.TotalSeconds);
         }
+        if (_session is not null && World.IsVisible)
+            Audio.Update(_session.World, elapsed.TotalSeconds, Paused);
+        else
+            Audio.Title(elapsed.TotalSeconds);
         World.InvalidateVisual();
     }
 
@@ -156,6 +194,7 @@ public partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         _loop?.Dispose();
+        Audio.Engine.Dispose();
         base.OnClosed(e);
     }
 
@@ -190,6 +229,7 @@ public partial class MainWindow : Window
                 break;
             case Key.I or Key.Tab:
                 World.InventoryOpen = !World.InventoryOpen;
+                Audio.Play("inventory", 0.7f);
                 break;
             case Key.C:
                 World.CharacterSheetOpen = !World.CharacterSheetOpen;
