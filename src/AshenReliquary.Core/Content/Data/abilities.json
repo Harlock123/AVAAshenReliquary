@@ -1,0 +1,20 @@
+[
+  { "id": "strike", "name": "Strike", "class": "fighter", "slot": "lmb", "kind": "WeaponStrike", "actions": 1, "repeat": true,
+    "traits": ["Attack"], "description": "Attack with your weapon. Builds Fury on a hit." },
+  { "id": "power_attack", "name": "Power Attack", "class": "fighter", "slot": "rmb", "kind": "WeaponStrike", "actions": 2,
+    "cost": 15, "extraDice": 1, "cadenceAttacks": 2, "traits": ["Attack", "Flourish"],
+    "description": "A ponderous blow with an extra weapon damage die (2 at level 10, 3 at 18). Counts as two attacks for the cadence penalty." },
+  { "id": "sudden_charge", "name": "Sudden Charge", "class": "fighter", "slot": "1", "kind": "ChargeStrike", "actions": 2,
+    "range": 6, "cooldown": 8, "traits": ["Attack", "Flourish", "Open"],
+    "description": "Dash up to 6 tiles to an enemy and Strike." },
+  { "id": "ignition", "name": "Ignition", "class": "wizard", "slot": "lmb", "kind": "SpellBolt", "actions": 2, "repeat": true,
+    "range": 7, "damageType": "Fire", "dice": "2d4", "heightenDice": "1d4", "critPersistent": "1d4",
+    "traits": ["Attack", "Cantrip", "Fire", "Concentrate", "Manipulate"],
+    "description": "Hurl a flame: a spell attack for 2d4 fire (+1d4 per rank above 1). A critical hit also sets the target burning." },
+  { "id": "force_bolt", "name": "Force Bolt", "class": "wizard", "slot": "rmb", "kind": "Missiles", "actions": 2,
+    "range": 9, "cost": 12, "damageType": "Force", "dice": "1d4+1", "missiles": 2,
+    "traits": ["Force", "Concentrate", "Manipulate"],
+    "description": "Two bolts of force that never miss, 1d4+1 force each (one more bolt every two ranks)." },
+  { "id": "staff_strike", "name": "Staff Strike", "class": "wizard", "slot": "1", "kind": "WeaponStrike", "actions": 1,
+    "traits": ["Attack"], "description": "Bash with your staff." }
+]

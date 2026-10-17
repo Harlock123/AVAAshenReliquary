@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Developer tool: contact sheets of tilesets and sprite sheets, and the asset credits. Not shipped. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <PackageReference Include="SkiaSharp.NativeAssets.macOS" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AshenReliquary.Core\AshenReliquary.Core.csproj" />
+  </ItemGroup>
+</Project>

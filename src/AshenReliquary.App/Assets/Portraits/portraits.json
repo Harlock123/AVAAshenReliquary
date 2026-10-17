@@ -1,0 +1,499 @@
+[
+ {
+  "id": "flare/male01",
+  "ancestry": "human",
+  "file": "flare/male01.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male02",
+  "ancestry": "human",
+  "file": "flare/male02.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male03",
+  "ancestry": "human",
+  "file": "flare/male03.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male04",
+  "ancestry": "human",
+  "file": "flare/male04.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male05",
+  "ancestry": "human",
+  "file": "flare/male05.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male06",
+  "ancestry": "human",
+  "file": "flare/male06.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male07",
+  "ancestry": "human",
+  "file": "flare/male07.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male09",
+  "ancestry": "human",
+  "file": "flare/male09.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male10",
+  "ancestry": "human",
+  "file": "flare/male10.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male11",
+  "ancestry": "human",
+  "file": "flare/male11.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male13",
+  "ancestry": "human",
+  "file": "flare/male13.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male14",
+  "ancestry": "human",
+  "file": "flare/male14.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male15",
+  "ancestry": "human",
+  "file": "flare/male15.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male16",
+  "ancestry": "human",
+  "file": "flare/male16.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male17",
+  "ancestry": "human",
+  "file": "flare/male17.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male18",
+  "ancestry": "human",
+  "file": "flare/male18.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male19",
+  "ancestry": "human",
+  "file": "flare/male19.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/male20",
+  "ancestry": "human",
+  "file": "flare/male20.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "gearhead/human_002",
+  "ancestry": "human",
+  "file": "gearhead/human_002.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_006",
+  "ancestry": "human",
+  "file": "gearhead/human_006.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_005",
+  "ancestry": "human",
+  "file": "gearhead/human_005.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/knight",
+  "ancestry": "human",
+  "file": "gearhead/knight.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_007",
+  "ancestry": "human",
+  "file": "gearhead/human_007.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/wizard_001",
+  "ancestry": "human",
+  "file": "gearhead/wizard_001.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_001",
+  "ancestry": "human",
+  "file": "gearhead/human_001.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_003",
+  "ancestry": "human",
+  "file": "gearhead/human_003.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_008",
+  "ancestry": "human",
+  "file": "gearhead/human_008.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/adventurer",
+  "ancestry": "human",
+  "file": "gearhead/adventurer.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/kathy",
+  "ancestry": "human",
+  "file": "gearhead/kathy.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/human_004",
+  "ancestry": "human",
+  "file": "gearhead/human_004.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/hood_002",
+  "ancestry": "human",
+  "file": "gearhead/hood_002.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/naturewitch",
+  "ancestry": "human",
+  "file": "gearhead/naturewitch.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/armor",
+  "ancestry": "human",
+  "file": "gearhead/armor.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "flare/female01",
+  "ancestry": "human",
+  "file": "flare/female01.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female03",
+  "ancestry": "human",
+  "file": "flare/female03.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female05",
+  "ancestry": "human",
+  "file": "flare/female05.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female06",
+  "ancestry": "human",
+  "file": "flare/female06.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female07",
+  "ancestry": "human",
+  "file": "flare/female07.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female09",
+  "ancestry": "human",
+  "file": "flare/female09.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female11",
+  "ancestry": "human",
+  "file": "flare/female11.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female12",
+  "ancestry": "human",
+  "file": "flare/female12.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female13",
+  "ancestry": "human",
+  "file": "flare/female13.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female14",
+  "ancestry": "human",
+  "file": "flare/female14.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female15",
+  "ancestry": "human",
+  "file": "flare/female15.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "gearhead/elf_001",
+  "ancestry": "elf",
+  "file": "gearhead/elf_001.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/elf_004",
+  "ancestry": "elf",
+  "file": "gearhead/elf_004.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/elf_002",
+  "ancestry": "elf",
+  "file": "gearhead/elf_002.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/dwarf_002",
+  "ancestry": "elf",
+  "file": "gearhead/dwarf_002.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "adonthell/kidalethil",
+  "ancestry": "elf",
+  "file": "adonthell/kidalethil.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female02",
+  "ancestry": "elf",
+  "file": "flare/female02.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female04",
+  "ancestry": "elf",
+  "file": "flare/female04.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female08",
+  "ancestry": "elf",
+  "file": "flare/female08.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "gearhead/dwarf_003",
+  "ancestry": "dwarf",
+  "file": "gearhead/dwarf_003.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/dwarf_001",
+  "ancestry": "dwarf",
+  "file": "gearhead/dwarf_001.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/dwarf_004",
+  "ancestry": "dwarf",
+  "file": "gearhead/dwarf_004.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "adonthell/firun_bonesmiter",
+  "ancestry": "dwarf",
+  "file": "adonthell/firun_bonesmiter.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/helmerk_axehaft",
+  "ancestry": "dwarf",
+  "file": "adonthell/helmerk_axehaft.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/thorig_axehaft",
+  "ancestry": "dwarf",
+  "file": "adonthell/thorig_axehaft.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/ynar_hammerhand",
+  "ancestry": "dwarf",
+  "file": "adonthell/ynar_hammerhand.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/jelom_rasgar",
+  "ancestry": "dwarf",
+  "file": "adonthell/jelom_rasgar.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/dwarf_guard_1",
+  "ancestry": "dwarf",
+  "file": "adonthell/dwarf_guard_1.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "gearhead/orc_001",
+  "ancestry": "orc",
+  "file": "gearhead/orc_001.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/orc_002",
+  "ancestry": "orc",
+  "file": "gearhead/orc_002.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/hood_001",
+  "ancestry": "ashborn",
+  "file": "gearhead/hood_001.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "gearhead/elf_003",
+  "ancestry": "ashborn",
+  "file": "gearhead/elf_003.png",
+  "artist": "Joseph Hewitt (GearHead)",
+  "licence": "CC BY 4.0"
+ },
+ {
+  "id": "adonthell/agdan",
+  "ancestry": "ashborn",
+  "file": "adonthell/agdan.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/krelm",
+  "ancestry": "ashborn",
+  "file": "adonthell/krelm.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/oliver",
+  "ancestry": "halfling",
+  "file": "adonthell/oliver.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/mina_turvale",
+  "ancestry": "halfling",
+  "file": "adonthell/mina_turvale.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "adonthell/elgar_basil",
+  "ancestry": "halfling",
+  "file": "adonthell/elgar_basil.png",
+  "artist": "Adonthell project artists (via Grumbel, OpenGameArt)",
+  "licence": "CC-BY-SA 3.0"
+ },
+ {
+  "id": "flare/female10",
+  "ancestry": "halfling",
+  "file": "flare/female10.png",
+  "artist": "Flare art team (portraits by Justin Nichol and others)",
+  "licence": "CC-BY-SA 3.0"
+ }
+]

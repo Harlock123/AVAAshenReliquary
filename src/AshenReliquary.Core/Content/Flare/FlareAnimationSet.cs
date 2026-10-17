@@ -1,0 +1,107 @@
+namespace AshenReliquary.Core.Content.Flare;
+
+public enum FlareLoop
+{
+    PlayOnce,
+    Looped,
+    BackForth,
+}
+
+/// <summary>One frame of one direction: the source rectangle and the anchor (the feet) relative to it.</summary>
+public readonly record struct FlareFrame(int X, int Y, int Width, int Height, int OffsetX, int OffsetY);
+
+/// <summary>
+/// One animation (stance, run, swing...). Frames are indexed [frame, direction], where direction 0 to 7 runs
+/// clockwise on screen from west: W, NW, N, NE, E, SE, S, SW.
+/// </summary>
+public sealed class FlareAnimation(string name, int frameCount, int durationMs, FlareLoop loop, int? activeFrame, FlareFrame[,] frames)
+{
+    public string Name { get; } = name;
+    public int FrameCount { get; } = frameCount;
+    public int DurationMs { get; } = durationMs;
+    public FlareLoop Loop { get; } = loop;
+
+    /// <summary>The frame on which a swing or cast lands its effect (Flare's <c>active_frame</c>); the middle by default.</summary>
+    public int ActiveFrame { get; } = activeFrame ?? frameCount / 2;
+
+    public double DurationSeconds => DurationMs / 1000.0;
+
+    public FlareFrame Frame(int index, int direction) => frames[index, direction];
+
+    /// <summary>The frame to show <paramref name="seconds"/> into the animation.</summary>
+    public int FrameAt(double seconds)
+    {
+        if (FrameCount <= 1 || DurationMs <= 0)
+            return 0;
+        var t = seconds / DurationSeconds;
+        switch (Loop)
+        {
+            case FlareLoop.PlayOnce:
+                return Math.Min(FrameCount - 1, (int)(t * FrameCount));
+            case FlareLoop.Looped:
+                return (int)(t % 1.0 * FrameCount) % FrameCount;
+            default:
+                // Back and forth: 0,1,2,3,2,1,0,1... over one duration for the full sweep.
+                var period = 2 * (FrameCount - 1);
+                var step = (int)(t % 1.0 * period) % period;
+                return step < FrameCount ? step : period - step;
+        }
+    }
+}
+
+/// <summary>A Flare <c>animations/*.txt</c> file: the sprite sheet plus every animation's frames.</summary>
+public sealed class FlareAnimationSet
+{
+    private FlareAnimationSet(string image, Dictionary<string, FlareAnimation> animations)
+    {
+        Image = image;
+        Animations = animations;
+    }
+
+    public string Image { get; }
+    public IReadOnlyDictionary<string, FlareAnimation> Animations { get; }
+
+    public FlareAnimation? this[string name] => Animations.GetValueOrDefault(name);
+
+    public static FlareAnimationSet Parse(string text)
+    {
+        string? image = null;
+        var animations = new Dictionary<string, FlareAnimation>();
+        var pending = new Dictionary<string, (int Frames, int Duration, FlareLoop Loop, int? Active, List<int[]> Lines)>();
+
+        foreach (var (section, key, value) in FlareText.Entries(text))
+        {
+            if (section is null)
+            {
+                if (key == "image")
+                    image = value;
+                continue;
+            }
+            var a = pending.TryGetValue(section, out var existing) ? existing : (0, 0, FlareLoop.Looped, null, new List<int[]>());
+            switch (key)
+            {
+                case "frames": a.Frames = int.Parse(value, System.Globalization.CultureInfo.InvariantCulture); break;
+                case "duration": a.Duration = FlareText.Duration(value); break;
+                case "type":
+                    a.Loop = value switch { "play_once" => FlareLoop.PlayOnce, "back_forth" => FlareLoop.BackForth, _ => FlareLoop.Looped };
+                    break;
+                case "active_frame": a.Active = FlareText.Ints(value).FirstOrDefault(); break;
+                case "frame": a.Lines.Add(FlareText.Ints(value)); break;
+            }
+            pending[section] = a;
+        }
+
+        foreach (var (name, a) in pending)
+        {
+            var frames = new FlareFrame[Math.Max(1, a.Frames), 8];
+            foreach (var v in a.Lines)
+            {
+                if (v[0] < frames.GetLength(0) && v[1] is >= 0 and < 8)
+                    frames[v[0], v[1]] = new FlareFrame(v[2], v[3], v[4], v[5], v[6], v[7]);
+            }
+            animations[name] = new FlareAnimation(name, Math.Max(1, a.Frames), a.Duration, a.Loop, a.Active, frames);
+        }
+
+        return new FlareAnimationSet(image ?? throw new FormatException("Animation file has no image= line."), animations);
+    }
+}

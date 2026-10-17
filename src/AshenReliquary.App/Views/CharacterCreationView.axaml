@@ -1,0 +1,257 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AshenReliquary.App.ViewModels"
+             xmlns:c="using:AshenReliquary.Core.Content"
+             x:Class="AshenReliquary.App.Views.CharacterCreationView"
+             x:DataType="vm:CharacterCreationViewModel"
+             FontFamily="Georgia, Palatino Linotype, Noto Serif, serif"
+             Foreground="#E8DCC4">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="24" />
+      <Setter Property="Foreground" Value="#F0C860" />
+      <Setter Property="LetterSpacing" Value="4" />
+    </Style>
+    <Style Selector="TextBlock.h2">
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="Foreground" Value="#F0C860" />
+      <Setter Property="Margin" Value="0,8,0,3" />
+    </Style>
+    <Style Selector="TextBlock.dim">
+      <Setter Property="Foreground" Value="#A59B87" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="#E00E0B0A" />
+      <Setter Property="BorderBrush" Value="#5A4C3A" />
+      <Setter Property="BorderThickness" Value="1.5" />
+      <Setter Property="Padding" Value="12,4,12,8" />
+      <Setter Property="Margin" Value="4" />
+    </Style>
+    <Style Selector="ListBox">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ListBoxItem">
+      <Setter Property="Padding" Value="8,2" />
+      <Setter Property="Margin" Value="0" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+    <Style Selector="ScrollViewer.column">
+      <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+      <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+    </Style>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="#4A3A1E" />
+    </Style>
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#2E241A" />
+    </Style>
+    <Style Selector="Button.boost">
+      <Setter Property="Width" Value="52" />
+      <Setter Property="Height" Value="25" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="2" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Background" Value="#1C1714" />
+      <Setter Property="Foreground" Value="#8A7F6C" />
+      <Setter Property="BorderBrush" Value="#3A3128" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Button.boost.selected">
+      <Setter Property="Background" Value="#5C4718" />
+      <Setter Property="Foreground" Value="#FFE7A0" />
+      <Setter Property="BorderBrush" Value="#F0C860" />
+    </Style>
+    <Style Selector="Button.boost.flaw">
+      <Setter Property="Foreground" Value="#E8695E" />
+    </Style>
+    <Style Selector="Button.boost:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="#120F0D" />
+      <Setter Property="BorderBrush" Value="#221C17" />
+    </Style>
+    <Style Selector="Button.boost.selected:disabled /template/ ContentPresenter">
+      <Setter Property="Background" Value="#3C3014" />
+      <Setter Property="Foreground" Value="#E7D08A" />
+      <Setter Property="BorderBrush" Value="#8A7238" />
+    </Style>
+    <Style Selector="Button.boost.flaw:disabled /template/ ContentPresenter">
+      <Setter Property="Foreground" Value="#E8695E" />
+    </Style>
+    <Style Selector="Button.big">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="Padding" Value="20,6" />
+      <Setter Property="Margin" Value="8,0" />
+    </Style>
+    <Style Selector="Button.begin">
+      <Setter Property="Background" Value="#6B2A12" />
+      <Setter Property="Foreground" Value="#FFE7C0" />
+      <Setter Property="BorderBrush" Value="#F0A050" />
+      <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+    <Grid.Background>
+      <RadialGradientBrush Center="50%,35%" GradientOrigin="50%,35%" RadiusX="80%" RadiusY="80%">
+        <GradientStop Color="#2A1C14" Offset="0" />
+        <GradientStop Color="#0B0908" Offset="1" />
+      </RadialGradientBrush>
+    </Grid.Background>
+
+    <StackPanel Grid.Row="0" Margin="18,8,18,2">
+      <TextBlock Classes="h1" Text="ASHEN RELIQUARY" />
+      <TextBlock Classes="dim" FontSize="12" Text="The noose fails. A shard of a dead god burns in your chest. Who were you, before the gallows?" />
+    </StackPanel>
+
+    <Grid Grid.Row="1" ColumnDefinitions="240,240,Auto,*" Margin="12,0">
+      <!-- Ancestry and heritage -->
+      <Border Grid.Column="0" Classes="panel">
+        <ScrollViewer Classes="column">
+          <StackPanel>
+            <TextBlock Classes="h2" Text="Name" Margin="0,2,0,3" />
+            <TextBox Text="{Binding Name}" Name="NameBox" MaxLength="24" MinHeight="28" Padding="6,3" />
+            <TextBlock Classes="h2" Text="Ancestry" />
+            <ListBox ItemsSource="{Binding Ancestries}" SelectedItem="{Binding Ancestry}" Name="AncestryList">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="c:AncestryDefinition">
+                  <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock Classes="dim" Text="{Binding AncestryDetail}" Margin="0,4,0,0" />
+            <TextBlock Classes="h2" Text="Heritage" />
+            <ListBox ItemsSource="{Binding Heritages}" SelectedItem="{Binding Heritage}" Name="HeritageList">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="c:HeritageDefinition">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Name}" />
+                    <TextBlock Classes="dim" Text="{Binding Description}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <!-- Background and class -->
+      <Border Grid.Column="1" Classes="panel">
+        <ScrollViewer Classes="column">
+          <StackPanel>
+            <TextBlock Classes="h2" Text="Background" Margin="0,2,0,3" />
+            <ListBox ItemsSource="{Binding Backgrounds}" SelectedItem="{Binding Background}" Name="BackgroundList">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="c:BackgroundDefinition">
+                  <TextBlock Text="{Binding Name}" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock Classes="dim" Text="{Binding BackgroundDetail}" Margin="0,4,0,0" />
+            <TextBlock Classes="h2" Text="Class" />
+            <ListBox ItemsSource="{Binding Classes}" SelectedItem="{Binding SelectedClass}" Name="ClassList">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ClassOption">
+                  <StackPanel Opacity="{Binding Playable, Converter={x:Static vm:Converters.PlayableOpacity}}">
+                    <TextBlock Text="{Binding Name}" />
+                    <TextBlock Classes="dim" Text="{Binding Detail}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <!-- Attribute boosts -->
+      <Border Grid.Column="2" Classes="panel">
+        <ScrollViewer Classes="column">
+        <StackPanel>
+          <TextBlock Classes="h2" Text="Attribute boosts" Margin="0,2,0,2" />
+          <TextBlock Classes="dim" Width="360" Margin="0,0,0,6"
+                     Text="Each column boosts different attributes. ✦ is fixed by your ancestry; −1 is its flaw. Nothing may start above +4." />
+          <Grid ColumnDefinitions="64,56,56,56,64,56,46" Margin="0,0,0,2">
+            <TextBlock Grid.Column="1" Classes="dim" Text="{Binding AncestryHeader}" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="2" Classes="dim" Text="Backgr." HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="3" Classes="dim" Text="Bg. free" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="4" Classes="dim" Text="Class key" HorizontalAlignment="Center" />
+            <TextBlock Grid.Column="5" Classes="dim" Text="{Binding FreeHeader}" HorizontalAlignment="Center" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Rows}" Name="BoostRows">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:AttributeRow">
+                <Grid ColumnDefinitions="64,56,56,56,64,56,46">
+                  <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Abbreviation}" FontSize="14" />
+                    <TextBlock Classes="dim" Text="{Binding Name}" FontSize="9.5" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Classes="boost" Classes.selected="{Binding Ancestry.IsSelected}" Classes.flaw="{Binding Ancestry.IsFlaw}"
+                          IsEnabled="{Binding Ancestry.IsEnabled}" Command="{Binding Ancestry.Toggle}" Content="{Binding Ancestry.Text}" />
+                  <Button Grid.Column="2" Classes="boost" Classes.selected="{Binding Background.IsSelected}"
+                          IsEnabled="{Binding Background.IsEnabled}" Command="{Binding Background.Toggle}" Content="{Binding Background.Text}" />
+                  <Button Grid.Column="3" Classes="boost" Classes.selected="{Binding BackgroundFree.IsSelected}"
+                          IsEnabled="{Binding BackgroundFree.IsEnabled}" Command="{Binding BackgroundFree.Toggle}" Content="{Binding BackgroundFree.Text}" />
+                  <Button Grid.Column="4" Classes="boost" Width="60" Classes.selected="{Binding Key.IsSelected}"
+                          IsEnabled="{Binding Key.IsEnabled}" Command="{Binding Key.Toggle}" Content="{Binding Key.Text}" />
+                  <Button Grid.Column="5" Classes="boost" Classes.selected="{Binding Free.IsSelected}"
+                          IsEnabled="{Binding Free.IsEnabled}" Command="{Binding Free.Toggle}" Content="{Binding Free.Text}" />
+                  <TextBlock Grid.Column="6" Text="{Binding Value}" FontSize="18" Foreground="#F0C860"
+                             HorizontalAlignment="Right" VerticalAlignment="Center" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+        </ScrollViewer>
+      </Border>
+
+      <!-- Preview -->
+      <Border Grid.Column="3" Classes="panel">
+        <ScrollViewer Classes="column">
+          <StackPanel>
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,4,0,2" HorizontalAlignment="Center">
+              <Button Grid.Column="0" Classes="boost" Width="30" Height="60" Content="‹" FontSize="22"
+                      Command="{Binding PreviousPortraitCommand}" Name="PreviousPortrait" VerticalAlignment="Center" />
+              <Border Grid.Column="1" Width="160" Height="160" Margin="8,0" BorderBrush="#8A7238" BorderThickness="2" Background="#0B0908">
+                <Panel>
+                  <Image Source="{Binding PortraitImage}" Stretch="UniformToFill" Name="PortraitImage" />
+                  <TextBlock Text="?" FontSize="64" Foreground="#3A3128" HorizontalAlignment="Center" VerticalAlignment="Center"
+                             IsVisible="{Binding !HasPortrait}" />
+                </Panel>
+              </Border>
+              <Button Grid.Column="2" Classes="boost" Width="30" Height="60" Content="›" FontSize="22"
+                      Command="{Binding NextPortraitCommand}" Name="NextPortrait" VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Classes="dim" Text="{Binding PortraitCaption}" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,0,0,2" />
+            <TextBlock Classes="h2" Text="At level 1" Margin="0,4,0,3" />
+            <ItemsControl ItemsSource="{Binding Preview}" Name="PreviewList">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <TextBlock Text="{Binding}" FontSize="12.5" Margin="0,0.5" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="h2" Text="Abilities and gear" />
+            <ItemsControl ItemsSource="{Binding Abilities}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <TextBlock Classes="dim" Text="{Binding}" Margin="0,2" FontSize="12" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+
+    <DockPanel Grid.Row="2" Margin="18,4,18,10" LastChildFill="True">
+      <Button DockPanel.Dock="Right" Classes="big begin" Content="Begin  ›" Command="{Binding BeginCommand}"
+              IsEnabled="{Binding CanBegin}" Name="BeginButton" />
+      <Button DockPanel.Dock="Left" Classes="big" Content="Recommended" Command="{Binding RecommendCommand}" Name="RecommendButton" />
+      <TextBlock Text="{Binding Problem}" Foreground="#E8695E" VerticalAlignment="Center" Margin="16,0" TextWrapping="Wrap" />
+    </DockPanel>
+  </Grid>
+</UserControl>

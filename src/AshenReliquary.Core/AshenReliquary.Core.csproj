@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Pure rules engine: no UI dependencies. Everything here is unit-testable headless. -->
+  <PropertyGroup>
+    <RootNamespace>AshenReliquary.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ancestries, backgrounds, classes, creatures and zones ship as embedded JSON so they can be modded later. -->
+    <EmbeddedResource Include="Content\Data\**\*.json" LogicalName="AshenReliquary.Content.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AshenReliquary.Core.Tests" />
+  </ItemGroup>
+</Project>

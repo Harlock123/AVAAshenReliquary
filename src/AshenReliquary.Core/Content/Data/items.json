@@ -1,0 +1,402 @@
+[
+ {
+  "id": "dagger",
+  "name": "Dagger",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 96,
+  "loot": "dagger",
+  "gfx": "dagger",
+  "damageDie": 4,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.6,
+  "traits": [
+   "Agile",
+   "Finesse",
+   "Versatile"
+  ]
+ },
+ {
+  "id": "shortsword",
+  "name": "Shortsword",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 97,
+  "loot": "shortsword",
+  "gfx": "shortsword",
+  "damageDie": 6,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.4,
+  "traits": [
+   "Agile",
+   "Finesse",
+   "Versatile"
+  ]
+ },
+ {
+  "id": "longsword",
+  "name": "Longsword",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 98,
+  "loot": "longsword",
+  "gfx": "longsword",
+  "damageDie": 8,
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.2,
+  "traits": [
+   "Versatile"
+  ]
+ },
+ {
+  "id": "hand_axe",
+  "name": "Hatchet",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 117,
+  "loot": "hand_axe",
+  "gfx": "hand_axe",
+  "damageDie": 6,
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.3,
+  "traits": [
+   "Agile",
+   "Sweep"
+  ]
+ },
+ {
+  "id": "club",
+  "name": "Club",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 109,
+  "loot": "club",
+  "gfx": "club",
+  "damageDie": 6,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.2,
+  "traits": []
+ },
+ {
+  "id": "mace",
+  "name": "Mace",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 111,
+  "loot": "mace",
+  "gfx": "mace",
+  "damageDie": 6,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.2,
+  "traits": [
+   "Shove"
+  ],
+  "minLevel": 1
+ },
+ {
+  "id": "staff",
+  "name": "Staff",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 106,
+  "loot": "staff",
+  "gfx": "staff",
+  "damageDie": 4,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.0,
+  "traits": [
+   "TwoHand"
+  ],
+  "casterFocus": true
+ },
+ {
+  "id": "wand",
+  "name": "Wand",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 104,
+  "loot": "wand",
+  "gfx": "wand",
+  "damageDie": 4,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.1,
+  "traits": [],
+  "casterFocus": true,
+  "implicit": {
+   "castSpeed": 0.05
+  },
+  "minLevel": 1
+ },
+ {
+  "id": "rod",
+  "name": "Rod",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 105,
+  "loot": "rod",
+  "gfx": "rod",
+  "damageDie": 6,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.0,
+  "traits": [],
+  "casterFocus": true,
+  "implicit": {
+   "resourceRegen": 0.1
+  },
+  "minLevel": 1
+ },
+ {
+  "id": "cloth_shirt",
+  "name": "Shirt",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 129,
+  "loot": "clothes",
+  "gfx": "cloth_shirt",
+  "armorCategory": "Unarmored",
+  "acBonus": 0,
+  "dexCap": 99,
+  "weight": 6
+ },
+ {
+  "id": "mage_vest",
+  "name": "Robes",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 137,
+  "loot": "clothes",
+  "gfx": "mage_vest",
+  "armorCategory": "Unarmored",
+  "acBonus": 0,
+  "dexCap": 5,
+  "implicit": {
+   "castSpeed": 0.03
+  }
+ },
+ {
+  "id": "leather_chest",
+  "name": "Leather armour",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 145,
+  "loot": "leather_armor",
+  "gfx": "leather_chest",
+  "armorCategory": "Light",
+  "acBonus": 1,
+  "dexCap": 4,
+  "checkPenalty": -1
+ },
+ {
+  "id": "chain_cuirass",
+  "name": "Chain mail",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 153,
+  "loot": "steel_armor",
+  "gfx": "chain_cuirass",
+  "armorCategory": "Medium",
+  "acBonus": 4,
+  "dexCap": 1,
+  "checkPenalty": -2,
+  "speedPenalty": 5,
+  "strength": 2,
+  "minLevel": 1
+ },
+ {
+  "id": "leather_hood",
+  "name": "Leather hood",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 144,
+  "loot": "leather_armor",
+  "gfx": "leather_hood"
+ },
+ {
+  "id": "chain_coif",
+  "name": "Chain coif",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 152,
+  "loot": "steel_armor",
+  "gfx": "chain_coif",
+  "minLevel": 1
+ },
+ {
+  "id": "mage_hood",
+  "name": "Mage hood",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 136,
+  "loot": "clothes",
+  "gfx": "mage_hood"
+ },
+ {
+  "id": "cloth_gloves",
+  "name": "Cloth gloves",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 130,
+  "loot": "clothes",
+  "gfx": "cloth_gloves",
+  "weight": 6
+ },
+ {
+  "id": "leather_gloves",
+  "name": "Leather gloves",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 146,
+  "loot": "leather_armor",
+  "gfx": "leather_gloves"
+ },
+ {
+  "id": "chain_gloves",
+  "name": "Chain gloves",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 154,
+  "loot": "steel_armor",
+  "gfx": "chain_gloves",
+  "minLevel": 1
+ },
+ {
+  "id": "mage_sleeves",
+  "name": "Mage sleeves",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 138,
+  "loot": "clothes",
+  "gfx": "mage_sleeves"
+ },
+ {
+  "id": "cloth_pants",
+  "name": "Trousers",
+  "category": "Armor",
+  "slot": "Legs",
+  "icon": 131,
+  "loot": "clothes",
+  "gfx": "cloth_pants",
+  "weight": 6
+ },
+ {
+  "id": "leather_pants",
+  "name": "Leather leggings",
+  "category": "Armor",
+  "slot": "Legs",
+  "icon": 147,
+  "loot": "leather_armor",
+  "gfx": "leather_pants"
+ },
+ {
+  "id": "chain_greaves",
+  "name": "Chain greaves",
+  "category": "Armor",
+  "slot": "Legs",
+  "icon": 155,
+  "loot": "steel_armor",
+  "gfx": "chain_greaves",
+  "minLevel": 1
+ },
+ {
+  "id": "mage_skirt",
+  "name": "Mage skirt",
+  "category": "Armor",
+  "slot": "Legs",
+  "icon": 139,
+  "loot": "clothes",
+  "gfx": "mage_skirt"
+ },
+ {
+  "id": "cloth_sandals",
+  "name": "Sandals",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 132,
+  "loot": "clothes",
+  "gfx": "cloth_sandals",
+  "weight": 6
+ },
+ {
+  "id": "leather_boots",
+  "name": "Leather boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 148,
+  "loot": "boots",
+  "gfx": "leather_boots"
+ },
+ {
+  "id": "chain_boots",
+  "name": "Chain boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 156,
+  "loot": "steel_armor",
+  "gfx": "chain_boots",
+  "minLevel": 1
+ },
+ {
+  "id": "mage_boots",
+  "name": "Mage boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 140,
+  "loot": "boots",
+  "gfx": "mage_boots"
+ },
+ {
+  "id": "belt",
+  "name": "Belt",
+  "category": "Accessory",
+  "slot": "Belt",
+  "icon": 208,
+  "loot": "belt",
+  "implicit": {
+   "maxHitPoints": 2
+  }
+ },
+ {
+  "id": "silver_ring",
+  "name": "Silver ring",
+  "category": "Accessory",
+  "slot": "Ring1",
+  "icon": 198,
+  "loot": "ring",
+  "weight": 6
+ },
+ {
+  "id": "gold_ring",
+  "name": "Gold ring",
+  "category": "Accessory",
+  "slot": "Ring1",
+  "icon": 199,
+  "loot": "ring",
+  "weight": 4
+ },
+ {
+  "id": "silver_amulet",
+  "name": "Silver amulet",
+  "category": "Accessory",
+  "slot": "Amulet",
+  "icon": 214,
+  "loot": "gem",
+  "weight": 5
+ },
+ {
+  "id": "gold_amulet",
+  "name": "Gold amulet",
+  "category": "Accessory",
+  "slot": "Amulet",
+  "icon": 212,
+  "loot": "gem",
+  "weight": 3
+ },
+ {
+  "id": "healing_draught",
+  "name": "Healing draught",
+  "category": "Consumable",
+  "slot": null,
+  "icon": 64,
+  "loot": "hp_potion"
+ }
+]

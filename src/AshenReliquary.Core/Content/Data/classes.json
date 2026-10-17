@@ -1,0 +1,83 @@
+[
+  {
+    "id": "fighter", "armorCategories": ["Light", "Medium", "Heavy"], "name": "Fighter", "hitPointsPerLevel": 10, "keyAttributes": ["Strength", "Dexterity"],
+    "resource": "Fury", "subclasses": ["Vanguard", "Bulwark"],
+    "proficiencies": {
+      "Attack": { "1": "Expert", "5": "Master", "13": "Legendary" },
+      "Armor": { "1": "Trained", "11": "Expert", "17": "Master" },
+      "Fortitude": { "1": "Expert", "9": "Master" },
+      "Reflex": { "1": "Expert", "15": "Master" },
+      "Will": { "1": "Trained", "3": "Expert" },
+      "Perception": { "1": "Expert", "7": "Master" },
+      "ClassDc": { "1": "Trained", "11": "Expert", "19": "Master" }
+    }
+  },
+  {
+    "id": "champion", "armorCategories": ["Light", "Medium", "Heavy"], "name": "Champion", "hitPointsPerLevel": 10, "keyAttributes": ["Strength", "Dexterity"],
+    "resource": "Devotion", "subclasses": ["Lanternbearer", "Oathbreaker"],
+    "proficiencies": {
+      "Attack": { "1": "Trained", "5": "Expert", "13": "Master" },
+      "Spell": { "1": "Trained", "9": "Expert", "17": "Master" },
+      "Armor": { "1": "Trained", "7": "Expert", "11": "Master", "17": "Legendary" },
+      "Fortitude": { "1": "Expert", "9": "Master" },
+      "Reflex": { "1": "Trained", "9": "Expert" },
+      "Will": { "1": "Expert", "11": "Master" },
+      "Perception": { "1": "Trained", "11": "Expert" },
+      "ClassDc": { "1": "Trained", "9": "Expert", "17": "Master" }
+    }
+  },
+  {
+    "id": "rogue", "armorCategories": ["Light"], "name": "Rogue", "hitPointsPerLevel": 8, "keyAttributes": ["Dexterity"],
+    "resource": "Momentum", "subclasses": ["Cutthroat", "Trickster"],
+    "proficiencies": {
+      "Attack": { "1": "Trained", "5": "Expert", "13": "Master" },
+      "Armor": { "1": "Trained", "13": "Expert", "19": "Master" },
+      "Fortitude": { "1": "Trained", "9": "Expert" },
+      "Reflex": { "1": "Expert", "7": "Master", "13": "Legendary" },
+      "Will": { "1": "Expert", "17": "Master" },
+      "Perception": { "1": "Expert", "7": "Master", "13": "Legendary" },
+      "ClassDc": { "1": "Trained", "11": "Expert", "19": "Master" }
+    }
+  },
+  {
+    "id": "ranger", "armorCategories": ["Light", "Medium"], "name": "Ranger", "hitPointsPerLevel": 10, "keyAttributes": ["Dexterity"],
+    "resource": "Focus", "subclasses": ["Marksman", "Beastmaster"],
+    "proficiencies": {
+      "Attack": { "1": "Trained", "5": "Expert", "13": "Master" },
+      "Armor": { "1": "Trained", "11": "Expert", "19": "Master" },
+      "Fortitude": { "1": "Expert", "11": "Master" },
+      "Reflex": { "1": "Expert", "7": "Master" },
+      "Will": { "1": "Trained", "3": "Expert" },
+      "Perception": { "1": "Expert", "7": "Master", "15": "Legendary" },
+      "ClassDc": { "1": "Trained", "9": "Expert", "17": "Master" }
+    }
+  },
+  {
+    "id": "wizard", "armorCategories": [], "name": "Wizard", "hitPointsPerLevel": 6, "keyAttributes": ["Intelligence"],
+    "resource": "Mana", "subclasses": ["Pyromancer", "Stormcaller"],
+    "proficiencies": {
+      "Attack": { "1": "Trained", "11": "Expert" },
+      "Spell": { "1": "Trained", "7": "Expert", "15": "Master", "19": "Legendary" },
+      "Armor": { "1": "Trained", "13": "Expert" },
+      "Fortitude": { "1": "Trained", "9": "Expert" },
+      "Reflex": { "1": "Trained", "11": "Expert" },
+      "Will": { "1": "Expert", "17": "Master" },
+      "Perception": { "1": "Trained", "11": "Expert" },
+      "ClassDc": { "1": "Trained", "7": "Expert", "15": "Master", "19": "Legendary" }
+    }
+  },
+  {
+    "id": "necromancer", "armorCategories": [], "name": "Necromancer", "hitPointsPerLevel": 6, "keyAttributes": ["Intelligence"],
+    "resource": "Mana + Grave Charges", "subclasses": ["Bonelord", "Plaguebringer"],
+    "proficiencies": {
+      "Attack": { "1": "Trained", "11": "Expert" },
+      "Spell": { "1": "Trained", "7": "Expert", "15": "Master", "19": "Legendary" },
+      "Armor": { "1": "Trained", "13": "Expert" },
+      "Fortitude": { "1": "Trained", "5": "Expert" },
+      "Reflex": { "1": "Trained", "11": "Expert" },
+      "Will": { "1": "Expert", "17": "Master" },
+      "Perception": { "1": "Trained", "11": "Expert" },
+      "ClassDc": { "1": "Trained", "7": "Expert", "15": "Master", "19": "Legendary" }
+    }
+  }
+]

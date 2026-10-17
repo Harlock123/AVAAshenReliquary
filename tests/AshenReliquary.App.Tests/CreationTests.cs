@@ -1,0 +1,180 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.VisualTree;
+using Avalonia.Headless;
+using Avalonia.Headless.XUnit;
+using Avalonia.Threading;
+using AshenReliquary.App.Views;
+using AshenReliquary.Core.Rules;
+
+namespace AshenReliquary.App.Tests;
+
+public class CreationTests
+{
+    private static string? Shot(string name) =>
+        Environment.GetEnvironmentVariable("ASHEN_SHOTS") is { Length: > 0 } dir ? Path.Combine(dir, name + ".png") : null;
+
+    private static (MainWindow Window, ViewModels.CharacterCreationViewModel Vm, TestKitLite Kit) Open(int width = 1312, int height = 824)
+    {
+        var window = new MainWindow { Width = width, Height = height };
+        var vm = window.ShowCharacterCreation();
+        window.Show();
+        var kit = new TestKitLite(window);
+        kit.Pump();
+        return (window, vm, kit);
+    }
+
+    [AvaloniaFact]
+    public void Creation_screen_opens_with_a_legal_recommended_build()
+    {
+        var (window, vm, kit) = Open();
+        Assert.True(window.CreationView.IsVisible);
+        Assert.True(vm.CanBegin, vm.Problem);
+        Assert.Equal("+4", vm.Rows.Single(r => r.Kind == AttributeKind.Strength).Value);
+        kit.Capture(Shot("character-creation"));
+    }
+
+    [AvaloniaFact]
+    public void Picking_a_dwarf_wizard_and_beginning_starts_the_game()
+    {
+        var (window, vm, kit) = Open(1288, 770);
+        vm.Choose("dwarf", "hedge-scholar", "wizard");
+        vm.Heritage = vm.Heritages.First(h => h.Id == "forge-blooded");
+        vm.Name = "Brunna";
+        kit.Pump();
+        Assert.True(vm.CanBegin, vm.Problem);
+        Assert.Equal("−1", vm.Rows.Single(r => r.Kind == AttributeKind.Charisma).Ancestry.Text);
+        kit.Capture(Shot("character-creation-dwarf-wizard"));
+
+        vm.BeginCommand.Execute(null);
+        kit.Pump();
+        Assert.False(window.CreationView.IsVisible);
+        var hero = window.Session!.World.Hero.Character;
+        Assert.Equal(("Brunna", "dwarf", "wizard"), (hero.Name, hero.Ancestry.Id, hero.Class.Id));
+        Assert.Equal(5, hero.Defenses.Resistances[Core.Combat.DamageType.Fire]);
+        Assert.Equal("staff", hero.Weapon.Definition.Id);
+    }
+
+    /// <summary>
+    /// At 1280x700 every section still fits its column without overlapping the one above (each column stacks
+    /// its parts in order and scrolls if it must).
+    /// </summary>
+    [AvaloniaFact]
+    public void Columns_never_overlap_on_a_short_window()
+    {
+        var (window, vm, kit) = Open(1280, 700);
+        vm.Choose("orc", "noble-exile", "wizard");
+        kit.Capture(Shot("character-creation-short"));
+        foreach (var name in new[] { "AncestryList", "HeritageList", "BackgroundList", "ClassList" })
+            Assert.NotNull(window.CreationView.FindControl<ListBox>(name));
+        var lists = new[] { ("AncestryList", "HeritageList"), ("BackgroundList", "ClassList") };
+        foreach (var (upper, lower) in lists)
+        {
+            var a = window.CreationView.FindControl<ListBox>(upper)!;
+            var b = window.CreationView.FindControl<ListBox>(lower)!;
+            var aBottom = a.TranslatePoint(new Avalonia.Point(0, a.Bounds.Height), window.CreationView)!.Value.Y;
+            var bTop = b.TranslatePoint(new Avalonia.Point(0, 0), window.CreationView)!.Value.Y;
+            Assert.True(bTop >= aBottom, $"{lower} starts at {bTop:0} but {upper} ends at {aBottom:0}");
+        }
+    }
+
+    [AvaloniaFact]
+    public void Every_ancestry_has_portraits()
+    {
+        var (_, vm, _) = Open();
+        int Count(string ancestry)
+        {
+            vm.Choose(ancestry, "deserter", "fighter");
+            return vm.AncestryPortraits.Count;
+        }
+        Assert.True(Count("human") >= 40);
+        Assert.Equal(8, Count("elf"));
+        Assert.Equal(9, Count("dwarf"));
+        Assert.Equal(2, Count("orc"));
+        Assert.Equal(4, Count("ashborn"));
+        Assert.Equal(4, Count("halfling"));
+        Assert.True(vm.HasPortrait);
+        Assert.True(vm.CanBegin);
+    }
+
+    [AvaloniaFact]
+    public void Portrait_arrows_wrap_and_change_resets_with_ancestry()
+    {
+        var (_, vm, _) = Open();
+        vm.Choose("dwarf", "deserter", "fighter");
+        var first = vm.SelectedPortrait;
+        vm.PreviousPortraitCommand.Execute(null);
+        Assert.Equal(vm.AncestryPortraits.Count - 1, vm.PortraitIndex);
+        vm.NextPortraitCommand.Execute(null);
+        Assert.Equal(first, vm.SelectedPortrait);
+        vm.NextPortraitCommand.Execute(null);
+        Assert.Contains($"2 / {vm.AncestryPortraits.Count}", vm.PortraitCaption);
+        vm.Choose("orc", "deserter", "fighter");
+        Assert.Equal(0, vm.PortraitIndex);
+        Assert.Equal("orc", vm.SelectedPortrait!.Ancestry);
+    }
+
+    [AvaloniaFact]
+    public void The_chosen_portrait_goes_into_the_game()
+    {
+        var (window, vm, kit) = Open(1288, 770);
+        vm.Choose("orc", "deserter", "fighter");
+        vm.NextPortraitCommand.Execute(null);
+        var chosen = vm.SelectedPortrait!.Id;
+        kit.Capture(Shot("character-creation-orc"));
+        vm.BeginCommand.Execute(null);
+        kit.Pump();
+        Assert.Equal(chosen, window.Session!.PortraitId);
+        window.View.InventoryOpen = true;
+        window.Tick(TimeSpan.FromSeconds(1 / 30.0));
+        kit.Capture(Shot("inventory-portrait"));
+    }
+
+    [AvaloniaFact]
+    public void Unplayable_classes_and_missing_boosts_block_begin()
+    {
+        var (_, vm, kit) = Open();
+        vm.SelectedClass = vm.Classes.First(c => c.Definition.Id == "rogue");
+        kit.Pump();
+        Assert.False(vm.CanBegin);
+        Assert.Contains("M3", vm.Problem);
+
+        vm.SelectedClass = vm.Classes.First(c => c.Definition.Id == "fighter");
+        vm.ToggleFree(vm.Rows.First(r => r.Free.IsSelected).Kind);
+        Assert.False(vm.CanBegin);
+        Assert.Contains("1 more free boost", vm.Problem);
+        vm.RecommendCommand.Execute(null);
+        Assert.True(vm.CanBegin);
+    }
+
+    [AvaloniaFact]
+    public void Boost_columns_only_allow_legal_picks()
+    {
+        var (_, vm, _) = Open(); // Human Deserter Fighter
+        var str = vm.Rows.Single(r => r.Kind == AttributeKind.Strength);
+        var intel = vm.Rows.Single(r => r.Kind == AttributeKind.Intelligence);
+        Assert.False(intel.Background.IsEnabled);   // Deserter boosts STR or CON
+        Assert.False(intel.Key.IsEnabled);          // the Fighter's key is STR or DEX
+        Assert.False(str.BackgroundFree.IsEnabled); // already the background's boost
+        Assert.True(str.Key.IsSelected);
+    }
+}
+
+/// <summary>Pumps and captures a window that has no game session yet.</summary>
+internal sealed class TestKitLite(MainWindow window)
+{
+    public void Pump()
+    {
+        Dispatcher.UIThread.RunJobs();
+        Avalonia.Headless.AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    public void Capture(string? path)
+    {
+        Pump();
+        var frame = window.CaptureRenderedFrame() ?? throw new InvalidOperationException("No frame was rendered.");
+        if (path is not null)
+            frame.Save(path, Avalonia.Media.Imaging.PngBitmapEncoderOptions.Default);
+    }
+}

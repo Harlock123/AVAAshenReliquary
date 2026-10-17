@@ -1,0 +1,14 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:r="using:AshenReliquary.App.Rendering"
+        xmlns:v="using:AshenReliquary.App.Views"
+        x:Class="AshenReliquary.App.Views.MainWindow"
+        Title="Ashen Reliquary"
+        Width="1440" Height="900" MinWidth="1024" MinHeight="640"
+        WindowStartupLocation="CenterScreen"
+        Background="#08070A">
+  <Panel>
+    <r:WorldView x:Name="World" />
+    <v:CharacterCreationView x:Name="Creation" IsVisible="False" />
+  </Panel>
+</Window>
