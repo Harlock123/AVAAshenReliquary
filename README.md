@@ -16,7 +16,8 @@ dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a rec
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
-**Q** drinks a potion, **I** (or Tab / C) opens the inventory, click a loot label to pick it up,
+**Q** drinks a potion, **I** (or Tab / C) opens the inventory, click a loot label to pick it up, **F5** saves,
+**Escape** opens the menu (resume, save, return to the title, quit),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the ruined farmstead and the bog to the refugee camp at Fort Gallowmere.
 
@@ -35,7 +36,10 @@ slots drawn on the paper doll, armour training, and tooltips with comparison. Ch
 order (name, ancestry and heritage, background, class, boost table with only legal picks, a Recommended build,
 and a live preview of the level-1 character), with a portrait picker per ancestry: 71 portraits from Flare (CC-BY-SA 3.0), Joseph Hewitt's GearHead set
 (CC BY 4.0) and the Adonthell project (CC-BY-SA 3.0), cropped and graded to the game's palette by
-`tools/build_portraits.py` (halflings use youthful stand-ins until real halfling art is found). Still to come in M1: saving, audio, vendors and the full HUD.
+`tools/build_portraits.py` (halflings use youthful stand-ins until real halfling art is found). Saving and loading: one JSON save per character in `~/.local/share/AshenReliquary/saves` (the app-data folder on
+Windows), written atomically; autosave at shrines, on leaving through the menu and on closing the window; a title
+screen to continue, load or delete characters. Loading rebuilds the character through the rules from its creation
+choices and level-up boosts. Still to come in M1: audio, vendors and the full HUD.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 Art is from [Flare](https://github.com/flareteam/flare-game) (CC-BY-SA 3.0) and, for portraits, also

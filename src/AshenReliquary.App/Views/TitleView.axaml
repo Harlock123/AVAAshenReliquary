@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AshenReliquary.App.ViewModels"
+             x:Class="AshenReliquary.App.Views.TitleView"
+             x:DataType="vm:TitleViewModel"
+             FontFamily="Georgia, Palatino Linotype, Noto Serif, serif"
+             Foreground="#E8DCC4">
+  <UserControl.Styles>
+    <Style Selector="Button.menu">
+      <Setter Property="Width" Value="240" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="Padding" Value="0,8" />
+      <Setter Property="Margin" Value="0,4" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="#241C16" />
+      <Setter Property="BorderBrush" Value="#5A4C3A" />
+      <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#6B2A12" />
+      <Setter Property="Foreground" Value="#FFE7C0" />
+      <Setter Property="BorderBrush" Value="#F0A050" />
+    </Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#5A1414" />
+      <Setter Property="BorderBrush" Value="#E8695E" />
+    </Style>
+    <Style Selector="ListBoxItem">
+      <Setter Property="Padding" Value="8,5" />
+      <Setter Property="MinHeight" Value="0" />
+    </Style>
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+      <Setter Property="Background" Value="#4A3A1E" />
+    </Style>
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="#2E241A" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="*,Auto,*" RowDefinitions="Auto,*,Auto">
+    <Grid.Background>
+      <RadialGradientBrush Center="50%,30%" GradientOrigin="50%,30%" RadiusX="85%" RadiusY="85%">
+        <GradientStop Color="#33201A" Offset="0" />
+        <GradientStop Color="#090707" Offset="1" />
+      </RadialGradientBrush>
+    </Grid.Background>
+
+    <StackPanel Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,36,0,18">
+      <TextBlock Text="ASHEN RELIQUARY" FontSize="44" LetterSpacing="8" Foreground="#F0C860" HorizontalAlignment="Center" />
+      <TextBlock Text="The noose fails. A shard of a dead god burns in your chest." FontSize="14" Foreground="#A59B87" HorizontalAlignment="Center" Margin="0,6,0,0" />
+    </StackPanel>
+
+    <StackPanel Grid.Row="1" Grid.Column="1" Width="560">
+      <!-- Saved characters -->
+      <Border Background="#E00E0B0A" BorderBrush="#5A4C3A" BorderThickness="1.5" Padding="12" IsVisible="{Binding HasSaves}">
+        <StackPanel>
+          <TextBlock Text="Your characters" FontSize="15" Foreground="#F0C860" Margin="0,0,0,6" />
+          <ListBox ItemsSource="{Binding Saves}" SelectedItem="{Binding Selected}" MaxHeight="300" Background="Transparent" Name="SaveList">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:SaveEntry">
+                <Grid ColumnDefinitions="Auto,*">
+                  <Border Width="52" Height="52" BorderBrush="#8A7238" BorderThickness="1" Background="#0B0908" Margin="0,0,10,0">
+                    <Image Source="{Binding Portrait}" Stretch="UniformToFill" />
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" FontSize="16" />
+                    <TextBlock Text="{Binding Detail}" FontSize="12" Foreground="#C8BCA4" />
+                    <TextBlock Text="{Binding When}" FontSize="11" Foreground="#8A7F6C" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
+      </Border>
+      <TextBlock Text="{Binding Message}" Foreground="#A59B87" HorizontalAlignment="Center" Margin="0,8" />
+
+      <StackPanel HorizontalAlignment="Center" Margin="0,6,0,0">
+        <Button Classes="menu primary" Content="Continue" Command="{Binding LoadCommand}" IsVisible="{Binding HasSaves}"
+                IsEnabled="{Binding HasSelection}" Name="ContinueButton" />
+        <Button Classes="menu" Content="New character" Command="{Binding NewCharacterCommand}" Name="NewButton" />
+        <StackPanel IsVisible="{Binding HasSaves}">
+          <Button Classes="menu" Content="Delete character…" Command="{Binding DeleteCommand}" IsEnabled="{Binding HasSelection}"
+                  IsVisible="{Binding !ConfirmingDelete}" Name="DeleteButton" />
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding ConfirmingDelete}">
+            <Button Classes="menu danger" Width="150" Content="Delete forever" Command="{Binding DeleteCommand}" Margin="0,4,6,4" Name="ConfirmDeleteButton" />
+            <Button Classes="menu" Width="84" Content="Keep" Command="{Binding CancelDeleteCommand}" />
+          </StackPanel>
+        </StackPanel>
+        <Button Classes="menu" Content="Quit" Command="{Binding QuitCommand}" Name="QuitButton" />
+      </StackPanel>
+    </StackPanel>
+
+    <TextBlock Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Center" Margin="0,0,0,12" FontSize="11" Foreground="#6E6555"
+               Text="Art: Flare (CC-BY-SA 3.0), GearHead (CC BY 4.0), Adonthell (CC-BY-SA 3.0) · rules after Pathfinder 2e Remaster (ORC) · see CREDITS.md" />
+  </Grid>
+</UserControl>

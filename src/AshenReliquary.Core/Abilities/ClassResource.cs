@@ -73,6 +73,8 @@ public sealed class ClassResource
         }
     }
 
+    internal void Restore(double value) => Current = Math.Clamp(value, 0, Max);
+
     /// <summary>Back to the starting value: empty Fury, full Mana (respawning at a shrine).</summary>
     public void Reset() => Current = Kind == ResourceKind.Fury ? 0 : Max;
 }

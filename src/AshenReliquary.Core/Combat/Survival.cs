@@ -11,6 +11,8 @@ public sealed class HeroPoints
 
     public void GainForZone() => Count = Math.Min(Max, Count + 1);
 
+    internal void Restore(int count) => Count = Math.Clamp(count, 0, Max);
+
     public bool TrySpend()
     {
         if (Count == 0)
@@ -48,6 +50,8 @@ public sealed class HealingPotion
     }
 
     public void Refill() => Charges = MaxCharges;
+
+    internal void Restore(int charges) => Charges = Math.Clamp(charges, 0, MaxCharges);
 
     /// <summary>A healing draught picked up: one more charge, up to the maximum. False when already full.</summary>
     public bool AddCharge()
@@ -89,6 +93,8 @@ public sealed class TaintMeter(double rateMultiplier = 1.0)
     }
 
     public void Cleanse(double amount = Max) => Value = Math.Max(0, Value - amount);
+
+    internal void Restore(double value) => Value = Math.Clamp(value, 0, Max - 1e-6);
 
     public void Update(double deltaSeconds) =>
         ReversedMovementRemaining = Math.Max(0, ReversedMovementRemaining - deltaSeconds);

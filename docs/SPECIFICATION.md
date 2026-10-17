@@ -678,7 +678,7 @@ The build order proves the rules engine and one playable act before widening con
 ### Milestones
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
-2. **M1 — Vertical slice.** *In progress.* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Still to do: saving and loading, the full HUD (icons, minimap, Escape menu), audio, vendors, and the exit play-through.
+2. **M1 — Vertical slice.** *In progress.* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading are done too. Still to do: the full HUD (icons, minimap), audio, vendors, and the exit play-through.
 3. **M2 — Act 1 complete.** 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
@@ -775,3 +775,12 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **Monsters:** fen zombie, drowned dead, grave knight, bone archer, bog witch and cursed grave (a spawner that raises minion zombies). Packs aggro together; monsters leash at 24 tiles.
 - **Renderer:** sprites are cut out of their sheets and pre-scaled per zoom with the act's grade baked in, so each draw is a plain copy. On a software (CPU) renderer with a HiDPI screen the world is drawn at 1× and doubled, while the HUD stays at full resolution. Lighting is a quarter-resolution overlay. Trees in front of the hero fade. F3 shows the frame rate and per-stage timings.
 - **Controls:** left-click to move or basic-attack, right-click for the RMB ability, 1–6 for the other slots, Q potion, I/Tab/C inventory, Space pause, mouse wheel zoom. `--fighter` and `--wizard` skip character creation.
+
+### Saving and loading (M1)
+
+- **One save per character**, versioned JSON (`SaveGame`, version 1), in `~/.local/share/AshenReliquary/saves` on Linux and the app-data folder on Windows. Each write goes to a temporary file that is then swapped in, so a crash never leaves a half-written save. Unreadable or newer-version files are skipped, never deleted.
+- **What is saved:** the creation choices and the boosts chosen at each boost level (loading rebuilds the character through `CharacterBuilder`, so an edited save can't hold an illegal build); level and XP; HP, Taint, Hero Points, potion charges, Fury or Mana; worn gear and the bag (base, rarity, item level, runes, affix rolls, rare names) and gold; the zone, position, activated shrines and respawn point; the placed monsters already killed; loot on the ground; the portrait; play time.
+- **On load:** killed monsters stay dead; the living ones return at full health and summoned minions are gone. Saving while dead resumes at the shrine with full HP. The dice are reseeded from the saved seed and the save time, so a reload doesn't replay the same rolls.
+- **When it saves:** a new character is saved at once; autosave when a shrine is touched; F5; the Escape menu's Save, Save and return to title, and Save and quit; and closing the window.
+- **Title screen:** shown at start when any save exists (otherwise character creation): the characters with portrait, level, ancestry, class, zone, when saved and time played; Continue, New character, Delete (asks first) and Quit.
+

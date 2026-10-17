@@ -130,11 +130,22 @@ public sealed class Character : IDefender
 
         var before = MaxHitPoints;
         if (boosts is not null)
+        {
             Attributes.ApplyLevelUpBoosts(next, boosts);
+            _levelUpBoosts[next] = boosts.ToArray();
+        }
         Level = next;
         RefreshDefenses();
         HitPoints += MaxHitPoints - before;
     }
+
+    private readonly Dictionary<int, AttributeKind[]> _levelUpBoosts = [];
+
+    /// <summary>The boosts chosen at each boost level, so a save can replay the character's growth exactly.</summary>
+    public IReadOnlyDictionary<int, AttributeKind[]> LevelUpBoosts => _levelUpBoosts;
+
+    /// <summary>The character creation choices this character was built from (set by <see cref="CharacterBuilder"/>).</summary>
+    public CharacterChoices? Choices { get; internal set; }
 
     public ProficiencyRank Rank(ProficiencyTrack track) => Class.RankAt(track, Level);
 

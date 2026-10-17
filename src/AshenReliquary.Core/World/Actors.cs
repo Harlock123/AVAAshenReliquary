@@ -171,6 +171,9 @@ public sealed class MonsterActor : Actor
     public CreatureDefinition Definition { get; }
     public Creature Creature { get; }
     public int PackId { get; }
+
+    /// <summary>Which placed monster this is, in zone order (-1 for a summoned minion). Saves list the dead ones.</summary>
+    public int SpawnIndex { get; internal set; } = -1;
     public override string Name => Creature.Name;
     public override bool IsDead => Creature.IsDead;
     public MonsterState State { get; internal set; }

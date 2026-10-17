@@ -65,7 +65,10 @@ public static class CharacterBuilder
         if (string.IsNullOrWhiteSpace(choices.Name))
             throw new RulesException("Your character needs a name.");
 
-        return new Character(choices.Name.Trim(), ancestry, background, characterClass, choices.KeyAttribute, attributes, heritage);
+        return new Character(choices.Name.Trim(), ancestry, background, characterClass, choices.KeyAttribute, attributes, heritage)
+        {
+            Choices = choices,
+        };
     }
 
     /// <summary>

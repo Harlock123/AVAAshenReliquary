@@ -37,6 +37,14 @@ public sealed class GameWorld
     private readonly List<Impact> _impacts = [];
     private readonly List<GroundItem> _ground = [];
     private readonly LootGenerator? _loot;
+    private readonly HashSet<int> _slain = [];
+    private int _nextSpawnIndex;
+
+    /// <summary>The placed monsters killed so far (their <see cref="MonsterActor.SpawnIndex"/>), for saving.</summary>
+    public IReadOnlyCollection<int> Slain => _slain;
+
+    /// <summary>Raised when a shrine is touched for the first time or becomes the respawn point again: an autosave moment.</summary>
+    public event Action<ShrineDefinition>? ShrineActivated;
     private double _accumulator;
 
     public GameWorld(ZoneDefinition zone, IReadOnlyDictionary<string, CreatureDefinition> creatures, Character hero, int seed,
@@ -60,7 +68,7 @@ public sealed class GameWorld
             foreach (var member in spawn.Pack)
             {
                 for (var i = 0; i < member.Count; i++)
-                    SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId);
+                    SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId).SpawnIndex = _nextSpawnIndex++;
             }
         }
     }
@@ -595,6 +603,8 @@ public sealed class GameWorld
 
     private void Kill(MonsterActor monster, bool critical)
     {
+        if (monster.SpawnIndex >= 0)
+            _slain.Add(monster.SpawnIndex);
         monster.State = MonsterState.Dead;
         monster.Path.Clear();
         monster.Play(critical && HasAnimation(monster, "critdie") ? "critdie" : "die", restart: true);
@@ -841,6 +851,7 @@ public sealed class GameWorld
         if (!first && RespawnPoint == at)
             return;
         RespawnPoint = at;
+        ShrineActivated?.Invoke(shrine);
         var c = Hero.Character;
         c.Potion.Refill();
         c.Taint.Cleanse();
@@ -862,6 +873,37 @@ public sealed class GameWorld
             if (other.DistanceTo(m) <= PackAggroRadius)
                 Aggro(other);
         }
+    }
+
+    /// <summary>Kills a monster outright through the normal death path (XP, loot, the slain list). Tests and the debug menu.</summary>
+    internal void Slay(MonsterActor monster)
+    {
+        if (monster.IsDead)
+            return;
+        monster.Creature.TakeDamage(monster.Creature.HitPoints);
+        Kill(monster, false);
+    }
+
+    // ----- Restoring a save -------------------------------------------------------------
+
+    /// <summary>
+    /// Puts a saved world back: the hero's place, the respawn point and shrines, the monsters already killed, the
+    /// loot left lying around and whether the zone was finished. Called right after construction.
+    /// </summary>
+    internal void Restore(double heroX, double heroY, (double X, double Y) respawn, IEnumerable<string> shrines,
+        IEnumerable<int> slain, IEnumerable<GroundItem> ground, bool complete, int level, int xp)
+    {
+        Hero.X = heroX;
+        Hero.Y = heroY;
+        RespawnPoint = respawn;
+        foreach (var id in shrines)
+            _activatedShrines.Add(id);
+        foreach (var index in slain)
+            _slain.Add(index);
+        _monsters.RemoveAll(m => m.SpawnIndex >= 0 && _slain.Contains(m.SpawnIndex));
+        _ground.AddRange(ground);
+        ZoneComplete = complete;
+        Experience.Restore(level, xp);
     }
 
     // ----- Movement ------------------------------------------------------------------
@@ -1013,6 +1055,9 @@ public sealed class GameWorld
 
     private void Float(Actor at, string text, FloatingTextKind kind, double lift = 0) =>
         _texts.Add(new FloatingText(at.X - lift * 0.3, at.Y - lift * 0.3, text, kind, Time));
+
+    /// <summary>Shows a message at the top of the screen (saving, loading).</summary>
+    public void Announce(string message) => Say(message);
 
     private void Say(string message)
     {

@@ -4,9 +4,14 @@ using Avalonia.Interactivity;
 using AshenReliquary.App.Rendering;
 using AshenReliquary.App.Services;
 using AshenReliquary.App.ViewModels;
+using AshenReliquary.Core.Saving;
 
 namespace AshenReliquary.App.Views;
 
+/// <summary>
+/// The one window: the title screen, character creation, or the game (with its Escape menu over it).
+/// The game autosaves at shrines (GameSession), when you leave through the menu, and when the window closes.
+/// </summary>
 public partial class MainWindow : Window
 {
     private GameLoop? _loop;
@@ -19,31 +24,17 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+        ResumeButton.Click += (_, _) => CloseMenu();
+        SaveButton.Click += (_, _) => { SaveNow(); MenuNote.Text = "Saved."; };
+        TitleButton.Click += (_, _) => { SaveNow(); ShowTitle(); };
+        QuitGameButton.Click += (_, _) => Close();
+        Closing += (_, _) => SaveNow(announce: false);
     }
 
     public WorldView View => World;
-
     public CharacterCreationView CreationView => Creation;
-
-    /// <summary>Shows the character creation screen; Begin starts a new game on Gallows Road.</summary>
-    public CharacterCreationViewModel ShowCharacterCreation()
-    {
-        var vm = new CharacterCreationViewModel();
-        vm.Started += (choices, portrait) =>
-        {
-            Session = GameSession.NewGame(choices, Environment.TickCount) is var session && portrait is not null
-                ? session.WithPortrait(portrait.Id)
-                : session;
-            Creation.IsVisible = false;
-            World.IsVisible = true;
-            World.Focus();
-        };
-        Creation.DataContext = vm;
-        Creation.IsVisible = true;
-        World.IsVisible = false;
-        return vm;
-    }
-
+    public TitleView TitleScreen => TitlePage;
+    public bool MenuOpen => GameMenu.IsVisible;
     public bool Paused { get; private set; }
 
     public GameSession? Session
@@ -54,20 +45,107 @@ public partial class MainWindow : Window
             _session = value;
             World.Session = value;
             World.InvalidateVisual();
+            if (value is not null)
+                ShowGame();
         }
+    }
+
+    /// <summary>The first screen: the title if any character is saved, otherwise straight into character creation.</summary>
+    public void ShowStart()
+    {
+        if (SaveStore.List().Count > 0)
+            ShowTitle();
+        else
+            ShowCharacterCreation();
+    }
+
+    public TitleViewModel ShowTitle()
+    {
+        _session = null;
+        World.Session = null;
+        var vm = new TitleViewModel();
+        vm.LoadRequested += save => Session = GameSession.FromSave(save);
+        vm.NewRequested += () => ShowCharacterCreation();
+        vm.QuitRequested += Close;
+        TitlePage.DataContext = vm;
+        ShowOnly(TitlePage);
+        return vm;
+    }
+
+    /// <summary>Shows the character creation screen; Begin starts a new game on Gallows Road.</summary>
+    public CharacterCreationViewModel ShowCharacterCreation()
+    {
+        var vm = new CharacterCreationViewModel();
+        vm.Started += (choices, portrait) =>
+        {
+            var session = GameSession.NewGame(choices, Environment.TickCount);
+            session.PortraitId = portrait?.Id;
+            Session = session;
+            SaveNow(announce: false);
+        };
+        Creation.DataContext = vm;
+        ShowOnly(Creation);
+        return vm;
+    }
+
+    private void ShowGame()
+    {
+        ShowOnly(World);
+        Paused = false;
+        World.Focus();
+    }
+
+    private void ShowOnly(Control screen)
+    {
+        TitlePage.IsVisible = screen == TitlePage;
+        Creation.IsVisible = screen == Creation;
+        World.IsVisible = screen == World;
+        GameMenu.IsVisible = false;
+    }
+
+    /// <summary>Saves the game in play, if there is one; a failed save is reported, never thrown at the player.</summary>
+    public void SaveNow(bool announce = true)
+    {
+        if (_session is null || !World.IsVisible)
+            return;
+        try
+        {
+            _session.Save(announce);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            _session.World.Announce($"Could not save: {e.Message}");
+        }
+    }
+
+    private void OpenMenu()
+    {
+        GameMenu.IsVisible = true;
+        MenuNote.Text = "";
+        Paused = true;
+        ResumeButton.Focus();
+    }
+
+    private void CloseMenu()
+    {
+        GameMenu.IsVisible = false;
+        Paused = false;
+        World.Focus();
     }
 
     public void Tick(TimeSpan elapsed)
     {
-        if (!Paused)
-            _session?.World.Update(elapsed.TotalSeconds);
+        if (!Paused && _session is not null && World.IsVisible)
+        {
+            _session.World.Update(elapsed.TotalSeconds);
+            _session.AddPlayTime(elapsed.TotalSeconds);
+        }
         World.InvalidateVisual();
     }
 
     protected override void OnOpened(EventArgs e)
     {
         base.OnOpened(e);
-        World.Focus();
         if (RunGameLoop)
         {
             _loop = new GameLoop(Tick);
@@ -83,18 +161,29 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        if (Creation.IsVisible || _session?.World is not { } world)
+        if (!World.IsVisible || _session?.World is not { } world)
+            return;
+        if (e.Key == Key.Escape)
+        {
+            if (GameMenu.IsVisible) CloseMenu(); else OpenMenu();
+            e.Handled = true;
+            return;
+        }
+        if (GameMenu.IsVisible)
             return;
         switch (e.Key)
         {
             case Key.Q or Key.H:
                 world.DrinkPotion();
                 break;
-            case Key.Space or Key.P or Key.Escape:
+            case Key.Space or Key.P:
                 Paused = !Paused;
                 break;
             case Key.S:
                 world.Stop();
+                break;
+            case Key.F5:
+                SaveNow();
                 break;
             case >= Key.D1 and <= Key.D6:
                 World.UseSlot(((int)(e.Key - Key.D1) + 1).ToString());

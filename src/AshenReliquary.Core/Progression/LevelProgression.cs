@@ -74,5 +74,11 @@ public sealed class Experience
         return gained;
     }
 
+    internal void Restore(int level, int xp)
+    {
+        Level = Math.Clamp(level, 1, MaxLevel);
+        Xp = Math.Clamp(xp, 0, XpPerLevel - 1);
+    }
+
     public void ApplyDeathPenalty() => Xp = Math.Max(0, Xp - (int)(XpPerLevel * DeathPenaltyFraction));
 }

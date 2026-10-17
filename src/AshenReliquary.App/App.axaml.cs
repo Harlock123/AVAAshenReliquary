@@ -13,13 +13,13 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // The character creation screen comes first; "--fighter" or "--wizard" skips it with a recommended Human.
+            // The title screen (or character creation, with no saves) comes first; "--fighter" or "--wizard" skips both.
             var args = desktop.Args ?? [];
             var window = new MainWindow();
             if (args.Contains("--wizard") || args.Contains("--fighter"))
                 window.Session = GameSession.NewGame(args.Contains("--wizard") ? "wizard" : "fighter", seed: Environment.TickCount);
             else
-                window.ShowCharacterCreation();
+                window.ShowStart();
             desktop.MainWindow = window;
         }
 
