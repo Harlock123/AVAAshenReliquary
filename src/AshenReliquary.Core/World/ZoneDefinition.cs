@@ -4,8 +4,11 @@ using AshenReliquary.Core.Creatures;
 
 namespace AshenReliquary.Core.World;
 
-/// <summary>What one map character means: a ground set, optional object tiles, and whether it blocks movement.</summary>
-public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false);
+/// <summary>
+/// What one map character means: a ground set, optional object tiles, and whether it blocks movement. A cell draws
+/// one of <see cref="Objects"/> at random, or all of them layered when <see cref="Stack"/> is set (a gate's cross brace).
+/// </summary>
+public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false);
 
 /// <summary>One monster in a pack: a creature id and its rank.</summary>
 public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1);

@@ -6,7 +6,7 @@
  "rows": [
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
-  "TT.T,TTOO.T.OTT.TD....-==-....OO...D..TT..TT",
+  "TT.T,TTOO.T.OTT.FFFFFPGGGGPFFFFFFFFFFFTT..TT",
   "TT.OT.D..TTT.TT.D.O....-===.............TrTT",
   "TT.DT.TODDOOOTOT...D.....x==..x.......OTTOTT",
   "TTO..T.T.TTT,T.OT..O...tX-===...tX...r.TOOTT",
@@ -267,6 +267,30 @@
   "X": {
    "ground": "grass",
    "blocks": true
+  },
+  "G": {
+   "ground": "path",
+   "objects": [
+    104,
+    107
+   ],
+   "blocks": true,
+   "stack": true
+  },
+  "P": {
+   "ground": "grass",
+   "objects": [
+    132
+   ],
+   "blocks": true,
+   "blocksSight": true
+  },
+  "F": {
+   "ground": "grass",
+   "objects": [
+    107
+   ],
+   "blocks": true
   }
  },
  "playerStart": [
@@ -458,10 +482,10 @@
    "id": "fort_gallowmere",
    "label": "Fort Gallowmere",
    "at": [
-    28,
-    9
+    24,
+    4
    ],
-   "radius": 3.0
+   "radius": 2.0
   }
  ],
  "vendors": [

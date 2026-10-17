@@ -163,7 +163,7 @@ internal sealed class Hud(IconStore icons)
             using var titleInk = new SKPaint { IsAntialias = true, Color = Palette.Ink.WithAlpha((byte)(255 * fade)) };
             using var subtitleInk = new SKPaint { IsAntialias = true, Color = Palette.Dim.WithAlpha((byte)(255 * fade)) };
             canvas.DrawText(arrival.Exit.Label, size.Width / 2, size.Height / 2, SKTextAlign.Center, title, titleInk);
-            canvas.DrawText("The refugees open the gate. End of the vertical slice.", size.Width / 2, size.Height / 2 + 30, SKTextAlign.Center, font, subtitleInk);
+            canvas.DrawText("The gate stays barred for now. End of the vertical slice.", size.Width / 2, size.Height / 2 + 30, SKTextAlign.Center, font, subtitleInk);
         }
 
         // The block behind the bottom bar (orbs to orbs) swallows world clicks too.

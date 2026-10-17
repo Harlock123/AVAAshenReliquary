@@ -50,6 +50,23 @@ public class WorldTests
     }
 
     [Fact]
+    public void Gallows_road_ends_at_a_barred_gate_with_the_arrival_in_front_of_it()
+    {
+        var zone = Content.Zone("gallows_road");
+        var map = new TileMap(zone);
+        var gate = Enumerable.Range(0, zone.Height)
+            .SelectMany(y => Enumerable.Range(0, zone.Rows[y].Length).Where(x => zone.Rows[y][x] == 'G').Select(x => (X: x, Y: y)))
+            .ToList();
+        Assert.NotEmpty(gate);
+        Assert.All(gate, c => Assert.True(map.IsBlocked(c.X, c.Y)));
+        Assert.All(gate, c => Assert.Equal(2, map.Objects(c.X, c.Y).Count)); // both rails, stacked
+        var (gx, gy) = (gate.Average(c => c.X) + 0.5, gate.Average(c => c.Y) + 0.5);
+        var exit = zone.Exits.Single();
+        var toGate = Math.Sqrt(Math.Pow(exit.At[0] + 0.5 - gx, 2) + Math.Pow(exit.At[1] + 0.5 - gy, 2));
+        Assert.True(toGate <= exit.Radius + 1, $"the arrival is {toGate:0.0} tiles from the gate");
+    }
+
+    [Fact]
     public void Pathfinder_goes_around_walls()
     {
         var map = new TileMap(Arena([

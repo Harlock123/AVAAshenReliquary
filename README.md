@@ -24,7 +24,8 @@ monster for your right-mouse ability, **1** to **6** use the other bar slots on 
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
-fight north past the graveyard, the ruined farmstead and the bog to the refugee camp at Fort Gallowmere.
+fight north past the graveyard, the ruined farmstead and the bog, through the refugee camp, to the barred gate of
+Fort Gallowmere, where the vertical slice ends.
 
 ## Status: M1 in progress, the vertical slice
 

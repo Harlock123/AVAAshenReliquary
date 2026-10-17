@@ -40,7 +40,7 @@ public sealed class TileMap
                 var set = GroundSets.TryGetValue(entry.Ground, out var ids) ? ids : throw new InvalidDataException($"Unknown ground set '{entry.Ground}'.");
                 _ground[x, y] = set.Length == 0 ? -1 : set[Hash(x, y, 0) % set.Length];
                 if (entry.Objects is { Count: > 0 } objects)
-                    _objects[x, y] = [objects[Hash(x, y, 1) % objects.Count]];
+                    _objects[x, y] = entry.Stack ? [.. objects] : [objects[Hash(x, y, 1) % objects.Count]];
                 _blocked[x, y] = entry.Blocks || entry.Ground == "water";
                 _blocksSight[x, y] = entry.BlocksSight;
             }
