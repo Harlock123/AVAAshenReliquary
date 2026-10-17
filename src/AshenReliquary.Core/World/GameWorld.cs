@@ -26,6 +26,10 @@ public sealed class GameWorld
     public const double PackAggroRadius = 6.0;
     public const double LeashDistance = 24.0;
     public const double FlourishLockoutSeconds = 3.0;
+    /// <summary>Out of combat this long (no monster awake, no attack under way), the hero starts to recover HP.</summary>
+    public const double RegenDelaySeconds = 4.0;
+    /// <summary>Share of max HP recovered per second out of combat.</summary>
+    public const double RegenShare = 0.05;
 
     /// <summary>How far around the hero the minimap reveals, in tiles.</summary>
     public const int RevealRadius = 9;
@@ -506,6 +510,7 @@ public sealed class GameWorld
 
         if (hero.IsDead)
         {
+            Regenerating = false;
             hero.RespawnIn -= dt;
             if (hero.RespawnIn <= 0)
                 Respawn();
@@ -524,6 +529,8 @@ public sealed class GameWorld
                 _healCarry -= whole;
             }
         }
+
+        Regenerate(dt);
 
         foreach (var shrine in Zone.Shrines)
         {
@@ -626,6 +633,32 @@ public sealed class GameWorld
     }
 
     private double _healCarry;
+    private double _calmSince;
+
+    /// <summary>True while the hero is recovering HP out of combat (the HUD shows it as a buff).</summary>
+    public bool Regenerating { get; private set; }
+
+    /// <summary>
+    /// Out-of-combat recovery, Grim Dawn style: with no monster awake and no attack under way for
+    /// <see cref="RegenDelaySeconds"/>, the hero gets back <see cref="RegenShare"/> of max HP a second. Without it a
+    /// melee hero, who can't avoid chip damage the way a caster at range can, wore down pack by pack.
+    /// </summary>
+    private void Regenerate(double dt)
+    {
+        var c = Hero.Character;
+        if (Hero.Action is not null || _projectiles.Count > 0 || _monsters.Any(m => !m.IsDead && m.State != MonsterState.Idle))
+            _calmSince = Time;
+        Regenerating = Time - _calmSince >= RegenDelaySeconds && c.HitPoints < c.MaxHitPoints;
+        if (!Regenerating)
+            return;
+        _healCarry += c.MaxHitPoints * RegenShare * dt;
+        var whole = (int)_healCarry;
+        if (whole > 0)
+        {
+            c.Heal(whole);
+            _healCarry -= whole;
+        }
+    }
 
     /// <summary>Gold within reach is always picked up; the item the player clicked is picked up on arrival.</summary>
     private void CollectLoot()

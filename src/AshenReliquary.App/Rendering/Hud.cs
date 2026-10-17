@@ -231,6 +231,12 @@ internal sealed class Hud(IconStore icons)
         }
         if (hero.HealRemaining > 0)
             items.Add(("healing", Good, null, null, () => [new("Healing", Good, $"+{hero.HealRemaining:0} to come", true), new("A potion's healing arrives over 2 s.", Dim)], Good));
+        else if (world.Regenerating)
+            items.Add(("healing", Good, null, null, () =>
+            [
+                new("Recovering", Good, $"+{c.MaxHitPoints * GameWorld.RegenShare:0.#} HP/s", true),
+                new($"Out of combat for {GameWorld.RegenDelaySeconds:0} s, you get back {GameWorld.RegenShare:0%} of your max HP a second.", Dim),
+            ], Good));
         if (c.Taint.Value >= TaintMeter.PenaltyThreshold)
             items.Add(("tainted", new SKColor(180, 230, 80), null, null, () => [new("Tainted", new SKColor(180, 230, 80), null, true), new("−1 status penalty to all saves until cleansed at a shrine.", Dim)], new SKColor(140, 200, 70)));
         // A Flourish ability with no cooldown of its own (Power Attack) shows exactly the lockout time left.

@@ -104,6 +104,36 @@ public class WorldTests
     }
 
     [Fact]
+    public void Out_of_combat_the_hero_recovers_hp_after_a_pause()
+    {
+        var world = new GameWorld(Arena(Enumerable.Repeat("..........", 10).ToArray()), Content.Creatures, TestCharacters.Fighter(), 1);
+        var c = world.Hero.Character;
+        c.TakeDamage(10);
+        Run(world, GameWorld.RegenDelaySeconds - 0.5);
+        Assert.False(world.Regenerating);
+        Assert.Equal(c.MaxHitPoints - 10, c.HitPoints);
+        Run(world, 1.5);
+        Assert.True(world.Regenerating);
+        Assert.True(c.HitPoints > c.MaxHitPoints - 10);
+        Run(world, 1 / GameWorld.RegenShare);
+        Assert.Equal(c.MaxHitPoints, c.HitPoints);
+        Assert.False(world.Regenerating);
+    }
+
+    [Fact]
+    public void An_awake_monster_stops_the_recovery()
+    {
+        var zone = Arena(Enumerable.Repeat("..........", 10).ToArray(),
+            new SpawnDefinition([5, 5], [new PackMember("cursed_grave")], Radius: 0));
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 1);
+        var c = world.Hero.Character;
+        c.TakeDamage(10);
+        Run(world, GameWorld.RegenDelaySeconds + 2);
+        Assert.Contains(world.Monsters, m => m.State != MonsterState.Idle);
+        Assert.False(world.Regenerating);
+    }
+
+    [Fact]
     public void A_corpse_stops_flinching_from_the_killing_blow()
     {
         var zone = Arena(Enumerable.Repeat("............", 12).ToArray(),

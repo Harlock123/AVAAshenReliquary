@@ -97,7 +97,7 @@ public sealed class GameSession
     /// <summary>Each playable class's starting gear, all common item level 1.</summary>
     public static IReadOnlyList<string> StartingKit(string classId) => classId == "wizard"
         ? ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"]
-        : ["longsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves"];
+        : ["longsword", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"];
 
     /// <summary>Puts a class's starting kit on a character (used by the game and by the creation preview).</summary>
     public static Equipment Dress(Character hero, Equipment gear, string classId)

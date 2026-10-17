@@ -439,6 +439,7 @@ Bosses get **diminishing returns**: each control effect within 10 s has its dura
 
 - **Potions** are limited by charges, not a stack: 3 charges, which refill at shrines. Heal 1d8 + 2 × level over 2 s; 8 s cooldown.
 - **Medicine** (Treat Wounds) heals out of combat only, after a 3 s channel.
+- **Recovery:** out of combat (no monster awake, no attack under way) for 4 s, the hero gets back 5% of max HP a second.
 - At 0 HP the character becomes **Dying 1**. If a Hero Point is held, it is spent and the character revives with half HP. Otherwise they die and respawn at the nearest shrine (by walking distance from where they fell), losing 10% of current-level XP. In Hardcore the death is permanent.
 
 ## 11. Equipment and loot
@@ -738,10 +739,12 @@ Building the rules core and the vertical slice settled these. Where a number her
 | Armour training | Classes list the armour categories they are trained in. In armour a class isn't trained in, AC gets no proficiency bonus. Unarmoured defence is always trained |
 | Body armour | Only the chest slot is armour in the rules sense (AC, DEX cap, check and speed penalty, STR requirement). Head, hands, legs, feet, belt, rings and amulet carry looks and affixes, never extra AC |
 | Creature damage | Default strike averages 4 + 1.5 × effective level (section 12); monster data can override it |
+| Recovery | After 4 s with no monster awake and no attack under way, the hero regains 5% of max HP a second (a "Recovering" buff on the HUD). Without it a melee hero, who can't avoid chip damage the way a caster at range can, wore down pack by pack: in the M1 play-test the Fighter died far more often than the Wizard. `BalanceReport` (Core tests) runs bot play-throughs of Gallows Road; with recovery and chain mail the Fighter's deaths per run fell from 1.4 to 0.3 |
 
 ### Character creation
 
 - All six ancestries and all eight backgrounds are playable; only the Fighter and Wizard can be chosen until M3 (they are the classes with abilities and starting gear).
+- **Starting kits:** Fighter: longsword, chain mail (AC 18 at level 1; STR meets its requirement, so no speed penalty) and leather leggings, boots and gloves. Wizard: staff and mage robes, skirt, boots and sleeves.
 - The boost table has a column per source (ancestry, background, background free, class key, four free). Only legal picks are clickable. **Recommended** fills a legal build (key attribute first, then CON, DEX, WIS); it is legal for all 288 ancestry/background/class combinations.
 - Heritages applied by the rules so far: Forge-blooded (fire resistance 5), Nimble-foot (+5 ft), Battle-scarred (+2 HP per level), Pale-lit (+1 Will). Ashborn also get fire resistance of half their level (minimum 1). The other heritages wait on skills, vision and extra cantrips.
 - **Portraits:** 71, chosen per ancestry with ‹ ›: human 44, elf 8, dwarf 9, orc 2, Ashborn 4, halfling 4 (youthful stand-ins until real halfling art is found). Every portrait is cropped to the face, resized to 320 px, graded (30% desaturated, warmed) and vignetted by `tools/build_portraits.py` so the three sources match. The chosen portrait shows in the inventory header.

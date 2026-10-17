@@ -34,6 +34,16 @@ public class CreationTests
         kit.Capture(Shot("character-creation"));
     }
 
+    [Fact]
+    public void The_fighter_starts_in_chain_mail_without_slowing_down()
+    {
+        var session = GameSession.NewGame("fighter", seed: 1);
+        var hero = session.World.Hero.Character;
+        Assert.Equal("Chain mail", hero.Armor.Definition.Name);
+        Assert.Equal(18, hero.ArmorClass().Total);
+        Assert.Equal(0, hero.Armor.SpeedPenaltyFeet(hero.Attributes[AttributeKind.Strength])); // STR meets its requirement
+    }
+
     [AvaloniaFact]
     public void Picking_a_dwarf_wizard_and_beginning_starts_the_game()
     {

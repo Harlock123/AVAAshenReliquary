@@ -32,7 +32,7 @@ Done so far: the Avalonia app; a SkiaSharp isometric renderer for the Flare art 
 sprites, the layered hero paper doll, depth sorting, see-through occluders, Act 1 colour grade, darkness with
 light pools, drifting ash, vignette); Gallows Road as data (`Content/Data/zones/gallows_road.json`, first draft
 from `tools/gallows_road_mapgen.py`); six Act 1 monsters with chase, melee, ranged and spawner AI; click-to-move
-with A* pathfinding; real-time combat through the rules core; shrines, potions, Hero Points, XP and respawning;
+with A* pathfinding; real-time combat through the rules core; shrines, potions, Hero Points, XP and respawning; out-of-combat recovery (5% of max HP a second after 4 s of quiet);
 a first HUD; abilities from `Content/Data/abilities.json` (Fighter: Strike, Power Attack, Sudden Charge, built on
 Fury; Wizard: Ignition, Force Bolt, Staff Strike, on Mana) with cooldowns, the Flourish lockout and homing spell
 projectiles; loot and inventory (`items.json`, `affixes.json`): Common, Uncommon and Rare drops by monster rank,
