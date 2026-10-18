@@ -34,7 +34,7 @@ switch (args[0])
         var top = Option2("--top", 0.04f);
         var zoom = Option2("--zoom", 1.0f);
         var auto = args.Contains("--auto");
-        using var original = SKBitmap.Decode(args[1]);
+        using var original = Load(args[1]);
         using var source = auto ? StripPage(original) : original.Copy();
 
         SKRect region;
@@ -118,7 +118,7 @@ switch (args[0])
         canvas.Clear(new SKColor(40, 40, 48));
         for (var i = 0; i < files.Count; i++)
         {
-            using var image = SKBitmap.Decode(files[i]);
+            using var image = Load(files[i]);
             var scale = Math.Min((float)cell / image.Width, (float)cell / image.Height);
             float x = i % columns * cell, y = i / columns * (cell + 22) + 22;
             canvas.DrawBitmap(image, SKRect.Create(x, y, image.Width * scale, image.Height * scale));
@@ -134,7 +134,7 @@ switch (args[0])
         var first = args.Length > 4 ? int.Parse(args[4]) : int.MinValue;
         var last = args.Length > 5 ? int.Parse(args[5]) : int.MaxValue;
         var tiles = tileset.Tiles.Values.Where(t => t.Id >= first && t.Id <= last).OrderBy(t => t.Id).ToList();
-        var images = tileset.Images.ToDictionary(i => i, i => SKBitmap.Decode(Path.Combine(root, i)));
+        var images = tileset.Images.ToDictionary(i => i, i => Load(Path.Combine(root, i)));
         const int cell = 220, columns = 10;
         var cellHeight = Math.Max(160, tiles.Max(t => t.Height) + 30);
         using var sheet = new SKBitmap(cell * columns, cellHeight * ((tiles.Count + columns - 1) / columns));
@@ -158,7 +158,7 @@ switch (args[0])
     {
         var set = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, args[2])));
         var anim = set[args[3]] ?? throw new ArgumentException($"No animation '{args[3]}'. Have: {string.Join(", ", set.Animations.Keys)}");
-        using var image = SKBitmap.Decode(Path.Combine(root, set.Image));
+        using var image = Load(Path.Combine(root, set.Image));
         const int cell = 220;
         using var sheet = new SKBitmap(cell * anim.FrameCount, cell * 8);
         using var canvas = new SKCanvas(sheet);
@@ -309,6 +309,16 @@ static SKRect ContentBounds(SKBitmap bitmap)
         top = Math.Min(top, y); bottom = Math.Max(bottom, y);
     }
     return right < left ? SKRect.Create(bitmap.Width, bitmap.Height) : new SKRect(left, top, right + 1, bottom + 1);
+}
+
+// Decode returns null rather than throwing for a missing or unreadable file; exit cleanly instead of crashing on it.
+static SKBitmap Load(string path)
+{
+    if (SKBitmap.Decode(path) is { } bitmap)
+        return bitmap;
+    Console.Error.WriteLine($"Cannot read image '{path}'.");
+    Environment.Exit(1);
+    return null!;
 }
 
 static void Save(SKBitmap bitmap, string path)
