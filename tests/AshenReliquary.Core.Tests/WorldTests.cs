@@ -68,6 +68,20 @@ public class WorldTests
     }
 
     [Fact]
+    public void Walking_gallows_road_wakes_every_shrine_on_the_way()
+    {
+        var zone = Content.Zone("gallows_road");
+        foreach (var shrine in zone.Shrines)
+        {
+            var (sx, sy) = (shrine.At[0] + 0.5, shrine.At[1] + 0.5);
+            var nearest = Enumerable.Range(0, zone.Height)
+                .SelectMany(y => Enumerable.Range(0, zone.Rows[y].Length).Where(x => zone.Rows[y][x] == '=').Select(x => (X: x + 0.5, Y: y + 0.5)))
+                .Min(c => Math.Sqrt((c.X - sx) * (c.X - sx) + (c.Y - sy) * (c.Y - sy)));
+            Assert.True(nearest <= GameWorld.ShrineRadius - 0.5, $"{shrine.Name} is {nearest:0.0} tiles from the road");
+        }
+    }
+
+    [Fact]
     public void Gallows_road_ends_at_a_barred_gate_with_the_arrival_in_front_of_it()
     {
         var zone = Content.Zone("gallows_road");

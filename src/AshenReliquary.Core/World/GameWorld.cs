@@ -20,7 +20,11 @@ public sealed class GameWorld
     public const double MapSpeedScale = 0.7;
 
     public const double MeleeReach = 1.1;
-    public const double ShrineRadius = 1.6;
+    /// <summary>
+    /// A shrine wakes (refilling potions, and healing the first time) and becomes the respawn point when the hero comes
+    /// this close. It was 1.6, a step onto the shrine itself, and play-testers walked past shrines a few tiles off the road.
+    /// </summary>
+    public const double ShrineRadius = 5.0;
     public const double RespawnSeconds = 3.0;
     public const double CorpseSeconds = 12.0;
     public const double PackAggroRadius = 6.0;

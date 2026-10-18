@@ -7,23 +7,18 @@ implementation decisions made so far). `README.md` has the run commands and cont
 ## Where things stand (2026-10-17)
 
 - **M0 (rules core):** done.
-- **M1 (vertical slice):** everything built except the exit test. Built: renderer, Gallows Road, six monsters,
-  abilities, loot and inventory, character creation with portraits, saving and loading, the full HUD, audio,
-  respawning at the nearest shrine, the peddler (Wenna Marsh) in the camp near the end of the road, the town banner,
-  and the Escape menu's "Just quit".
-- **Tuning pass so far (2026-10-17, on real hardware):** HiDPI scale taken from `GDK_SCALE` on Linux
-  (`Services/DisplayScale.cs`); the vignette drawn straight onto the GPU canvas (37 → 60 fps on the laptop); corpses
-  no longer keep the killing blow's red flash (it showed as pink rubble on destroyed cursed graves); out-of-combat
-  HP recovery (5% of max HP a second after 4 s with no monster awake) and the fighter starting in chain mail, after
-  the play-test showed the fighter dying far more than the wizard; the road now ends at a barred gate to Fort
-  Gallowmere at the north edge, where the arrival trigger and banner are. The first exit test reached the gate in
-  5 minutes, so the road was regenerated longer (56×220, 24 packs, side glades, a third shrine before the
-  Champion; zone revision 2 — bump `REVISION` in `tools/gallows_road_mapgen.py` whenever the layout changes).
-- **Next:** repeat the M1 exit test on the longer road — a 20-minute play-through from the gallows to the gate —
-  then the tuning it shows a need for, then mark M1 done in section 15. The bot takes about 4.7 minutes now (1.5
-  before) and reaches level 2; a wizard play-test took 13 minutes of play. Ponds have rocky banks
-  (`TileMap.ShapeShores`). Chests (`caches` in the zone file, `World/Cache.cs`, `LootGenerator.RollCache`) hold loot
-  rolled at the hero's level when opened: eight on Gallows Road, a reliquary in the Champion's barrow.
+- **M1 (vertical slice):** done (2026-10-17). Built: renderer, Gallows Road, six monsters, abilities, loot and
+  inventory, character creation with portraits, saving and loading, the full HUD, audio, respawning at the nearest
+  shrine, the peddler (Wenna Marsh), the town banner, the Escape menu's "Just quit". The exit test's tuning pass
+  added: HiDPI from `GDK_SCALE` (`Services/DisplayScale.cs`), the GPU vignette fix (37 → 60 fps), corpses losing
+  the hit flash, out-of-combat HP recovery and the fighter's chain mail, the barred gate at the north end, the road
+  regenerated longer (56×220, 24 packs, side glades, three shrines; zone revision 2 — bump `REVISION` in
+  `tools/gallows_road_mapgen.py` whenever the layout changes), rocky pond banks (`TileMap.ShapeShores`), chests
+  (`caches` in the zone file, `World/Cache.cs`, `LootGenerator.RollCache`: eight on the road, a reliquary in the
+  Champion's barrow) and shrines waking from 5 tiles. A fighter clears the road with every chest in about 10 minutes.
+- **Next:** M2, Act 1 complete (section 15): Fort Gallowmere as a hub (the gate opens into it), three more Act 1
+  zones, Mother Sallow, the three Act 1 side stories, the feat UI, runes and the smith; exit test Act 1 at level 5
+  in 3–4 hours. Write a short plan and agree the order with the user before building.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter
@@ -31,7 +26,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
   it keeps its own copy of the starting kits.
 - **Open ideas, not yet asked for:** move the skeleton pack just south of the camp fence if it crowds the peddler;
   orcs have only 2 portraits (a paid pack is an option); the Step dodge and Shield Block from the spec (melee has
-  no active defence yet); Fort Gallowmere as a real hub, and opening its gate, is M2.
+  no active defence yet); a real chest-opening sound (chests reuse the inventory-open clunk).
 
 ## The development machine
 

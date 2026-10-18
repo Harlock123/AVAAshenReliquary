@@ -28,7 +28,7 @@ fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the dr
 through the refugee camp, to the barred gate of
 Fort Gallowmere, where the vertical slice ends.
 
-## Status: M1 in progress, the vertical slice
+## Status: M1 done, the vertical slice
 
 Done so far: the Avalonia app; a SkiaSharp isometric renderer for the Flare art (192x96 tiles, 8-direction
 sprites, the layered hero paper doll, depth sorting, see-through occluders, Act 1 colour grade, darkness with
@@ -53,8 +53,8 @@ character sheet (C), and a tooltip on every element: every number is one hover a
 audio layer) with positional sound effects, footsteps, crossfading exploration and battle music, and an ambience loop,
 from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Chests in the glades and ruins hold loot for your level (click to open; a skull-chest reliquary guarded by the
 Champion). A peddler in the camp at
-the end of the road buys and sells (click her; right-click bag items to sell). Still to come in M1: the 20-minute
-play-through and tuning pass.
+the end of the road buys and sells (click her; right-click bag items to sell). Shrines wake when you pass within 5 tiles.
+The exit test (gallows to gate in one sitting) passed on 2026-10-17. Next is M2: the rest of Act 1.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,
