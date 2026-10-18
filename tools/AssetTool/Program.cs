@@ -22,20 +22,22 @@ switch (args[0])
 {
     case "portrait":
     {
-        // AssetTool portrait <in.png> <out.png> [--size 320] [--top 0.04] [--zoom 1.0] [--auto]
+        // AssetTool portrait <in.png> <out.png> [--size 320] [--top 0.04] [--zoom 1.0] [--auto] [--parchment]
         // Makes a square face portrait in the game's palette:
         //   default: a square from the top of the painting (from --top, a fraction of the height);
         //   --zoom >1 widens the square past the painting's edges (a head taller than the canvas is wide), filling
         //             the overflow with a blurred, enlarged copy of the painting;
         //   --auto    finds the painted area itself, after turning a white page (flood-filled from the edges) and any
-        //             transparency into the game's dark backdrop.
+        //             transparency into the game's dark backdrop;
+        //   --parchment tones a pencil sketch's white paper down to old parchment (white to a dim brown, black stays),
+        //             so it sits beside the painted portraits.
         // Then the Act 1 grade (30% desaturated, warmed) and a dark vignette are baked in.
         var size = Option("--size", 320);
         var top = Option2("--top", 0.04f);
         var zoom = Option2("--zoom", 1.0f);
         var auto = args.Contains("--auto");
         using var original = Load(args[1]);
-        using var source = auto ? StripPage(original) : original.Copy();
+        using var source = auto ? StripPage(original) : args.Contains("--parchment") ? Parchment(original) : original.Copy();
 
         SKRect region;
         if (auto)
@@ -210,6 +212,23 @@ static SKBitmap Grade(SKBitmap source, int size)
             [SKColors.Transparent, SKColors.Transparent, new SKColor(0, 0, 0, 190)], [0f, 0.55f, 1f], SKShaderTileMode.Clamp),
     };
     canvas.DrawRect(SKRect.Create(size, size), vignette);
+    return result;
+}
+
+/// <summary>A sketch's paper toned to parchment: each channel scaled down (white becomes 168, 140, 107), black kept dark.</summary>
+static SKBitmap Parchment(SKBitmap source)
+{
+    var result = new SKBitmap(source.Width, source.Height, SKColorType.Rgba8888, SKAlphaType.Premul);
+    using var canvas = new SKCanvas(result);
+    float[] matrix =
+    [
+        0.64f, 0, 0, 0, 0.02f,
+        0, 0.53f, 0, 0, 0.02f,
+        0, 0, 0.41f, 0, 0.01f,
+        0, 0, 0, 1, 0,
+    ];
+    using var paint = new SKPaint { ColorFilter = SKColorFilter.CreateColorMatrix(matrix) };
+    canvas.DrawBitmap(source, 0, 0, paint);
     return result;
 }
 
