@@ -44,7 +44,7 @@ public sealed class AudioDirector
 
     public IAudioEngine Engine => _engine;
 
-    /// <summary>The music group now chosen ("title", "explore", "combat"), for tests and the F3 overlay.</summary>
+    /// <summary>The music group now chosen ("title", "explore", "combat", "boss"), for tests and the F3 overlay.</summary>
     public string? MusicGroup => _musicGroup;
 
     public IReadOnlyDictionary<string, string[]> Effects => _effects;
@@ -104,7 +104,8 @@ public sealed class AudioDirector
         var hunted = world.Monsters.Any(m => !m.IsDead && m.State is MonsterState.Chase or MonsterState.Attack && m.DistanceTo(hero) <= CombatRange);
         if (hunted)
             _combatUntil = _clock + CombatHoldSeconds;
-        SetMusic(_clock < _combatUntil ? "combat" : "explore");
+        // A Herald fight has its own track while the boss is awake.
+        SetMusic(world.Boss is not null && _music.ContainsKey("boss") ? "boss" : _clock < _combatUntil ? "combat" : "explore");
         if (_ambience.TryGetValue("road", out var road) && road.Length > 0 && _engine.CurrentAmbience != road[0])
             _engine.PlayAmbience(road[0]);
     }

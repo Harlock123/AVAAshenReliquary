@@ -96,6 +96,9 @@ public sealed class ConditionSet(bool isBoss = false)
         return durationSeconds ?? double.PositiveInfinity;
     }
 
+    /// <summary>Every condition gone at once (a boss resetting).</summary>
+    public void Clear() => _active.Clear();
+
     public void Remove(ConditionKind kind)
     {
         if (_active.Remove(kind) && kind == ConditionKind.Stunned)

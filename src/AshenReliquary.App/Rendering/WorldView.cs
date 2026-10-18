@@ -685,6 +685,7 @@ public sealed class WorldView : Control
         _deviceScale = Math.Max(0.25f, canvas.TotalMatrix.ScaleX);
         // The act's colour grade is baked into every cached sprite (SpriteCache), so no full-screen filter pass.
         DrawGround(canvas, size, world, time);
+        DrawHazards(canvas, world);
         Stats.Mark("ground");
         DrawDepthSorted(canvas, size, world);
         DrawSpells(canvas, world);
@@ -775,6 +776,45 @@ public sealed class WorldView : Control
             var paint = map.IsBog(x, y) ? (WetNeighbours(x, y) < 4 ? rim : bog)
                 : map.InBounds(x, y) && !map.IsWater(x, y) && WetNeighbours(x, y) > 0 ? fringe : null;
             DrawTile(canvas, tile, ToScreen(x + 0.5, y + 0.5), time, paint);
+        }
+    }
+
+    /// <summary>
+    /// A boss's rot pools on the ground: a pulsing ring while it gathers, then a sickly pool that fades as it ends. A
+    /// circle on the map is an ellipse on screen, √2 half-tiles across per tile of radius.
+    /// </summary>
+    private void DrawHazards(SKCanvas canvas, GameWorld world)
+    {
+        var z = (float)Zoom;
+        foreach (var h in world.Hazards)
+        {
+            var at = ToScreen(h.X, h.Y);
+            var rx = (float)h.Radius * HalfTileWidth * z * 1.414f;
+            var ry = (float)h.Radius * HalfTileHeight * z * 1.414f;
+            var oval = new SKRect(at.X - rx, at.Y - ry, at.X + rx, at.Y + ry);
+            if (!h.IsActive(world.Time))
+            {
+                var pulse = (float)(0.5 + 0.5 * Math.Sin(world.Time * 14));
+                using var ring = new SKPaint
+                {
+                    IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = (2 + 2 * pulse) * z * 2,
+                    Color = new SKColor(170, 230, 90, (byte)(120 + 100 * pulse)),
+                };
+                canvas.DrawOval(oval, ring);
+                continue;
+            }
+            var fade = (float)Math.Clamp(h.EndsAt - world.Time, 0, 1);
+            using var pool = new SKPaint
+            {
+                IsAntialias = true,
+                Shader = SKShader.CreateRadialGradient(at, rx,
+                    [new SKColor(120, 170, 40, (byte)(170 * fade)), new SKColor(70, 110, 20, (byte)(150 * fade)), new SKColor(40, 60, 10, 0)],
+                    [0f, 0.7f, 1f], SKShaderTileMode.Clamp),
+            };
+            canvas.Save();
+            canvas.Scale(1, ry / rx, at.X, at.Y);
+            canvas.DrawCircle(at, rx, pool);
+            canvas.Restore();
         }
     }
 
@@ -910,6 +950,13 @@ public sealed class WorldView : Control
             _ when hovered => SKColorFilter.CreateLighting(SKColors.White, new SKColor(35, 35, 35)),
             _ => null,
         };
+        // A boss fused with her cauldron burns a sickly green.
+        if (m.Fused && !m.IsDead)
+        {
+            var glow = (byte)(40 + 30 * (0.5 + 0.5 * Math.Sin(world.Time * 5)));
+            var green = SKColorFilter.CreateLighting(SKColors.White, new SKColor(0, glow, 0));
+            filter = filter is null ? green : SKColorFilter.CreateCompose(green, filter);
+        }
         // Vengeance glows a deepening red with each stack.
         if (m.Vengeance > 0 && !m.IsDead)
         {

@@ -95,6 +95,13 @@ public sealed class TileMap
 
     public bool IsBog(double x, double y) => IsBog((int)Math.Floor(x), (int)Math.Floor(y));
 
+    /// <summary>Floods a cell with poison bog, or drains it (a boss's rising water).</summary>
+    internal void SetBog(int x, int y, bool bog)
+    {
+        if (InBounds(x, y))
+            _bog[x, y] = bog;
+    }
+
     /// <summary>The pathfinder's cost multiplier for stepping onto a cell.</summary>
     public double StepCost(int x, int y) => IsBog(x, y) ? BogStepCost : 1.0;
 

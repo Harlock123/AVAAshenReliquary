@@ -541,7 +541,7 @@ The default strike is 1d4 at the lowest levels, then d8s with one more die every
 | Elite + 2 Normals | 120 | Severe | 29% | 23% | 13.3 s |
 | Elite + 2 Champions | 160 | Extreme | 1% | 20% | 18.4 s |
 
-Elites are close to unbeatable before level 5 (7% at level 1), which is fine because they first appear in Act 3. Herald and Prophet HP multipliers are still the first-draft values and get tuned with their phase mechanics in M2 and M5.
+Elites are close to unbeatable before level 5 (7% at level 1), which is fine because they first appear in Act 3. Herald and Prophet HP multipliers are still the first-draft values and get tuned with their phase mechanics in M2 and M5. (M2: a creature's `hitPointsScale` hand-tunes a Herald; Mother Sallow's is 0.16, so about 17% of the hero-scaled ×20 a Herald would otherwise have: see section 16.)
 
 Enemies also use **weakness and resistance**. Undead are weak to vitality and resist void. Ash creatures resist fire and are weak to cold. The Lore skills reveal these values when you inspect an enemy.
 
@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -865,7 +865,7 @@ Building the rules core and the vertical slice settled these. Where a number her
   **nave** with pews and three **side chapels** either side, the **transept** (a second shrine), the **choir and
   sanctum** (a Vengeful grave knight champion, the reliquary before glowing runes), and below the transept's ends the
   **east crypt** (cursed graves) and the **west crypt** (level 4, the third shrine, a Vengeful cultist champion) whose
-  flooded tunnel runs on toward **Sallow's Mire** (zone 1.4, M2 step 8: until then "The way on is not open yet"). 23
+  flooded tunnel runs on to **Sallow's Mire** (zone 1.4). 23
   packs (level 3, the west crypt 4), 8 chests. The flooding is the Fens' rot water: poison bog on the flagstones.
 - **Flare's dungeon tileset** (copied unmodified). A legend entry can now name its ground tiles outright (`tiles`) while
   `ground` says what it is (`floor`, `bog`, `none` for solid rock); chests use the tileset's own (wooden 144/145, open
@@ -888,6 +888,44 @@ Building the rules core and the vertical slice settled these. Where a number her
   dies about twice (1.8), the lantern making no difference, and ends at level 4 in about 6 minutes (so 15 or so for a
   player: shorter than the 30 aimed for, to revisit with the exit test); the wizard bot dies 6.8 times with the lantern
   and 8.3 without, the same picture as in the Fens.
+
+### Sallow's Mire and Mother Sallow (M2)
+
+- **The zone** (`tools/sallows_mire_mapgen.py`, 80×150, revision 1), Act 1's last, up from the chapel's flooded tunnel: a
+  causeway south through the dead wood, the witch-lights, the drowned orchard and the hanged men's oak to **Mother
+  Sallow's clearing**, a ring of dry ground round her cauldron (a green light) with her hut and its reliquary. 18 packs
+  (level 4, the last stretch 5; Vengeful champions at 4), 8 chests, 3 shrines. Outdoors but dim (`darkness` 0.78, a
+  6-tile hero light), so not "dark" in the dungeon sense.
+- **The Herald gate:** the road east of her clearing, toward Ironhold, is an exit with `requires` (world flags): while
+  she lives it shows "Black water stands across the road east. It will not fall while Mother Sallow lives." and
+  neither travels nor completes the zone; once `act1.sallow = slain`, walking into it completes the zone and says the
+  road lies open (Act 2 is M4).
+- **The boss framework** (`World/Boss.cs`, `GameWorld.Boss.cs`): a creature with a `boss` block is a Herald fight. Its
+  **phases** begin at a share of its health (`below`) and say what it does: **rot pools** (every N seconds a pool lands
+  where the hero stands: a pulsing warning ring for 1.2 s, then 10 s of pool in which a basic Fortitude save against DC
+  14 + the boss's level is made each second, against the phase's poison dice), **summons** (minions every N seconds,
+  capped), **flooding** (the arena, `arenaRadius` round the boss's home, floods with poison bog from the rim inward at
+  half a tile a second, down to a dry heart), and **fusing** (it goes home and roots there; after `enrageSeconds` a
+  deluge hits the hero every 2 s: a race). A boss never leashes. When the hero falls it starts again from full: home,
+  phase 1, adds gone, pools gone, the flood drained. Its death drains the flood, fells its adds, sets its flag, writes
+  its journal entry and puts up a banner with its last line. A Herald's first drop is always rare; its XP is ten times a
+  creature of its level.
+- **The HUD's boss bar** across the top: the name, health with a notch at each phase, the phase's name, and in the
+  last stand the seconds before the deluge (red under 10). The target frame moves beneath it. **Boss music:** a "boss"
+  group in `audio.json` (Battle Theme 2 for now) plays while a Herald is awake.
+- **Mother Sallow, Herald of Rot** (`mother_sallow`): no new art, Flare's avatar layers in mage robes and a staff, tinted
+  a sickly green and 1.3 times the size (fused, she burns green). Level 4 as placed (a Herald fights two levels up), 336
+  HP (`hitPointsScale` 0.16), a poison bolt at 7 tiles (1d6, a 15% chance of 1d4 persistent poison), weak to fire and
+  vitality, resistant to poison and void. Phase 1: pools every 7 s (2d4). Below 60%, "the corpses rise and the mire
+  floods": two fen-zombie minions every 12 s (at most four), pools every 8 s, the arena floods down to a 5-tile dry
+  heart. Below 25%, "she fuses with her cauldron": pools every 5 s (2d6) and 35 s before the deluge (4d6 every 2 s).
+  Dying, she says: "You... the vessel. He told us you would come. The Prophet will drink you dry..."
+- **Balance** (`BalanceReport.Mother_Sallow_at_levels_4_and_5`: one try each, the bot stepping out of pools; and
+  `Sallows_Mire_at_level_4`): at level 5 the fighter wins 10 of 10 (about 50 s in the starting kit, 32 s with a +1
+  striking sword and +1 armour), the wizard 4 of 10 (6 with the runes); at level 4, 4 and 2 of 10. Played through the
+  zone the bots nearly always meet her at level 4 (each death costs XP), so the fighter wins in the end after 3-19
+  deaths and the wizard, which never kites or dodges her bolts, after many more: the XP curve across Act 1 is the exit
+  test's job (M2 plan, step 10).
 
 ### Dialogue, flags and the journal (M2)
 

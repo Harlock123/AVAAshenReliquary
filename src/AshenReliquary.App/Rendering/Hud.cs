@@ -178,15 +178,20 @@ internal sealed class Hud(IconStore icons)
             new("C: character sheet with every number explained.", Dim),
         ], new SKColor(150, 120, 220));
 
-        if (target is { IsDead: false } t)
-            DrawTarget(canvas, size, t);
+        // A Herald fight puts the boss's bar across the top; any other target's frame goes beneath it.
+        var boss = world.Boss;
+        if (boss is not null)
+            DrawBossBar(canvas, size, boss, world);
+        var below = boss is not null ? 66f : 0f;
+        if (target is { IsDead: false } t && t != boss)
+            DrawTarget(canvas, size, t, below);
 
         // Latest message, fading after 5 s.
         if (world.LastMessage is { } message && world.Time - world.LastMessageAt < 5)
         {
             var alpha = (byte)(255 * Math.Clamp(5 - (world.Time - world.LastMessageAt), 0, 1));
             using var paint = new SKPaint { IsAntialias = true, Color = new SKColor(240, 215, 150, alpha) };
-            canvas.DrawText(message, size.Width / 2, target is { IsDead: false } ? 108 : 90, SKTextAlign.Center, font, paint);
+            canvas.DrawText(message, size.Width / 2, below + (target is { IsDead: false } && target != boss ? 108 : 90), SKTextAlign.Center, font, paint);
         }
 
         if (world.Arrival is { } arrival && TownBanner.Alpha(world.Time - arrival.At) is var fade and > 0)
@@ -422,13 +427,52 @@ internal sealed class Hud(IconStore icons)
 
     // ----- Target frame -------------------------------------------------------------------------
 
-    private void DrawTarget(SKCanvas canvas, SKSize size, MonsterActor t)
+    /// <summary>
+    /// The Herald's bar: its name and rank, health with a notch at each phase's threshold, the phase now, and in a
+    /// last stand with a deluge timer, the seconds left.
+    /// </summary>
+    private void DrawBossBar(SKCanvas canvas, SKSize size, MonsterActor boss, GameWorld world)
+    {
+        using var title = new SKFont(WorldOverlay.Serif, 16);
+        using var small = new SKFont(WorldOverlay.Serif, 12);
+        using var ink = new SKPaint { IsAntialias = true, Color = new SKColor(235, 225, 200) };
+        using var dim = new SKPaint { IsAntialias = true, Color = Dim };
+        using var back = new SKPaint { Color = new SKColor(16, 14, 12, 230) };
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, Color = new SKColor(150, 120, 70) };
+        var width = Math.Min(620, size.Width - 360);
+        var bar = SKRect.Create(size.Width / 2 - width / 2, 30, width, 16);
+        canvas.DrawRect(SKRect.Inflate(bar, 3, 3), back);
+        var share = (float)boss.Creature.HitPoints / boss.Creature.Stats.HitPoints;
+        using (var fill = new SKPaint
+        {
+            Shader = SKShader.CreateLinearGradient(new SKPoint(bar.Left, bar.Top), new SKPoint(bar.Left, bar.Bottom),
+                [new SKColor(140, 190, 70), new SKColor(60, 100, 30)], SKShaderTileMode.Clamp),
+        })
+            canvas.DrawRect(SKRect.Create(bar.Left, bar.Top, bar.Width * share, bar.Height), fill);
+        canvas.DrawRect(SKRect.Inflate(bar, 3, 3), edge);
+        using var notch = new SKPaint { Color = new SKColor(240, 220, 160, 200), StrokeWidth = 2 };
+        foreach (var phase in boss.Definition.Boss!.Phases.Skip(1))
+        {
+            var x = bar.Left + bar.Width * (float)phase.Below;
+            canvas.DrawLine(x, bar.Top - 3, x, bar.Bottom + 3, notch);
+        }
+        canvas.DrawText($"{boss.Definition.Name.ToUpperInvariant()}  ·  HERALD", bar.MidX, bar.Top - 8, SKTextAlign.Center, title, ink);
+        var phaseName = boss.Definition.Boss.Phases[boss.BossPhase].Name;
+        var line = boss.EnrageLeft is { } left
+            ? left > 0 ? $"{phaseName}  ·  the cauldron boils over in {left:0} s" : $"{phaseName}  ·  the deluge!"
+            : boss.BossPhase == 0 ? $"{boss.Creature.HitPoints} / {boss.Creature.Stats.HitPoints}" : phaseName;
+        using var urgent = new SKPaint { IsAntialias = true, Color = boss.EnrageLeft is { } l && l < 10 ? new SKColor(255, 120, 90) : Dim };
+        canvas.DrawText(line, bar.MidX, bar.Bottom + 17, SKTextAlign.Center, small, urgent);
+        _blocked.Add(SKRect.Inflate(bar, 6, 22));
+    }
+
+    private void DrawTarget(SKCanvas canvas, SKSize size, MonsterActor t, float below = 0)
     {
         using var small = new SKFont(WorldOverlay.Serif, 13);
         using var ink = new SKPaint { IsAntialias = true, Color = Ink };
         using var dim = new SKPaint { IsAntialias = true, Color = Dim };
         using var back = new SKPaint { Color = new SKColor(20, 18, 16, 220) };
-        var frame = SKRect.Create(size.Width / 2 - 170, 18, 340, 18);
+        var frame = SKRect.Create(size.Width / 2 - 170, 18 + below, 340, 18);
         using var red = new SKPaint { Color = t.Creature.Stats.Rank == CreatureRank.Champion ? new SKColor(200, 110, 40) : new SKColor(150, 25, 22) };
         canvas.DrawRect(SKRect.Inflate(frame, 2, 2), back);
         canvas.DrawRect(SKRect.Create(frame.Left, frame.Top, frame.Width * t.Creature.HitPoints / t.Creature.Stats.HitPoints, frame.Height), red);

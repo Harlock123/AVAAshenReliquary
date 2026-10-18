@@ -1002,7 +1002,13 @@
     13,
     109
    ],
-   "radius": 1.5
+   "radius": 1.5,
+   "to": "sallows_mire",
+   "toExit": "chapel",
+   "arrive": [
+    13,
+    104
+   ]
   }
  ],
  "caches": [

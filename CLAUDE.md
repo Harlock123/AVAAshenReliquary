@@ -31,7 +31,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   cultists and chanters (avatar-drawn creatures: `look`), the Vengeful affix, flanking (rule and AI), per-pack levels.
   Step 7 done: the Drowned Chapel (`tools/drowned_chapel_mapgen.py`, Flare's dungeon tileset, legend `tiles` and
   `light`, zone `darkness`/`heroLight`, concealment in the dark, the pilgrim's lantern as a key item with a glyph icon).
-  Next: step 8, Sallow's Mire and Mother Sallow (the boss framework).
+  Step 8 done: Sallow's Mire (`tools/sallows_mire_mapgen.py`) and Mother Sallow: the boss framework (`World/Boss.cs`,
+  `GameWorld.Boss.cs`: phases, rot pools, summons, flooding, fusing and a deluge timer, reset on the hero's death),
+  the HUD's boss bar, boss music, the Herald gate (an exit's `requires`). Next: step 9, the three side stories.
+  `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
   of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
   weeps after the chapel, the full skill list.
@@ -42,7 +45,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
   it keeps its own copy of the starting kits.
 - **Open ideas, not yet asked for:** the wizard falls behind from level 1 to 3 (see the Fens' balance note in spec
   section 16); cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3 in the Fens; the
-  chapel plays short (about 15 minutes); move the skeleton pack just south of the camp fence if it crowds the peddler;
+  chapel plays short (about 15 minutes); bots reach Mother Sallow at level 4, not 5 (the XP curve, step 10); move the skeleton pack just south of the camp fence if it crowds the peddler;
   orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art); a
   real chest-opening sound (chests reuse the inventory-open clunk).
 

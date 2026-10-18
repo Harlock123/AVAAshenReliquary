@@ -201,6 +201,8 @@ public sealed partial class GameWorld
             Restock(v);
         }
         _caches.AddRange((zone.Caches ?? []).Select(c => new Cache(c)));
+        _hazards.Clear();
+        _flooded.Clear();
         PopulateInteractives(zone);
 
         var packId = 0;
@@ -901,6 +903,7 @@ public sealed partial class GameWorld
         UpdateHero(dt);
         Reveal();
         UpdateProjectiles(dt);
+        UpdateHazards(dt);
         foreach (var monster in _monsters.ToList())
             UpdateMonster(monster, dt);
         Separate();
@@ -958,7 +961,13 @@ public sealed partial class GameWorld
         }
         // Walking into an exit completes the zone the first time and goes where it leads; an exit that leads nowhere
         // known yet shows its banner, every time it is walked into.
-        if (inside is not null && inside != _insideExit)
+        if (inside is not null && inside != _insideExit && inside.Requires is { } gate && !Holds(gate))
+        {
+            // A Herald gate, still sealed: it neither completes the zone nor goes anywhere.
+            Arrival = new Banner(inside.Label, inside.SealedText ?? "The way is barred.", Time);
+            Say($"{inside.Label}: {inside.SealedText ?? "The way is barred."}");
+        }
+        else if (inside is not null && inside != _insideExit)
         {
             if (!ZoneComplete)
             {
@@ -967,7 +976,7 @@ public sealed partial class GameWorld
             }
             if (TravelThrough(inside))
                 return;
-            Arrival = new Banner(inside.Label, "The way on is not open yet.", Time);
+            Arrival = new Banner(inside.Label, inside.OpenText ?? "The way on is not open yet.", Time);
             Say($"You reach {inside.Label}.");
         }
         _insideExit = inside;
@@ -1456,6 +1465,8 @@ public sealed partial class GameWorld
         if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
             DropLoot(monster);
         Avenge(monster);
+        if (monster.Definition.Boss is not null)
+            BossDied(monster);
     }
 
     public const int VengeanceMax = 3;
@@ -1593,7 +1604,8 @@ public sealed partial class GameWorld
             }
         }
 
-        if (hero.IsDead || distance > LeashDistance)
+        // A boss never gives up the chase; the fight starts again only when the hero falls.
+        if (hero.IsDead || (distance > LeashDistance && def.Boss is null))
         {
             m.State = MonsterState.Idle;
             m.Path.Clear();
@@ -1601,6 +1613,10 @@ public sealed partial class GameWorld
             m.Play("stance");
             return;
         }
+        if (def.Boss is not null)
+            UpdateBoss(m, dt);
+        if (m.IsDead || hero.IsDead)
+            return;
         if (!m.Creature.Conditions.CanAct)
             return;
 
@@ -1673,7 +1689,7 @@ public sealed partial class GameWorld
             return;
         }
 
-        if (def.Stationary)
+        if (def.Stationary || m.Fused)
             return;
         m.State = MonsterState.Chase;
         m.RepathIn -= dt;
@@ -1936,6 +1952,7 @@ public sealed partial class GameWorld
     private void Respawn()
     {
         Experience.ApplyDeathPenalty();
+        ResetBosses();
         Hero.Character.RestAtShrine();
         // HeroDied picks it too (for the message and a save made while dead); deaths outside a monster's strike only arrive here.
         if (NearestShrine(Hero.X, Hero.Y) is { } shrine)
@@ -2176,6 +2193,8 @@ public sealed partial class GameWorld
     {
         var def = _creatures.TryGetValue(creatureId, out var d) ? d : throw new InvalidDataException($"Unknown creature '{creatureId}'.");
         var stats = CreatureStats.For(level ?? Zone.Level, rank);
+        if (def.HitPointsScale != 1.0)
+            stats = stats with { HitPoints = Math.Max(1, (int)Math.Round(stats.HitPoints * def.HitPointsScale)) };
         var dice = def.Damage is { } text ? Dice.Parse(text) : stats.DefaultStrikeDamage;
         var affixes = (affixNames ?? []).Select(a => Enum.TryParse<MonsterAffix>(a, ignoreCase: true, out var affix)
             ? affix : throw new InvalidDataException($"Unknown monster affix '{a}'.")).ToList();
@@ -2205,7 +2224,15 @@ public sealed partial class GameWorld
             Direction = Random.Roll(0, 7),
             Radius = def.Stationary ? 0.6 : 0.35 * def.Scale,
             Affixes = affixes,
+            HomeX = x,
+            HomeY = y,
         };
+        if (def.Boss is { } boss)
+        {
+            (monster.X, monster.Y) = (x, y);
+            monster.PoolIn = boss.Phases[0].PoolEverySeconds;
+            monster.FloodRadius = boss.ArenaRadius;
+        }
         if (def.IsSpawner)
             monster.SummonIn = 1.0;
         _monsters.Add(monster);

@@ -139,6 +139,9 @@
   "combat": [
    "music/combat-battle-theme-1.ogg",
    "music/combat-battle-theme-2.ogg"
+  ],
+  "boss": [
+   "music/combat-battle-theme-2.ogg"
   ]
  },
  "ambience": {

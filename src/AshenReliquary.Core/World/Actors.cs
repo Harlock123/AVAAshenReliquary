@@ -217,6 +217,21 @@ public sealed class MonsterActor : Actor
     internal double FlankTime { get; set; }
 
     public bool Has(MonsterAffix affix) => Affixes.Contains(affix);
+
+    /// <summary>Where it was placed: a boss's arena centre, where it fuses in its last phase.</summary>
+    public double HomeX { get; internal set; }
+    public double HomeY { get; internal set; }
+
+    /// <summary>A boss's phase (an index into its phases), and its clocks.</summary>
+    public int BossPhase { get; internal set; }
+    public bool Fused { get; internal set; }
+    internal double PoolIn { get; set; }
+    internal double EnrageIn { get; set; }
+    internal double DelugeIn { get; set; }
+    internal double FloodRadius { get; set; }
+
+    /// <summary>Seconds of the last phase left before the boss's deluge (0 once it has begun; null outside it).</summary>
+    public double? EnrageLeft => Fused && Definition.Boss is { } b && b.Phases[BossPhase].EnrageSeconds > 0 ? Math.Max(0, EnrageIn) : null;
 }
 
 /// <summary>

@@ -33,7 +33,11 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         {
             // The first roll uses the rank's chance; extra rolls on bigger monsters are 50/50.
             if (random.Roll(1, 100) <= (i == 0 ? itemChance : 50))
-                drops.Add(new LootDrop(Generate(Math.Max(1, level), RollRarity(rank, random), random)));
+            {
+                // A Herald's first drop is always rare.
+                var rarity = i == 0 && rank >= CreatureRank.Herald ? Rarity.Rare : RollRarity(rank, random);
+                drops.Add(new LootDrop(Generate(Math.Max(1, level), rarity, random)));
+            }
         }
         if (random.Roll(1, 100) <= goldChance)
             drops.Add(new LootDrop(null, Gold: (int)Math.Max(1, random.Roll(2, 6) * (1 + level) * goldMultiplier)));

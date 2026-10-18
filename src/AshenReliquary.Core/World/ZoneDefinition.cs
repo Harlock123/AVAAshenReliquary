@@ -30,10 +30,12 @@ public sealed record ShrineDefinition(string Id, string Name, int[] At);
 /// A way out of a zone. Walking within <see cref="Radius"/> of <see cref="At"/> completes the zone and, when
 /// <see cref="To"/> names a zone, travels there, arriving at that zone's exit <see cref="ToExit"/>. A hero arriving
 /// through an exit stands at its <see cref="Arrive"/> tile (outside its radius, so they don't bounce straight back),
-/// or at <see cref="At"/> when it has none.
+/// or at <see cref="At"/> when it has none. An exit with <see cref="Requires"/> (world flags, "" for unset) is a
+/// Herald gate: until they hold it shows <see cref="SealedText"/> and goes nowhere; once open, an exit to no zone yet
+/// shows <see cref="OpenText"/>.
 /// </summary>
 public sealed record ExitDefinition(string Id, string Label, int[] At, double Radius = 2.0, string? To = null, string? ToExit = null,
-    int[]? Arrive = null);
+    int[]? Arrive = null, IReadOnlyDictionary<string, string>? Requires = null, string? SealedText = null, string? OpenText = null);
 
 /// <summary>
 /// A hand-authored zone. <see cref="Rows"/> is the map drawn in characters, row 0 at the top (north-west
@@ -78,6 +80,7 @@ public sealed record ZoneDefinition(
 /// draws it from Flare's avatar layers (a cultist) instead of an enemy sprite sheet; <see cref="Caster"/> picks the
 /// cast animation for a ranged attack; <see cref="Flanks"/> makes it circle to the far side of the hero from an ally
 /// (Act 1's AI behaviour); <see cref="PoisonOnHit"/> gives its hits a <see cref="PoisonChance"/> of persistent poison.
+/// <see cref="Boss"/> makes it a Herald fight (phases, arena); <see cref="HitPointsScale"/> hand-tunes its HP.
 /// </summary>
 public sealed record CreatureDefinition(
     string Id,
@@ -104,7 +107,9 @@ public sealed record CreatureDefinition(
     bool Caster = false,
     bool Flanks = false,
     string? PoisonOnHit = null,
-    double PoisonChance = 0)
+    double PoisonChance = 0,
+    BossDefinition? Boss = null,
+    double HitPointsScale = 1.0)
 {
     [JsonIgnore]
     public bool IsSpawner => Summons is not null;

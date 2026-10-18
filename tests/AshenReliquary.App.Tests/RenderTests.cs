@@ -67,6 +67,42 @@ public class RenderTests
         kit.Capture(Shot("chapel-lantern-in-bag"));
     }
 
+    [AvaloniaFact]
+    public void Mother_Sallow_shows_her_bar_her_pools_her_flood_and_her_last_stand()
+    {
+        var kit = TestKit.Open(zoneId: "sallows_mire");
+        var world = kit.World;
+        var sallow = world.Monsters.Single(m => m.Definition.Id == "mother_sallow");
+        // The test's hero is level 1: it is kept on its feet so the fight runs on.
+        void Play(double seconds)
+        {
+            for (var t = 0.0; t < seconds; t += 0.1)
+            {
+                world.Hero.Character.Heal(10000);
+                kit.Play(0.1);
+            }
+        }
+        TestHooks.Place(world, sallow.HomeX, sallow.HomeY - 6);
+        for (var t = 0.0; t < 12 && world.Hazards.Count == 0; t += 0.1)
+            Play(0.1);
+        Play(0.4);
+        kit.Capture(Shot("sallow-phase1"));
+        Assert.Same(sallow, world.Boss);
+        Assert.NotEmpty(world.Hazards);
+
+        sallow.Creature.TakeDamage((int)(sallow.Creature.Stats.HitPoints * 0.45));
+        Play(6);
+        kit.Capture(Shot("sallow-phase2"));
+        Assert.Equal(1, sallow.BossPhase);
+        Assert.Contains(world.Monsters, m => m.Definition.Id == "fen_zombie" && !m.IsDead && m.DistanceTo(sallow.HomeX, sallow.HomeY) < 8);
+
+        sallow.Creature.TakeDamage((int)(sallow.Creature.Stats.HitPoints * 0.35));
+        Play(1);
+        kit.Capture(Shot("sallow-phase3"));
+        Assert.True(sallow.Fused);
+        Assert.NotNull(sallow.EnrageLeft);
+    }
+
     [Fact]
     public void The_F3_stats_break_before_the_timings_in_a_narrow_window()
     {

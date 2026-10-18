@@ -5,7 +5,7 @@
 # (long, flooded, pillared, moonlight through the high windows) with three side chapels either side, the transept
 # (a second shrine), the choir and sanctum (the Prior's guard and the zone's reliquary), and below the transept's ends
 # the east crypt (cursed graves) and the west crypt (level 4, a third shrine) whose flooded tunnel runs on toward
-# Sallow's Mire (zone 1.4, M2 step 8; until then the way is not open).
+# Sallow's Mire (zone 1.4).
 #
 # Walls: a solid cell next to floor shows a face toward it. The far walls (floor to their south-west or south-east on
 # screen) stand full height in Flare's dungeon blocks; the near walls are low blocks, so they never hide the hero. It is
@@ -283,7 +283,8 @@ zone = {
     "exits": [
         {"id": "fens", "label": "The Rotwater Fens", "at": [31, 4], "radius": 1.5, "to": "rotwater_fens", "toExit": "chapel",
          "arrive": [31, 7]},
-        {"id": "mire", "label": "Sallow's Mire", "at": [13, 109], "radius": 1.5},
+        {"id": "mire", "label": "Sallow's Mire", "at": [13, 109], "radius": 1.5, "to": "sallows_mire", "toExit": "chapel",
+         "arrive": [13, 104]},
     ],
     "caches": caches,
 }

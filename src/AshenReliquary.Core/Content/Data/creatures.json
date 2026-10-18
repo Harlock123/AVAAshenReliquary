@@ -196,5 +196,81 @@
    "Poison": 3
   },
   "voice": "zombie"
+ },
+ {
+  "id": "mother_sallow",
+  "name": "Mother Sallow",
+  "sprite": "avatar",
+  "damageType": "Poison",
+  "attacksPerSecond": 0.5,
+  "moveSpeed": 1.7,
+  "aggroRadius": 11,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "damage": "1d6",
+  "poisonOnHit": "1d4",
+  "poisonChance": 0.15,
+  "scale": 1.3,
+  "tint": "#b4d27a",
+  "hitPointsScale": 0.16,
+  "weaknesses": {
+   "Fire": 5,
+   "Vitality": 5
+  },
+  "resistances": {
+   "Poison": 10,
+   "Void": 5
+  },
+  "look": {
+   "head": "mage_hood",
+   "chest": "mage_vest",
+   "hands": "mage_sleeves",
+   "legs": "mage_skirt",
+   "feet": "mage_boots",
+   "main": "staff"
+  },
+  "voice": "zombie",
+  "boss": {
+   "arenaRadius": 10,
+   "deathFlag": "act1.sallow",
+   "deathLine": "\"You... the vessel. He told us you would come. The Prophet will drink you dry...\"",
+   "journal": {
+    "id": "act1_sallow",
+    "title": "Mother Sallow",
+    "kind": "main",
+    "text": "I killed Mother Sallow in her mire. The Herald of Rot poisoned the wells for a master she called the Prophet, and with her last breath she called me \"the vessel\". The way east to Ironhold lies open."
+   },
+   "phases": [
+    {
+     "below": 1.0,
+     "name": "Mother Sallow",
+     "poolEverySeconds": 7,
+     "poolDamage": "2d4"
+    },
+    {
+     "below": 0.6,
+     "name": "The corpses rise and the mire floods",
+     "poolEverySeconds": 8,
+     "poolDamage": "2d4",
+     "summonEverySeconds": 12,
+     "summons": "fen_zombie",
+     "summonCount": 2,
+     "summonCap": 4,
+     "floods": true,
+     "dryRadius": 5
+    },
+    {
+     "below": 0.25,
+     "name": "She fuses with her cauldron",
+     "poolEverySeconds": 5,
+     "poolDamage": "2d6",
+     "fuses": true,
+     "enrageSeconds": 35,
+     "enrageEverySeconds": 2,
+     "enrageDamage": "4d6"
+    }
+   ]
+  }
  }
 ]

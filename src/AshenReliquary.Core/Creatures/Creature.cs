@@ -106,4 +106,12 @@ public sealed class Creature(
             .Concat(Conditions.PenaltiesFor(StatisticKind.Attack, AttributeKind.Strength)));
 
     public void TakeDamage(int amount) => HitPoints = Math.Max(0, HitPoints - Math.Max(0, amount));
+
+    /// <summary>Back to full health, conditions and persistent damage gone (a boss resetting when the hero falls).</summary>
+    public void Restore()
+    {
+        HitPoints = Stats.HitPoints;
+        Persistent.Clear();
+        Conditions.Clear();
+    }
 }

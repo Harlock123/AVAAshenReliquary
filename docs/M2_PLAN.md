@@ -92,7 +92,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - An indoor tileset and **darkness**: the light radius matters (torches, the shrine glow, a lantern item).
 - *Done when:* as for 1.2.
 
-### 8. Zone 1.4, Sallow's Mire and Mother Sallow (levels 4–5)
+### 8. Zone 1.4, Sallow's Mire and Mother Sallow (levels 4–5) — done 2026-10-18 (the XP curve, so heroes meet her at 5, is step 10's)
 
 - A boss framework: phases by health, a boss health bar, arena hazards, boss music.
 - Mother Sallow per section 12: poison bolts and rot pools; below 60% corpse swarms while the arena floods; below

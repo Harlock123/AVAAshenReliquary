@@ -14,6 +14,9 @@ public class BalanceReport(ITestOutputHelper output)
 {
     /// <summary>Fights per pack and runs per class; a handful by default so the suite stays quick, ASHEN_BALANCE_RUNS=40 for a real report.</summary>
     private static readonly int Seeds = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_BALANCE_RUNS"), out var runs) ? runs : 4;
+
+    /// <summary>Runs of a whole later zone: one by default (each is minutes of game time), ASHEN_BALANCE_RUNS when set.</summary>
+    private static readonly int ZoneSeeds = Environment.GetEnvironmentVariable("ASHEN_BALANCE_RUNS") is { Length: > 0 } ? Seeds : 1;
     private const double Tick = 1 / 30.0;
 
     public sealed record PackResult(int Pack, string Members, int Fights, int Downs, double HpLostPct, double Potions, double Seconds);
@@ -31,7 +34,11 @@ public class BalanceReport(ITestOutputHelper output)
         Assert.NotEmpty(results);
     }
 
-    public sealed record RoadResult(int Deaths, int HeroPointsSpent, int Potions, double Minutes, bool Reached, int Level, List<string> Killers, double CalmSeconds = 0, double Regenerated = 0);
+    public sealed record RoadResult(int Deaths, int HeroPointsSpent, int Potions, double Minutes, bool Reached, int Level, List<string> Killers, double CalmSeconds = 0, double Regenerated = 0)
+    {
+        /// <summary>The hero's level on first meeting the zone's boss (0: none).</summary>
+        public int BossLevel { get; init; }
+    }
 
     /// <summary>The starting kits as the game hands them out (GameSession.StartingKit), and variants to compare.</summary>
     public static readonly Dictionary<string, string[]> Kits = new()
@@ -138,7 +145,7 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("wizard")]
     public void The_Rotwater_Fens_at_level_2(string kit)
     {
-        var runs = Enumerable.Range(1, Seeds).Select(seed => ZoneRun("rotwater_fens", "chapel", kit, seed, 2)).ToList();
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("rotwater_fens", "chapel", kit, seed, 2)).ToList();
         output.WriteLine($"{kit}: the Rotwater Fens from the landing to the chapel doors, every pack, {runs.Count} runs");
         foreach (var r in runs)
             output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "reached the chapel" : "did not finish")}");
@@ -151,11 +158,26 @@ public class BalanceReport(ITestOutputHelper output)
     [Theory]
     [InlineData("fighter")]
     [InlineData("wizard")]
+    public void Sallows_Mire_at_level_4(string kit)
+    {
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("sallows_mire", "iron_march", kit, seed, 4)).ToList();
+        output.WriteLine($"{kit}: Sallow's Mire from the tunnel to the Iron March gate, every pack and Mother Sallow, {runs.Count} runs");
+        foreach (var r in runs)
+            output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.BossLevel} at Sallow, {r.Level} at the end  {(r.Reached ? "through the gate" : "did not finish")}");
+        output.WriteLine($"  average deaths {runs.Average(r => r.Deaths):0.0}, downs {runs.Average(r => r.Deaths + r.HeroPointsSpent):0.0}, minutes {runs.Average(r => r.Minutes):0.0}");
+        foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(10))
+            output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+        Assert.NotEmpty(runs);
+    }
+
+    [Theory]
+    [InlineData("fighter")]
+    [InlineData("wizard")]
     public void The_Drowned_Chapel_at_level_3(string kit)
     {
         foreach (var lantern in new[] { true, false })
         {
-            var runs = Enumerable.Range(1, Seeds).Select(seed => ZoneRun("drowned_chapel", "mire", kit, seed, 3, lantern)).ToList();
+            var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("drowned_chapel", "mire", kit, seed, 3, lantern)).ToList();
             output.WriteLine($"{kit} {(lantern ? "with" : "without")} the lantern: the Drowned Chapel, every pack, {runs.Count} runs");
             foreach (var r in runs)
                 output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "reached the tunnel" : "did not finish")}");
@@ -167,9 +189,9 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>
-    /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTwo"/> and
-    /// <see cref="LevelThree"/> do): every pack in the zone file's order (in the Fens the main route, then the Sunken
-    /// Road, then back for the Old Dyke), then the exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.
+    /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTo"/> makes them): every pack
+    /// in the zone file's order (in the Fens the main route, then the Sunken Road, then back for the Old Dyke), then the
+    /// exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.
     /// The route is planned here over the whole map, then walked a stretch at a time, as a player clicks ahead.
     /// </summary>
     public static RoadResult ZoneRun(string zoneId, string exitId, string kit, int seed, int level, bool lantern = false)
@@ -181,10 +203,7 @@ public class BalanceReport(ITestOutputHelper output)
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, kit);
-        if (level >= 2)
-            LevelTwo(world, classId);
-        if (level >= 3)
-            LevelThree(world);
+        LevelTo(world, level);
         if (lantern)
             world.Hero.Equipment.TryAdd(new Items.Item(content.Item("pilgrims_lantern"), Items.Rarity.Common, 1));
         var exit = zone.Exits.Single(e => e.Id == exitId);
@@ -195,6 +214,8 @@ public class BalanceReport(ITestOutputHelper output)
         double nextMove = 0;
         List<(double X, double Y)>? route = null;
         (double X, double Y)? routeGoal = null;
+        var bossLevel = 0;
+        double nextDodge = 0;
         while (!world.ZoneComplete && world.Time < 3600)
         {
             if (hero.IsDead != wasDead)
@@ -220,9 +241,15 @@ public class BalanceReport(ITestOutputHelper output)
                 var target = world.Monsters
                     .Where(m => !m.IsDead && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                     .MinBy(m => m.DistanceTo(world.Hero));
-                if (target is not null)
+                if (world.Boss is not null && bossLevel == 0)
+                    bossLevel = hero.Level;
+                if (StepOutOfPool(world, ref nextDodge) is not null)
                 {
-                    if (!world.Hero.IsSwinging)
+                    route = null;
+                }
+                else if (target is not null)
+                {
+                    if (!world.Hero.IsSwinging && world.Time >= nextDodge)
                         Act(world, bar, classId, target);
                     route = null;
                 }
@@ -261,26 +288,119 @@ public class BalanceReport(ITestOutputHelper output)
             }
             world.Update(Tick);
         }
-        return new RoadResult(deaths, spent, potions, world.Time / 60, world.ZoneComplete, hero.Level, killers);
+        return new RoadResult(deaths, spent, potions, world.Time / 60, world.ZoneComplete, hero.Level, killers) { BossLevel = bossLevel };
     }
 
-    /// <summary>Takes the hero to level 2 with picks a player might make (passives: the bot doesn't use new abilities).</summary>
-    private static void LevelTwo(GameWorld world, string classId)
+
+
+    /// <summary>
+    /// Steps out of a boss's rot pool (or its warning ring), as a player would: straight away from its centre, a little
+    /// further than its edge; from its very centre (it lands where the hero stands), sideways round the boss, so a melee
+    /// hero stays in reach. Returns the pool while the hero is in one.
+    /// </summary>
+    private static Hazard? StepOutOfPool(GameWorld world, ref double nextDodge)
     {
-        world.GainXp(1000, world.Hero);
-        var skillFeat = world.Hero.Character.FeatOptions(FeatType.Skill, 2).First().Id;
-        world.ChooseLevel(2, new LevelChoice(ClassFeat: classId == "wizard" ? "reach_spell" : "lunge", SkillFeat: skillFeat));
-        world.Hero.Character.RestAtShrine();
+        var pool = world.Hazards.FirstOrDefault(h => h.Covers(world.Hero.X, world.Hero.Y) && world.Time < h.EndsAt);
+        if (pool is null || world.Time < nextDodge)
+            return pool;
+        var (dx, dy) = (world.Hero.X - pool.X, world.Hero.Y - pool.Y);
+        if (dx * dx + dy * dy < 0.09 && world.Boss is { } boss)
+            (dx, dy) = (-(world.Hero.Y - boss.Y), world.Hero.X - boss.X);
+        var d = Math.Max(0.1, Math.Sqrt(dx * dx + dy * dy));
+        world.MoveTo(pool.X + dx / d * (pool.Radius + 1.2), pool.Y + dy / d * (pool.Radius + 1.2));
+        nextDodge = world.Time + 0.8;
+        return pool;
     }
 
-    /// <summary>On to level 3: Toughness and the first skill that can rise.</summary>
-    private static void LevelThree(GameWorld world)
+    /// <summary>
+    /// Takes the hero up to <paramref name="level"/> with the first legal picks (Toughness when a general feat comes up;
+    /// at 5 the boosts go to the key attribute, Constitution, Dexterity and Wisdom).
+    /// </summary>
+    internal static void LevelTo(GameWorld world, int level)
     {
         var c = world.Hero.Character;
-        world.GainXp(1000, world.Hero);
-        var skill = Skills.Attribute.Keys.Order().First(s => c.CanIncrease(s, 3));
-        world.ChooseLevel(3, new LevelChoice(GeneralFeat: "toughness", SkillIncrease: skill));
+        while (c.Level < level)
+        {
+            world.GainXp(1000, world.Hero);
+            var at = c.Level;
+            var gains = Progression.LevelProgression.GainsAt(at);
+            string? Feat(Progression.LevelGain gain, FeatType type, string? prefer = null) =>
+                (gains & gain) == 0 ? null : c.FeatOptions(type, at).Select(f => f.Id).OrderBy(id => id == prefer ? 0 : 1).First();
+            var boosts = (gains & Progression.LevelGain.AttributeBoosts) != 0
+                ? new[] { c.KeyAttribute, Rules.AttributeKind.Constitution, Rules.AttributeKind.Dexterity, Rules.AttributeKind.Wisdom, Rules.AttributeKind.Strength }
+                    .Distinct().Take(4).ToArray()
+                : null;
+            world.ChooseLevel(at, new LevelChoice(
+                Boosts: boosts,
+                ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class, c.Class.Id == "wizard" ? "reach_spell" : "lunge"),
+                SkillFeat: Feat(Progression.LevelGain.SkillFeat, FeatType.Skill),
+                GeneralFeat: Feat(Progression.LevelGain.GeneralFeat, FeatType.General, "toughness"),
+                AncestryFeat: Feat(Progression.LevelGain.AncestryFeat, FeatType.Ancestry),
+                SkillIncrease: (gains & Progression.LevelGain.SkillIncrease) != 0 ? Skills.Attribute.Keys.Order().First(sk => c.CanIncrease(sk, at)) : null));
+        }
         c.RestAtShrine();
+    }
+
+    public sealed record BossResult(bool Won, double Seconds, int Potions, int Phase, double BossHpLeft);
+
+    [Theory]
+    [InlineData("fighter")]
+    [InlineData("wizard")]
+    public void Mother_Sallow_at_levels_4_and_5(string kit)
+    {
+        foreach (var (level, runed) in new[] { (4, false), (5, false), (5, true) })
+        {
+            var fights = Enumerable.Range(1, Math.Max(Seeds, 6)).Select(seed => BossFight(kit, seed, runed, level)).ToList();
+            output.WriteLine($"{kit} at level {level}{(runed ? " with +1 striking weapon and +1 armour" : " in the starting kit")}: Mother Sallow, {fights.Count} fights");
+            foreach (var f in fights)
+                output.WriteLine($"  {(f.Won ? "won " : "lost")}  {f.Seconds,5:0} s  potions {f.Potions}  reached phase {f.Phase + 1}  her HP left {f.BossHpLeft:0%}");
+            output.WriteLine($"  won {fights.Count(f => f.Won)} of {fights.Count}, average {fights.Average(f => f.Seconds):0} s");
+        }
+    }
+
+    /// <summary>
+    /// One try at Mother Sallow: a hero of <paramref name="level"/> walks into her clearing and fights to the end (no respawn). The bot
+    /// steps out of rot pools and their warning rings, drinks at 45% and otherwise fights as everywhere else.
+    /// </summary>
+    public static BossResult BossFight(string kit, int seed, bool runed, int level = 5)
+    {
+        var classId = kit.Split(' ')[0];
+        var content = TestCharacters.Content;
+        var mire = content.Zone("sallows_mire");
+        var zone = mire with { Spawns = [mire.Spawns.Single(s => s.Pack.Any(m => m.Creature == "mother_sallow"))] };
+        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var bar = content.AbilityBar(classId);
+        var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
+        foreach (var id in Kits[kit])
+        {
+            var definition = content.Item(id);
+            var item = runed && definition.IsWeapon ? new Items.Item(definition, Items.Rarity.Common, 5, potency: 1, striking: 1)
+                : runed && definition.IsBodyArmor ? new Items.Item(definition, Items.Rarity.Common, 5, potency: 1)
+                : new Items.Item(definition, Items.Rarity.Common, 1);
+            world.Hero.Equipment.Equip(item);
+        }
+        LevelTo(world, level);
+        var sallow = world.Monsters.Single(m => m.Definition.Id == "mother_sallow");
+        (world.Hero.X, world.Hero.Y) = (sallow.HomeX, sallow.HomeY - 9);
+        int potions = 0;
+        double start = world.Time, nextDodge = 0;
+        while (world.Time - start < 400 && !sallow.IsDead && !hero.IsDead)
+        {
+            if (hero.HitPoints < hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
+                potions++;
+            if (StepOutOfPool(world, ref nextDodge) is { } pool)
+            {
+            }
+            else if (!world.Hero.IsSwinging && world.Time >= nextDodge)
+            {
+                var target = world.Monsters.Where(m => !m.IsDead).MinBy(m => m.DistanceTo(world.Hero) + (m == sallow ? 2 : 0));
+                if (target is not null)
+                    Act(world, bar, classId, target);
+            }
+            world.Update(Tick);
+        }
+        return new BossResult(sallow.IsDead, world.Time - start, potions, sallow.BossPhase,
+            (double)sallow.Creature.HitPoints / sallow.Creature.Stats.HitPoints);
     }
 
     private static (double X, double Y) NearestDry(TileMap map, double x, double y)
@@ -351,10 +471,7 @@ public class BalanceReport(ITestOutputHelper output)
         var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
         var world = new GameWorld(zone, content.Creatures, hero, seed, content.AbilityBar(classId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, classId);
-        if (heroLevel >= 2)
-            LevelTwo(world, classId);
-        if (heroLevel >= 3)
-            LevelThree(world);
+        LevelTo(world, heroLevel);
         // Start a few tiles from the pack, on the nearest open ground, so it aggroes at once.
         var (sx, sy) = (zone.Spawns[0].At[0] + 0.5, zone.Spawns[0].At[1] + 0.5);
         (world.Hero.X, world.Hero.Y) = NearestOpen(world.Map, sx, sy, 4.0);
