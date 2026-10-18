@@ -240,7 +240,7 @@ public partial class MainWindow : Window
                 SaveNow();
                 break;
             case >= Key.D1 and <= Key.D9 when world.Dialogue is not null:
-                world.Choose((int)(e.Key - Key.D1));
+                World.Answer((int)(e.Key - Key.D1));
                 break;
             case >= Key.D1 and <= Key.D6:
                 World.UseSlot(((int)(e.Key - Key.D1) + 1).ToString());
@@ -249,7 +249,10 @@ public partial class MainWindow : Window
                 World.JournalOpen = !World.JournalOpen;
                 break;
             case Key.L:
-                World.LevelUpOpen = !World.LevelUpOpen && world.Hero.Character.PendingLevels.Count > 0;
+                if (World.LevelUpOpen)
+                    World.LevelUpOpen = false;
+                else
+                    World.OpenLevelUp();
                 break;
             case Key.LeftShift or Key.RightShift:
                 World.DodgeTowardPointer();

@@ -76,6 +76,36 @@ public class CreationTests
         Assert.NotEmpty(world.Hero.Character.FeatOptions(AshenReliquary.Core.Characters.FeatType.Class, 2));
     }
 
+    [AvaloniaFact]
+    public void Respec_at_the_lantern_altar_closes_the_conversation_and_opens_the_level_up_screen()
+    {
+        var kit = TestKit.Open(zoneId: "fort_gallowmere");
+        var world = kit.World;
+        TestHooks.GainXp(world, 1000);
+        world.ChooseLevel(2, new AshenReliquary.Core.Characters.LevelChoice(ClassFeat: "lunge", SkillFeat: "titan_wrestler"));
+        world.Interact(world.Interactives.Single(i => i.Id == "altar"));
+        kit.PlayUntil(() => world.Dialogue is not null, 8);
+        kit.Window.View.Answer(0);
+        kit.Play(0.2);
+        kit.Capture(Shot("altar-respec"));
+        Assert.Null(world.Dialogue);
+        Assert.True(kit.Window.View.LevelUpOpen);
+        Assert.Equal([2], world.Hero.Character.PendingLevels);
+    }
+
+    [AvaloniaFact]
+    public void Opening_the_level_up_screen_closes_a_conversation()
+    {
+        var kit = TestKit.Open(zoneId: "fort_gallowmere");
+        var world = kit.World;
+        TestHooks.GainXp(world, 1000);
+        world.Interact(world.Interactives.Single(i => i.Id == "altar"));
+        kit.PlayUntil(() => world.Dialogue is not null, 8);
+        kit.Window.View.OpenLevelUp();
+        Assert.Null(world.Dialogue);
+        Assert.True(kit.Window.View.LevelUpOpen);
+    }
+
     [Fact]
     public void The_fighter_starts_in_chain_mail_without_slowing_down()
     {

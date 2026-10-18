@@ -49,7 +49,7 @@ internal sealed class LevelUpPanel
         Bounds = SKRect.Create((size.Width - Width) / 2, 16, Width, Math.Max(420, size.Height - 32 - 150));
         _hits.Clear();
 
-        using var back = new SKPaint { Color = Palette.Panel };
+        using var back = new SKPaint { Color = Palette.Panel.WithAlpha(255) };   // a full-screen sheet: nothing should show through
         using var frame = new SKPaint { Color = Palette.Frame, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
         using var titleFont = new SKFont(WorldOverlay.Serif, 24);
         using var head = new SKFont(WorldOverlay.Serif, 13);

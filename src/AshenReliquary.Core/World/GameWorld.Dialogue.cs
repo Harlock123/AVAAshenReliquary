@@ -259,7 +259,7 @@ public sealed partial class GameWorld
         {
             Hero.Character.Respec();
             RefreshBar();
-            Say("The Lantern takes back your choices. Press L to choose again.");
+            Say("The Lantern takes back your choices. Choose again.");
         }
         if (effect.Item is { } itemId && _loot?.Items.GetValueOrDefault(itemId) is { } definition)
         {

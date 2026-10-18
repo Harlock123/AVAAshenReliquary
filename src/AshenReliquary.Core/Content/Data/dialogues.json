@@ -339,7 +339,6 @@
             "requires": {
               "act1.respec": ""
             },
-            "to": "done",
             "effects": [
               {
                 "respec": true
@@ -355,7 +354,6 @@
             "requires": {
               "act1.respec": "used"
             },
-            "to": "done",
             "effects": [
               {
                 "payPerLevel": 20
@@ -369,9 +367,6 @@
             "text": "Rise and leave."
           }
         ]
-      },
-      "done": {
-        "text": "The altar's cold light passes through you. What you have learned stays; what you chose is yours to choose again. (Press L.)"
       }
     }
   }

@@ -45,6 +45,26 @@ public sealed class WorldView : Control
     /// <summary>The level-up screen (L).</summary>
     public bool LevelUpOpen { get; set; }
 
+    /// <summary>Opens the level-up screen when a level is waiting, closing any conversation that would cover it.</summary>
+    public void OpenLevelUp()
+    {
+        if (World is not { } world || world.Hero.Character.PendingLevels.Count == 0)
+            return;
+        world.EndDialogue();
+        LevelUpOpen = true;
+    }
+
+    /// <summary>Picks a dialogue answer; one that hands back levels (the Lantern altar's respec) opens the level-up screen.</summary>
+    public void Answer(int index)
+    {
+        if (World is not { } world)
+            return;
+        var pending = world.Hero.Character.PendingLevels.Count;
+        world.Choose(index);
+        if (world.Hero.Character.PendingLevels.Count > pending)
+            OpenLevelUp();
+    }
+
     private readonly LevelUpPanel _levelUp = new();
 
     /// <summary>The Step dodge (Shift): toward the pointer, or straight ahead without one.</summary>
@@ -215,14 +235,14 @@ public sealed class WorldView : Control
         }
         if (props.IsLeftButtonPressed && HudLayer.LevelUpBadge.Contains(sp))
         {
-            LevelUpOpen = true;
+            OpenLevelUp();
             e.Handled = true;
             return;
         }
         if (world.Dialogue is not null && props.IsLeftButtonPressed && _dialogue.HitTest(sp) is { } answer)
         {
             if (answer >= 0)
-                world.Choose(answer);
+                Answer(answer);
             e.Handled = true;
             InvalidateVisual();
             return;
