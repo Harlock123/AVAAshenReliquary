@@ -126,6 +126,50 @@
   "click": [
    "sfx/click-interface1.ogg",
    "sfx/click-interface2.ogg"
+  ],
+  "chest": [
+   "sfx/chest-wood_open.ogg"
+  ],
+  "ward-shield": [
+   "sfx/ward-shield-inventory_heavy.ogg"
+  ],
+  "ward-spell": [
+   "sfx/ward-spell-shield.ogg"
+  ],
+  "block": [
+   "sfx/block-block.ogg"
+  ],
+  "bomb-fire": [
+   "sfx/bomb-fire-fireball.ogg"
+  ],
+  "bomb-cold": [
+   "sfx/bomb-cold-freeze.ogg"
+  ],
+  "bomb-electricity": [
+   "sfx/bomb-electricity-shock.ogg"
+  ],
+  "bomb-acid": [
+   "sfx/bomb-acid-burn.ogg"
+  ],
+  "crawler": [
+   "sfx/crawler-antlion_ment.ogg",
+   "sfx/crawler-antlion_phys.ogg"
+  ],
+  "crawler-death": [
+   "sfx/crawler-death-antlion_die.ogg",
+   "sfx/crawler-death-antlion_critdie.ogg"
+  ],
+  "cultist": [
+   "sfx/cultist-male_hit.ogg"
+  ],
+  "cultist-death": [
+   "sfx/cultist-death-male_die.ogg"
+  ],
+  "crone": [
+   "sfx/crone-female_hit.ogg"
+  ],
+  "crone-death": [
+   "sfx/crone-death-female_die.ogg"
   ]
  },
  "music": {
@@ -702,6 +746,118 @@
    "url": "https://opengameart.org/content/loopable-dungeon-ambience",
    "original": "dungeon_ambient_1_0.ogg",
    "licence": "CC0"
+  },
+  {
+   "file": "sfx/chest-wood_open.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "wood_open.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/ward-shield-inventory_heavy.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "inventory_heavy.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/ward-spell-shield.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "shield.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/block-block.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "block.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/bomb-fire-fireball.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "fireball.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/bomb-cold-freeze.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "freeze.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/bomb-electricity-shock.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "shock.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/bomb-acid-burn.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "burn.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/crawler-antlion_ment.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "antlion_ment.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/crawler-antlion_phys.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "antlion_phys.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/crawler-death-antlion_die.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "antlion_die.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/crawler-death-antlion_critdie.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "antlion_critdie.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/cultist-male_hit.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "male_hit.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/cultist-death-male_die.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "male_die.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/crone-female_hit.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "female_hit.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/crone-death-female_die.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "female_die.ogg",
+   "licence": "CC-BY-SA 3.0"
   }
  ]
 }
