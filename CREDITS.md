@@ -34,6 +34,14 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Changes: White page and flat backdrop panels removed, cropped to the painted head, resized to 320x320, colour-graded and vignetted by tools/AssetTool 'portrait --auto' (see tools/build_portraits.py). Released under CC-BY-SA 3.0.
 - Files: 12 (listed in `assets.manifest.json`)
 
+## Halforc character illustration
+
+- Source: [https://opengameart.org/content/halforc-character-illustration](https://opengameart.org/content/halforc-character-illustration) (retrieved 2026-10-18)
+- Licence: CC-BY-SA 4.0 (`src/AshenReliquary.App/Assets/Portraits/polygondan/README-PolygonDan.txt`)
+- Authors: PolygonDan (OpenGameArt)
+- Changes: Cropped to the head of the full-length sketch, the white paper toned to parchment, resized to 320x320, colour-graded (30% desaturated, warmed) and darkened with a vignette by tools/AssetTool 'portrait --parchment' (see tools/build_portraits.py). Released under CC-BY-SA 4.0 like the original.
+- Files: 1 (listed in `assets.manifest.json`)
+
 ## game-icons.net
 
 - Source: [https://game-icons.net](https://game-icons.net) (retrieved 2026-10-18)

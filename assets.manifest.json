@@ -261,6 +261,19 @@
       ]
     },
     {
+      "id": "polygondan-portraits",
+      "title": "Halforc character illustration",
+      "url": "https://opengameart.org/content/halforc-character-illustration",
+      "retrieved": "2026-10-18",
+      "licence": "CC-BY-SA 4.0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Portraits/polygondan/README-PolygonDan.txt",
+      "authors": "PolygonDan (OpenGameArt)",
+      "changes": "Cropped to the head of the full-length sketch, the white paper toned to parchment, resized to 320x320, colour-graded (30% desaturated, warmed) and darkened with a vignette by tools/AssetTool 'portrait --parchment' (see tools/build_portraits.py). Released under CC-BY-SA 4.0 like the original.",
+      "files": [
+        "Portraits/polygondan/halforc__0.png"
+      ]
+    },
+    {
       "id": "game-icons",
       "title": "game-icons.net",
       "url": "https://game-icons.net",

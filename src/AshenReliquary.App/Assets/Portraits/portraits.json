@@ -441,6 +441,13 @@
   "licence": "CC BY 4.0"
  },
  {
+  "id": "polygondan/halforc__0",
+  "ancestry": "orc",
+  "file": "polygondan/halforc__0.png",
+  "artist": "PolygonDan (OpenGameArt)",
+  "licence": "CC-BY-SA 4.0"
+ },
+ {
   "id": "gearhead/hood_001",
   "ancestry": "ashborn",
   "file": "gearhead/hood_001.png",
