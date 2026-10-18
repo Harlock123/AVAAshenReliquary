@@ -172,14 +172,17 @@ caches = [
     cache("east_crypt", 58, 93, facing=1),
 ]
 
-def pack(*members, at, radius=1.8, level=3):
+def pack(*members, at, radius=1.8, level=3, flag=None, value="cleared"):
     out = []
     for m in members:
         d = dict(zip(("creature", "rank", "count"), m[:3]))
         if len(m) > 3:
             d["affixes"] = m[3]
         out.append(d)
-    return {"at": at, "radius": radius, "pack": out, "level": level}
+    spawn = {"at": at, "radius": radius, "pack": out, "level": level}
+    if flag:
+        spawn["flag"], spawn["value"] = flag, value
+    return spawn
 N, M, C = "Normal", "Minion", "Champion"
 V = ["vengeful"]
 spawns = [
@@ -202,7 +205,7 @@ spawns = [
     pack(("drowned_dead", N, 3), at=[42, 73]),
     # The choir and sanctum: the Prior's guard (level 3)
     pack(("bone_archer", N, 2), at=[28, 86]),
-    pack(("grave_knight", C, 1, V), ("drowned_dead", N, 2), at=[32, 89], level=3),
+    pack(("grave_knight", C, 1, V), ("drowned_dead", N, 2), at=[32, 89], level=3, flag="act1.chapel"),  # the chapel cleansed
     # The east crypt (level 3)
     pack(("cursed_grave", N, 1), at=[46, 84], radius=0),
     pack(("bone_archer", N, 1), ("drowned_dead", N, 2), at=[52, 90]),

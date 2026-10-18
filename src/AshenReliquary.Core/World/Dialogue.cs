@@ -37,7 +37,7 @@ public sealed record SkillCheckDefinition(string Skill, int Dc, string Success, 
 /// lets every level from 2 be chosen again.
 /// </summary>
 public sealed record DialogueEffect(string? Flag = null, string? Value = null, JournalEntryDefinition? Journal = null,
-    int Xp = 0, int Gold = 0, string? Item = null, int PayPerLevel = 0, bool Respec = false);
+    int Xp = 0, int Gold = 0, string? Item = null, int PayPerLevel = 0, bool Respec = false, string? Boon = null, string? TakeItem = null);
 
 /// <summary>A journal entry: <see cref="Kind"/> is "main" or "side". Writing the same id again replaces the text.</summary>
 public sealed record JournalEntryDefinition(string Id, string Title, string Text, string Kind = "side");
@@ -45,9 +45,12 @@ public sealed record JournalEntryDefinition(string Id, string Title, string Text
 /// <summary>A journal entry as written, and when.</summary>
 public sealed record JournalEntry(string Id, string Title, string Text, string Kind, double At);
 
-/// <summary>Someone to talk to, placed in a zone: drawn like a trader, from Flare's avatar layers.</summary>
+/// <summary>
+/// Someone to talk to, placed in a zone: drawn like a trader, from Flare's avatar layers. A <see cref="Still"/> one
+/// doesn't idle (a scarecrow on its pole).
+/// </summary>
 public sealed record NpcDefinition(string Id, string Name, string Title, int[] At, IReadOnlyDictionary<string, string> Look,
-    string Dialogue, int Facing = 6, string? Portrait = null);
+    string Dialogue, int Facing = 6, string? Portrait = null, bool Still = false);
 
 /// <summary>
 /// Something to look at or use, placed in a zone: a well, a letter, a notice board. <see cref="Tile"/> is a tileset

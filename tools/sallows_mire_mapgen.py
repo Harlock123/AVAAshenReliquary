@@ -286,6 +286,8 @@ zone = {
          "openText": "The road east to Ironhold lies open. (Act 2 is still being written.)"},
     ],
     "caches": caches,
+    # The Well-Keeper's Daughter (M2 step 9): the hearth by her hut, where her Cinder Relic lies.
+    "interactables": [{"id": "sallows_hearth", "name": "Sallow's hearth", "at": [cx - 7, cy - 4], "tile": 102, "dialogue": "mire_hearth"}],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)
 print("\n".join(rows))

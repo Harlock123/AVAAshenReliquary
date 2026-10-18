@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -926,6 +926,34 @@ Building the rules core and the vertical slice settled these. Where a number her
   zone the bots nearly always meet her at level 4 (each death costs XP), so the fighter wins in the end after 3-19
   deaths and the wizard, which never kites or dodges her bolts, after many more: the XP curve across Act 1 is the exit
   test's job (M2 plan, step 10).
+
+### Act 1's side stories (M2)
+
+- **Rewards** (section 4's rule): each story pays 160 XP (about a 2-level-above encounter at Act 1's scale) and either a
+  **unique item** or a **boon**. A unique (`unique` in `items.json`, the Unique rarity's purple) is one fixed item with
+  its own name and implicit bonuses; uniques and key items never roll as loot. A **boon** is a feat of type `Boon` that
+  a dialogue effect grants (`boon`); the world flag `boon.<id>` remembers it, so it comes back on loading and after a
+  respec. Dialogue effects can also take an item back (`takeItem`). A pack's `flag` is set when its last placed monster
+  falls. A journal entry is written only once something is found.
+- **The Well-Keeper's Daughter** (Herald Remnant): the **old well** in Fort Gallowmere's yard hides Maren's bloodied
+  letter (an Athletics check, DC 14, which can be tried again). It points to **Sallow's hearth** beside her hut in the
+  Mire (searchable only once she is dead; without the letter a DC 18 Perception check finds the stone), where her
+  **Cinder Relic** lies in Maren's shawl. Smash it there (flag `act1.sallow_relic = destroyed`, the boon *Breaker of
+  Embers*: +1 Will, Taint 25% slower) or carry it (a key item) to **Ysolde**, who makes a cure of it (`cured`, the unique
+  amulet *Ysolde's Phial*: +10 HP, +10% resource regeneration) or, if asked, burns it (`destroyed`, the same boon).
+  Section 4's pay-offs (Act 2's refugees, Sallow's Echo) read this flag later.
+- **Brothers of the Ferry** (faction): the notice board's scratched message and Old Coll's wariness (M2 step 3) lead,
+  once Coll has been asked, to his job: clear the **cult camp** in the Fens' drowned village (its champion's pack sets
+  `act1.village = cleared`). Then report to **Coll** and join the Brothers (`act1.ferry = brothers`, 120 gold and the
+  unique ring *Ferryman's Knot*: +6 HP, +8% movement), or to **Brother Anselm**, the last of the Lantern Order, kneeling
+  by the fort's altar, and tell him where their boats land (`lantern`, the boon *Ward of the Lantern*: resistance 2 to
+  void, Taint 25% slower). Either closes the other; the Act 2 vendor reads the flag.
+- **The Scarecrow Who Wept** (hidden): a scarecrow (a still NPC: `still` draws one frame and carries no light) in the
+  ruined farmstead's yard on Gallows Road. Its first two visits say a little more each time; the third, once the Drowned
+  Chapel's sanctum champion has fallen (`act1.chapel = cleared`; the decision of 2026-10-18 in place of "at night"), it
+  weeps: free the spirit (`act1.scarecrow = freed`, the boon *The Scarecrow's Peace*: +1 Perception, +5 ft speed) or
+  take its soul-gem (`taken`, the unique ring *The Weeping Soul-gem*: +8% cast speed, +15% resource regeneration). Its
+  journal entry appears only when it weeps.
 
 ### Dialogue, flags and the journal (M2)
 

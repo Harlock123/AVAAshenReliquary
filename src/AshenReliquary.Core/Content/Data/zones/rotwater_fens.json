@@ -593,7 +593,9 @@
      "count": 2
     }
    ],
-   "level": 2
+   "level": 2,
+   "flag": "act1.village",
+   "value": "cleared"
   },
   {
    "at": [

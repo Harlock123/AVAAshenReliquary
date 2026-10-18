@@ -1,7 +1,8 @@
 # Generates zones/fort_gallowmere.json: Act 1's hub, a walled yard behind the gate at the north end of Gallows Road.
 # Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour, and rune
 # work), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash, the Lantern altar
-# (respec) and the Fort Shrine. A west gate (revision 2) leads out to the Rotwater Fens.
+# (respec) and the Fort Shrine. A west gate (revision 2) leads out to the Rotwater Fens. Side stories (M2 step 9): the
+# old well (Maren's letter) and Brother Anselm, the last of the Lantern Order, by the altar.
 # Deterministic.
 import json, sys
 
@@ -103,6 +104,10 @@ zone = {
          "portrait": "flare/female06", "dialogue": "fort_ysolde",
          "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "mage_skirt", "feet": "cloth_sandals",
                   "main": "staff"}},
+        {"id": "anselm", "name": "Brother Anselm", "title": "Lantern priest", "at": [cx + 7, 12], "facing": 4,
+         "portrait": "flare/male03", "dialogue": "fort_anselm",
+         "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "mage_sleeves", "legs": "mage_skirt", "feet": "mage_boots",
+                  "main": "rod"}},
         {"id": "coll", "name": "Old Coll", "title": "Ferryman", "at": [cx + 7, 18], "facing": 0,
          "portrait": "flare/male09", "dialogue": "fort_coll",
          "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "leather_gloves", "legs": "cloth_pants",
@@ -112,6 +117,7 @@ zone = {
         {"id": "notice_board", "name": "Notice board", "at": [cx - 4, 16], "tile": 139, "dialogue": "fort_notice"},
         {"id": "stash", "name": "Stash", "at": [cx + 3, 17], "tile": 76, "action": "stash"},
         {"id": "altar", "name": "Lantern altar", "at": [cx + 6, 13], "tile": 142, "dialogue": "fort_altar"},
+        {"id": "well", "name": "The old well", "at": [x0 + 4, y1 - 2], "tile": 264, "dialogue": "fort_well"},
     ],
     "vendors": [
         {"id": "wenna", "name": "Wenna Marsh", "title": "Peddler", "at": [cx - 5, 9], "facing": 5, "stockSize": 12,

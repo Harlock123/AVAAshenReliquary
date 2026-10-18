@@ -1467,6 +1467,10 @@ public sealed partial class GameWorld
         Avenge(monster);
         if (monster.Definition.Boss is not null)
             BossDied(monster);
+        // A side story's pack: once every one of its placed monsters has fallen, its flag is set.
+        if (monster.SpawnIndex >= 0 && monster.PackId - 1 < Zone.Spawns.Count && Zone.Spawns[monster.PackId - 1] is { Flag: { } packFlag } spawn
+            && !_monsters.Any(m => m.PackId == monster.PackId && m.SpawnIndex >= 0 && !m.IsDead))
+            SetFlag(packFlag, spawn.Value ?? "cleared");
     }
 
     public const int VengeanceMax = 3;

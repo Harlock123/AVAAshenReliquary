@@ -928,5 +928,25 @@
    "kind": "Cache",
    "facing": 1
   }
+ ],
+ "npcs": [
+  {
+   "id": "scarecrow",
+   "name": "Scarecrow",
+   "title": "",
+   "at": [
+    34,
+    145
+   ],
+   "facing": 6,
+   "still": true,
+   "dialogue": "gallows_scarecrow",
+   "look": {
+    "head": "leather_hood",
+    "chest": "cloth_shirt",
+    "hands": "cloth_gloves",
+    "legs": "cloth_pants"
+   }
+  }
  ]
 }

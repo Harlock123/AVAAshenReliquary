@@ -212,6 +212,21 @@
         ],
         "choices": [
           {
+            "text": "\"I found this under Mother Sallow's hearth. Maren's letter said you'd know what to do.\"",
+            "requires": {
+              "act1.relic": "carried"
+            },
+            "to": "relic"
+          },
+          {
+            "text": "\"Did you know Maren, the well-keeper's daughter?\"",
+            "requires": {
+              "act1.letter": "found",
+              "act1.ysolde_maren": ""
+            },
+            "to": "maren"
+          },
+          {
             "text": "\"What's killing them?\"",
             "to": "wells"
           },
@@ -246,6 +261,21 @@
         "text": "\"Still on your feet. Good. Drink nothing from the wells.\"",
         "choices": [
           {
+            "text": "\"I found this under Mother Sallow's hearth. Maren's letter said you'd know what to do.\"",
+            "requires": {
+              "act1.relic": "carried"
+            },
+            "to": "relic"
+          },
+          {
+            "text": "\"Did you know Maren, the well-keeper's daughter?\"",
+            "requires": {
+              "act1.letter": "found",
+              "act1.ysolde_maren": ""
+            },
+            "to": "maren"
+          },
+          {
             "text": "\"Tell me again about the wells.\"",
             "to": "wells"
           },
@@ -253,6 +283,91 @@
             "text": "Leave."
           }
         ]
+      },
+      "maren": {
+        "text": "Her hands stop on the pestle. \"Maren. She went out after the black water a month back. I told her not to.\" She goes back to grinding, harder.",
+        "effects": [
+          {
+            "flag": "act1.ysolde_maren",
+            "value": "asked"
+          }
+        ]
+      },
+      "relic": {
+        "text": "Ysolde turns the ember over in her stained hands. \"Gods. It's the rot's own heart. Break it and the witch is gone for good. Or leave it with me, and I can draw a cure out of it for every sick soul in this fort.\"",
+        "choices": [
+          {
+            "text": "\"Make your cure.\"",
+            "to": "cured",
+            "effects": [
+              {
+                "takeItem": "cinder_relic"
+              },
+              {
+                "flag": "act1.relic",
+                "value": "given"
+              },
+              {
+                "flag": "act1.sallow_relic",
+                "value": "cured"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "item": "ysoldes_phial"
+              },
+              {
+                "journal": {
+                  "id": "act1_well",
+                  "title": "The Well-Keeper's Daughter",
+                  "kind": "side",
+                  "text": "I gave Sallow's Cinder Relic to Ysolde, as Maren wanted. She drew a cure out of it, and the fever is breaking in the fort. Whatever is left of Sallow in it, Ysolde keeps."
+                }
+              }
+            ]
+          },
+          {
+            "text": "\"No. It should be destroyed.\"",
+            "to": "burned",
+            "effects": [
+              {
+                "takeItem": "cinder_relic"
+              },
+              {
+                "flag": "act1.relic",
+                "value": "given"
+              },
+              {
+                "flag": "act1.sallow_relic",
+                "value": "destroyed"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "boon": "ember_breaker"
+              },
+              {
+                "journal": {
+                  "id": "act1_well",
+                  "title": "The Well-Keeper's Daughter",
+                  "kind": "side",
+                  "text": "I brought Sallow's Cinder Relic to Ysolde, but had it destroyed. It burned in her fire with a sound like screaming. Sallow is gone for good; the fort's sick will have to wait for another cure."
+                }
+              }
+            ]
+          },
+          {
+            "text": "\"Not yet.\""
+          }
+        ]
+      },
+      "cured": {
+        "text": "It takes her three days. The fever breaks in the camp, one cot at a time. She presses a stoppered phial into your hand. \"For you. What's left over.\""
+      },
+      "burned": {
+        "text": "She nods slowly, and drops it into her fire. It screams. When it is ash she says nothing for a long while."
       }
     }
   },
@@ -260,6 +375,18 @@
     "id": "fort_coll",
     "start": "start",
     "openings": [
+      {
+        "node": "friend",
+        "requires": {
+          "act1.ferry": "brothers"
+        }
+      },
+      {
+        "node": "spurned",
+        "requires": {
+          "act1.ferry": "lantern"
+        }
+      },
       {
         "node": "again",
         "requires": {
@@ -309,6 +436,22 @@
         "text": "Coll nods without looking up from his net.",
         "choices": [
           {
+            "text": "\"I've reason to trust you now. What do you need?\"",
+            "requires": {
+              "act1.coll_message": "asked",
+              "act1.ferry": ""
+            },
+            "to": "job"
+          },
+          {
+            "text": "\"The drowned village is clear.\"",
+            "requires": {
+              "act1.ferry": "job",
+              "act1.village": "cleared"
+            },
+            "to": "brothers"
+          },
+          {
             "text": "\"About that message on the board...\"",
             "requires": {
               "act1.notice": "seen",
@@ -324,6 +467,67 @@
             "text": "Leave."
           }
         ]
+      },
+      "job": {
+        "text": "Coll sets down his net. \"The Brothers of the Ferry run what the fort can't buy: medicine, salt, letters. Cultists squat in the drowned village on the Fens causeway, and no boat gets past their camp. Clear it, and the Brothers will want to know you.\"",
+        "effects": [
+          {
+            "flag": "act1.ferry",
+            "value": "job"
+          },
+          {
+            "journal": {
+              "id": "act1_ferry",
+              "title": "Brothers of the Ferry",
+              "kind": "side",
+              "text": "Old Coll runs with the Brothers of the Ferry, smugglers on the Rotwater. He wants the cult camp in the Fens' drowned village cleared so their boats can pass."
+            }
+          }
+        ]
+      },
+      "brothers": {
+        "text": "\"Clear? Then the boats run tonight.\" He studies you a long moment. \"The Brothers look after their own. Will you be one of them?\"",
+        "choices": [
+          {
+            "text": "\"I'm with the Brothers.\"",
+            "to": "joined",
+            "effects": [
+              {
+                "flag": "act1.ferry",
+                "value": "brothers"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "gold": 120
+              },
+              {
+                "item": "ferrymans_knot"
+              },
+              {
+                "journal": {
+                  "id": "act1_ferry",
+                  "title": "Brothers of the Ferry",
+                  "kind": "side",
+                  "text": "I cleared the cult camp in the drowned village and threw in with the Brothers of the Ferry. Their boats run the Rotwater again, and Coll gave me the Brothers' knot."
+                }
+              }
+            ]
+          },
+          {
+            "text": "\"I'll think on it.\""
+          }
+        ]
+      },
+      "joined": {
+        "text": "\"Then wear this, and any boat on the Rotwater will carry you.\" He presses a ring of tarred rope into your hand."
+      },
+      "friend": {
+        "text": "Coll grins over his net. \"The boats are running. Mind the cult's friends on the water.\""
+      },
+      "spurned": {
+        "text": "Coll won't look at you. \"Lantern's dog. We've nothing to say.\""
       }
     }
   },
@@ -408,6 +612,451 @@
       },
       "taken": {
         "text": "An empty lectern. The lantern is yours now."
+      }
+    }
+  },
+  {
+    "id": "fort_well",
+    "start": "start",
+    "openings": [
+      {
+        "node": "read",
+        "requires": {
+          "act1.letter": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "An old well in the corner of the yard, its rope cut through. Far down, a scrap of something pale is caught on the stones.",
+        "choices": [
+          {
+            "text": "Climb down for it.",
+            "check": {
+              "skill": "Athletics",
+              "dc": 14,
+              "success": "letter",
+              "failure": "slip"
+            }
+          },
+          {
+            "text": "Leave it."
+          }
+        ]
+      },
+      "slip": {
+        "text": "Your hands find nothing but slime, and you haul yourself back up, scraped and wet. You could try again."
+      },
+      "letter": {
+        "text": "A letter, blotted with old blood, in a careful hand: \"If you find this, I went after the black water. It comes from the witch in the mire, Mother Sallow. Folk say she keeps an ember of something old under her hearth, and that it is the cure and the curse both. If I don't come back, take it to Ysolde. She'll know. Maren, the well-keeper's daughter.\"",
+        "effects": [
+          {
+            "flag": "act1.letter",
+            "value": "found"
+          },
+          {
+            "xp": 20
+          },
+          {
+            "journal": {
+              "id": "act1_well",
+              "title": "The Well-Keeper's Daughter",
+              "kind": "side",
+              "text": "In the Gallowmere well I found a letter from Maren, the well-keeper's daughter. She followed the black water to Mother Sallow, who she says keeps an ember of something old under her hearth: the cure and the curse both. She wanted it taken to Ysolde."
+            }
+          }
+        ]
+      },
+      "read": {
+        "text": "The well, its rope cut. Maren's letter is in your pack."
+      }
+    }
+  },
+  {
+    "id": "mire_hearth",
+    "start": "start",
+    "openings": [
+      {
+        "node": "cold",
+        "requires": {
+          "act1.sallow_relic": "cured"
+        }
+      },
+      {
+        "node": "cold",
+        "requires": {
+          "act1.sallow_relic": "destroyed"
+        }
+      },
+      {
+        "node": "empty",
+        "requires": {
+          "act1.relic": "carried"
+        }
+      },
+      {
+        "node": "guarded",
+        "requires": {
+          "act1.sallow": ""
+        }
+      }
+    ],
+    "nodes": {
+      "guarded": {
+        "text": "A ring of black hearthstones beside the witch's hut. Mother Sallow's eyes are on you: not while she lives."
+      },
+      "start": {
+        "text": "A ring of black hearthstones beside the witch's hut, still warm though no fire burns.",
+        "choices": [
+          {
+            "text": "Lift the hearthstone Maren wrote of.",
+            "requires": {
+              "act1.letter": "found"
+            },
+            "to": "relic"
+          },
+          {
+            "text": "Search the hearth.",
+            "requires": {
+              "act1.letter": ""
+            },
+            "check": {
+              "skill": "Perception",
+              "dc": 18,
+              "success": "relic",
+              "failure": "nothing"
+            }
+          },
+          {
+            "text": "Leave it."
+          }
+        ]
+      },
+      "nothing": {
+        "text": "Ash and bones of small things. Nothing you can find."
+      },
+      "relic": {
+        "text": "Under the stone, wrapped in a girl's grey shawl, lies an ember that will not cool: Sallow's Cinder Relic. It beats like a heart. Whatever Sallow was, some of it is still in here.",
+        "choices": [
+          {
+            "text": "Smash it on the hearthstone.",
+            "to": "smashed",
+            "effects": [
+              {
+                "flag": "act1.sallow_relic",
+                "value": "destroyed"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "boon": "ember_breaker"
+              },
+              {
+                "journal": {
+                  "id": "act1_well",
+                  "title": "The Well-Keeper's Daughter",
+                  "kind": "side",
+                  "text": "Under Mother Sallow's hearth, wrapped in Maren's shawl, I found the witch's Cinder Relic, and smashed it. Whatever of Sallow was in it is gone for good. Maren did not come back."
+                }
+              }
+            ]
+          },
+          {
+            "text": "Wrap it again and take it to Ysolde.",
+            "to": "taken",
+            "effects": [
+              {
+                "item": "cinder_relic"
+              },
+              {
+                "flag": "act1.relic",
+                "value": "carried"
+              },
+              {
+                "journal": {
+                  "id": "act1_well",
+                  "title": "The Well-Keeper's Daughter",
+                  "kind": "side",
+                  "text": "Under Mother Sallow's hearth, wrapped in Maren's shawl, I found the witch's Cinder Relic. I am taking it to Ysolde in the fort, as Maren wanted."
+                }
+              }
+            ]
+          },
+          {
+            "text": "Leave it where it lies."
+          }
+        ]
+      },
+      "smashed": {
+        "text": "It cracks like a skull. Something far away screams, and is still."
+      },
+      "taken": {
+        "text": "It is warm through the shawl, and it beats against your side."
+      },
+      "empty": {
+        "text": "The hearthstone lies where you left it. The hollow beneath is empty."
+      },
+      "cold": {
+        "text": "Cold black stones. Nothing beats beneath them now."
+      }
+    }
+  },
+  {
+    "id": "fort_anselm",
+    "start": "start",
+    "openings": [
+      {
+        "node": "blessed",
+        "requires": {
+          "act1.ferry": "lantern"
+        }
+      },
+      {
+        "node": "cold",
+        "requires": {
+          "act1.ferry": "brothers"
+        }
+      },
+      {
+        "node": "again",
+        "requires": {
+          "act1.anselm": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A grey-robed man kneels before the Lantern altar's broken glass. \"Brother Anselm, of what is left of the Order of the Pale Lantern. Which is me.\"",
+        "effects": [
+          {
+            "flag": "act1.anselm",
+            "value": "met"
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Old Coll wants me to clear a cult camp for the Brothers of the Ferry.\"",
+            "requires": {
+              "act1.ferry": "job"
+            },
+            "to": "warning"
+          },
+          {
+            "text": "\"The cult camp is cleared. Tell me about the Brothers.\"",
+            "requires": {
+              "act1.ferry": "job",
+              "act1.village": "cleared"
+            },
+            "to": "choose"
+          },
+          {
+            "text": "\"What happened to the Order?\"",
+            "to": "order"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "again": {
+        "text": "Anselm looks up from his prayers. \"Ashbound.\"",
+        "choices": [
+          {
+            "text": "\"Old Coll wants me to clear a cult camp for the Brothers of the Ferry.\"",
+            "requires": {
+              "act1.ferry": "job"
+            },
+            "to": "warning"
+          },
+          {
+            "text": "\"The cult camp is cleared. Tell me about the Brothers.\"",
+            "requires": {
+              "act1.ferry": "job",
+              "act1.village": "cleared"
+            },
+            "to": "choose"
+          },
+          {
+            "text": "\"What happened to the Order?\"",
+            "to": "order"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "order": {
+        "text": "\"We guarded the Reliquary for three hundred years. Then the ash came up out of it, and the dead with it, and we found we had been guarding a door, not a tomb. The rest is graves.\""
+      },
+      "warning": {
+        "text": "\"The Brothers carry medicine, yes. They also carry relic-ash to the cult's censers, and take the cult's silver for it. Clear the camp by all means. Then come and tell me where their boats put in, and the Order will see it stopped.\""
+      },
+      "choose": {
+        "text": "\"Where do they land? Tell me, and the ash stops flowing.\"",
+        "choices": [
+          {
+            "text": "Tell him where the Brothers land.",
+            "to": "blessed_now",
+            "effects": [
+              {
+                "flag": "act1.ferry",
+                "value": "lantern"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "boon": "lantern_ward"
+              },
+              {
+                "journal": {
+                  "id": "act1_ferry",
+                  "title": "Brothers of the Ferry",
+                  "kind": "side",
+                  "text": "I cleared the cult camp in the drowned village, then told Brother Anselm, the last of the Lantern Order, where the Brothers of the Ferry land their boats. Their trade in relic-ash is over, and Coll will not forgive it."
+                }
+              }
+            ]
+          },
+          {
+            "text": "Say nothing."
+          }
+        ]
+      },
+      "blessed_now": {
+        "text": "He lays a cold hand on your brow and says words in the Order's old tongue. \"The Lantern keeps you, ashbound. Even you.\""
+      },
+      "blessed": {
+        "text": "\"The Brothers' boats burn on the Rotwater. The Lantern thanks you.\""
+      },
+      "cold": {
+        "text": "Anselm turns back to the altar. \"You chose the smugglers. I hope their silver is warm.\""
+      }
+    }
+  },
+  {
+    "id": "gallows_scarecrow",
+    "start": "first",
+    "openings": [
+      {
+        "node": "freed",
+        "requires": {
+          "act1.scarecrow": "freed"
+        }
+      },
+      {
+        "node": "gone",
+        "requires": {
+          "act1.scarecrow": "taken"
+        }
+      },
+      {
+        "node": "weeps",
+        "requires": {
+          "act1.scarecrow": "2",
+          "act1.chapel": "cleared"
+        }
+      },
+      {
+        "node": "quiet",
+        "requires": {
+          "act1.scarecrow": "2"
+        }
+      },
+      {
+        "node": "second",
+        "requires": {
+          "act1.scarecrow": "1"
+        }
+      }
+    ],
+    "nodes": {
+      "first": {
+        "text": "A scarecrow of sacking and straw on a leaning pole. Its button eyes are wet, though it hasn't rained.",
+        "effects": [
+          {
+            "flag": "act1.scarecrow",
+            "value": "1"
+          }
+        ]
+      },
+      "second": {
+        "text": "You look again. In the straw, a sound like a held breath.",
+        "effects": [
+          {
+            "flag": "act1.scarecrow",
+            "value": "2"
+          }
+        ]
+      },
+      "quiet": {
+        "text": "Only straw. Whatever stirred in it has gone still, as if it were waiting for something to be done."
+      },
+      "weeps": {
+        "text": "The scarecrow weeps: real tears, from button eyes. A voice like wind in dry stalks: \"The Lantern bound me here to watch the dead walk the road. The chapel is cleansed; my watch is over. Let me go... or take the stone that binds me, and I am nothing.\"",
+        "choices": [
+          {
+            "text": "Let it go.",
+            "to": "released",
+            "effects": [
+              {
+                "flag": "act1.scarecrow",
+                "value": "freed"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "boon": "scarecrows_peace"
+              },
+              {
+                "journal": {
+                  "id": "act1_scarecrow",
+                  "title": "The Scarecrow Who Wept",
+                  "kind": "side",
+                  "text": "A scarecrow at the ruined farmstead on Gallows Road wept once the Drowned Chapel was cleansed: a spirit the Lantern Order bound there to watch the dead. I let it go."
+                }
+              }
+            ]
+          },
+          {
+            "text": "Take the soul-gem.",
+            "to": "gem",
+            "effects": [
+              {
+                "flag": "act1.scarecrow",
+                "value": "taken"
+              },
+              {
+                "xp": 160
+              },
+              {
+                "item": "weeping_soulgem"
+              },
+              {
+                "journal": {
+                  "id": "act1_scarecrow",
+                  "title": "The Scarecrow Who Wept",
+                  "kind": "side",
+                  "text": "A scarecrow at the ruined farmstead on Gallows Road wept once the Drowned Chapel was cleansed: a spirit the Lantern Order bound there to watch the dead. I took the soul-gem that bound it."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "released": {
+        "text": "The straw sighs and settles. Something brushes past you, light as a moth, and is gone up the road."
+      },
+      "gem": {
+        "text": "You dig the pale stone out of the straw. The scarecrow sags on its pole. The stone is wet, and stays wet."
+      },
+      "freed": {
+        "text": "Empty sacking on a pole. The button eyes are dry."
+      },
+      "gone": {
+        "text": "The scarecrow hangs slack. Nothing waits in it now."
       }
     }
   }

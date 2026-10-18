@@ -803,5 +803,17 @@
    "kind": "Reliquary",
    "facing": 0
   }
+ ],
+ "interactables": [
+  {
+   "id": "sallows_hearth",
+   "name": "Sallow's hearth",
+   "at": [
+    33,
+    124
+   ],
+   "tile": 102,
+   "dialogue": "mire_hearth"
+  }
  ]
 }

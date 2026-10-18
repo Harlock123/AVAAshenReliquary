@@ -23,7 +23,7 @@ public class HubTests
     public void The_fort_holds_its_people_and_everyone_can_be_walked_to()
     {
         var zone = Content.Zone("fort_gallowmere");
-        Assert.Equal(["brask", "coll", "ysolde"], (zone.Npcs ?? []).Select(n => n.Id).Order());
+        Assert.Equal(["anselm", "brask", "coll", "ysolde"], (zone.Npcs ?? []).Select(n => n.Id).Order());
         Assert.Equal(["garrow", "wenna"], (zone.Vendors ?? []).Select(v => v.Id).Order());
         Assert.Contains(zone.Interactables ?? [], i => i.Action == "stash");
         Assert.Empty(Content.Zone("gallows_road").Vendors ?? []);  // Wenna moved inside

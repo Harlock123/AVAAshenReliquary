@@ -19,9 +19,11 @@ public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRan
 
 /// <summary>
 /// A pack placed on the map. Members scatter within <see cref="Radius"/> tiles of <see cref="At"/>. <see cref="Level"/>
-/// sets the pack's level where it differs from the zone's (the Fens run from 2 to 3).
+/// sets the pack's level where it differs from the zone's (the Fens run from 2 to 3). When the whole pack has fallen,
+/// world flag <see cref="Flag"/> is set to <see cref="Value"/> (a side story's "clear the camp").
 /// </summary>
-public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, double Radius = 2.0, int? Level = null);
+public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, double Radius = 2.0, int? Level = null,
+    string? Flag = null, string? Value = null);
 
 /// <summary>A shrine: checkpoint, respawn point, potion refill and Taint cleanse.</summary>
 public sealed record ShrineDefinition(string Id, string Name, int[] At);

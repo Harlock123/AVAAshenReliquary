@@ -9,6 +9,8 @@ public enum FeatType
     Class,
     Skill,
     General,
+    /// <summary>A side story's permanent reward, granted by a dialogue effect (never chosen on the level-up screen).</summary>
+    Boon,
 }
 
 /// <summary>

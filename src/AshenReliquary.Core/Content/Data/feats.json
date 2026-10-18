@@ -896,5 +896,53 @@
    }
   ],
   "skill": "Survival"
+ },
+ {
+  "id": "ember_breaker",
+  "name": "Breaker of Embers",
+  "type": "Boon",
+  "level": 1,
+  "description": "You smashed Sallow's Cinder Relic. +1 to Will saves, and the Taint builds in you a quarter more slowly.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "taintRate": 0.25
+   }
+  ]
+ },
+ {
+  "id": "lantern_ward",
+  "name": "Ward of the Lantern",
+  "type": "Boon",
+  "level": 1,
+  "description": "Brother Anselm's blessing. Resistance 2 to void, and the Taint builds in you a quarter more slowly.",
+  "effects": [
+   {
+    "resist": "Void",
+    "value": 2
+   },
+   {
+    "taintRate": 0.25
+   }
+  ]
+ },
+ {
+  "id": "scarecrows_peace",
+  "name": "The Scarecrow's Peace",
+  "type": "Boon",
+  "level": 1,
+  "description": "The spirit you freed keeps watch with you. +1 to Perception, and you move 5 feet faster.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 1
+   },
+   {
+    "speedFeet": 5
+   }
+  ]
  }
 ]

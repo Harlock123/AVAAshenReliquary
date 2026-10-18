@@ -63,7 +63,8 @@ cultists who flank, and Vengeful champions who grow stronger as their pack falls
 (levels 3–4) is a dungeon in the dark: torches and moonlight show the way, what lies beyond the light is hard to hit,
 and a pilgrim's lantern by the door widens your light. Beyond it, Sallow's Mire (levels 4–5) ends at Mother Sallow,
 Herald of Rot: rot pools, rising corpses, a flooding arena and a last stand at her cauldron. While she lives, the road
-east stays barred. Shrines wake when you pass within 5 tiles.
+east stays barred. Three side stories wait to be found, not handed out: a letter at the bottom of the fort's well,
+a ferryman's rumour, and a scarecrow that seems to be crying. Shrines wake when you pass within 5 tiles.
 The exit test (gallows to gate in one sitting) passed on 2026-10-17. Next is M2: the rest of Act 1.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 

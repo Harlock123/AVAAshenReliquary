@@ -805,7 +805,9 @@
      "count": 2
     }
    ],
-   "level": 3
+   "level": 3,
+   "flag": "act1.chapel",
+   "value": "cleared"
   },
   {
    "at": [

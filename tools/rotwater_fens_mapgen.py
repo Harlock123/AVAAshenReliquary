@@ -242,14 +242,17 @@ caches = [
     cache("drowned_graves", 8, 151, facing=1),
 ]
 
-def pack(*members, at, radius=2.0, level=2):
+def pack(*members, at, radius=2.0, level=2, flag=None, value="cleared"):
     out = []
     for m in members:
         d = dict(zip(("creature", "rank", "count"), m[:3]))
         if len(m) > 3:
             d["affixes"] = m[3]
         out.append(d)
-    return {"at": at, "radius": radius, "pack": out, "level": level}
+    spawn = {"at": at, "radius": radius, "pack": out, "level": level}
+    if flag:
+        spawn["flag"], spawn["value"] = flag, value
+    return spawn
 def on(path, i, dx=0, dy=0):
     x, y = path[min(i, len(path) - 1)]
     return [int(x) + dx, int(y) + dy]
@@ -269,7 +272,7 @@ spawns = [
     pack(("cultist", N, 2), ("cult_chanter", N, 1), at=on(main_north, 118, -1)),
     # The drowned village (level 2): three packs in the ruins, far enough apart to be fought one at a time
     pack(("cultist", N, 3), at=[26, 62]),
-    pack(("cultist", C, 1, V), ("cultist", N, 2), at=[34, 67]),
+    pack(("cultist", C, 1, V), ("cultist", N, 2), at=[34, 67], flag="act1.village"),    # Coll's job: the cult camp
     pack(*swarm(), at=[24, 72]),
     pack(("drowned_dead", N, 2), ("bone_archer", N, 1), at=on(main_north, 190, 2)),
     pack(*swarm(3, 3), at=on(main_north, 210, -2)),

@@ -103,6 +103,34 @@ public class RenderTests
         Assert.NotNull(sallow.EnrageLeft);
     }
 
+    [AvaloniaFact]
+    public void The_side_stories_people_and_things_render_and_talk()
+    {
+        var kit = TestKit.Open();
+        var world = kit.World;
+        var crow = world.Interactives.Single(i => i.Id == "scarecrow");
+        foreach (var m in world.Monsters.Where(m => m.DistanceTo(crow.X, crow.Y) < 14).ToList())
+            TestHooks.Slay(world, m);
+        TestHooks.Place(world, crow.X + 1.5, crow.Y + 1.5);
+        kit.Play(0.3);
+        var at = kit.Window.View.ToScreen(crow.X, crow.Y);
+        kit.Click(new Point(at.X, at.Y - 50));
+        kit.PlayUntil(() => world.Dialogue is not null, 5);
+        kit.Play(0.3);
+        kit.Capture(Shot("scarecrow"));
+        Assert.Equal("Scarecrow", world.Dialogue!.Speaker);
+
+        var fort = TestKit.Open(zoneId: "fort_gallowmere");
+        var well = fort.World.Interactives.Single(i => i.Id == "well");
+        TestHooks.Place(fort.World, well.X + 3, well.Y - 2);
+        fort.Play(0.4);
+        fort.Capture(Shot("fort-well"));
+        var anselm = fort.World.Interactives.Single(i => i.Id == "anselm");
+        TestHooks.Place(fort.World, anselm.X - 1, anselm.Y + 2);
+        fort.Play(0.4);
+        fort.Capture(Shot("fort-anselm"));
+    }
+
     [Fact]
     public void The_F3_stats_break_before_the_timings_in_a_narrow_window()
     {

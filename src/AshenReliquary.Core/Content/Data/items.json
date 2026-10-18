@@ -409,5 +409,60 @@
   "glyph": "lantern",
   "lightRadius": 2.5,
   "description": "A hooded Lantern-Order lamp, still trimmed. Carried, it throws your light 2.5 tiles further in dark places."
+ },
+ {
+  "id": "cinder_relic",
+  "name": "Sallow's Cinder Relic",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "gem",
+  "glyph": "ember",
+  "description": "An ember that will not cool, wrapped in a girl's grey shawl. It beats like a heart. Ysolde might make a cure of it; the Prophet would make Sallow of it again."
+ },
+ {
+  "id": "ysoldes_phial",
+  "name": "Ysolde's Phial",
+  "category": "Accessory",
+  "slot": "Amulet",
+  "icon": 213,
+  "loot": "gem",
+  "unique": true,
+  "minLevel": 1,
+  "implicit": {
+   "maxHitPoints": 10,
+   "resourceRegen": 0.1
+  },
+  "description": "A stoppered phial of the cure, on a cord. What is left over keeps you."
+ },
+ {
+  "id": "ferrymans_knot",
+  "name": "Ferryman's Knot",
+  "category": "Accessory",
+  "slot": "Ring1",
+  "icon": 203,
+  "loot": "ring",
+  "unique": true,
+  "minLevel": 1,
+  "implicit": {
+   "maxHitPoints": 6,
+   "moveSpeed": 0.08
+  },
+  "description": "A ring of tarred rope, the Brothers' sign. Boats wait for whoever wears it."
+ },
+ {
+  "id": "weeping_soulgem",
+  "name": "The Weeping Soul-gem",
+  "category": "Accessory",
+  "slot": "Ring1",
+  "icon": 206,
+  "loot": "ring",
+  "unique": true,
+  "minLevel": 1,
+  "implicit": {
+   "castSpeed": 0.08,
+   "resourceRegen": 0.15
+  },
+  "description": "A pale stone that is always wet. Something in it is still sorry."
  }
 ]

@@ -100,7 +100,7 @@ so the order is mostly forced; the two parallel tracks are marked.
   vessel"), and opens the way to Act 2 (a stub banner until M3).
 - *Done when:* she can be beaten at level 5 by both classes, and the BalanceReport bot loses sometimes.
 
-### 9. The three side stories
+### 9. The three side stories — done 2026-10-18
 
 Built on step 2, placed in zones 1.1–1.4 and the hub (section 4):
 

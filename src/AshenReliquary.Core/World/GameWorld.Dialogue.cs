@@ -258,15 +258,47 @@ public sealed partial class GameWorld
         if (effect.Respec)
         {
             Hero.Character.Respec();
+            ApplyBoons();
             RefreshBar();
             Say("The Lantern takes back your choices. Choose again.");
         }
         if (effect.Item is { } itemId && _loot?.Items.GetValueOrDefault(itemId) is { } definition)
         {
-            var item = new Item(definition, Rarity.Common, Math.Max(1, Hero.Character.Level));
+            var item = new Item(definition, definition.Unique ? Rarity.Unique : Rarity.Common, Math.Max(1, Hero.Character.Level));
             if (!Hero.Equipment.TryAdd(item))
                 _ground.Add(new GroundItem(Hero.X, Hero.Y, new LootDrop(item), Time));
+            Float(Hero, item.Name, FloatingTextKind.Info, 1.2);
         }
+        if (effect.TakeItem is { } takeId)
+        {
+            var index = Hero.Equipment.Bag.ToList().FindIndex(i => i?.Definition.Id == takeId);
+            if (index >= 0)
+                Hero.Equipment.TakeFromBag(index);
+        }
+        if (effect.Boon is { } boon && Hero.Character.Content?.Feats.GetValueOrDefault(boon) is { } feat)
+        {
+            SetFlag(BoonFlag(boon), "granted");
+            Hero.Character.Grant(feat);
+            Hero.Equipment.Refresh();
+            Say($"A boon: {feat.Name}. {feat.Description}");
+            Float(Hero, feat.Name.ToUpperInvariant(), FloatingTextKind.Info, 1.4);
+        }
+    }
+
+    /// <summary>The world flag that remembers a granted boon (boons outlive saves and respecs through it).</summary>
+    public static string BoonFlag(string featId) => $"boon.{featId}";
+
+    /// <summary>Grants every boon the flags record: after loading, and after a respec has cleared the feats.</summary>
+    internal void ApplyBoons()
+    {
+        if (Hero.Character.Content is not { } content)
+            return;
+        foreach (var (name, _) in _flags.Where(f => f.Key.StartsWith("boon.")))
+        {
+            if (content.Feats.GetValueOrDefault(name["boon.".Length..]) is { } feat)
+                Hero.Character.Grant(feat);
+        }
+        Hero.Equipment.Refresh();
     }
 
     private void WriteJournal(JournalEntryDefinition entry)
@@ -286,5 +318,6 @@ public sealed partial class GameWorld
         foreach (var (name, value) in flags)
             _flags[name] = value;
         _journal.AddRange(journal);
+        ApplyBoons();
     }
 }

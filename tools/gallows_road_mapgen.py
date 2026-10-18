@@ -283,6 +283,10 @@ zone = {
     "exits": [{"id": "fort_gallowmere", "label": "Fort Gallowmere", "at": exit_at, "radius": 2.0,
                "to": "fort_gallowmere", "toExit": "gate", "arrive": [exit_at[0], exit_at[1] + 3]}],
     "caches": caches,
+    # The Scarecrow Who Wept (M2 step 9): a scarecrow in the farmstead's yard, still on its pole.
+    "npcs": [{"id": "scarecrow", "name": "Scarecrow", "title": "", "at": [fx + 2, 145], "facing": 6, "still": True,
+              "dialogue": "gallows_scarecrow",
+              "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "cloth_gloves", "legs": "cloth_pants"}}],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)
 print("\n".join(rows))

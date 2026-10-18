@@ -71,7 +71,8 @@ public sealed record ItemDefinition(
     bool CasterFocus = false,
     double LightRadius = 0,
     string? Glyph = null,
-    string? Description = null)
+    string? Description = null,
+    bool Unique = false)
 {
     [JsonIgnore]
     public bool IsWeapon => Category == ItemCategory.Weapon;

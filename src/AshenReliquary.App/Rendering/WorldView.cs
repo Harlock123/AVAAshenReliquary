@@ -1021,7 +1021,7 @@ public sealed class WorldView : Control
             _pointer is { } p && VendorUnder(p) == vendor);
 
     /// <summary>Someone drawn from Flare's avatar layers (a trader, an NPC), idling, brighter when hovered.</summary>
-    private void DrawPaperDoll(SKCanvas canvas, SKPoint foot, IReadOnlyDictionary<string, string> look, int direction, bool hovered)
+    private void DrawPaperDoll(SKCanvas canvas, SKPoint foot, IReadOnlyDictionary<string, string> look, int direction, bool hovered, bool still = false)
     {
         using var paint = hovered ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(35, 35, 35)) } : null;
         foreach (var slot in _assets.LayerOrder(direction))
@@ -1032,7 +1032,7 @@ public sealed class WorldView : Control
             var set = _assets.AvatarLayer(layer);
             if (Pick(set, "stance") is not { } anim)
                 continue;
-            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(World!.Time), direction), foot, 1f, paint);
+            DrawFrame(canvas, set.Image, anim.Frame(still ? 0 : anim.FrameAt(World!.Time), direction), foot, 1f, paint);
         }
     }
 
@@ -1065,7 +1065,7 @@ public sealed class WorldView : Control
         var hovered = _pointer is { } p && InteractiveUnder(p) == who;
         if (who.Npc is { } npc)
         {
-            DrawPaperDoll(canvas, ToScreen(who.X, who.Y), npc.Look, npc.Facing, hovered);
+            DrawPaperDoll(canvas, ToScreen(who.X, who.Y), npc.Look, npc.Facing, hovered, npc.Still);
             return;
         }
         if (who.Thing?.Tile is { } id && tileset.Tiles.TryGetValue(id, out var tile))
@@ -1307,9 +1307,9 @@ public sealed class WorldView : Control
         // Everyone in a town carries a little light, so faces read in the dark; in a dark place, things to look at glint.
         foreach (var who in world.Interactives)
         {
-            if (who.Npc is not null)
+            if (who.Npc is { Still: false })
                 lights.Add((ToScreen(who.X, who.Y), 2.6f + (float)Math.Sin(time * 5.1 + who.X) * 0.08f, new SKColor(255, 200, 130, 50)));
-            else if (world.Zone.IsDark)
+            else if (who.Npc is null && world.Zone.IsDark)
                 lights.Add((ToScreen(who.X, who.Y), 1.6f + (float)Math.Sin(time * 2.3 + who.Y) * 0.12f, new SKColor(255, 210, 140, 55)));
         }
         // A trader's lantern, so the stall reads from across the camp.

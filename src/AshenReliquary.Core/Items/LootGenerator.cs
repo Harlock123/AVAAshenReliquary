@@ -85,7 +85,7 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
     /// <param name="only">Narrows the pool (a smith's stock); null allows any equippable item.</param>
     public Item Generate(int itemLevel, Rarity rarity, IRandomSource random, Func<ItemDefinition, bool>? only = null)
     {
-        var pool = Items.Values.Where(i => i.Slot is not null && i.MinLevel <= itemLevel && (!i.IsJewelry || rarity != Rarity.Common)
+        var pool = Items.Values.Where(i => i.Slot is not null && !i.Unique && i.MinLevel <= itemLevel && (!i.IsJewelry || rarity != Rarity.Common)
             && (only is null || only(i))).ToList();
         var definition = Pick(pool, random);
 

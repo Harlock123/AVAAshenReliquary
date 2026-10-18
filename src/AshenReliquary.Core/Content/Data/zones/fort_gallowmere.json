@@ -213,6 +213,26 @@
    }
   },
   {
+   "id": "anselm",
+   "name": "Brother Anselm",
+   "title": "Lantern priest",
+   "at": [
+    22,
+    12
+   ],
+   "facing": 4,
+   "portrait": "flare/male03",
+   "dialogue": "fort_anselm",
+   "look": {
+    "head": "mage_hood",
+    "chest": "mage_vest",
+    "hands": "mage_sleeves",
+    "legs": "mage_skirt",
+    "feet": "mage_boots",
+    "main": "rod"
+   }
+  },
+  {
    "id": "coll",
    "name": "Old Coll",
    "title": "Ferryman",
@@ -263,6 +283,16 @@
    ],
    "tile": 142,
    "dialogue": "fort_altar"
+  },
+  {
+   "id": "well",
+   "name": "The old well",
+   "at": [
+    8,
+    22
+   ],
+   "tile": 264,
+   "dialogue": "fort_well"
   }
  ],
  "vendors": [

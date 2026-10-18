@@ -33,7 +33,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `light`, zone `darkness`/`heroLight`, concealment in the dark, the pilgrim's lantern as a key item with a glyph icon).
   Step 8 done: Sallow's Mire (`tools/sallows_mire_mapgen.py`) and Mother Sallow: the boss framework (`World/Boss.cs`,
   `GameWorld.Boss.cs`: phases, rot pools, summons, flooding, fusing and a deluge timer, reset on the hero's death),
-  the HUD's boss bar, boss music, the Herald gate (an exit's `requires`). Next: step 9, the three side stories.
+  the HUD's boss bar, boss music, the Herald gate (an exit's `requires`). Step 9 done: the three side stories
+  (dialogues, the old well, Sallow's hearth, Brother Anselm, the Gallows Road scarecrow), boons (`Boon` feats kept by
+  `boon.<id>` flags), uniques (`unique` items), `takeItem` effects, pack flags, still NPCs. Next: step 10, the Act 1
+  exit test and tuning (BalanceReport across zones, the XP curve so Act 1 ends at level 5).
   `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
   of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
