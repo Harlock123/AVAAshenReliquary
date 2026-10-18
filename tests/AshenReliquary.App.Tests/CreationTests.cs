@@ -172,7 +172,7 @@ public class CreationTests
         Assert.True(Count("human") >= 40);
         Assert.Equal(8, Count("elf"));
         Assert.Equal(9, Count("dwarf"));
-        Assert.Equal(2, Count("orc"));
+        Assert.Equal(3, Count("orc"));
         Assert.Equal(4, Count("ashborn"));
         Assert.Equal(4, Count("halfling"));
         Assert.True(vm.HasPortrait);
