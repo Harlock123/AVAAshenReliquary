@@ -29,7 +29,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   bench in `VendorPanel`. Step 6 done: the Rotwater Fens (`tools/rotwater_fens_mapgen.py`, through the fort's west
   gate; fort revision 2): poison bog (`bog` ground, Fortitude saves, persistent poison on the hero), plague crawlers,
   cultists and chanters (avatar-drawn creatures: `look`), the Vengeful affix, flanking (rule and AI), per-pack levels.
-  Next: step 7, the Drowned Chapel (dungeon tileset, darkness).
+  Step 7 done: the Drowned Chapel (`tools/drowned_chapel_mapgen.py`, Flare's dungeon tileset, legend `tiles` and
+  `light`, zone `darkness`/`heroLight`, concealment in the dark, the pilgrim's lantern as a key item with a glyph icon).
+  Next: step 8, Sallow's Mire and Mother Sallow (the boss framework).
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
   of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
   weeps after the chapel, the full skill list.
@@ -39,10 +41,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   BalanceReport --logger "console;verbosity=detailed"`. Its bot never kites, so the wizard rows are a worst case;
   it keeps its own copy of the starting kits.
 - **Open ideas, not yet asked for:** the wizard falls behind from level 1 to 3 (see the Fens' balance note in spec
-  section 16); cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3 in the Fens; move
-  the skeleton pack just south of the camp fence if it crowds the peddler; orcs have only 2 portraits (a paid pack is
-  an option); Shield Block (needs shields: an off-hand slot and art); a real chest-opening sound (chests reuse the
-  inventory-open clunk).
+  section 16); cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3 in the Fens; the
+  chapel plays short (about 15 minutes); move the skeleton pack just south of the camp fence if it crowds the peddler;
+  orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art); a
+  real chest-opening sound (chests reuse the inventory-open clunk).
 
 ## The development machine
 

@@ -27,10 +27,10 @@ internal sealed class InventoryPanel
         (EquipSlot.Belt, "Belt", 1, 3), (EquipSlot.MainHand, "Weapon", 1, 4),
     ];
 
-    private readonly Action<SKCanvas, int, SKRect> _drawIcon;
+    private readonly Action<SKCanvas, Core.Items.ItemDefinition, SKRect> _drawIcon;
     private float _slotSize = 44, _cell = 46, _bagTop;
 
-    public InventoryPanel(Action<SKCanvas, int, SKRect> drawIcon) => _drawIcon = drawIcon;
+    public InventoryPanel(Action<SKCanvas, Core.Items.ItemDefinition, SKRect> drawIcon) => _drawIcon = drawIcon;
 
     public SKRect Bounds { get; private set; }
 
@@ -148,7 +148,7 @@ internal sealed class InventoryPanel
             canvas.DrawRect(rect, cellBack);
             if (gear.In(slot) is { } item)
             {
-                _drawIcon(canvas, item.Definition.Icon, SKRect.Inflate(rect, -3, -3));
+                _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -3, -3));
                 RarityFrame(canvas, rect, item.Rarity);
                 using var name = new SKPaint { IsAntialias = true, Color = Palette.Rarity(item.Rarity) };
                 canvas.DrawText(Fit(item.Name, 21), rect.Right + 8, rect.MidY - 2, SKTextAlign.Left, small, name);
@@ -188,7 +188,7 @@ internal sealed class InventoryPanel
             canvas.DrawRect(rect, cellBack);
             if (gear.Bag[i] is { } item)
             {
-                _drawIcon(canvas, item.Definition.Icon, SKRect.Inflate(rect, -2, -2));
+                _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -2, -2));
                 RarityFrame(canvas, rect, item.Rarity);
             }
             else

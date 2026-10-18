@@ -103,7 +103,7 @@ internal sealed class Minimap
         }
         foreach (var m in world.Monsters)
         {
-            if (m.IsDead || m.DistanceTo(world.Hero) > 14)
+            if (m.IsDead || m.DistanceTo(world.Hero) > 14 || !world.IsLit(m.X, m.Y))
                 continue;
             paint.Color = m.Creature.Stats.Rank >= Core.Creatures.CreatureRank.Champion ? new SKColor(255, 150, 60) : new SKColor(220, 50, 40);
             canvas.DrawCircle(At(m.X, m.Y), m.Creature.Stats.Rank >= Core.Creatures.CreatureRank.Champion ? 2.6f : 1.8f, paint);

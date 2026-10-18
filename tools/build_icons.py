@@ -26,6 +26,8 @@ ICONS = {
     # HUD
     "healing": "lorc/heart-bottle", "tainted": "lorc/daemon-skull", "hero-point": "lorc/laurel-crown",
     "flourish": "lorc/hourglass", "potion": "lorc/heart-bottle", "step": "lorc/sprint",
+    # Item glyphs (items.json "glyph"), for things Flare's icon sheet lacks
+    "lantern": "delapouite/old-lantern",
 }
 
 AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll"}

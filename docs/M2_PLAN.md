@@ -87,7 +87,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - Generated like Gallows Road, with glades, chests and shrines.
 - *Done when:* the bot clears it at level 2 and a play-test feels fair.
 
-### 7. Zone 1.3, the Drowned Chapel (levels 3–4, a dungeon)
+### 7. Zone 1.3, the Drowned Chapel (levels 3–4, a dungeon) — done 2026-10-18
 
 - An indoor tileset and **darkness**: the light radius matters (torches, the shrine glow, a lantern item).
 - *Done when:* as for 1.2.

@@ -2,7 +2,7 @@
 # Deterministic: no randomness beyond a fixed LCG.
 #
 # A causeway runs from the old ferry landing below the fort's west gate (the north-east corner) to the sealed doors of
-# the Drowned Chapel (the south-west corner), through six stretches: the ferry landing, the reed maze, the drowned
+# the Drowned Chapel (the south-west corner, zone 1.3), through six stretches: the ferry landing, the reed maze, the drowned
 # village (a cult camp in its ruins), the fork (the Sunken Road west, all bog, or the Old Dyke east, dry and busier),
 # the rot altar where the routes meet again, and the chapel approach. Poison bog ('~') fills the low ground: walkable,
 # slow, and a Fortitude save every two seconds. Deep meres ('w') block. Packs are level 2 as far as the end of the fork,
@@ -339,7 +339,8 @@ zone = {
     "exits": [
         {"id": "fort", "label": "Fort Gallowmere", "at": fort_exit, "radius": 1.5, "to": "fort_gallowmere", "toExit": "west_gate",
          "arrive": [86, 5]},
-        {"id": "chapel", "label": "The Drowned Chapel", "at": chapel_at, "radius": 2.0},
+        {"id": "chapel", "label": "The Drowned Chapel", "at": chapel_at, "radius": 2.0, "to": "drowned_chapel", "toExit": "fens",
+         "arrive": [chapel_at[0] + 3, chapel_at[1] - 4]},
     ],
     "caches": caches,
 }

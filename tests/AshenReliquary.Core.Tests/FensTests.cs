@@ -52,7 +52,7 @@ public class FensTests
         Assert.All(zone.Spawns.SelectMany(s => s.Pack), m => Assert.True(Content.Creatures.ContainsKey(m.Creature), m.Creature));
         Assert.Equal(4, zone.Shrines.Count);
         Assert.Equal(["chapel", "fort"], zone.Exits.Select(e => e.Id).Order());
-        Assert.Null(zone.Exits.Single(e => e.Id == "chapel").To);          // the Drowned Chapel opens in step 7
+        Assert.Equal("drowned_chapel", zone.Exits.Single(e => e.Id == "chapel").To);
         Assert.InRange(zone.Spawns.Count, 30, 40);
         Assert.InRange(zone.Caches!.Count, 8, 12);
         Assert.Contains(zone.Spawns.SelectMany(s => s.Pack), m => m.Affixes?.Contains("vengeful") == true);

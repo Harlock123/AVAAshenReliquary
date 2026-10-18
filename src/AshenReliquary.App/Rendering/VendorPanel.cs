@@ -19,9 +19,9 @@ internal sealed class VendorPanel
     private const int Columns = 6;
     private const float Cell = 52, Step = 68, Pad = 20;
 
-    private readonly Action<SKCanvas, int, SKRect> _drawIcon;
+    private readonly Action<SKCanvas, Core.Items.ItemDefinition, SKRect> _drawIcon;
 
-    public VendorPanel(Action<SKCanvas, int, SKRect> drawIcon) => _drawIcon = drawIcon;
+    public VendorPanel(Action<SKCanvas, Core.Items.ItemDefinition, SKRect> drawIcon) => _drawIcon = drawIcon;
 
     public SKRect Bounds { get; private set; }
     private float _waresTop, _potionTop, _buybackTop;
@@ -282,7 +282,7 @@ internal sealed class VendorPanel
                 canvas.DrawText("empty", cell.MidX, cell.MidY + 4, SKTextAlign.Center, small, dim);
                 return;
             }
-            _drawIcon(canvas, item.Definition.Icon, SKRect.Inflate(cell, -4, -4));
+            _drawIcon(canvas, item.Definition, SKRect.Inflate(cell, -4, -4));
             using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2, Color = Palette.Rarity(item.Rarity) };
             canvas.DrawRect(cell, edge);
             using var name = new SKPaint { IsAntialias = true, Color = Palette.Rarity(item.Rarity) };
@@ -366,7 +366,7 @@ internal sealed class VendorPanel
 
     private void DrawItem(SKCanvas canvas, SKRect rect, Item item, int price, int gold, SKFont small, SKPaint afford, SKPaint poor)
     {
-        _drawIcon(canvas, item.Definition.Icon, SKRect.Inflate(rect, -3, -3));
+        _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -3, -3));
         using var edge = new SKPaint
         {
             IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = item.Rarity == Rarity.Common ? 1 : 2,

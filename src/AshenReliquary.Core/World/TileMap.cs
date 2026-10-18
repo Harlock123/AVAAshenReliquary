@@ -47,7 +47,8 @@ public sealed class TileMap
                 var key = x < row.Length ? row[x].ToString() : " ";
                 if (!zone.Legend.TryGetValue(key, out var entry))
                     throw new InvalidDataException($"Zone '{zone.Id}' uses '{key}' at ({x}, {y}) but its legend doesn't define it.");
-                var set = GroundSets.TryGetValue(entry.Ground, out var ids) ? ids : throw new InvalidDataException($"Unknown ground set '{entry.Ground}'.");
+                var set = entry.Tiles is { Count: > 0 } tiles ? [.. tiles]
+                    : GroundSets.TryGetValue(entry.Ground, out var ids) ? ids : throw new InvalidDataException($"Unknown ground set '{entry.Ground}'.");
                 _ground[x, y] = set.Length == 0 ? -1 : set[Hash(x, y, 0) % set.Length];
                 if (entry.Objects is { Count: > 0 } objects)
                     _objects[x, y] = entry.Stack ? [.. objects] : [objects[Hash(x, y, 1) % objects.Count]];
@@ -55,6 +56,8 @@ public sealed class TileMap
                 _bog[x, y] = entry.Ground == "bog";
                 _blocked[x, y] = entry.Blocks || _water[x, y];
                 _blocksSight[x, y] = entry.BlocksSight;
+                if (entry.Light > 0)
+                    _lights.Add(new MapLight(x + 0.5, y + 0.5, entry.Light, entry.LightColor));
             }
         }
         ShapeShores();
@@ -69,6 +72,11 @@ public sealed class TileMap
 
     public int Width { get; }
     public int Height { get; }
+
+    private readonly List<MapLight> _lights = [];
+
+    /// <summary>The zone's fixed lights (torches, braziers), from its legend.</summary>
+    public IReadOnlyList<MapLight> Lights => _lights;
 
     public bool InBounds(int x, int y) => x >= 0 && y >= 0 && x < Width && y < Height;
 
@@ -169,3 +177,6 @@ public sealed class TileMap
         }
     }
 }
+
+/// <summary>A fixed light on the map: its centre, radius in tiles and colour ("#rrggbb", or null for firelight).</summary>
+public sealed record MapLight(double X, double Y, double Radius, string? Color);

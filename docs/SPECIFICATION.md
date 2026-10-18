@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -824,8 +824,7 @@ Building the rules core and the vertical slice settled these. Where a number her
   Gallowmere (fort revision 2) and down to the old ferry landing. A causeway runs south-west through the reed maze and
   the **drowned village** (a cult camp in its ruins) to a fork: the **Sunken Road** west, half under the bog, or the
   **Old Dyke** east, dry and busier, round a black mere. They meet at the **rot altar** (a ring of standing stones and
-  the zone's reliquary), and the chapel road ends at the sealed doors of the **Drowned Chapel** (zone 1.3, M2 step 7:
-  for now the exit shows "The way on is not open yet"). 33 packs, 10 chests, 4 shrines. Packs are level 2 to the end
+  the zone's reliquary), and the chapel road ends at the doors of the **Drowned Chapel** (zone 1.3). 33 packs, 10 chests, 4 shrines. Packs are level 2 to the end
   of the fork and 3 from the altar on (a pack's `level` overrides the zone's); the four champions are level 2.
 - **Poison bog** (ground `bog`): walkable, drawn as grass darkened to a wet olive that slowly swells and fades, its rim
   shaded in two steps, with reeds. The hero wades at 70% speed, and every 2 s in it makes a **Fortitude save** against
@@ -858,6 +857,37 @@ Building the rules core and the vertical slice settled these. Where a number her
   monster HP rises about 2.7 times and the wizard's damage 1.5 times, so a level-3 wizard standing still loses 44–82%
   to a level-3 pack (Gallows Road at level 1: 0–39%). That is the wizard's scaling, not the zone's, and wants a look of
   its own.
+
+### The Drowned Chapel (M2)
+
+- **The zone** (`tools/drowned_chapel_mapgen.py`, 64×112, revision 1), Act 1's third and its first dungeon, through the
+  doors at the end of the Fens: the **narthex** (a shrine, braziers, the pilgrim's lantern), the flooded, pillared
+  **nave** with pews and three **side chapels** either side, the **transept** (a second shrine), the **choir and
+  sanctum** (a Vengeful grave knight champion, the reliquary before glowing runes), and below the transept's ends the
+  **east crypt** (cursed graves) and the **west crypt** (level 4, the third shrine, a Vengeful cultist champion) whose
+  flooded tunnel runs on toward **Sallow's Mire** (zone 1.4, M2 step 8: until then "The way on is not open yet"). 23
+  packs (level 3, the west crypt 4), 8 chests. The flooding is the Fens' rot water: poison bog on the flagstones.
+- **Flare's dungeon tileset** (copied unmodified). A legend entry can now name its ground tiles outright (`tiles`) while
+  `ground` says what it is (`floor`, `bog`, `none` for solid rock); chests use the tileset's own (wooden 144/145, open
+  160/161, the skull chest 288-291). **Walls:** a solid cell next to floor shows a face toward it; the far walls (floor
+  to their south-west or south-east on screen: tiles 65 and 64 and their variants) stand full height, the near walls are
+  low blocks (80, 81, 88, 89), so a wall never hides the hero. Far walls are dressed with torches, banners, shelves,
+  statue alcoves and cracks. Beyond a dungeon's edge is void, not forest.
+- **Darkness:** a zone sets `darkness` (0-1; outdoors 0.66) and `heroLight` (tiles; outdoors 6.5). The chapel is 0.93
+  with a 4.5-tile hero light. Lights come from the legend (`light` radius, `lightColor`; firelight flickers): wall
+  torches 3.5, braziers 4.5, moonlight shafts through the nave's west windows 3.2 (blue), the runes 1.4, shrines 3.5;
+  shut chests and things to look at glint. At 0.85 or more a zone **is dark**: what stands outside every light (each
+  reaching 80% of its drawn radius at full strength) can't be hovered or targeted by pointing, shows no health bar or
+  minimap dot, and the hero's strikes and spell attacks against it must pass a **DC 5 flat check** (concealed; "lost in
+  the dark"). Melee always happens in the hero's own light, so the dark mostly hampers ranged attackers.
+- **The pilgrim's lantern**, a new **key** item (`category: Key`: carried, never sold, dropped or rolled as loot; its
+  tooltip says what it does): on a lectern in the narthex (`chapel_lantern`: take it once, flag `act1.lantern`), it
+  adds 2.5 tiles to the hero's light while carried (`lightRadius`). Its icon is a game-icons glyph (an item's `glyph`),
+  as Flare's sheet has no lantern.
+- **Balance** (`BalanceReport.The_Drowned_Chapel_at_level_3`, each run with and without the lantern): the fighter bot
+  dies about twice (1.8), the lantern making no difference, and ends at level 4 in about 6 minutes (so 15 or so for a
+  player: shorter than the 30 aimed for, to revisit with the exit test); the wizard bot dies 6.8 times with the lantern
+  and 8.3 without, the same picture as in the Fens.
 
 ### Dialogue, flags and the journal (M2)
 

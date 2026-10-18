@@ -1087,7 +1087,13 @@
     11,
     175
    ],
-   "radius": 2.0
+   "radius": 2.0,
+   "to": "drowned_chapel",
+   "toExit": "fens",
+   "arrive": [
+    14,
+    171
+   ]
   }
  ],
  "caches": [

@@ -7,8 +7,12 @@ namespace AshenReliquary.Core.World;
 /// <summary>
 /// What one map character means: a ground set, optional object tiles, and whether it blocks movement. A cell draws
 /// one of <see cref="Objects"/> at random, or all of them layered when <see cref="Stack"/> is set (a gate's cross brace).
+/// <see cref="Tiles"/> names the ground tiles outright (another tileset's floors) while <see cref="Ground"/> still says
+/// what kind of ground it is ("bog" for flooded flagstones). <see cref="Light"/> makes the cell a light (a torch, a
+/// brazier, a shaft of moonlight) of that radius in tiles, in <see cref="LightColor"/>.
 /// </summary>
-public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false);
+public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false,
+    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null);
 
 /// <summary>One monster in a pack: a creature id, its rank and any monster affixes ("vengeful").</summary>
 public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null);
@@ -52,8 +56,19 @@ public sealed record ZoneDefinition(
     bool Town = false,
     string? Tagline = null,
     IReadOnlyList<NpcDefinition>? Npcs = null,
-    IReadOnlyList<InteractableDefinition>? Interactables = null)
+    IReadOnlyList<InteractableDefinition>? Interactables = null,
+    double? Darkness = null,
+    double HeroLight = 6.5)
 {
+    /// <summary>How dark the zone is, 0 to 1 (the night outdoors is 0.66); see <see cref="IsDark"/>.</summary>
+    public double DarknessLevel => Darkness ?? 0.66;
+
+    /// <summary>
+    /// A truly dark place (a dungeon): what stands outside every light can't be seen, and the hero's strikes and spells
+    /// against it must pass a DC 5 flat check (concealed).
+    /// </summary>
+    public bool IsDark => DarknessLevel >= 0.85;
+
     public int Height => Rows.Count;
     public int Width => Rows.Max(r => r.Length);
 }

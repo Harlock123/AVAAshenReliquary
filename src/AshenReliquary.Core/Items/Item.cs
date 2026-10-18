@@ -82,6 +82,13 @@ public sealed class Item
     public IEnumerable<string> Describe()
     {
         var d = Definition;
+        if (d.Category == ItemCategory.Key)
+        {
+            yield return "Carried · kept, never sold";
+            if (d.Description is { } text)
+                yield return text;
+            yield break;
+        }
         yield return Rarity == Rarity.Rare ? $"{d.Name} · rare · item level {ItemLevel}" : $"{Rarity} {d.Category.ToString().ToLowerInvariant()} · item level {ItemLevel}";
         if (d.IsWeapon)
         {

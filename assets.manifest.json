@@ -144,9 +144,11 @@
         "images/loot/staff.png",
         "images/loot/steel_armor.png",
         "images/loot/wand.png",
+        "images/tilesets/tileset_dungeon.png",
         "images/tilesets/tileset_grassland.png",
         "images/tilesets/tileset_grassland_water.png",
         "tileset_config.txt",
+        "tilesetdefs/tileset_dungeon.txt",
         "tilesetdefs/tileset_grassland.txt"
       ]
     },
@@ -303,7 +305,8 @@
         "Icons/strike.png",
         "Icons/sudden_charge.png",
         "Icons/swipe.png",
-        "Icons/tainted.png"
+        "Icons/tainted.png",
+        "Icons/lantern.png"
       ]
     },
     {

@@ -82,7 +82,7 @@ public sealed class WorldView : Control
 
     private readonly DialoguePanel _dialogue = new();
     private StashPanel? _stashPanel;
-    private StashPanel StashView => _stashPanel ??= new StashPanel(DrawIcon);
+    private StashPanel StashView => _stashPanel ??= new StashPanel(DrawItemIcon);
     private readonly JournalPanel _journal = new();
     private readonly Dictionary<string, SKImage> _portraits = [];
 
@@ -112,11 +112,11 @@ public sealed class WorldView : Control
     /// <summary>The inventory and character panel (I).</summary>
     public bool InventoryOpen { get; set; }
 
-    private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawIcon);
+    private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawItemIcon);
 
     private readonly RiftPanel _rift = new();
     private VendorPanel? _vendorPanel;
-    private VendorPanel Trade => _vendorPanel ??= new VendorPanel(DrawIcon);
+    private VendorPanel Trade => _vendorPanel ??= new VendorPanel(DrawItemIcon);
 
     /// <summary>The trader whose table was open last frame: opening one opens the bag, leaving closes it again.</summary>
     private Vendor? _trading;
@@ -164,6 +164,23 @@ public sealed class WorldView : Control
             _tradeOpenedInventory = false;
         }
         _trading = world.OpenVendor;
+    }
+
+    /// <summary>
+    /// An item's icon: Flare's painted icon, or for a thing the sheet lacks (the pilgrim's lantern) a game-icons glyph,
+    /// warm on a dark tile.
+    /// </summary>
+    private void DrawItemIcon(SKCanvas canvas, Core.Items.ItemDefinition item, SKRect rect)
+    {
+        if (item.Glyph is not { } glyph)
+        {
+            DrawIcon(canvas, item.Icon, rect);
+            return;
+        }
+        using var back = new SKPaint { Shader = SKShader.CreateRadialGradient(new SKPoint(rect.MidX, rect.MidY), rect.Width * 0.7f,
+            [new SKColor(70, 50, 28), new SKColor(16, 12, 10)], SKShaderTileMode.Clamp) };
+        canvas.DrawRect(rect, back);
+        _icons.Draw(canvas, glyph, SKRect.Inflate(rect, -rect.Width * 0.12f, -rect.Height * 0.12f), new SKColor(255, 200, 110));
     }
 
     /// <summary>Draws icon <paramref name="icon"/> from Flare's icon sheet into <paramref name="rect"/> (UI canvas).</summary>
@@ -372,7 +389,7 @@ public sealed class WorldView : Control
     private MonsterActor? NearestTo(Point p)
     {
         var (x, y) = ToMap(p);
-        return World?.MonsterAt(x, y, 2.0);
+        return World?.MonsterAt(x, y, 2.0) is { } m && World.IsLit(m.X, m.Y) ? m : null;
     }
 
     /// <summary>The living monster whose sprite is under a screen point.</summary>
@@ -385,7 +402,7 @@ public sealed class WorldView : Control
         var bestDistance = double.MaxValue;
         foreach (var m in world.Monsters)
         {
-            if (m.IsDead)
+            if (m.IsDead || !world.IsLit(m.X, m.Y))
                 continue;
             var foot = ToScreen(m.X, m.Y);
             var height = (m.Definition.Stationary ? 110 : 150) * z * (float)m.Definition.Scale;
@@ -745,13 +762,14 @@ public sealed class WorldView : Control
         using var rim = Shade(0.8f, 0.8f);
         using var fringe = Shade(0.4f, 0.3f);
         var map = world.Map;
+        var outdoors = world.Zone.Tileset == "tileset_grassland";
         int WetNeighbours(int x, int y) =>
             (map.IsBog(x + 1, y) ? 1 : 0) + (map.IsBog(x - 1, y) ? 1 : 0) + (map.IsBog(x, y + 1) ? 1 : 0) + (map.IsBog(x, y - 1) ? 1 : 0);
         for (var y = y0; y <= y1; y++)
         for (var x = x0; x <= x1; x++)
         {
             // Beyond the map's edge the forest simply carries on, so the view never shows a void.
-            var id = map.InBounds(x, y) ? map.Ground(x, y) : OutsideGround(x, y);
+            var id = map.InBounds(x, y) ? map.Ground(x, y) : outdoors ? OutsideGround(x, y) : -1;
             if (id < 0 || !tileset.Tiles.TryGetValue(id, out var tile))
                 continue;
             var paint = map.IsBog(x, y) ? (WetNeighbours(x, y) < 4 ? rim : bog)
@@ -815,7 +833,7 @@ public sealed class WorldView : Control
         for (var x = x0; x <= x1; x++)
         {
             IReadOnlyList<int> objects = world.Map.InBounds(x, y) ? world.Map.Objects(x, y)
-                : OutsideTree(x, y) is { } tree ? [tree] : [];
+                : world.Zone.Tileset == "tileset_grassland" && OutsideTree(x, y) is { } tree ? [tree] : [];
             foreach (var id in objects)
             {
                 if (!tileset.Tiles.TryGetValue(id, out var tile))
@@ -926,7 +944,7 @@ public sealed class WorldView : Control
                 return;
             DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(m.AnimationTime), m.Direction), foot, (float)m.Definition.Scale, paint);
         }
-        if (!m.IsDead && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints)
+        if (!m.IsDead && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints && world.IsLit(m.X, m.Y))
             WorldOverlay.DrawHealthBar(canvas, foot, (float)Zoom, m.Creature.HitPoints / (float)m.Creature.Stats.HitPoints,
                 m.Creature.Stats.Rank == CreatureRank.Champion);
     }
@@ -973,14 +991,17 @@ public sealed class WorldView : Control
 
     /// <summary>
     /// A chest from the tileset: a plain cache is Flare's wooden chest (76, 77 by facing), dimmed once opened, as the art
-    /// has no open one; a reliquary is the spiked skull chest, shut (297, 299) or open (298, 300). Brighter when hovered.
+    /// has no open one; a reliquary is the spiked skull chest, shut (297, 299) or open (298, 300). In a dungeon, the
+    /// dungeon tileset's own. Brighter when hovered.
     /// </summary>
     private void DrawCache(SKCanvas canvas, Cache cache, FlareTileset tileset, double time)
     {
         var facing = cache.Definition.Facing == 1 ? 1 : 0;
+        // The dungeon tileset has its own chests: wooden ones shut (144, 145) and open (160, 161), the skull chest at 288-291.
+        var dungeon = World?.Zone.Tileset == "tileset_dungeon";
         var id = cache.Definition.Kind == CacheKind.Reliquary
-            ? (facing == 0 ? 297 : 299) + (cache.Opened ? 1 : 0)
-            : 76 + facing;
+            ? (dungeon ? 288 : 297) + (facing == 0 ? 0 : 2) + (cache.Opened ? 1 : 0)
+            : dungeon ? (cache.Opened ? 160 : 144) + facing : 76 + facing;
         if (!tileset.Tiles.TryGetValue(id, out var tile))
             return;
         var hovered = _pointer is { } p && CacheUnder(p) == cache;
@@ -1203,10 +1224,21 @@ public sealed class WorldView : Control
 
         var lights = new List<(SKPoint At, float Radius, SKColor Glow)>
         {
-            (ToScreen(world.Hero.X, world.Hero.Y), 6.5f, new SKColor(255, 190, 120, 28)),
+            (ToScreen(world.Hero.X, world.Hero.Y), (float)world.HeroLightRadius, new SKColor(255, 190, 120, 28)),
         };
         VisibleCells(size, world, out var x0, out var y0, out var x1, out var y1);
-        for (var y = y0; y <= y1; y++)
+        // The zone's own lights (torches, braziers, moonlight, shrines in a dungeon), firelight flickering.
+        foreach (var l in world.Map.Lights)
+        {
+            if (l.X < x0 - 6 || l.X > x1 + 6 || l.Y < y0 - 6 || l.Y > y1 + 6)
+                continue;
+            var fire = l.Color is null;
+            var flicker = fire ? (float)(Math.Sin(time * 9.1 + l.X * 3.7) * 0.25 + Math.Sin(time * 13.3 + l.Y) * 0.15) : 0;
+            var glow = fire ? new SKColor(255, 140, 50, 70) : SKColor.Parse(l.Color).WithAlpha(60);
+            lights.Add((ToScreen(l.X, l.Y), (float)l.Radius + flicker, glow));
+        }
+        // Outdoors, Flare's grassland campfire and shrine tiles give light of themselves.
+        for (var y = world.Zone.Tileset == "tileset_grassland" ? y0 : y1 + 1; y <= y1; y++)
         for (var x = x0; x <= x1; x++)
         {
             foreach (var id in world.Map.Objects(x, y))
@@ -1225,11 +1257,13 @@ public sealed class WorldView : Control
                 lights.Add((ToScreen(c.X, c.Y), 1.5f + (float)Math.Sin(time * 2.1 + c.X) * 0.15f,
                     c.Definition.Kind == CacheKind.Reliquary ? new SKColor(200, 140, 255, 55) : new SKColor(255, 210, 120, 45)));
         }
-        // Everyone in a town carries a little light, so faces read in the dark.
+        // Everyone in a town carries a little light, so faces read in the dark; in a dark place, things to look at glint.
         foreach (var who in world.Interactives)
         {
             if (who.Npc is not null)
                 lights.Add((ToScreen(who.X, who.Y), 2.6f + (float)Math.Sin(time * 5.1 + who.X) * 0.08f, new SKColor(255, 200, 130, 50)));
+            else if (world.Zone.IsDark)
+                lights.Add((ToScreen(who.X, who.Y), 1.6f + (float)Math.Sin(time * 2.3 + who.Y) * 0.12f, new SKColor(255, 210, 140, 55)));
         }
         // A trader's lantern, so the stall reads from across the camp.
         foreach (var v in world.Vendors)
@@ -1256,7 +1290,7 @@ public sealed class WorldView : Control
             _darknessSurface = SKSurface.Create(new SKImageInfo(mw, mh, SKColorType.Rgba8888, SKAlphaType.Premul));
         }
         var mask = _darknessSurface.Canvas;
-        mask.Clear(new SKColor(6, 5, 12, 168));
+        mask.Clear(new SKColor(6, 5, 12, (byte)Math.Round(255 * world.Zone.DarknessLevel)));
         mask.Save();
         mask.Scale(1 / Down);
         foreach (var (at, radius, _) in lights)

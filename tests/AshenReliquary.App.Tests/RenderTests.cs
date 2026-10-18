@@ -47,6 +47,26 @@ public class RenderTests
         Assert.NotEqual(MonsterState.Idle, crawler.State);
     }
 
+    [AvaloniaFact]
+    public void The_chapel_is_dark_lit_by_torches_and_the_pilgrims_lantern_shows_in_the_bag()
+    {
+        var kit = TestKit.Open(zoneId: "drowned_chapel");
+        var world = kit.World;
+        kit.Play(0.5);
+        kit.Capture(Shot("chapel-narthex"));
+        Assert.True(world.Zone.IsDark);
+
+        world.Hero.Equipment.TryAdd(new Core.Items.Item(Core.Content.ContentDatabase.Embedded.Item("pilgrims_lantern"), Core.Items.Rarity.Common, 1));
+        TestHooks.Place(world, 31.5, 34.5);
+        kit.Play(0.5);
+        kit.Capture(Shot("chapel-nave-lantern"));
+        Assert.Equal(world.Zone.HeroLight + 2.5, world.HeroLightRadius);
+
+        kit.Window.View.InventoryOpen = true;
+        kit.Play(0.2);
+        kit.Capture(Shot("chapel-lantern-in-bag"));
+    }
+
     [Fact]
     public void The_F3_stats_break_before_the_timings_in_a_narrow_window()
     {

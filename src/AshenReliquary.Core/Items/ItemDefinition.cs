@@ -25,6 +25,8 @@ public enum ItemCategory
     Armor,
     Accessory,
     Consumable,
+    /// <summary>Kept and carried, never sold, dropped or rolled as loot (the pilgrim's lantern).</summary>
+    Key,
 }
 
 /// <summary>Pathfinder-style rarity tiers, shown in the spec's ARPG colours.</summary>
@@ -66,7 +68,10 @@ public sealed record ItemDefinition(
     int SpeedPenalty = 0,
     int Strength = 0,
     GearBonusesJson? Implicit = null,
-    bool CasterFocus = false)
+    bool CasterFocus = false,
+    double LightRadius = 0,
+    string? Glyph = null,
+    string? Description = null)
 {
     [JsonIgnore]
     public bool IsWeapon => Category == ItemCategory.Weapon;

@@ -556,6 +556,11 @@ public sealed partial class GameWorld
     /// <summary>Drops an item from the bag at the hero's feet.</summary>
     public bool DropFromBag(int index)
     {
+        if (Hero.Equipment.Bag[index] is { Definition.Category: ItemCategory.Key } kept)
+        {
+            Say($"You keep the {kept.Name}.");
+            return false;
+        }
         if (Hero.Equipment.TakeFromBag(index) is not { } item)
             return false;
         _ground.Add(new GroundItem(Hero.X + 0.4, Hero.Y + 0.4, new LootDrop(item), Time));
@@ -706,6 +711,13 @@ public sealed partial class GameWorld
     /// <summary>Sells bag item <paramref name="index"/> to the open trader.</summary>
     public bool Sell(int index)
     {
+        if (OpenVendor is null || Hero.Equipment.Bag[index] is not { } kept)
+            return false;
+        if (kept.Definition.Category == ItemCategory.Key)
+        {
+            Say($"You keep the {kept.Name}.");
+            return false;
+        }
         if (OpenVendor is not { } vendor || Hero.Equipment.TakeFromBag(index) is not { } item)
             return false;
         var price = Pricing.SellPrice(item);
@@ -1314,6 +1326,11 @@ public sealed partial class GameWorld
         int damage;
         if (ability.Kind == AbilityKind.SpellBolt)
         {
+            if (LostInTheDark(target))
+            {
+                Chain(p);
+                return;
+            }
             var result = Strike.ResolveSpellAttack(Hero.Character, target.Creature, dice, ability.DamageType, Random);
             critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
             damage = result.Damage;
@@ -1391,6 +1408,8 @@ public sealed partial class GameWorld
 
     private void HeroStrike(MonsterActor target, AbilityDefinition? ability = null, int extraDice = 0, int cadenceAttacks = 1)
     {
+        if (LostInTheDark(target))
+            return;
         var result = Strike.Resolve(Hero.Character, target.Creature, Hero.Cadence, Time, Random,
             attackSpeedBonus: Hero.Character.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
@@ -1736,6 +1755,41 @@ public sealed partial class GameWorld
     }
 
     private double _flankedShownAt = double.MinValue;
+
+    public const int ConcealedFlatCheckDc = 5;
+
+    /// <summary>
+    /// How far the hero's light reaches: the zone's own (6.5 tiles outdoors, less in a dungeon) plus the best light
+    /// carried (the pilgrim's lantern adds 2.5).
+    /// </summary>
+    public double HeroLightRadius =>
+        Zone.HeroLight + Hero.Equipment.Bag.OfType<Item>().Concat(Hero.Equipment.Worn.Values).Select(i => i.Definition.LightRadius).DefaultIfEmpty(0).Max();
+
+    /// <summary>
+    /// Whether a point can be seen: within the hero's light or a fixed light of the zone (torches, braziers, shrines are
+    /// legend lights), or anywhere in a zone that isn't truly dark. Lights reach about 80% of their drawn radius at full
+    /// strength.
+    /// </summary>
+    public bool IsLit(double x, double y)
+    {
+        if (!Zone.IsDark)
+            return true;
+        bool Within(double lx, double ly, double r) => (x - lx) * (x - lx) + (y - ly) * (y - ly) <= r * r * 0.64;
+        return Within(Hero.X, Hero.Y, HeroLightRadius) || Map.Lights.Any(l => Within(l.X, l.Y, l.Radius));
+    }
+
+    /// <summary>
+    /// Striking at something in the dark: a monster outside every light is concealed, so the blow or spell must pass a
+    /// DC 5 flat check; a failure is lost in the dark. True when it was.
+    /// </summary>
+    internal bool LostInTheDark(MonsterActor target)
+    {
+        if (IsLit(target.X, target.Y) || Random.FlatCheck(ConcealedFlatCheckDc))
+            return false;
+        Sound(SoundCue.Miss, target);
+        Float(target, "lost in the dark", FloatingTextKind.Miss);
+        return true;
+    }
 
     /// <summary>Damage the hero takes: the number, the Hero Point or death. False when the hero fell for good.</summary>
     private bool HurtHero(int dealt)

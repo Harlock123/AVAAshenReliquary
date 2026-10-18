@@ -398,5 +398,16 @@
   "slot": null,
   "icon": 64,
   "loot": "hp_potion"
+ },
+ {
+  "id": "pilgrims_lantern",
+  "name": "Pilgrim's lantern",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "ring",
+  "glyph": "lantern",
+  "lightRadius": 2.5,
+  "description": "A hooded Lantern-Order lamp, still trimmed. Carried, it throws your light 2.5 tiles further in dark places."
  }
 ]

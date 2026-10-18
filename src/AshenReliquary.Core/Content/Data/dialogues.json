@@ -369,5 +369,46 @@
         ]
       }
     }
+  },
+  {
+    "id": "chapel_lantern",
+    "start": "start",
+    "openings": [
+      {
+        "node": "taken",
+        "requires": {
+          "act1.lantern": "taken"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "On a lectern by the door stands a hooded lantern of the Lantern Order, its glass whole and its wick trimmed, as if someone meant to come back for it.",
+        "choices": [
+          {
+            "text": "Light it and take it.",
+            "to": "lit",
+            "effects": [
+              {
+                "item": "pilgrims_lantern"
+              },
+              {
+                "flag": "act1.lantern",
+                "value": "taken"
+              }
+            ]
+          },
+          {
+            "text": "Leave it."
+          }
+        ]
+      },
+      "lit": {
+        "text": "The flame takes. The dark draws back a few paces, and the nave's far pillars swim up out of it."
+      },
+      "taken": {
+        "text": "An empty lectern. The lantern is yours now."
+      }
+    }
   }
 ]

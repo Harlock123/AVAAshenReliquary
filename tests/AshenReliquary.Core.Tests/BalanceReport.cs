@@ -138,7 +138,7 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("wizard")]
     public void The_Rotwater_Fens_at_level_2(string kit)
     {
-        var runs = Enumerable.Range(1, Seeds).Select(seed => FensRun(kit, seed)).ToList();
+        var runs = Enumerable.Range(1, Seeds).Select(seed => ZoneRun("rotwater_fens", "chapel", kit, seed, 2)).ToList();
         output.WriteLine($"{kit}: the Rotwater Fens from the landing to the chapel doors, every pack, {runs.Count} runs");
         foreach (var r in runs)
             output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "reached the chapel" : "did not finish")}");
@@ -148,22 +148,46 @@ public class BalanceReport(ITestOutputHelper output)
         Assert.NotEmpty(runs);
     }
 
+    [Theory]
+    [InlineData("fighter")]
+    [InlineData("wizard")]
+    public void The_Drowned_Chapel_at_level_3(string kit)
+    {
+        foreach (var lantern in new[] { true, false })
+        {
+            var runs = Enumerable.Range(1, Seeds).Select(seed => ZoneRun("drowned_chapel", "mire", kit, seed, 3, lantern)).ToList();
+            output.WriteLine($"{kit} {(lantern ? "with" : "without")} the lantern: the Drowned Chapel, every pack, {runs.Count} runs");
+            foreach (var r in runs)
+                output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "reached the tunnel" : "did not finish")}");
+            output.WriteLine($"  average deaths {runs.Average(r => r.Deaths):0.0}, downs {runs.Average(r => r.Deaths + r.HeroPointsSpent):0.0}, minutes {runs.Average(r => r.Minutes):0.0}");
+            foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(8))
+                output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+            Assert.NotEmpty(runs);
+        }
+    }
+
     /// <summary>
-    /// The Fens as a level-2 hero fresh from Gallows Road: every pack in the zone file's order (the main route, then
-    /// the Sunken Road, then back for the Old Dyke), then the chapel doors. Like <see cref="RoadRun"/> otherwise.
+    /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTwo"/> and
+    /// <see cref="LevelThree"/> do): every pack in the zone file's order (in the Fens the main route, then the Sunken
+    /// Road, then back for the Old Dyke), then the exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.
     /// The route is planned here over the whole map, then walked a stretch at a time, as a player clicks ahead.
     /// </summary>
-    public static RoadResult FensRun(string kit, int seed)
+    public static RoadResult ZoneRun(string zoneId, string exitId, string kit, int seed, int level, bool lantern = false)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
-        var zone = content.Zone("rotwater_fens");
+        var zone = content.Zone(zoneId);
         var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, kit);
-        LevelTwo(world, classId);
-        var exit = zone.Exits.Single(e => e.Id == "chapel");
+        if (level >= 2)
+            LevelTwo(world, classId);
+        if (level >= 3)
+            LevelThree(world);
+        if (lantern)
+            world.Hero.Equipment.TryAdd(new Items.Item(content.Item("pilgrims_lantern"), Items.Rarity.Common, 1));
+        var exit = zone.Exits.Single(e => e.Id == exitId);
         int deaths = 0, spent = 0, potions = 0;
         var killers = new List<string>();
         var heroPoints = hero.HeroPoints.Count;

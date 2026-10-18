@@ -13,9 +13,9 @@ internal sealed class StashPanel
     public const float Width = 440;
     private const float Cell = 34, Step = 40, Pad = 20;
 
-    private readonly Action<SKCanvas, int, SKRect> _drawIcon;
+    private readonly Action<SKCanvas, Core.Items.ItemDefinition, SKRect> _drawIcon;
 
-    public StashPanel(Action<SKCanvas, int, SKRect> drawIcon) => _drawIcon = drawIcon;
+    public StashPanel(Action<SKCanvas, Core.Items.ItemDefinition, SKRect> drawIcon) => _drawIcon = drawIcon;
 
     public SKRect Bounds { get; private set; }
 
@@ -68,7 +68,7 @@ internal sealed class StashPanel
             canvas.DrawRect(rect, cellBack);
             if (slots[i] is { } item)
             {
-                _drawIcon(canvas, item.Definition.Icon, SKRect.Inflate(rect, -2, -2));
+                _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -2, -2));
                 using var edge = new SKPaint
                 {
                     IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = item.Rarity == Rarity.Common ? 1 : 2,
