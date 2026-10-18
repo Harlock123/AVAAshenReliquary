@@ -26,6 +26,7 @@ internal static class WorldOverlay
                 FloatingTextKind.Heal => (new SKColor(120, 230, 120), 20f),
                 FloatingTextKind.Xp => (new SKColor(190, 160, 255), 18f),
                 FloatingTextKind.Info => (new SKColor(240, 210, 120), 22f),
+                FloatingTextKind.Graze => (new SKColor(205, 165, 125), 18f),
                 _ => (new SKColor(245, 240, 225), 22f),
             };
             var alpha = (byte)(255 * Math.Clamp(1 - age * age, 0, 1));

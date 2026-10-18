@@ -1059,5 +1059,54 @@
         "text": "The scarecrow hangs slack. Nothing waits in it now."
       }
     }
+  },
+  {
+    "id": "ossuary_confession",
+    "start": "start",
+    "openings": [
+      {
+        "node": "read",
+        "requires": {
+          "act1.confession": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A lectern of black oak at the foot of the sarcophagus. On it lies a book bound in a prior's grey, its last pages written in a hand that shakes.",
+        "choices": [
+          {
+            "text": "Read the last pages.",
+            "to": "confession",
+            "effects": [
+              {
+                "flag": "act1.confession",
+                "value": "read"
+              },
+              {
+                "xp": 40
+              },
+              {
+                "journal": {
+                  "id": "act1_prior_confession",
+                  "title": "The Prior's confession",
+                  "kind": "side",
+                  "text": "In the ossuary under the Drowned Chapel, Prior Aldous Venn of the Pale Lantern confessed it: when the ash-fever came up the river he barred the sick inside the chapel and opened the sluices on them. A herb-girl in a grey shawl was among them. She did not drown."
+                }
+              }
+            ]
+          },
+          {
+            "text": "Leave it closed."
+          }
+        ]
+      },
+      "confession": {
+        "text": "\"The fever came up the Rotwater with the ash. I barred the doors on the sick and opened the sluices, and told the Order it was God's own flood. The herb-girl screamed the longest. She wore a grey shawl. When the water went down she was not among the dead. Lantern forgive me, I hear her singing in the reeds.\""
+      },
+      "read": {
+        "text": "The Prior's book lies open where you left it. The last line is only her name, written over and over: Sallow."
+      }
+    }
   }
 ]

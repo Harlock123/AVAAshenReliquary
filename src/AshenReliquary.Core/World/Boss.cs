@@ -46,9 +46,14 @@ public sealed record BossPhase(
     double EnrageEverySeconds = 2,
     string EnrageDamage = "4d6");
 
-/// <summary>A pool of rot on the ground: a warning ring until <see cref="ActiveAt"/>, then a hazard until <see cref="EndsAt"/>.</summary>
-public sealed class Hazard(double x, double y, double radius, double activeAt, double endsAt, Rules.Dice damage, int dc)
+/// <summary>
+/// A pool on the ground: a warning ring until <see cref="ActiveAt"/>, then a hazard until <see cref="EndsAt"/>. Mother
+/// Sallow's rot is poison; a Tainted monster's death leaves <see cref="Combat.DamageType.Taint"/>.
+/// </summary>
+public sealed class Hazard(double x, double y, double radius, double activeAt, double endsAt, Rules.Dice damage, int dc,
+    Combat.DamageType type = Combat.DamageType.Poison)
 {
+    public Combat.DamageType Type { get; } = type;
     public double X { get; } = x;
     public double Y { get; } = y;
     public double Radius { get; } = radius;

@@ -45,6 +45,53 @@
   "description": "Dash up to 6 tiles to an enemy and Strike."
  },
  {
+  "id": "cleave",
+  "name": "Cleave",
+  "class": "fighter",
+  "slot": "2",
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 20,
+  "targets": 3,
+  "arc": 120,
+  "traits": [
+   "Attack",
+   "Sweep"
+  ],
+  "description": "A broad cut through the enemies in front of you: Strike your target and up to two more within reach and 60° of it. Only the first hit builds Fury."
+ },
+ {
+  "id": "raise_shield",
+  "name": "Raise a Shield",
+  "class": "fighter",
+  "slot": "3",
+  "kind": "Ward",
+  "actions": 1,
+  "needsShield": true,
+  "wardSeconds": 6,
+  "traits": [
+   "Shield"
+  ],
+  "description": "Raise your shield for 6 s: its circumstance bonus to AC, and Shield Block takes its hardness off a blow (once every 6 s). Needs a shield in your off hand."
+ },
+ {
+  "id": "finishing_blow",
+  "name": "Finishing Blow",
+  "class": "fighter",
+  "slot": "4",
+  "level": 2,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 30,
+  "spendAll": true,
+  "resourcePerDie": 25,
+  "traits": [
+   "Attack",
+   "Flourish"
+  ],
+  "description": "Pour all your Fury (at least 30) into one Strike: an extra weapon damage die for every 25 Fury spent. Joins the bar at level 2."
+ },
+ {
   "id": "ignition",
   "name": "Ignition",
   "class": "wizard",
@@ -96,6 +143,25 @@
    "Attack"
   ],
   "description": "Bash with your staff."
+ },
+ {
+  "id": "shield",
+  "name": "Shield",
+  "class": "wizard",
+  "slot": "2",
+  "kind": "Ward",
+  "actions": 1,
+  "wardAc": 1,
+  "wardHardness": 5,
+  "hardnessPerTwoRanks": 5,
+  "wardSeconds": 6,
+  "blockLockout": 10,
+  "traits": [
+   "Cantrip",
+   "Force",
+   "Concentrate"
+  ],
+  "description": "A cantrip ward of force for 6 s: +1 circumstance bonus to AC, and Shield Block takes 5 off a blow (+5 every two spell ranks). Once it blocks, the ward breaks and can't be cast again for 10 s."
  },
  {
   "id": "intimidating_strike",
@@ -160,13 +226,14 @@
   "feat": true,
   "kind": "WeaponStrike",
   "actions": 2,
-  "cost": 15,
-  "targets": 2,
+  "cost": 25,
+  "targets": 8,
   "traits": [
    "Attack",
    "Flourish"
   ],
-  "description": "One wide swing that strikes the target and one more enemy within reach."
+  "description": "One whirling swing at every enemy within reach, all around you. Only the first hit builds Fury.",
+  "arc": 360
  },
  {
   "id": "electric_arc",
@@ -212,5 +279,107 @@
    "Manipulate"
   ],
   "description": "A cantrip ray of cold: 2d4 cold (+1d4 per rank above 1); on a hit the target is slowed 1 for 2 s."
+ },
+ {
+  "id": "alchemists_fire",
+  "name": "Alchemist's fire",
+  "class": "item",
+  "slot": "belt",
+  "kind": "Bomb",
+  "actions": 1,
+  "range": 6,
+  "damageType": "Fire",
+  "dice": "1d8",
+  "heightenDice": "1d8",
+  "persistentDice": "0d1+1",
+  "splash": 1,
+  "traits": [
+   "Alchemical",
+   "Bomb",
+   "Fire",
+   "Splash"
+  ],
+  "description": "A flask of sticky fire: 1d8 fire and 1 persistent fire on a hit (more every two levels), 1 fire splash around the target even on a miss."
+ },
+ {
+  "id": "frost_vial",
+  "name": "Frost vial",
+  "class": "item",
+  "slot": "belt",
+  "kind": "Bomb",
+  "actions": 1,
+  "range": 6,
+  "damageType": "Cold",
+  "dice": "1d6",
+  "heightenDice": "1d6",
+  "splash": 1,
+  "onHit": "Slowed",
+  "onHitSeconds": 3,
+  "traits": [
+   "Alchemical",
+   "Bomb",
+   "Cold",
+   "Splash"
+  ],
+  "description": "A vial of biting cold: 1d6 cold on a hit (more every two levels) and slowed for 3 s, 1 cold splash around the target even on a miss."
+ },
+ {
+  "id": "bottled_lightning",
+  "name": "Bottled lightning",
+  "class": "item",
+  "slot": "belt",
+  "kind": "Bomb",
+  "actions": 1,
+  "range": 6,
+  "damageType": "Electricity",
+  "dice": "1d6",
+  "heightenDice": "1d6",
+  "splash": 1,
+  "onHit": "OffGuard",
+  "onHitSeconds": 3,
+  "traits": [
+   "Alchemical",
+   "Bomb",
+   "Electricity",
+   "Splash"
+  ],
+  "description": "A jar of crackling lightning: 1d6 electricity on a hit (more every two levels) and off-guard for 3 s, 1 electricity splash around the target even on a miss."
+ },
+ {
+  "id": "acid_flask",
+  "name": "Acid flask",
+  "class": "item",
+  "slot": "belt",
+  "kind": "Bomb",
+  "actions": 1,
+  "range": 6,
+  "damageType": "Acid",
+  "dice": "0d1+1",
+  "heightenDice": "0d1+1",
+  "persistentDice": "1d6",
+  "splash": 1,
+  "traits": [
+   "Alchemical",
+   "Bomb",
+   "Acid",
+   "Splash"
+  ],
+  "description": "A flask of eating acid: 1 acid and 1d6 persistent acid on a hit (more every two levels), 1 acid splash around the target even on a miss."
+ },
+ {
+  "id": "antidote",
+  "name": "Antidote",
+  "class": "item",
+  "slot": "belt",
+  "kind": "Elixir",
+  "actions": 1,
+  "cures": "Poison",
+  "resistsPoison": 2,
+  "buffSeconds": 120,
+  "traits": [
+   "Alchemical",
+   "Elixir"
+  ],
+  "description": "Ends any poison in you and gives +2 to saves against poison (the bog, the rot) for 2 minutes."
  }
 ]

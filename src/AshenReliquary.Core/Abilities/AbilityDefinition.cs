@@ -17,12 +17,35 @@ public enum AbilityKind
 
     /// <summary>Projectiles that always hit (Force Bolt).</summary>
     Missiles,
+
+    /// <summary>
+    /// A ward on the hero, no target (Raise a Shield, the Shield cantrip): a circumstance bonus to AC for
+    /// <see cref="AbilityDefinition.WardSeconds"/>, and a Shield Block that soaks its hardness from the next blow.
+    /// </summary>
+    Ward,
+
+    /// <summary>A thrown alchemical bomb from the belt: an attack roll on arrival, then splash around the target.</summary>
+    Bomb,
+
+    /// <summary>An elixir from the belt, drunk at once (an antidote).</summary>
+    Elixir,
 }
 
 /// <summary>
 /// An active ability, read from abilities.json. Costs are in the class resource (Fury, Mana). <see cref="Actions"/>
 /// is the Pathfinder action cost, which becomes the wind-up time (0.5 s per action, never faster than a weapon swing
-/// for weapon abilities).
+/// for weapon abilities). A class ability with a <see cref="Level"/> above 1 joins the bar at that level.
+/// <list type="bullet">
+/// <item><see cref="Targets"/> and <see cref="Arc"/>: a sweep strikes more enemies in reach, within this many degrees of
+/// the target's direction (Cleave's 120 in front, Swipe's 360 all round). Only the main target's hit builds Fury.</item>
+/// <item><see cref="SpendAll"/>: spends all the resource there is (at least <see cref="Cost"/>), one more weapon die per
+/// <see cref="ResourcePerDie"/> spent (Finishing Blow).</item>
+/// <item>Wards: <see cref="WardAc"/>, <see cref="WardHardness"/> (+<see cref="HardnessPerTwoRanks"/> every two spell
+/// ranks above 1), <see cref="WardSeconds"/>, <see cref="NeedsShield"/> (the shield's own AC and hardness), and
+/// <see cref="BlockLockout"/>: after it blocks, the ability can't be used again for that long (the Shield cantrip).</item>
+/// <item>Belt items: <see cref="Splash"/> damage around a bomb's target, <see cref="PersistentDice"/> on a hit,
+/// <see cref="Cures"/> persistent damage of a type, <see cref="ResistsPoison"/> for <see cref="BuffSeconds"/>.</item>
+/// </list>
 /// </summary>
 public sealed record AbilityDefinition(
     string Id,
@@ -50,7 +73,22 @@ public sealed record AbilityDefinition(
     double Knockback = 0,
     int Targets = 1,
     int Chain = 0,
-    bool Feat = false)
+    bool Feat = false,
+    int Level = 1,
+    double Arc = 360,
+    bool SpendAll = false,
+    double ResourcePerDie = 0,
+    int WardAc = 0,
+    int WardHardness = 0,
+    int HardnessPerTwoRanks = 0,
+    double WardSeconds = 0,
+    bool NeedsShield = false,
+    double BlockLockout = 0,
+    int Splash = 0,
+    string? PersistentDice = null,
+    DamageType? Cures = null,
+    int ResistsPoison = 0,
+    double BuffSeconds = 0)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
@@ -59,6 +97,18 @@ public sealed record AbilityDefinition(
     public bool IsSpell => Kind is AbilityKind.SpellBolt or AbilityKind.Missiles;
 
     public bool UsesWeapon => Kind is AbilityKind.WeaponStrike or AbilityKind.ChargeStrike;
+
+    /// <summary>Used on the hero, with no target: wards and elixirs.</summary>
+    public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir;
+
+    /// <summary>Thrown or drunk from the belt, using up one of the item.</summary>
+    public bool IsConsumable => Kind is AbilityKind.Bomb or AbilityKind.Elixir;
+
+    /// <summary>A ward's hardness at a spell rank (the Shield cantrip's 5 grows by 5 every two ranks).</summary>
+    public int HardnessAt(int rank) => WardHardness + HardnessPerTwoRanks * ((rank - 1) / 2);
+
+    /// <summary>Finishing Blow's extra weapon dice for the resource spent.</summary>
+    public int DiceForSpent(double spent) => ResourcePerDie > 0 ? (int)(spent / ResourcePerDie) : 0;
 
     /// <summary>A Pathfinder spell rank for a caster of <paramref name="level"/>: half the level, rounded up.</summary>
     public static int SpellRank(int level) => Math.Max(1, (level + 1) / 2);

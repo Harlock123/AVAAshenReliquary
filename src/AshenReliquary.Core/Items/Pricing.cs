@@ -17,7 +17,9 @@ public static class Pricing
     public static int Value(Item item)
     {
         var d = item.Definition;
-        double basePrice = d.IsJewelry ? 20 : d.IsWeapon ? 12 : d.IsBodyArmor ? 10 + 4 * d.AcBonus : 7;
+        if (d.Category == ItemCategory.Consumable && d.Price > 0)
+            return d.Price * item.Count;
+        double basePrice = d.IsJewelry ? 20 : d.IsWeapon ? 12 : d.IsBodyArmor ? 10 + 4 * d.AcBonus : d.IsShield ? 8 + 3 * d.AcBonus + d.Hardness : 7;
         var rarity = item.Rarity switch
         {
             Rarity.Common => 1.0,
@@ -45,6 +47,13 @@ public static class Pricing
 
     /// <summary>What a trader pays for the item; selling something back costs the same within a visit (buyback).</summary>
     public static int SellPrice(Item item) => Math.Max(1, (int)Math.Floor(Value(item) * BuyRate));
+
+    /// <summary>
+    /// One belt item from a trader's supplies: its price, more as the hero's level heightens what it does (a bomb's dice
+    /// grow every two levels), through the haggle.
+    /// </summary>
+    public static int SupplyPrice(ItemDefinition item, Character c) =>
+        Math.Max(1, (int)Math.Ceiling(item.Price * SellMarkup * (1 + 0.5 * (Abilities.AbilityDefinition.SpellRank(c.Level) - 1)) * Haggle(c)));
 
     /// <summary>One healing potion charge from a trader.</summary>
     public static int PotionPrice(Character c) => Math.Max(1, (int)Math.Ceiling((10 + 5 * c.Level) * Haggle(c)));

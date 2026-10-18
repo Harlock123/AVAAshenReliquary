@@ -15,6 +15,8 @@ ICONS = {
     # Feat abilities (M2)
     "intimidating_strike": "lorc/screaming", "brutish_shove": "delapouite/push", "knockdown": "lorc/stomp",
     "swipe": "lorc/sword-spin", "electric_arc": "lorc/lightning-arc", "ray_of_frost": "lorc/ice-bolt",
+    # The arsenal: the fighter's Cleave, Raise a Shield and Finishing Blow, the wizard's Shield cantrip
+    "cleave": "lorc/axe-swing", "raise_shield": "sbed/shield", "finishing_blow": "lorc/decapitation", "shield": "lorc/magic-shield",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",
@@ -25,7 +27,7 @@ ICONS = {
     "persistent": "lorc/dripping-blade",
     # HUD
     "healing": "lorc/heart-bottle", "tainted": "lorc/daemon-skull", "hero-point": "lorc/laurel-crown",
-    "flourish": "lorc/hourglass", "potion": "lorc/heart-bottle", "step": "lorc/sprint",
+    "flourish": "lorc/hourglass", "potion": "lorc/heart-bottle", "step": "lorc/sprint", "antidote": "lorc/drink-me",
     # Item glyphs (items.json "glyph"), for things Flare's icon sheet lacks
     "lantern": "delapouite/old-lantern", "ember": "lorc/burning-embers",
 }

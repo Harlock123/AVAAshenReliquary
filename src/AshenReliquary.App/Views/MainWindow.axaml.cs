@@ -172,6 +172,12 @@ public partial class MainWindow : Window
         World.Focus();
     }
 
+    /// <summary>How long a critical hit freezes the world (hit-stop).</summary>
+    public const double HitStopSeconds = 0.07;
+
+    private double _hitStop;
+    private int _crits, _critsTaken;
+
     /// <summary>"--battle": the hero fights the zone alone.</summary>
     public Services.BattleDemo? Demo { get; set; }
 
@@ -182,6 +188,19 @@ public partial class MainWindow : Window
     {
         if (!Paused && _session is not null && World.IsVisible)
         {
+            // A critical hit stops the world for a few frames and shakes the view: the blow lands with weight.
+            var world = _session.World;
+            if (world.HeroCrits != _crits || world.HeroCritsTaken != _critsTaken)
+            {
+                World.Shake(world.HeroCrits != _crits ? 0.22 : 0.3, world.HeroCrits != _crits ? 5 : 7);
+                _hitStop = HitStopSeconds;
+                (_crits, _critsTaken) = (world.HeroCrits, world.HeroCritsTaken);
+            }
+            if (_hitStop > 0)
+            {
+                _hitStop -= elapsed.TotalSeconds;
+                elapsed = TimeSpan.Zero;
+            }
             var started = System.Diagnostics.Stopwatch.GetTimestamp();
             _session.World.Update(elapsed.TotalSeconds);
             World.Stats.Add("update", System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
@@ -250,6 +269,12 @@ public partial class MainWindow : Window
                 break;
             case >= Key.D1 and <= Key.D6:
                 World.UseSlot(((int)(e.Key - Key.D1) + 1).ToString());
+                break;
+            case >= Key.D7 and <= Key.D9:
+                World.UseBelt((int)(e.Key - Key.D7));
+                break;
+            case Key.D0:
+                World.UseBelt(3);
                 break;
             case Key.J:
                 World.JournalOpen = !World.JournalOpen;

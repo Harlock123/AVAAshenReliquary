@@ -8,9 +8,12 @@ using AshenReliquary.Core.World;
 
 namespace AshenReliquary.Core.Saving;
 
-/// <summary>One item in a save: its base, rarity, item level, runes, rolled affixes and (for rares) its name.</summary>
+/// <summary>
+/// One item in a save: its base, rarity, item level, runes, rolled affixes, (for rares) its name and (for a stack of
+/// consumables) how many; older saves have no count, which reads as one.
+/// </summary>
 public sealed record SavedItem(string Base, Rarity Rarity, int ItemLevel, int Potency, int Striking, int Resilient,
-    IReadOnlyList<SavedAffix> Affixes, string? Name);
+    IReadOnlyList<SavedAffix> Affixes, string? Name, int Count = 1);
 
 public sealed record SavedAffix(string Id, int Value);
 
@@ -171,7 +174,7 @@ public sealed record SaveGame
 
     private static SavedItem Save(Item item) => new(item.Definition.Id, item.Rarity, item.ItemLevel, item.Potency, item.Striking,
         item.Resilient, item.Affixes.Select(a => new SavedAffix(a.Definition.Id, a.Value)).ToList(),
-        item.Rarity == Rarity.Rare ? item.Name : null);
+        item.Rarity == Rarity.Rare ? item.Name : null, item.Count);
 
     // ----- Restore ------------------------------------------------------------------------
 
@@ -249,6 +252,7 @@ public sealed record SaveGame
             .Select(a => content.Affixes.FirstOrDefault(d => d.Id == a.Id) is { } definition ? new AffixRoll(definition, a.Value) : null)
             .OfType<AffixRoll>()
             .ToList();
-        return new Item(content.Item(saved.Base), saved.Rarity, saved.ItemLevel, affixes, saved.Potency, saved.Striking, saved.Resilient, saved.Name);
+        return new Item(content.Item(saved.Base), saved.Rarity, saved.ItemLevel, affixes, saved.Potency, saved.Striking, saved.Resilient, saved.Name,
+            Math.Max(1, saved.Count));
     }
 }

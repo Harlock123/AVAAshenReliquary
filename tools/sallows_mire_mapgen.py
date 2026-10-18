@@ -240,7 +240,7 @@ spawns = [
     # The last stretch (level 5)
     pack(*swarm(3, 3), at=on(250, -2), level=5),
     pack(("cultist", N, 2), ("cult_chanter", N, 1), at=[61, 104], level=5),
-    pack(("grave_knight", C, 1, V), ("drowned_dead", N, 1), at=on(270, 2), level=4),
+    pack(("grave_knight", C, 1, ["shielded"]), ("drowned_dead", N, 1), at=on(270, 2), level=4),
     # Mother Sallow, Herald of Rot, at her cauldron (level 4: a Herald fights two levels up, so as a level-6 creature)
     pack(("mother_sallow", B, 1), at=[cx, cy], radius=0, level=4),
 ]

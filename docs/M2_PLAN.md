@@ -60,7 +60,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - No monsters; the hub music.
 - *Done when:* the road leads into the fort, each NPC talks, the stash holds items across saves.
 
-### 4. Feats, skills and levelling to 5 — done 2026-10-18 (Shield Block waits for shields)
+### 4. Feats, skills and levelling to 5 — done 2026-10-18 (Shield Block came with shields in step 11)
 
 - Skills: the Pathfinder list with proficiency ranks; backgrounds already name a trained skill and a skill feat.
 - Feats for levels 1–5 for the two playable classes: ancestry feats (6 per ancestry, chosen at 1 and 5), class
@@ -116,6 +116,13 @@ Built on step 2, placed in zones 1.1–1.4 and the hub (section 4):
 
 - BalanceReport learns to play several zones in a row; the XP curve is set so Act 1 ends at level 5.
 - A full play-through from the gallows to Sallow's death, then the tuning it shows a need for.
+
+### 11. The arsenal — done 2026-10-18 (asked for after step 10, before the human play-through)
+
+Seven suggestions and the polish list, all taken up: grazes and hit-stop, the fighter's Cleave and Finishing Blow,
+the wizard's Shield cantrip, the belt of bombs and antidotes with Wenna's supplies, shields and Shield Block, the
+Hasted, Shielded and Tainted affixes and monster voices, the optional Prior's Ossuary under the chapel, a chest sound
+and a third orc portrait. Details and the bots' numbers: the spec, section 16, "The arsenal".
 
 ## Decisions (taken 2026-10-18: the user said to go with the suggestions)
 

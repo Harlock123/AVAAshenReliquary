@@ -307,6 +307,13 @@
    "facing": 5,
    "stockSize": 12,
    "greeting": "Coin for kit, kit for coin. Behind walls, at last.",
+   "supplies": [
+    "alchemists_fire",
+    "frost_vial",
+    "bottled_lightning",
+    "acid_flask",
+    "antidote"
+   ],
    "look": {
     "head": "leather_hood",
     "chest": "cloth_shirt",

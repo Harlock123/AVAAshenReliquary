@@ -86,6 +86,8 @@ public sealed record ZoneDefinition(
 /// cast animation for a ranged attack; <see cref="Flanks"/> makes it circle to the far side of the hero from an ally
 /// (Act 1's AI behaviour); <see cref="PoisonOnHit"/> gives its hits a <see cref="PoisonChance"/> of persistent poison.
 /// <see cref="Boss"/> makes it a Herald fight (phases, arena); <see cref="HitPointsScale"/> hand-tunes its HP.
+/// <see cref="Named"/>: a named foe (the Drowned Prior) goes by its own name, without "Champion" or "the Elite";
+/// <see cref="RareDrop"/>: it always drops a rare besides its usual loot.
 /// </summary>
 public sealed record CreatureDefinition(
     string Id,
@@ -114,7 +116,9 @@ public sealed record CreatureDefinition(
     string? PoisonOnHit = null,
     double PoisonChance = 0,
     BossDefinition? Boss = null,
-    double HitPointsScale = 1.0)
+    double HitPointsScale = 1.0,
+    bool Named = false,
+    bool RareDrop = false)
 {
     [JsonIgnore]
     public bool IsSpawner => Summons is not null;

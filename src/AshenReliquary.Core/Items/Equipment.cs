@@ -40,9 +40,31 @@ public sealed class Equipment
         return true;
     }
 
-    /// <summary>Puts an item in the first free bag cell. False when the bag is full.</summary>
+    /// <summary>Changes whenever the bag's contents do (the belt follows the consumables in it).</summary>
+    public int BagVersion { get; private set; }
+
+    /// <summary>
+    /// Puts an item in the bag: a consumable tops up stacks of its kind first, the rest goes in the first free cell.
+    /// False when it doesn't all fit (whatever did fit stays, and <paramref name="item"/> keeps the remainder).
+    /// </summary>
     public bool TryAdd(Item item)
     {
+        BagVersion++;
+        if (item.Definition.Stack > 1)
+        {
+            foreach (var stack in _bag)
+            {
+                if (item.Count == 0)
+                    return true;
+                if (stack is null || stack == item || stack.Definition != item.Definition || stack.Count >= stack.Definition.Stack)
+                    continue;
+                var moved = Math.Min(item.Count, stack.Definition.Stack - stack.Count);
+                stack.Count += moved;
+                item.Count -= moved;
+            }
+            if (item.Count == 0)
+                return true;
+        }
         var free = Array.IndexOf(_bag, null);
         if (free < 0)
             return false;
@@ -52,9 +74,30 @@ public sealed class Equipment
 
     public Item? TakeFromBag(int index)
     {
+        BagVersion++;
         var item = _bag[index];
         _bag[index] = null;
         return item;
+    }
+
+    /// <summary>How many of a consumable the bag holds, across its stacks.</summary>
+    public int CountOf(ItemDefinition definition) => _bag.Where(i => i?.Definition == definition).Sum(i => i!.Count);
+
+    /// <summary>Uses up one of a consumable (from its smallest stack). False when there is none.</summary>
+    public bool ConsumeOne(ItemDefinition definition)
+    {
+        var index = -1;
+        for (var i = 0; i < _bag.Length; i++)
+        {
+            if (_bag[i]?.Definition == definition && (index < 0 || _bag[i]!.Count < _bag[index]!.Count))
+                index = i;
+        }
+        if (index < 0)
+            return false;
+        BagVersion++;
+        if (--_bag[index]!.Count <= 0)
+            _bag[index] = null;
+        return true;
     }
 
     /// <summary>The slot an item goes to: rings take the free hand (the first if both are full).</summary>
@@ -77,14 +120,40 @@ public sealed class Equipment
         return previous;
     }
 
-    /// <summary>Wears the item in bag cell <paramref name="index"/>, swapping what was worn into that cell.</summary>
+    /// <summary>
+    /// Wears the item in bag cell <paramref name="index"/>, swapping what was worn into that cell. A two-handed weapon
+    /// takes the shield off, and a shield the two-handed weapon, into the bag; false when there is no room for it.
+    /// </summary>
     public bool EquipFromBag(int index)
     {
         if (_bag[index] is not { } item || SlotFor(item) is not { } slot)
             return false;
+        var clash = item.Definition.IsTwoHanded ? EquipSlot.OffHand
+            : item.Definition.IsShield && In(EquipSlot.MainHand) is { Definition.IsTwoHanded: true } ? EquipSlot.MainHand
+            : (EquipSlot?)null;
+        var displaced = clash is { } other ? In(other) : null;
+        BagVersion++;
         _bag[index] = null;
         var previous = Equip(item, slot);
         _bag[index] = previous;
+        if (displaced is not null && clash is { } freed)
+        {
+            var free = Array.IndexOf(_bag, null);
+            if (free < 0)
+            {
+                // No room for what has to come off: put everything back as it was.
+                _bag[index] = item;
+                if (previous is not null)
+                    _worn[slot] = previous;
+                else
+                    _worn.Remove(slot);
+                Refresh();
+                return false;
+            }
+            _worn.Remove(freed);
+            _bag[free] = displaced;
+            Refresh();
+        }
         return true;
     }
 
@@ -98,6 +167,7 @@ public sealed class Equipment
             return false;
         _worn.Remove(slot);
         _bag[free] = item;
+        BagVersion++;
         Refresh();
         return true;
     }

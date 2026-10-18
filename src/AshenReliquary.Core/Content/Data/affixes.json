@@ -11,7 +11,8 @@
    "Head",
    "Chest",
    "Legs",
-   "Belt"
+   "Belt",
+   "OffHand"
   ]
  },
  {
@@ -95,7 +96,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ]
  },
  {
@@ -115,7 +117,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ]
  },
  {
@@ -135,7 +138,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ]
  },
  {
@@ -155,7 +159,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ]
  },
  {
@@ -188,7 +193,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ],
   "minLevel": 2
  },
@@ -207,7 +213,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ],
   "minLevel": 2
  },
@@ -226,7 +233,8 @@
    "Feet",
    "Belt",
    "Ring1",
-   "Amulet"
+   "Amulet",
+   "OffHand"
   ],
   "minLevel": 2
  },
@@ -243,7 +251,8 @@
    "Amulet",
    "Belt",
    "Hands",
-   "Feet"
+   "Feet",
+   "OffHand"
   ]
  },
  {

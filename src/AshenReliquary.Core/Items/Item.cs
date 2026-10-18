@@ -12,8 +12,9 @@ public sealed class Item
     private static int _nextId;
 
     public Item(ItemDefinition definition, Rarity rarity, int itemLevel, IReadOnlyList<AffixRoll>? affixes = null,
-        int potency = 0, int striking = 0, int resilient = 0, string? name = null)
+        int potency = 0, int striking = 0, int resilient = 0, string? name = null, int count = 1)
     {
+        Count = Math.Clamp(count, 1, Math.Max(1, definition.Stack));
         Definition = definition;
         Rarity = rarity;
         ItemLevel = itemLevel;
@@ -34,6 +35,9 @@ public sealed class Item
     public int Potency { get; private set; }
     public int Striking { get; private set; }
     public int Resilient { get; private set; }
+
+    /// <summary>How many are stacked in this one (consumables; 1 for everything else).</summary>
+    public int Count { get; internal set; }
 
     /// <summary>A rare's rolled name, or else the base's name with its runes and (uncommon) affixes.</summary>
     public string Name => _name ?? DefaultName();
@@ -89,7 +93,21 @@ public sealed class Item
                 yield return text;
             yield break;
         }
+        if (d.Category == ItemCategory.Consumable)
+        {
+            yield return Count > 1 ? $"Consumable · {Count} of {d.Stack}" : "Consumable";
+            if (d.Description is { } use)
+                yield return use;
+            if (d.IsBeltItem)
+                yield return "Goes on the belt: keys 7 to 0.";
+            yield break;
+        }
         yield return Rarity == Rarity.Rare ? $"{d.Name} · rare · item level {ItemLevel}" : $"{Rarity} {d.Category.ToString().ToLowerInvariant()} · item level {ItemLevel}";
+        if (d.IsShield)
+        {
+            yield return $"Shield · +{d.AcBonus} AC while raised · hardness {d.Hardness}";
+            yield return "Raise a Shield to block: a blow loses its hardness.";
+        }
         if (d.IsWeapon)
         {
             var dice = $"{1 + Striking}d{d.DamageDie}";

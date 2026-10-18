@@ -41,8 +41,10 @@ public class CacheTests
         Assert.False(cache.Opened); // too far: the hero walks there first
         Run(world, 6);
         Assert.True(cache.Opened);
-        Assert.Contains(world.GroundItems, g => g.Drop.Gold > 0);
-        var items = world.GroundItems.Where(g => g.Drop.Item is not null).Select(g => g.Drop.Item!).ToList();
+        // Gold lands on the ground, or within reach of the hero, who scoops it up.
+        Assert.True(world.Hero.Equipment.Gold > 0 || world.GroundItems.Any(g => g.Drop.Gold > 0));
+        // One piece of gear (a bomb or elixir may come with it).
+        var items = world.GroundItems.Where(g => g.Drop.Item is { Definition.IsBeltItem: false }).Select(g => g.Drop.Item!).ToList();
         Assert.Single(items);
         Assert.Equal(3, items[0].ItemLevel);
         Assert.All(world.GroundItems, g => Assert.True(g.X >= 0 && g.Y >= 0 && world.Map.IsWalkable(g.X, g.Y)));
@@ -67,7 +69,7 @@ public class CacheTests
         for (var seed = 1; seed <= 200; seed++)
         {
             var drops = Content.Loot.RollCache(CacheKind.Reliquary, 2, new SeededRandom(seed));
-            var items = drops.Where(d => d.Item is not null).Select(d => d.Item!).ToList();
+            var items = drops.Where(d => d.Item is { Definition.IsBeltItem: false }).Select(d => d.Item!).ToList();
             Assert.Equal(2, items.Count);
             Assert.True(items[0].Rarity >= Rarity.Uncommon);
             Assert.All(items, i => Assert.Equal(2, i.ItemLevel));
@@ -81,7 +83,7 @@ public class CacheTests
         var better = 0;
         for (var seed = 1; seed <= 400; seed++)
         {
-            var item = Content.Loot.RollCache(CacheKind.Cache, 1, new SeededRandom(seed)).Single(d => d.Item is not null).Item!;
+            var item = Content.Loot.RollCache(CacheKind.Cache, 1, new SeededRandom(seed)).Single(d => d.Item is { Definition.IsBeltItem: false }).Item!;
             if (item.Rarity >= Rarity.Uncommon)
                 better++;
         }

@@ -466,18 +466,25 @@ public sealed partial class GameWorld
     private readonly IReadOnlyDictionary<string, AbilityDefinition> _abilities;
     private readonly Dictionary<string, AbilityDefinition> _bar = [];
 
-    /// <summary>The class's abilities in their slots, then those feats have granted in the free number slots, in order.</summary>
+    /// <summary>
+    /// The class's abilities in their slots (those of a higher level once it is reached), then those feats have granted
+    /// in the free number slots, in order; and the belt (<see cref="RefreshBelt"/>).
+    /// </summary>
     private void RefreshBar()
     {
         _bar.Clear();
         foreach (var (slot, ability) in _classBar)
-            _bar[slot] = ability;
+        {
+            if (ability.Level <= Hero.Character.Level)
+                _bar[slot] = ability;
+        }
         var free = new Queue<string>(new[] { "1", "2", "3", "4", "5", "6" }.Where(s => !_bar.ContainsKey(s)));
         foreach (var id in Hero.Character.GrantedAbilities)
         {
             if (_abilities.TryGetValue(id, out var ability) && free.TryDequeue(out var slot))
                 _bar[slot] = ability;
         }
+        RefreshBelt();
     }
 
     /// <summary>Makes a level's picks (the level-up screen's Confirm); new abilities go on the bar.</summary>
@@ -494,11 +501,16 @@ public sealed partial class GameWorld
     public static readonly AbilityDefinition DefaultStrike =
         new("strike", "Strike", "any", "lmb", AbilityKind.WeaponStrike, Repeat: true, Traits: ["Attack"]);
 
-    /// <summary>Walk to a point (a left click on the ground). Cancels any attack order.</summary>
+    /// <summary>
+    /// Walk to a point (a left click on the ground). Cancels any attack order. While the Taint's whispers hold the hero,
+    /// their feet go the other way.
+    /// </summary>
     public void MoveTo(double x, double y)
     {
         if (Hero.IsDead)
             return;
+        if (Hero.Character.Taint.ReversedMovementRemaining > 0)
+            (x, y) = (2 * Hero.X - x, 2 * Hero.Y - y);
         Hero.Order = null;
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
@@ -525,6 +537,11 @@ public sealed partial class GameWorld
     {
         if (Hero.IsDead)
             return;
+        if (ability.IsSelf)
+        {
+            UseOnSelf(ability);
+            return;
+        }
         if (target is null || target.IsDead)
         {
             Say($"{ability.Name} needs a target.");
@@ -748,6 +765,24 @@ public sealed partial class GameWorld
         return true;
     }
 
+    /// <summary>The open trader's supplies (belt items always in stock), for the trade panel.</summary>
+    public IReadOnlyList<ItemDefinition> Supplies =>
+        OpenVendor?.Definition.Supplies is { } ids && _loot is not null
+            ? ids.Where(_loot.Items.ContainsKey).Select(id => _loot.Items[id]).ToList()
+            : [];
+
+    /// <summary>Buys one of a belt item from the open trader's supplies.</summary>
+    public bool BuySupply(ItemDefinition item)
+    {
+        if (OpenVendor is null || !Supplies.Contains(item))
+            return false;
+        var price = Pricing.SupplyPrice(item, Hero.Character);
+        if (!Pay(price) || !GiveOrRefund(new Item(item, Rarity.Common, Hero.Character.Level), price))
+            return false;
+        Say($"Bought {item.Name.ToLowerInvariant()}.");
+        return true;
+    }
+
     /// <summary>Whether <paramref name="item"/> is the hero's: in the bag or worn.</summary>
     public bool Owns(Item item) => Hero.Equipment.Bag.Contains(item) || Hero.Equipment.Worn.Values.Contains(item);
 
@@ -900,6 +935,9 @@ public sealed partial class GameWorld
     private void Step(double dt)
     {
         Time += dt;
+        if (Hero.Equipment.BagVersion != _beltBagVersion)
+            RefreshBelt();
+        UpdateWard();
         UpdateHero(dt);
         Reveal();
         UpdateProjectiles(dt);
@@ -1029,7 +1067,7 @@ public sealed partial class GameWorld
             var ability = order.Ability;
             var reach = ReachFor(ability, target);
             var startDistance = ability.Kind == AbilityKind.ChargeStrike ? reach + ability.Range : reach;
-            var losOk = !ability.IsSpell || Map.HasLineOfSight(hero.X, hero.Y, target.X, target.Y);
+            var losOk = !(ability.IsSpell || ability.Kind == AbilityKind.Bomb) || Map.HasLineOfSight(hero.X, hero.Y, target.X, target.Y);
             if (hero.DistanceTo(target) > startDistance || !losOk)
             {
                 hero.RepathIn -= dt;
@@ -1067,7 +1105,8 @@ public sealed partial class GameWorld
         else
         {
             hero.Goal = null;
-            hero.Play("stance");
+            // Standing with a shield raised, the hero holds it up.
+            hero.Play(hero.Ward is { Ability.NeedsShield: true } ? "block" : "stance");
         }
     }
 
@@ -1160,7 +1199,9 @@ public sealed partial class GameWorld
     {
         if (_loot is null)
             return;
-        var drops = _loot.Roll(monster.Creature.Stats.Rank, monster.Creature.Stats.EffectiveLevel, Random, monster.Definition.IsSpawner);
+        var drops = _loot.Roll(monster.Creature.Stats.Rank, monster.Creature.Stats.EffectiveLevel, Random, monster.Definition.IsSpawner).ToList();
+        if (monster.Definition.RareDrop)
+            drops.Insert(0, new LootDrop(_loot.Generate(Math.Max(1, monster.Creature.Stats.EffectiveLevel), Rarity.Rare, Random)));
         Spill(monster.X, monster.Y, drops);
         if (drops.Count > 0)
             Sound(drops.Any(d => d.Gold > 0 && d.Item is null) && drops.All(d => d.Item is null) ? SoundCue.Gold : SoundCue.LootDrop, monster);
@@ -1187,9 +1228,11 @@ public sealed partial class GameWorld
         }
     }
 
-    /// <summary>Weapon abilities need melee reach; spells their range; reach grows with the target's size.</summary>
+    /// <summary>Weapon abilities need melee reach; spells and thrown bombs their range; reach grows with the target's size.</summary>
     private double ReachFor(AbilityDefinition ability, MonsterActor target) =>
-        ability.IsSpell ? ability.Range + Hero.Character.SpellRangeBonus : MeleeReach + Hero.Character.ReachBonus + target.Radius;
+        ability.IsSpell ? ability.Range + Hero.Character.SpellRangeBonus
+        : ability.Kind == AbilityKind.Bomb ? ability.Range
+        : MeleeReach + Hero.Character.ReachBonus + target.Radius;
 
     /// <summary>Why an ability can't start right now, or null if it can.</summary>
     private string? WhyNot(AbilityDefinition ability)
@@ -1208,7 +1251,16 @@ public sealed partial class GameWorld
     {
         var hero = Hero;
         var c = hero.Character;
-        hero.Resource.TrySpend(ability.Cost);
+        var extraDice = 0;
+        if (ability.IsConsumable && !UseUpBeltItem(ability))
+        {
+            hero.Order = null;
+            return;
+        }
+        if (ability.SpendAll)
+            extraDice = ability.DiceForSpent(hero.Resource.SpendAll());
+        else
+            hero.Resource.TrySpend(ability.Cost);
         if (ability.Cooldown > 0)
             hero.ReadyAt[ability.Id] = Time + ability.Cooldown;
         if (ability.IsFlourish)
@@ -1220,7 +1272,7 @@ public sealed partial class GameWorld
             ? Math.Max(swing, ability.Actions > 1 ? ActionTiming.CastTime(ability.Actions, c.Gear.AttackSpeed, slowed) : 0)
             : ActionTiming.CastTime(ability.Actions, c.Gear.CastSpeed, slowed);
         var dashing = ability.Kind == AbilityKind.ChargeStrike && hero.DistanceTo(target) > ReachFor(ability, target);
-        hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing };
+        hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing, ExtraDice = extraDice };
         hero.Face(target.X, target.Y);
         if (dashing)
             hero.Play("run", 2.0, restart: true);
@@ -1267,23 +1319,29 @@ public sealed partial class GameWorld
         if (!action.Landed && action.Elapsed >= action.Duration * landsAt)
         {
             action.Landed = true;
-            ApplyAbility(action.Ability, target);
+            ApplyAbility(action.Ability, target, action.ExtraDice);
         }
         return action.Elapsed < action.Duration;
     }
 
-    private void ApplyAbility(AbilityDefinition ability, MonsterActor target)
+    private void ApplyAbility(AbilityDefinition ability, MonsterActor target, int spentDice = 0)
     {
         var rank = AbilityDefinition.SpellRank(Hero.Character.Level);
         switch (ability.Kind)
         {
             case AbilityKind.WeaponStrike or AbilityKind.ChargeStrike:
+                var dice = ability.ExtraDiceAt(Hero.Character.Level) + spentDice;
                 if (!target.IsDead && Hero.DistanceTo(target) <= ReachFor(ability, target) + 0.3)
-                    HeroStrike(target, ability, ability.ExtraDiceAt(Hero.Character.Level), ability.CadenceAttacks);
-                // A sweeping ability strikes more enemies within reach, nearest first.
-                foreach (var other in _monsters.Where(m => !m.IsDead && m != target && Hero.DistanceTo(m) <= ReachFor(ability, m) + 0.3)
+                    HeroStrike(target, ability, dice, ability.CadenceAttacks);
+                // A sweep strikes more enemies within reach and its arc, nearest first; only the main target builds Fury.
+                foreach (var other in _monsters.Where(m => !m.IsDead && m != target && Hero.DistanceTo(m) <= ReachFor(ability, m) + 0.3
+                                 && WithinArc(ability.Arc, target, m))
                              .OrderBy(m => Hero.DistanceTo(m)).Take(ability.Targets - 1).ToList())
-                    HeroStrike(other, ability, ability.ExtraDiceAt(Hero.Character.Level), ability.CadenceAttacks);
+                    HeroStrike(other, ability, dice, ability.CadenceAttacks, buildsFury: false);
+                break;
+            case AbilityKind.Bomb:
+                _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, 0));
+                Sound(SoundCue.Swing, Hero);
                 break;
             case AbilityKind.SpellBolt:
                 _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, 0) { ChainLeft = ability.Chain });
@@ -1296,6 +1354,17 @@ public sealed partial class GameWorld
                 Sound(SoundCue.ForceBolt, Hero);
                 break;
         }
+    }
+
+    /// <summary>Whether <paramref name="other"/> lies within a sweep's arc, centred on the direction to its main target.</summary>
+    private bool WithinArc(double arc, MonsterActor target, MonsterActor other)
+    {
+        if (arc >= 360)
+            return true;
+        var a = Math.Atan2(target.Y - Hero.Y, target.X - Hero.X);
+        var b = Math.Atan2(other.Y - Hero.Y, other.X - Hero.X);
+        var difference = Math.Abs(Math.IEEERemainder(a - b, 2 * Math.PI)) * 180 / Math.PI;
+        return difference <= arc / 2;
     }
 
     private void UpdateProjectiles(double dt)
@@ -1330,6 +1399,11 @@ public sealed partial class GameWorld
     {
         var target = p.Target;
         var ability = p.Ability;
+        if (ability.Kind == AbilityKind.Bomb)
+        {
+            BombLands(p);
+            return;
+        }
         var dice = ability.DamageAt(p.Rank);
         var critical = false;
         int damage;
@@ -1343,6 +1417,8 @@ public sealed partial class GameWorld
             var result = Strike.ResolveSpellAttack(Hero.Character, target.Creature, dice, ability.DamageType, Random);
             critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
             damage = result.Damage;
+            if (critical)
+                HeroCrits++;
             Chain(p);
             if (damage == 0)
             {
@@ -1360,7 +1436,7 @@ public sealed partial class GameWorld
         {
             damage = DamageCalculator.ApplyDefenses(dice.Roll(Random), ability.DamageType, target.Creature.Defenses);
         }
-        target.Creature.TakeDamage(damage);
+        damage = DamageMonster(target, damage);
         Float(target, critical ? $"{damage}!" : damage.ToString(), critical ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
         target.HitFlinch = 0.15;
         Aggro(target);
@@ -1415,19 +1491,32 @@ public sealed partial class GameWorld
 
     private void AddImpact(double x, double y, DamageType type) => _impacts.Add(new Impact(x, y, type, Time));
 
-    private void HeroStrike(MonsterActor target, AbilityDefinition? ability = null, int extraDice = 0, int cadenceAttacks = 1)
+    private void HeroStrike(MonsterActor target, AbilityDefinition? ability = null, int extraDice = 0, int cadenceAttacks = 1,
+        bool buildsFury = true)
     {
         if (LostInTheDark(target))
             return;
-        var result = Strike.Resolve(Hero.Character, target.Creature, Hero.Cadence, Time, Random,
+        var result = Strike.Resolve(Hero.Character, target.Creature, Hero.Cadence, Time, Random, graze: GrazeEffect.Near,
             attackSpeedBonus: Hero.Character.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
         Sound(result.Damage > 0 ? (critical ? SoundCue.Crit : SoundCue.Hit) : SoundCue.Miss, target);
+        if (result.Grazed)
+        {
+            // A near miss: half damage, half the Fury, and none of the ability's other effects.
+            var grazed = DamageMonster(target, result.Damage);
+            Hero.Resource.OnCombat(graze: true, builds: buildsFury);
+            Float(target, $"graze {grazed}", FloatingTextKind.Graze);
+            Aggro(target);
+            if (target.IsDead)
+                Kill(target, false);
+            return;
+        }
         if (result.Damage > 0)
         {
-            var damage = result.Damage + (critical ? Hero.Character.CritDamageBonus : 0);
-            target.Creature.TakeDamage(damage);
-            Hero.Resource.OnCombat(critical);
+            var damage = DamageMonster(target, result.Damage + (critical ? Hero.Character.CritDamageBonus : 0));
+            Hero.Resource.OnCombat(critical, builds: buildsFury);
+            if (critical)
+                HeroCrits++;
             Float(target, critical ? $"{damage}!" : damage.ToString(), critical ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
             target.HitFlinch = 0.15;
             Aggro(target);
@@ -1465,6 +1554,8 @@ public sealed partial class GameWorld
         if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
             DropLoot(monster);
         Avenge(monster);
+        if (monster.Has(MonsterAffix.Tainted))
+            LeaveTaint(monster);
         if (monster.Definition.Boss is not null)
             BossDied(monster);
         // A side story's pack: once every one of its placed monsters has fallen, its flag is set.
@@ -1558,6 +1649,7 @@ public sealed partial class GameWorld
         {
             // Hit points rise at once; the level's feats, skill increase and boosts wait for the level-up screen.
             Hero.Character.LevelUp();
+            RefreshBar();
             Say($"Level {Hero.Character.Level}! Press L to choose what it brings.");
             Sound(SoundCue.LevelUp, Hero);
             Float(Hero, "LEVEL UP", FloatingTextKind.Info, 1.2);
@@ -1580,8 +1672,7 @@ public sealed partial class GameWorld
         m.Creature.Conditions.Update(dt);
         foreach (var (type, amount) in m.Creature.Persistent.Update(dt, Random))
         {
-            var dealt = DamageCalculator.ApplyDefenses(amount, type, m.Creature.Defenses);
-            m.Creature.TakeDamage(dealt);
+            var dealt = DamageMonster(m, DamageCalculator.ApplyDefenses(amount, type, m.Creature.Defenses));
             Float(m, dealt.ToString(), FloatingTextKind.DamageDealt);
             if (m.IsDead)
             {
@@ -1619,6 +1710,7 @@ public sealed partial class GameWorld
         }
         if (def.Boss is not null)
             UpdateBoss(m, dt);
+        UpdateAffixes(m, dt);
         if (m.IsDead || hero.IsDead)
             return;
         if (!m.Creature.Conditions.CanAct)
@@ -1635,7 +1727,7 @@ public sealed partial class GameWorld
 
         if (m.AttackElapsed >= 0)
         {
-            var interval = 1.0 / def.AttacksPerSecond;
+            var interval = 1.0 / m.Creature.AttacksPerSecond;
             var windup = Math.Min(0.6, interval * 0.6);
             m.AttackElapsed += dt;
             if (!m.AttackLanded && m.AttackElapsed >= windup * 0.6)
@@ -1683,7 +1775,7 @@ public sealed partial class GameWorld
                 var anim = def.Ranged ? (def.Caster || def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";
                 if (def.Ranged)
                     Sound(anim == "cast" ? SoundCue.WitchCast : SoundCue.Bow, m);
-                var windup = Math.Min(0.6, 0.6 / def.AttacksPerSecond);
+                var windup = Math.Min(0.6, 0.6 / m.Creature.AttacksPerSecond);
                 m.Play(anim, 0.5 / windup, restart: true);
             }
             else if (m.Animation is not ("swing" or "shoot" or "cast") || m.AnimationTime > 1)
@@ -1713,11 +1805,11 @@ public sealed partial class GameWorld
             m.Play("stance");
     }
 
-    /// <summary>A monster's walking speed: slowed by the Slowed condition, quickened by Vengeance.</summary>
+    /// <summary>A monster's walking speed: slowed by the Slowed condition, quickened by Vengeance and Haste.</summary>
     private static double MonsterSpeed(MonsterActor m)
     {
         var slowed = m.Creature.Conditions.ActionTimeMultiplier;
-        return m.Definition.MoveSpeed * (slowed > 1 ? 1 / slowed : 1) * VengeanceBonus(m).Speed;
+        return m.Definition.MoveSpeed * (slowed > 1 ? 1 / slowed : 1) * VengeanceBonus(m).Speed * (m.Has(MonsterAffix.Hasted) ? HasteSpeed : 1);
     }
 
     private void UpdateSpawner(MonsterActor m, double dt)
@@ -1762,8 +1854,13 @@ public sealed partial class GameWorld
             targetAc: flanked ? -ConditionSet.OffGuardAcPenalty : 0, attackBonus: attack, damageScale: damage);
         if (result.Damage > 0)
         {
+            if (result.Degree == DegreeOfSuccess.CriticalSuccess)
+                HeroCritsTaken++;
+            var dealt = ShieldBlock(result.Damage);
+            if (dealt <= 0)
+                return;
             Sound(SoundCue.HeroHurt, Hero);
-            if (!HurtHero(result.Damage))
+            if (!HurtHero(dealt))
                 return;
             if (m.Definition.PoisonOnHit is { } poison && Random.Roll(1, 100) <= m.Definition.PoisonChance * 100)
                 Poison(Dice.Parse(poison));
@@ -1866,7 +1963,7 @@ public sealed partial class GameWorld
         if (_bogTimer < BogSaveSeconds)
             return;
         _bogTimer -= BogSaveSeconds;
-        var save = Check.Roll(Random, Hero.Character.Save(StatisticKind.Fortitude).Total, BogDc);
+        var save = Check.Roll(Random, Hero.Character.Save(StatisticKind.Fortitude).Total + PoisonSaveBonus(DamageType.Poison), BogDc);
         if (save.Degree >= DegreeOfSuccess.Success)
             return;
         if (Hero.Character.Persistent.DiceFor(DamageType.Poison) is null)
@@ -1967,6 +2064,8 @@ public sealed partial class GameWorld
         Hero.Resource.Reset();
         Hero.ReadyAt.Clear();
         Hero.FlourishReadyAt = 0;
+        EndWard();
+        Hero.AntidoteUntil = 0;
         Hero.Play("stance", restart: true);
         foreach (var m in _monsters.Where(m => !m.IsDead))
         {
@@ -2055,6 +2154,7 @@ public sealed partial class GameWorld
         _ground.AddRange(ground);
         ZoneComplete = complete;
         Experience.Restore(level, xp);
+        RefreshBar();
     }
 
     // ----- Movement ------------------------------------------------------------------
@@ -2203,13 +2303,14 @@ public sealed partial class GameWorld
         var affixes = (affixNames ?? []).Select(a => Enum.TryParse<MonsterAffix>(a, ignoreCase: true, out var affix)
             ? affix : throw new InvalidDataException($"Unknown monster affix '{a}'.")).ToList();
         var prefix = string.Concat(affixes.Select(a => $"{a} "));
-        var title = rank switch
+        var title = def.Named ? def.Name : rank switch
         {
             CreatureRank.Champion => $"{prefix}{def.Name} Champion",
             CreatureRank.Elite => $"{prefix}{def.Name}, the Elite",
             _ => prefix + def.Name,
         };
-        var creature = new Creature(title, stats, dice, def.DamageType, def.BuildDefenses(), def.AttacksPerSecond);
+        var creature = new Creature(title, stats, dice, def.DamageType, def.BuildDefenses(),
+            def.AttacksPerSecond * (affixes.Contains(MonsterAffix.Hasted) ? HasteAttackRate : 1));
         double px = x, py = y;
         for (var attempt = 0; attempt < 12; attempt++)
         {

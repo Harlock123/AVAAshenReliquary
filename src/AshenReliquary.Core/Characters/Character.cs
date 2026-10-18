@@ -475,6 +475,11 @@ public sealed class Character : IDefender
             new Modifier("Potency rune", Weapon.Potency, BonusType.Item));
     }
 
+    /// <summary>A thrown bomb's attack: DEX + the class's attack proficiency (alchemical bombs are simple weapons).</summary>
+    public ModifierTotal ThrowAttack() => Total(StatisticKind.Attack, AttributeKind.Dexterity,
+        Attr(AttributeKind.Dexterity, Attributes[AttributeKind.Dexterity]),
+        Prof(ProficiencyTrack.Attack));
+
     /// <summary>The flat damage added to the weapon's dice: STR for melee and thrown weapons, nothing for other ranged weapons.</summary>
     public ModifierTotal DamageBonus()
     {

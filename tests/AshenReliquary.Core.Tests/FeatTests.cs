@@ -118,7 +118,7 @@ public class FeatTests
         world.GainXp(1000, world.Hero);
         Assert.Equal([2], hero.PendingLevels);
         world.ChooseLevel(2, new LevelChoice(ClassFeat: "intimidating_strike", SkillFeat: "titan_wrestler"));
-        Assert.Equal("intimidating_strike", world.Bar["2"].Id);
+        Assert.Equal("intimidating_strike", world.Bar["5"].Id); // after the class's Charge, Cleave, Raise a Shield and Finishing Blow
 
         var save = SaveGame.Capture(world, "s", 5, null);
         var loaded = SaveGame.FromJson(save.ToJson());
@@ -149,7 +149,7 @@ public class FeatTests
         for (var seed = 1; seed <= 30; seed++)
         {
             var (world, zombie) = Duel("intimidating_strike", seed: seed);
-            world.UseSlot("2", zombie);
+            world.UseSlot("5", zombie);
             Run(world, 3);
             if (zombie.Creature.Conditions.Has(ConditionKind.Frightened))
                 return;
@@ -166,10 +166,11 @@ public class FeatTests
             world.Hero.X = zombie.X - 1.0;
             world.Hero.Y = zombie.Y;
             var hp = zombie.Creature.HitPoints;
-            world.UseSlot("2", zombie);
+            world.UseSlot("5", zombie);
             for (var i = 0; i < 40 && zombie.Creature.HitPoints == hp && !zombie.IsDead; i++)
                 world.Update(1 / 30.0);
-            if (zombie.Creature.HitPoints < hp && !zombie.IsDead)
+            // A graze (a near miss) wounds without the shove.
+            if (zombie.Creature.HitPoints < hp && !zombie.IsDead && !world.Texts.Any(t => t.Kind == FloatingTextKind.Graze))
             {
                 Assert.True(zombie.Creature.Conditions.IsOffGuard);
                 Assert.True(world.Hero.DistanceTo(zombie) > 2.0, $"only {world.Hero.DistanceTo(zombie):0.0} tiles away");
@@ -208,8 +209,8 @@ public class FeatTests
     public void Electric_arc_leaps_to_a_second_enemy()
     {
         var (world, first) = Duel("electric_arc", "recognize_spell", cls: "wizard", zombies: 2);
-        Assert.Equal("electric_arc", world.Bar["2"].Id);
-        world.UseSlot("2", first);
+        Assert.Equal("electric_arc", world.Bar["3"].Id); // after Staff Strike and Shield
+        world.UseSlot("3", first);
         var targets = new HashSet<MonsterActor>();
         for (var i = 0; i < 90; i++)
         {
@@ -267,7 +268,7 @@ public class FeatTests
         world.GainXp(2000, world.Hero);
         world.ChooseLevel(2, new LevelChoice(ClassFeat: "intimidating_strike", SkillFeat: "titan_wrestler"));
         world.ChooseLevel(3, new LevelChoice(GeneralFeat: "toughness", SkillIncrease: "Athletics"));
-        Assert.Equal("intimidating_strike", world.Bar["2"].Id);
+        Assert.Equal("intimidating_strike", world.Bar["5"].Id); // after the class's Charge, Cleave, Raise a Shield and Finishing Blow
 
         hero.Respec();
         Assert.Equal([2, 3], hero.PendingLevels);

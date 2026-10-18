@@ -147,7 +147,7 @@ public class ItemTests
     {
         var random = new SeededRandom(21);
         double Items(CreatureRank rank) => Enumerable.Range(0, 2000)
-            .Average(_ => Content.Loot.Roll(rank, 1, random).Count(d => d.Item is not null));
+            .Average(_ => Content.Loot.Roll(rank, 1, random).Count(d => d.Item is { Definition.IsBeltItem: false }));
         Assert.InRange(Items(CreatureRank.Normal), 0.10, 0.18);
         Assert.InRange(Items(CreatureRank.Champion), 1.4, 1.6);
         Assert.True(Items(CreatureRank.Minion) < 0.07);

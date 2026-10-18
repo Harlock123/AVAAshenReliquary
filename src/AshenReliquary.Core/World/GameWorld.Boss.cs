@@ -130,7 +130,7 @@ public sealed partial class GameWorld
         }
     }
 
-    /// <summary>Rot pools: anyone in an active one makes a basic Fortitude save against its damage each second.</summary>
+    /// <summary>Rot and Taint pools: the hero in an active one makes a basic Fortitude save against its damage each second.</summary>
     private void UpdateHazards(double dt)
     {
         _hazards.RemoveAll(h => Time >= h.EndsAt);
@@ -144,7 +144,7 @@ public sealed partial class GameWorld
             if (h.TickIn > 0)
                 continue;
             h.TickIn = 1.0;
-            var save = Check.Roll(Random, Hero.Character.Save(StatisticKind.Fortitude).Total, h.Dc);
+            var save = Check.Roll(Random, Hero.Character.Save(StatisticKind.Fortitude).Total + PoisonSaveBonus(h.Type), h.Dc);
             var rolled = h.Damage.Roll(Random);
             var amount = save.Degree switch
             {
@@ -153,7 +153,9 @@ public sealed partial class GameWorld
                 DegreeOfSuccess.Failure => rolled,
                 _ => rolled * 2,
             };
-            var dealt = DamageCalculator.ApplyDefenses(amount, DamageType.Poison, Hero.Character.Defenses);
+            var dealt = DamageCalculator.ApplyDefenses(amount, h.Type, Hero.Character.Defenses);
+            if (h.Type == DamageType.Taint)
+                Corrupt(dealt);
             if (dealt > 0 && !HurtHero(dealt))
                 return;
         }

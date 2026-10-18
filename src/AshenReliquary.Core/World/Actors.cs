@@ -106,6 +106,12 @@ public sealed class HeroActor : Actor
     public double HealRemaining { get; internal set; }
     internal double HealPerSecond { get; set; }
 
+    /// <summary>A raised shield or the Shield cantrip, while it lasts; null otherwise.</summary>
+    public HeroWard? Ward { get; internal set; }
+
+    /// <summary>Until when an antidote's bonus against poison lasts (game time).</summary>
+    public double AntidoteUntil { get; internal set; }
+
     /// <summary>True while winding up, swinging, casting or dashing.</summary>
     public bool IsSwinging => Action is not null;
 
@@ -128,6 +134,21 @@ internal sealed class HeroAction(AbilityDefinition ability, MonsterActor target,
     public bool Landed { get; set; }
     public bool Dashing { get; set; }
     public double DashTime { get; set; }
+
+    /// <summary>Weapon dice bought with the resource spent (Finishing Blow).</summary>
+    public int ExtraDice { get; init; }
+}
+
+/// <summary>
+/// A ward on the hero: a raised shield or the Shield cantrip. <see cref="AcBonus"/> is a circumstance bonus to AC until
+/// <see cref="EndsAt"/>; Shield Block takes <see cref="Hardness"/> off a blow.
+/// </summary>
+public sealed class HeroWard(AbilityDefinition ability, int acBonus, int hardness, double endsAt)
+{
+    public AbilityDefinition Ability { get; } = ability;
+    public int AcBonus { get; } = acBonus;
+    public int Hardness { get; } = hardness;
+    public double EndsAt { get; internal set; } = endsAt;
 }
 
 /// <summary>A spell in flight, homing on its target. <see cref="LaunchAt"/> staggers a volley of missiles.</summary>
@@ -156,7 +177,8 @@ public sealed class GroundItem(double x, double y, LootDrop drop, double dropped
     public LootDrop Drop { get; } = drop;
     public double DroppedAt { get; } = droppedAt;
 
-    public string Label => Drop.Item?.Name ?? (Drop.Draught ? "Healing draught" : $"{Drop.Gold} gold");
+    public string Label => Drop.Item is { Count: > 1 } stack ? $"{stack.Name} ×{stack.Count}"
+        : Drop.Item?.Name ?? (Drop.Draught ? "Healing draught" : $"{Drop.Gold} gold");
     public Rarity Rarity => Drop.Item?.Rarity ?? Rarity.Common;
 }
 
@@ -213,6 +235,13 @@ public sealed class MonsterActor : Actor
     /// <summary>Vengeance stacks, 0 to <see cref="GameWorld.VengeanceMax"/>: each ally of its pack that dies adds one.</summary>
     public int Vengeance { get; internal set; }
 
+    /// <summary>Damage a Shielded ally's ward will still soak, until <see cref="WardEndsAt"/>.</summary>
+    public int Ward { get; internal set; }
+    public double WardEndsAt { get; internal set; }
+
+    /// <summary>When a Shielded monster next wards its pack.</summary>
+    internal double WardPackIn { get; set; }
+
     /// <summary>Seconds spent circling for a flank before it gives up and strikes from where it is.</summary>
     internal double FlankTime { get; set; }
 
@@ -235,12 +264,23 @@ public sealed class MonsterActor : Actor
 }
 
 /// <summary>
-/// Grim Dawn-style "hero" monster affixes, one new per act (spec, section 7). Act 1's <b>Vengeful</b>: each ally of its
-/// pack that falls nearby gives it a stack of Vengeance, up to three: +1 to hit, +10% damage and +5% speed each.
+/// Grim Dawn-style "hero" monster affixes (spec, section 12).
+/// <list type="bullet">
+/// <item><b>Vengeful</b>: each ally of its pack that falls nearby gives it a stack of Vengeance, up to three: +1 to
+/// hit, +10% damage and +5% speed each.</item>
+/// <item><b>Hasted</b>: a quarter more attacks a second and 15% more speed.</item>
+/// <item><b>Shielded</b>: on waking and every 10 s it wards itself and its pack within 6 tiles: each soaks
+/// 4 + 2 × level damage for 8 s.</item>
+/// <item><b>Tainted</b>: it dies in a pool of Taint that burns for 8 s (a basic Fortitude save each second) and fills the
+/// Taint meter.</item>
+/// </list>
 /// </summary>
 public enum MonsterAffix
 {
     Vengeful,
+    Hasted,
+    Shielded,
+    Tainted,
 }
 
 public enum FloatingTextKind
@@ -252,6 +292,8 @@ public enum FloatingTextKind
     Heal,
     Info,
     Xp,
+    /// <summary>A near miss's half damage.</summary>
+    Graze,
 }
 
 /// <summary>A floating combat number or word, in map space, rising and fading over <see cref="Lifetime"/>.</summary>

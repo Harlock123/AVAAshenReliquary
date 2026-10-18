@@ -5,7 +5,8 @@
 # (long, flooded, pillared, moonlight through the high windows) with three side chapels either side, the transept
 # (a second shrine), the choir and sanctum (the Prior's guard and the zone's reliquary), and below the transept's ends
 # the east crypt (cursed graves) and the west crypt (level 4, a third shrine) whose flooded tunnel runs on toward
-# Sallow's Mire (zone 1.4).
+# Sallow's Mire (zone 1.4). From revision 2 a stair leads down from the east crypt to the Prior's Ossuary
+# (tools/prior_ossuary_mapgen.py), an optional dungeon.
 #
 # Walls: a solid cell next to floor shows a face toward it. The far walls (floor to their south-west or south-east on
 # screen) stand full height in Flare's dungeon blocks; the near walls are low blocks, so they never hide the hero. It is
@@ -14,7 +15,7 @@
 # Bump REVISION whenever the layout changes: saves made on another revision start the zone again at its entrance.
 import json, sys
 
-REVISION = 1
+REVISION = 2
 W, H = 64, 112
 grid = [['#'] * W for _ in range(H)]
 seed = 13579
@@ -51,6 +52,9 @@ room(4, 99, 25, 105)                                   # the west crypt's floode
 room(12, 106, 15, 109)                                 # the tunnel toward the Mire
 room(48, 78, 51, 81)                                   # down to the east crypt
 room(42, 82, 59, 95)                                   # the east crypt
+for y in range(96, 101):                               # the stair down to the Prior's Ossuary (no random cracks,
+    for x in range(48, 52):                            # so the rest of the chapel stays as it was)
+        grid[y][x] = '.'
 
 # --- Flooding: the Rotwater has come in (poison bog, on flagstones) ---
 def flood(x0, y0, x1, y1, p=1.0):
@@ -214,7 +218,7 @@ spawns = [
     pack(("drowned_dead", N, 2), ("grave_knight", N, 1), at=[10, 87], level=4),
     pack(("bog_witch", N, 1), ("fen_zombie", M, 3), at=[16, 92], level=4),
     pack(("fen_zombie", N, 3), at=[10, 102], level=4),
-    pack(("cultist", C, 1, V), ("cultist", N, 1), ("cult_chanter", N, 1), at=[20, 102], level=4),
+    pack(("cultist", C, 1, ["tainted"]), ("cultist", N, 1), ("cult_chanter", N, 1), at=[20, 102], level=4),
 ]
 FLOOR = [16, 17, 18, 19]
 CRACKED = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47]
@@ -288,6 +292,8 @@ zone = {
          "arrive": [31, 7]},
         {"id": "mire", "label": "Sallow's Mire", "at": [13, 109], "radius": 1.5, "to": "sallows_mire", "toExit": "chapel",
          "arrive": [13, 104]},
+        {"id": "ossuary", "label": "The Prior's Ossuary", "at": [49, 99], "radius": 1.5, "to": "prior_ossuary", "toExit": "chapel",
+         "arrive": [49, 94]},
     ],
     "caches": caches,
 }

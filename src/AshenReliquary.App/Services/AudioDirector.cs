@@ -117,8 +117,18 @@ public sealed class AudioDirector
         SoundCue.Hit => "hit",
         SoundCue.Crit => "crit",
         SoundCue.HeroHurt => "hero-hurt",
-        SoundCue.MonsterAggro => sound.Variant == "skeleton" ? "skeleton" : sound.Variant == "grave" ? "grave-rise" : "zombie",
-        SoundCue.MonsterDeath => sound.Variant == "skeleton" ? "skeleton-death" : sound.Variant == "grave" ? "grave-rise" : "zombie-death",
+        SoundCue.MonsterAggro => sound.Variant switch
+        {
+            "skeleton" or "crawler" or "cultist" or "crone" => sound.Variant,
+            "grave" => "grave-rise",
+            _ => "zombie",
+        },
+        SoundCue.MonsterDeath => sound.Variant switch
+        {
+            "skeleton" or "crawler" or "cultist" or "crone" => $"{sound.Variant}-death",
+            "grave" => "grave-rise",
+            _ => "zombie-death",
+        },
         SoundCue.Bow => "bow",
         SoundCue.WitchCast => "witch-cast",
         SoundCue.GraveRise => "grave-rise",
@@ -133,7 +143,10 @@ public sealed class AudioDirector
         SoundCue.Shrine => "shrine",
         SoundCue.Death => "death",
         SoundCue.ZoneComplete => "zone-complete",
-        SoundCue.CacheOpen => "inventory",
+        SoundCue.CacheOpen => "chest",
+        SoundCue.Bomb => sound.Variant is "cold" or "electricity" or "acid" ? $"bomb-{sound.Variant}" : "bomb-fire",
+        SoundCue.Ward => sound.Variant == "shield" ? "ward-shield" : "ward-spell",
+        SoundCue.Block => "block",
         _ => "click",
     };
 

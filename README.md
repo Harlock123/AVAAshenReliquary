@@ -32,7 +32,9 @@ dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays i
 ```
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
-monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
+monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor
+(the fighter's Cleave on 2, Raise a Shield on 3 and, from level 2, Finishing Blow on 4; the wizard's Shield cantrip on
+2), **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
 items (right-click bag items to stash them), **J** the journal, **L** the level-up screen (when a level is waiting), **Shift** steps
@@ -56,8 +58,8 @@ projectiles; loot and inventory (`items.json`, `affixes.json`): Common, Uncommon
 random affixes, potency and striking runes gated by item level, gold, healing draughts, a 10x6 bag, eleven worn
 slots drawn on the paper doll, armour training, and tooltips with comparison. Character creation in Pathfinder
 order (name, ancestry and heritage, background, class, boost table with only legal picks, a Recommended build,
-and a live preview of the level-1 character), with a portrait picker per ancestry: 71 portraits from Flare (CC-BY-SA 3.0), Joseph Hewitt's GearHead set
-(CC BY 4.0) and the Adonthell project (CC-BY-SA 3.0), cropped and graded to the game's palette by
+and a live preview of the level-1 character), with a portrait picker per ancestry: 72 portraits from Flare (CC-BY-SA 3.0), Joseph Hewitt's GearHead set
+(CC BY 4.0), the Adonthell project (CC-BY-SA 3.0) and a half-orc sketch by PolygonDan (CC-BY-SA 4.0), cropped and graded to the game's palette by
 `tools/build_portraits.py` (halflings use youthful stand-ins until real halfling art is found). Saving and loading: one JSON save per character in `~/.local/share/AshenReliquary/saves` (the app-data folder on
 Windows), written atomically; autosave at shrines, on leaving through the menu and on closing the window; a title
 screen to continue, load or delete characters. Loading rebuilds the character through the rules from its creation
@@ -66,17 +68,28 @@ choices and level-up boosts. The HUD: game-icons.net icons (CC BY 3.0, rasterise
 the hero and reveals as you explore (saved with the game), the target's weaknesses, resistances and conditions, a
 character sheet (C), and a tooltip on every element: every number is one hover away. Audio: OpenAL Soft (the AVA1942
 audio layer) with positional sound effects, footsteps, crossfading exploration and battle music, and an ambience loop,
-from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Chests in the glades and ruins hold loot for your level (click to open; a skull-chest reliquary guarded by the
+from seven CC0 / CC-BY packs and Flare's own sound effects (CC-BY-SA 3.0), converted by `tools/build_audio.py`; volume sliders in the Escape menu. Chests in the glades and ruins hold loot for your level (click to open; a skull-chest reliquary guarded by the
 Champion). Fort Gallowmere, beyond the gate, is Act 1's hub: Wenna the peddler and Garrow the smith
 buy and sell (click them; right-click bag items to sell), Garrow etches and moves weapon and armour runes (his
 Runework tab: right-click gear to put it on his bench), and a stash keeps what you can't carry. The fort's west gate
 leads into the Rotwater Fens (levels 2–3): poison bog that sickens anyone who wades in it, plague-crawler swarms, rot
-cultists who flank, and Vengeful champions who grow stronger as their pack falls. At the Fens' end the Drowned Chapel
+cultists who flank, and champions with affixes: Vengeful (stronger as their pack falls), Hasted, Shielded (warding
+their pack) and Tainted (dying in a pool of corruption). At the Fens' end the Drowned Chapel
 (levels 3–4) is a dungeon in the dark: torches and moonlight show the way, what lies beyond the light is hard to hit,
 and a pilgrim's lantern by the door widens your light. Beyond it, Sallow's Mire (levels 4–5) ends at Mother Sallow,
 Herald of Rot: rot pools, rising corpses, a flooding arena and a last stand at her cauldron. While she lives, the road
 east stays barred. Three side stories wait to be found, not handed out: a letter at the bottom of the fort's well,
-a ferryman's rumour, and a scarecrow that seems to be crying. Shrines wake when you pass within 5 tiles.
+a ferryman's rumour, and a scarecrow that seems to be crying. Under the chapel's east crypt a stair leads down to the
+Prior's Ossuary, an optional dungeon where Prior Aldous Venn, a named elite, guards his confession and always drops a
+rare. Shrines wake when you pass within 5 tiles.
+
+Combat has more to it since Act 1 was first finished: weapon blows that miss by 3 or less **graze** for half damage;
+critical hits stop the world for a moment and shake the view; the fighter starts with a sword and **shield** (Raise a
+Shield for +1 or +2 AC, and Shield Block takes the shield's hardness off a blow every 6 s) and spends Fury on **Cleave**
+(up to three enemies in front) and, from level 2, **Finishing Blow** (all your Fury in one blow, a die per 25); the
+wizard has the **Shield** cantrip. The **belt** (keys 7 to 0) holds alchemical bombs (alchemist's fire, frost vial,
+bottled lightning, acid flask: thrown, splashing even on a miss) and antidotes; every hero starts with a few, they drop
+from monsters and chests, and Wenna sells them in the fort at prices that grow with your level.
 The exit test (gallows to gate in one sitting) passed on 2026-10-17. Next is M2: the rest of Act 1.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 

@@ -51,12 +51,25 @@ public sealed class ClassResource
         return true;
     }
 
-    /// <summary>A hit landed (or, with <paramref name="taken"/>, a hit received): Fury builds.</summary>
-    public void OnCombat(bool critical = false, bool taken = false)
+    /// <summary>
+    /// A hit landed (or, with <paramref name="taken"/>, a hit received): Fury builds. A graze builds half as much; with
+    /// <paramref name="builds"/> false (a sweep's other targets) the fight is only kept going.
+    /// </summary>
+    public void OnCombat(bool critical = false, bool taken = false, bool graze = false, bool builds = true)
     {
         _sinceCombat = 0;
-        if (Kind == ResourceKind.Fury)
-            Current = Math.Min(Max, Current + (taken ? FuryWhenHit : (critical ? FuryPerCrit : FuryPerHit) + _character.Gear.FuryPerHit + _character.FuryPerHitBonus));
+        if (Kind != ResourceKind.Fury || !builds)
+            return;
+        var gain = taken ? FuryWhenHit : (critical ? FuryPerCrit : FuryPerHit) + _character.Gear.FuryPerHit + _character.FuryPerHitBonus;
+        Current = Math.Min(Max, Current + (graze ? gain / 2 : gain));
+    }
+
+    /// <summary>Spends everything there is (Finishing Blow); returns how much that was.</summary>
+    public double SpendAll()
+    {
+        var spent = Current;
+        Current = 0;
+        return spent;
     }
 
     public void Update(double dt)

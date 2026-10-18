@@ -288,7 +288,7 @@ spawns = [
     pack(("bone_archer", N, 2), ("drowned_dead", N, 1), at=[64, 104], level=2),
     pack(("cultist", N, 3), at=[84, 106], level=2),
     pack(*swarm(), at=on(old_dyke, 50, -2), level=2),
-    pack(("cultist", C, 1, V), ("cultist", N, 1), at=[83, 126], level=2),
+    pack(("cultist", C, 1, ["hasted"]), ("cultist", N, 1), at=[83, 126], level=2),
     pack(("cult_chanter", N, 2), ("fen_zombie", M, 3), at=on(old_dyke, 85, 2), level=2),
     pack(("grave_knight", N, 1), ("drowned_dead", N, 2), at=on(old_dyke, 105), level=2),
     # The rot altar (level 3)
@@ -298,7 +298,7 @@ spawns = [
     # The chapel approach (level 3)
     pack(*swarm(3, 3), at=on(main_south, 14), level=3),
     pack(("drowned_dead", N, 3), at=[9, 149], level=3),
-    pack(("grave_knight", C, 1, V), ("drowned_dead", N, 1), at=on(main_south, 40, -1), level=2),
+    pack(("grave_knight", C, 1, ["shielded"]), ("drowned_dead", N, 1), at=on(main_south, 40, -1), level=2),
     pack(("cultist", N, 2), ("cult_chanter", N, 1), at=[11, 171], level=3),
 ]
 zone = {

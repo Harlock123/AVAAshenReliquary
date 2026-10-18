@@ -24,8 +24,11 @@ internal sealed class InventoryPanel
         (EquipSlot.Head, "Head", 0, 0), (EquipSlot.Chest, "Chest", 0, 1), (EquipSlot.Hands, "Hands", 0, 2),
         (EquipSlot.Legs, "Legs", 0, 3), (EquipSlot.Feet, "Feet", 0, 4),
         (EquipSlot.Amulet, "Amulet", 1, 0), (EquipSlot.Ring1, "Ring", 1, 1), (EquipSlot.Ring2, "Ring", 1, 2),
-        (EquipSlot.Belt, "Belt", 1, 3), (EquipSlot.MainHand, "Weapon", 1, 4),
+        (EquipSlot.Belt, "Belt", 1, 3), (EquipSlot.MainHand, "Weapon", 1, 4), (EquipSlot.OffHand, "Off hand", 1, 5),
     ];
+
+    /// <summary>Rows of worn slots: the off hand sits under the weapon.</summary>
+    private const int WornRows = 6;
 
     private readonly Action<SKCanvas, Core.Items.ItemDefinition, SKRect> _drawIcon;
     private float _slotSize = 44, _cell = 46, _bagTop;
@@ -34,10 +37,13 @@ internal sealed class InventoryPanel
 
     public SKRect Bounds { get; private set; }
 
-    private float WornBottom => Bounds.Top + Header + 5 * SlotStep;
+    private float WornBottom => Bounds.Top + Header + WornRows * SlotStep;
 
     private SKRect SlotRect(int column, int row) =>
         SKRect.Create(Bounds.Left + 20 + column * 190, Bounds.Top + Header + row * SlotStep, _slotSize, _slotSize);
+
+    /// <summary>The centre of bag cell <paramref name="index"/> as last laid out (for tests that click it).</summary>
+    public SKPoint BagCellCentre(int index) => new(BagRect(index).MidX, BagRect(index).MidY);
 
     private SKRect BagRect(int index) =>
         SKRect.Create(Bounds.Left + 20 + index % Equipment.BagColumns * (_cell + Gap),
@@ -190,6 +196,8 @@ internal sealed class InventoryPanel
             {
                 _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -2, -2));
                 RarityFrame(canvas, rect, item.Rarity);
+                if (item.Count > 1)
+                    StackCount(canvas, rect, item.Count, small);
             }
             else
             {
@@ -219,6 +227,15 @@ internal sealed class InventoryPanel
                 Tooltip(canvas, size, p, wornItem, null, $"Worn · {s}", gear.PreviewUnequip(s), "If you take it off:", Bounds);
             }
         }
+    }
+
+    /// <summary>How many are in a stack, in the cell's bottom-right corner.</summary>
+    public static void StackCount(SKCanvas canvas, SKRect rect, int count, SKFont font)
+    {
+        using var stroke = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3, Color = SKColors.Black };
+        using var ink = new SKPaint { IsAntialias = true, Color = Palette.Ink };
+        canvas.DrawText(count.ToString(), rect.Right - 3, rect.Bottom - 3, SKTextAlign.Right, font, stroke);
+        canvas.DrawText(count.ToString(), rect.Right - 3, rect.Bottom - 3, SKTextAlign.Right, font, ink);
     }
 
     private static void Highlight(SKCanvas canvas, SKRect rect, SKColor color, string? label)

@@ -19,7 +19,7 @@ public class CampaignReport(ITestOutputHelper output)
 
     public sealed record ZoneLeg(string Zone, double Minutes, int Deaths, int Potions, int LevelIn, int XpIn, int LevelOut, int XpOut, int Gold);
 
-    public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers);
+    public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0);
 
     [Theory]
     [InlineData("fighter")]
@@ -30,7 +30,7 @@ public class CampaignReport(ITestOutputHelper output)
              seed <= (only > 0 ? only : Runs); seed++)
         {
             var c = Play(kit, seed);
-            output.WriteLine($"{kit}, run {seed}: {(c.SallowSlain ? "Mother Sallow slain" : "Mother Sallow lives")} (met at level {c.SallowLevel}), {c.Minutes:0} min of play");
+            output.WriteLine($"{kit}, run {seed}: {(c.SallowSlain ? "Mother Sallow slain" : "Mother Sallow lives")} (met at level {c.SallowLevel}), {c.Minutes:0} min of play, {c.SuppliesBought} supplies bought");
             foreach (var leg in c.Legs)
                 output.WriteLine($"  {leg.Zone,-22} {leg.Minutes,5:0.0} min  deaths {leg.Deaths,2}  potions {leg.Potions,2}  level {leg.LevelIn} ({leg.XpIn,3}) -> {leg.LevelOut} ({leg.XpOut,3})  gold {leg.Gold}");
             foreach (var g in c.Killers.GroupBy(k => k).OrderByDescending(g => g.Count()).Take(6))
@@ -62,7 +62,8 @@ public class CampaignReport(ITestOutputHelper output)
         bot.Clear("drowned_chapel", "mire");
         bot.WakeAndVisitFort();
         bot.Clear("sallows_mire", "iron_march");
-        return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers);
+        return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers,
+            bot.SuppliesBought);
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>
@@ -149,6 +150,7 @@ public class CampaignReport(ITestOutputHelper output)
                 SallowLevel = Hero.Level;
             if (Hero.HitPoints < Hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                 _potions++;
+            Tactics.Upkeep(world);
             if (BalanceReport.StepOutOfPool(world, ref _nextDodge) is not null)
             {
                 _route = null;
@@ -233,6 +235,8 @@ public class CampaignReport(ITestOutputHelper output)
                 var d = item.Definition;
                 if (d.IsWeapon && (classId == "wizard" ? !d.CasterFocus : d.CasterFocus || d.Ranged))
                     continue;
+                if (d.IsShield && classId == "wizard")
+                    continue; // a shield would take the staff out of both hands
                 if (d.IsBodyArmor && gear.In(EquipSlot.Chest) is { } chest && chest.Definition.ArmorCategory != d.ArmorCategory)
                     continue;
                 if (gear.SlotFor(item) is not { } slot)
@@ -243,7 +247,10 @@ public class CampaignReport(ITestOutputHelper output)
             }
         }
 
-        /// <summary>In the fort: sell the spare loot to Garrow, have him etch runes, and wake the Fort Shrine.</summary>
+        /// <summary>
+        /// In the fort: sell the spare loot to Garrow (keeping the belt), have him etch runes, restock the belt at Wenna's
+        /// (five alchemist's fires, two antidotes), and wake the Fort Shrine.
+        /// </summary>
         public void Fort()
         {
             var gear = world.Hero.Equipment;
@@ -256,7 +263,7 @@ public class CampaignReport(ITestOutputHelper output)
                 WearUpgrades();
                 for (var i = 0; i < gear.Bag.Count; i++)
                 {
-                    if (gear.Bag[i] is { } item && item.Definition.Category != ItemCategory.Key)
+                    if (gear.Bag[i] is { } item && item.Definition.Category != ItemCategory.Key && !item.Definition.IsBeltItem)
                         world.Sell(i);
                 }
                 // Etch what the gold allows, the weapon first.
@@ -267,8 +274,25 @@ public class CampaignReport(ITestOutputHelper output)
                 }
                 world.CloseVendor();
             }
+            var wenna = world.Vendors.Single(v => v.Definition.Id == "wenna");
+            world.TalkTo(wenna);
+            for (var t = 0.0; t < 20 && world.OpenVendor is null; t += Tick)
+                world.Update(Tick);
+            if (world.OpenVendor is not null)
+            {
+                foreach (var (id, keep) in new[] { ("alchemists_fire", 5), ("antidote", 2) })
+                {
+                    var supply = world.Supplies.Single(s => s.Id == id);
+                    while (gear.CountOf(supply) < keep && gear.Gold >= Pricing.SupplyPrice(supply, Hero) && world.BuySupply(supply))
+                        SuppliesBought++;
+                }
+                world.CloseVendor();
+            }
             Wake(world.Zone.Shrines[0]);
         }
+
+        /// <summary>Belt items bought from Wenna over the run.</summary>
+        public int SuppliesBought { get; private set; }
 
         /// <summary>Wakes the zone's first shrine, Rifts to the fort for the smith, and comes back.</summary>
         public void WakeAndVisitFort()

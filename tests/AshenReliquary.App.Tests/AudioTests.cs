@@ -29,7 +29,8 @@ public class AudioTests
     public void Every_sound_the_game_can_ask_for_exists()
     {
         var director = new AudioDirector(new RecordingAudioEngine(), Root);
-        var variants = new string?[] { null, "zombie", "skeleton", "grave", "cloth", "metal", "jewel" };
+        var variants = new string?[] { null, "zombie", "skeleton", "grave", "crawler", "cultist", "crone", "cloth", "metal", "jewel",
+            "fire", "cold", "electricity", "acid", "shield", "spell", "monster" };
         foreach (var cue in Enum.GetValues<SoundCue>())
         foreach (var variant in variants)
         {

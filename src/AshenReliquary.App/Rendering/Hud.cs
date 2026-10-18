@@ -8,11 +8,12 @@ namespace AshenReliquary.App.Rendering;
 
 /// <summary>
 /// The HUD, Grim Dawn layout: health orb bottom left with potion charges, Hero Points and the buff and condition
-/// row; the resource orb bottom right under the Taint bar; the 8-slot ability bar and XP bar between them; the zone
-/// name top left; the target frame (with the target's conditions) top centre. Everything it draws is registered as
-/// a hover region, and hovering one shows its tooltip: every number is one hover away.
+/// row; the resource orb bottom right under the Taint bar; the 8-slot ability bar and XP bar between them, the belt
+/// (bombs and elixirs, keys 7 to 0) above the bar's right end; the zone name top left; the target frame (with the
+/// target's conditions and affixes) top centre. Everything it draws is registered as a hover region, and hovering one
+/// shows its tooltip: every number is one hover away. <paramref name="drawItem"/> draws an item's icon (the belt's).
 /// </summary>
-internal sealed class Hud(IconStore icons)
+internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefinition, SKRect>? drawItem = null)
 {
     /// <summary>The "Level up!" prompt's rect (empty when no level is waiting); clicking it opens the level-up screen.</summary>
     public SKRect LevelUpBadge { get; private set; }
@@ -158,6 +159,7 @@ internal sealed class Hud(IconStore icons)
         ], new SKColor(140, 200, 70));
 
         DrawAbilityBar(canvas, size, world, tiny);
+        DrawBelt(canvas, size, world, tiny);
 
         // XP bar and the level line.
         var barLeft = hp.X + orbRadius + 110;
@@ -287,6 +289,27 @@ internal sealed class Hud(IconStore icons)
                 new("Recovering", Good, $"+{c.MaxHitPoints * GameWorld.RegenShare:0.#} HP/s", true),
                 new($"Out of combat for {GameWorld.RegenDelaySeconds:0} s, you get back {GameWorld.RegenShare:0%} of your max HP a second.", Dim),
             ], Good));
+        if (hero.Ward is { } ward)
+        {
+            var wardLeft = ward.EndsAt - world.Time;
+            var blockIn = world.ShieldBlockReadyIn;
+            items.Add((ward.Ability.Id, Good, $"+{ward.AcBonus}", $"{wardLeft:0.0}s", () =>
+            [
+                new(ward.Ability.NeedsShield ? "Shield raised" : "Shield", Good, $"{wardLeft:0.0}s", true),
+                new($"+{ward.AcBonus} circumstance bonus to AC.", Dim),
+                new(blockIn > 0 ? $"Shield Block recovers in {blockIn:0.0} s." : $"Shield Block ready: the next blow loses {ward.Hardness}.", blockIn > 0 ? Dim : Good),
+                .. (ward.Ability.BlockLockout > 0 ? [new TipLine($"Once it blocks, the ward breaks for {ward.Ability.BlockLockout:0} s.", Dim)] : Array.Empty<TipLine>()),
+            ], Good));
+        }
+        if (hero.AntidoteUntil > world.Time)
+        {
+            var left = hero.AntidoteUntil - world.Time;
+            items.Add(("antidote", Good, null, $"{left:0}s", () =>
+            [
+                new("Antidote", Good, $"{left:0} s", true),
+                new("+2 to saves against poison: the bog, the rot.", Dim),
+            ], Good));
+        }
         if (c.Taint.Value >= TaintMeter.PenaltyThreshold)
             items.Add(("tainted", new SKColor(180, 230, 80), null, null, () => [new("Tainted", new SKColor(180, 230, 80), null, true), new("−1 status penalty to all saves until cleansed at a shrine.", Dim)], new SKColor(140, 200, 70)));
         // A Flourish ability with no cooldown of its own (Power Attack) shows exactly the lockout time left.
@@ -380,6 +403,40 @@ internal sealed class Hud(IconStore icons)
         face.Shader = null;
     }
 
+    /// <summary>The belt: four small slots above the bar's right end, each an item's icon with how many are left.</summary>
+    private void DrawBelt(SKCanvas canvas, SKSize size, GameWorld world, SKFont small)
+    {
+        const float slot = 38, gap = 4, barWidth = 8 * 54 + 7 * 6;
+        var left = size.Width / 2 + barWidth / 2 - (GameWorld.BeltSize * slot + (GameWorld.BeltSize - 1) * gap);
+        var top = size.Height - 98 - slot - 4;
+        using var frame = new SKPaint { IsAntialias = true, Color = Palette.Frame, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+        using var back = new SKPaint { Color = new SKColor(16, 13, 12, 220) };
+        using var shade = new SKPaint { Color = new SKColor(0, 0, 0, 150) };
+        using var key = new SKPaint { IsAntialias = true, Color = new SKColor(200, 180, 130) };
+        using var ink = new SKPaint { IsAntialias = true, Color = Ink };
+        using var stroke = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3, Color = SKColors.Black };
+        for (var i = 0; i < GameWorld.BeltSize; i++)
+        {
+            var rect = SKRect.Create(left + i * (slot + gap), top, slot, slot);
+            canvas.DrawRect(rect, back);
+            if (world.Belt[i] is { } item && world.BeltAbility(i) is { } ability)
+            {
+                drawItem?.Invoke(canvas, item, SKRect.Inflate(rect, -3, -3));
+                var count = world.BeltCount(i);
+                if (world.CooldownRemaining(ability) > 0 || count == 0)
+                    canvas.DrawRect(rect, shade);
+                canvas.DrawText(count.ToString(), rect.Right - 3, rect.Bottom - 3, SKTextAlign.Right, small, stroke);
+                canvas.DrawText(count.ToString(), rect.Right - 3, rect.Bottom - 3, SKTextAlign.Right, small, ink);
+                var (index, ab, label) = (i, ability, GameWorld.BeltKeys[i]);
+                Region(rect, () => [.. AbilityTip(world, ab, label).Take(1), new($"{world.BeltCount(index)} in your bag", Dim),
+                    .. AbilityTip(world, ab, label).Skip(1)], Gold);
+            }
+            canvas.DrawRect(rect, frame);
+            canvas.DrawText(GameWorld.BeltKeys[i], rect.Left + 3, rect.Top + 11, SKTextAlign.Left, small, stroke);
+            canvas.DrawText(GameWorld.BeltKeys[i], rect.Left + 3, rect.Top + 11, SKTextAlign.Left, small, key);
+        }
+    }
+
     private static IReadOnlyList<TipLine> AbilityTip(GameWorld world, AbilityDefinition a, string key)
     {
         var c = world.Hero.Character;
@@ -395,6 +452,19 @@ internal sealed class Hud(IconStore icons)
         lines.AddRange(Wrap(a.Description, Dim));
         switch (a.Kind)
         {
+            case AbilityKind.Ward when a.NeedsShield:
+                lines.Add(world.Hero.Equipment.In(Core.Items.EquipSlot.OffHand) is { Definition.IsShield: true } shield
+                    ? new($"Now: {shield.Definition.Name}, +{shield.Definition.AcBonus} AC, hardness {shield.Definition.Hardness}", Good)
+                    : new("You have no shield in your off hand.", Bad));
+                break;
+            case AbilityKind.Ward:
+                lines.Add(new($"Now (rank {rank}): +{a.WardAc} AC, hardness {a.HardnessAt(rank)}", Good));
+                break;
+            case AbilityKind.Bomb:
+                lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, splash {a.Splash * rank}, attack {c.ThrowAttack().Total:+0}", Good));
+                break;
+            case AbilityKind.Elixir:
+                break;
             case AbilityKind.SpellBolt:
                 lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, spell attack {c.SpellAttack().Total:+0}", Good));
                 break;
@@ -403,8 +473,11 @@ internal sealed class Hud(IconStore icons)
                 break;
             default:
                 var w = c.Weapon;
-                var dice = w.DiceCount + a.ExtraDiceAt(c.Level);
+                var spent = a.SpendAll ? a.DiceForSpent(world.Hero.Resource.Current) : 0;
+                var dice = w.DiceCount + a.ExtraDiceAt(c.Level) + spent;
                 lines.Add(new($"Now: {w.Definition.Name} {dice}d{w.Definition.DamageDie}{c.DamageBonus().Total:+0;-0;+0}, attack {c.AttackModifier().Total:+0}", Good));
+                if (a.SpendAll)
+                    lines.Add(new($"Your {world.Hero.Resource.Current:0} {world.Hero.Resource.Name} buys {spent} extra {(spent == 1 ? "die" : "dice")}.", Dim));
                 break;
         }
         return lines;
@@ -477,7 +550,9 @@ internal sealed class Hud(IconStore icons)
         canvas.DrawRect(SKRect.Inflate(frame, 2, 2), back);
         canvas.DrawRect(SKRect.Create(frame.Left, frame.Top, frame.Width * t.Creature.HitPoints / t.Creature.Stats.HitPoints, frame.Height), red);
         canvas.DrawText($"{t.Name}  ·  AC {t.Creature.ArmorClass().Total}", frame.MidX, frame.Top + 14, SKTextAlign.Center, small, ink);
-        canvas.DrawText($"{t.Creature.Stats.Rank}, level {t.Creature.Stats.EffectiveLevel}", frame.MidX, frame.Bottom + 16, SKTextAlign.Center, small, dim);
+        var affixes = t.Affixes.Count > 0 ? "  ·  " + string.Join(", ", t.Affixes) : "";
+        var warded = t.Ward > 0 ? $"  ·  ward {t.Ward}" : "";
+        canvas.DrawText($"{t.Creature.Stats.Rank}, level {t.Creature.Stats.EffectiveLevel}{affixes}{warded}", frame.MidX, frame.Bottom + 16, SKTextAlign.Center, small, dim);
         Region(SKRect.Inflate(frame, 2, 18), () => TargetTip(t), new SKColor(200, 60, 50));
 
         // The target's conditions and persistent damage, in a row under the frame.
@@ -514,8 +589,20 @@ internal sealed class Hud(IconStore icons)
             lines.Add(new("Resists: " + string.Join(", ", cr.Defenses.Resistances.Select(r => $"{r.Key.ToString().ToLowerInvariant()} {r.Value}")), Bad));
         if (cr.Defenses.Immunities.Count > 0)
             lines.Add(new("Immune: " + string.Join(", ", cr.Defenses.Immunities.Select(i => i.ToString().ToLowerInvariant())), Dim));
+        foreach (var affix in t.Affixes)
+            lines.AddRange(Wrap($"{affix}: {AffixText[affix]}", Gold));
+        if (t.Ward > 0)
+            lines.Add(new($"Warded: the next {t.Ward} damage is soaked.", Bad));
         return lines;
     }
+
+    private static readonly Dictionary<MonsterAffix, string> AffixText = new()
+    {
+        [MonsterAffix.Vengeful] = "each ally that falls near it makes it stronger and faster, up to three times.",
+        [MonsterAffix.Hasted] = "a quarter more blows a second and 15% faster on its feet.",
+        [MonsterAffix.Shielded] = "every 10 s it wards itself and its pack, each ward soaking damage for 8 s.",
+        [MonsterAffix.Tainted] = "it dies in a pool of Taint; stay out of it.",
+    };
 
     // ----- Helpers -------------------------------------------------------------------------------
 

@@ -34,7 +34,7 @@ public sealed class WorldView : Control
     private readonly CharacterSheet _sheet = new();
     private Hud? _hud;
 
-    private Hud HudLayer => _hud ??= new Hud(_icons);
+    private Hud HudLayer => _hud ??= new Hud(_icons, DrawItemIcon);
 
     /// <summary>The character sheet (C).</summary>
     public bool CharacterSheetOpen { get; set; }
@@ -114,9 +114,15 @@ public sealed class WorldView : Control
 
     private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawItemIcon);
 
+    /// <summary>Where bag cell <paramref name="index"/> is on screen while the inventory is open (tests click it).</summary>
+    public Point BagCell(int index) => Inventory.BagCellCentre(index) is var c ? new Point(c.X, c.Y) : default;
+
     private readonly RiftPanel _rift = new();
     private VendorPanel? _vendorPanel;
     private VendorPanel Trade => _vendorPanel ??= new VendorPanel(DrawItemIcon);
+
+    /// <summary>Where a trader's supply <paramref name="index"/> is on screen while the table is open (tests click it).</summary>
+    public Point SupplyCell(int index) => Trade.SupplyCentre(index) is var c ? new Point(c.X, c.Y) : default;
 
     /// <summary>The trader whose table was open last frame: opening one opens the bag, leaving closes it again.</summary>
     private Vendor? _trading;
@@ -383,6 +389,15 @@ public sealed class WorldView : Control
         var point = at ?? _pointer;
         var target = point is { } p ? MonsterUnder(p) ?? NearestTo(p) : null;
         world.UseSlot(slot, target);
+    }
+
+    /// <summary>Throws or drinks belt slot <paramref name="slot"/> (keys 7 to 0), a bomb at the monster under the pointer.</summary>
+    public void UseBelt(int slot)
+    {
+        if (World is not { } world)
+            return;
+        var target = _pointer is { } p ? MonsterUnder(p) ?? NearestTo(p) : null;
+        world.UseBelt(slot, target);
     }
 
     /// <summary>Forgiving targeting for keys: the closest living monster within 2 tiles of the pointer.</summary>
@@ -689,10 +704,35 @@ public sealed class WorldView : Control
         return lines;
     }
 
+    /// <summary>Shakes the world view for <paramref name="seconds"/> by up to <paramref name="pixels"/> (a critical hit).</summary>
+    public void Shake(double seconds, float pixels)
+    {
+        _shakeUntil = _shakeClock.Elapsed.TotalSeconds + seconds;
+        _shakeSeconds = seconds;
+        _shakePixels = pixels;
+    }
+
+    private readonly System.Diagnostics.Stopwatch _shakeClock = System.Diagnostics.Stopwatch.StartNew();
+    private double _shakeUntil, _shakeSeconds;
+    private float _shakePixels;
+
+    /// <summary>This frame's shake offset: a quick wobble that dies away (none in tests, which fix the time).</summary>
+    private SKPoint ShakeOffset()
+    {
+        var now = _shakeClock.Elapsed.TotalSeconds;
+        if (FixedTime is not null || now >= _shakeUntil || _shakeSeconds <= 0)
+            return SKPoint.Empty;
+        var left = (float)((_shakeUntil - now) / _shakeSeconds);
+        return new SKPoint(_shakePixels * left * MathF.Sin((float)now * 90), _shakePixels * left * 0.6f * MathF.Cos((float)now * 70));
+    }
+
     private void DrawWorld(SKCanvas canvas, SKSize size, GameWorld world)
     {
         var time = FixedTime ?? world.Time;
         _viewport = SKRect.Create(size);
+        var shake = ShakeOffset();
+        var shaken = canvas.Save();
+        canvas.Translate(shake.X, shake.Y);
         // Frames are cached at the target's pixel density so drawing them is a straight copy.
         _deviceScale = Math.Max(0.25f, canvas.TotalMatrix.ScaleX);
         // The act's colour grade is baked into every cached sprite (SpriteCache), so no full-screen filter pass.
@@ -704,6 +744,7 @@ public sealed class WorldView : Control
         DrawLootBeams(canvas, world);
         Stats.Mark("objects+actors");
         DrawDarkness(canvas, size, world, time);
+        canvas.RestoreToCount(shaken);
         Stats.Mark("darkness");
         DrawAsh(canvas, size, time);
         Stats.Mark("ash");
@@ -804,13 +845,15 @@ public sealed class WorldView : Control
             var rx = (float)h.Radius * HalfTileWidth * z * 1.414f;
             var ry = (float)h.Radius * HalfTileHeight * z * 1.414f;
             var oval = new SKRect(at.X - rx, at.Y - ry, at.X + rx, at.Y + ry);
+            // Rot is a sickly green; a Tainted monster's corruption a bruised purple.
+            var taint = h.Type == AshenReliquary.Core.Combat.DamageType.Taint;
             if (!h.IsActive(world.Time))
             {
                 var pulse = (float)(0.5 + 0.5 * Math.Sin(world.Time * 14));
                 using var ring = new SKPaint
                 {
                     IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = (2 + 2 * pulse) * z * 2,
-                    Color = new SKColor(170, 230, 90, (byte)(120 + 100 * pulse)),
+                    Color = (taint ? new SKColor(190, 110, 230) : new SKColor(170, 230, 90)).WithAlpha((byte)(120 + 100 * pulse)),
                 };
                 canvas.DrawOval(oval, ring);
                 continue;
@@ -819,8 +862,9 @@ public sealed class WorldView : Control
             using var pool = new SKPaint
             {
                 IsAntialias = true,
-                Shader = SKShader.CreateRadialGradient(at, rx,
-                    [new SKColor(120, 170, 40, (byte)(170 * fade)), new SKColor(70, 110, 20, (byte)(150 * fade)), new SKColor(40, 60, 10, 0)],
+                Shader = SKShader.CreateRadialGradient(at, rx, taint
+                    ? [new SKColor(130, 60, 170, (byte)(170 * fade)), new SKColor(70, 25, 100, (byte)(160 * fade)), new SKColor(30, 10, 40, 0)]
+                    : [new SKColor(120, 170, 40, (byte)(170 * fade)), new SKColor(70, 110, 20, (byte)(150 * fade)), new SKColor(40, 60, 10, 0)],
                     [0f, 0.7f, 1f], SKShaderTileMode.Clamp),
             };
             canvas.Save();
@@ -976,6 +1020,16 @@ public sealed class WorldView : Control
             var red = SKColorFilter.CreateLighting(SKColors.White, new SKColor(glow, 0, 0));
             filter = filter is null ? red : SKColorFilter.CreateCompose(red, filter);
         }
+        // Affixes show in the body: Hasted a hot pale shimmer, Tainted a bruised purple; a warded monster glows blue.
+        if (!m.IsDead && (m.Has(MonsterAffix.Hasted) || m.Has(MonsterAffix.Tainted) || m.Ward > 0))
+        {
+            var beat = 0.75 + 0.25 * Math.Sin(world.Time * 7);
+            var add = m.Ward > 0 ? new SKColor(0, (byte)(25 * beat), (byte)(70 * beat))
+                : m.Has(MonsterAffix.Tainted) ? new SKColor((byte)(45 * beat), 0, (byte)(55 * beat))
+                : new SKColor((byte)(55 * beat), (byte)(45 * beat), 0);
+            var mark = SKColorFilter.CreateLighting(SKColors.White, add);
+            filter = filter is null ? mark : SKColorFilter.CreateCompose(mark, filter);
+        }
         // A creature's own tint (the plague crawler's bog brown) goes on first.
         if (m.Definition.Tint is { } tint && SKColor.TryParse(tint, out var colour))
         {
@@ -1012,6 +1066,15 @@ public sealed class WorldView : Control
     {
         var hero = world.Hero;
         var foot = ToScreen(hero.X, hero.Y);
+        if (hero.Ward is { } ward)
+        {
+            // A ward is a ring at the hero's feet: shield gold, or the Shield cantrip's force blue; it fades as it ends.
+            var z = (float)Zoom;
+            var fade = (float)Math.Clamp((ward.EndsAt - world.Time) / 1.0, 0.25, 1);
+            var colour = ward.Ability.NeedsShield ? new SKColor(235, 200, 120) : new SKColor(150, 170, 255);
+            using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3 * z, Color = colour.WithAlpha((byte)(170 * fade)) };
+            canvas.DrawOval(SKRect.Create(foot.X - 46 * z, foot.Y - 20 * z, 92 * z, 40 * z), ring);
+        }
         var layers = Session!.AppearanceLayers;
         var animation = hero.Animation;
         foreach (var slot in _assets.LayerOrder(hero.Direction))
@@ -1226,6 +1289,10 @@ public sealed class WorldView : Control
         AshenReliquary.Core.Combat.DamageType.Fire => new SKColor(255, 140, 40),
         AshenReliquary.Core.Combat.DamageType.Force => new SKColor(170, 120, 255),
         AshenReliquary.Core.Combat.DamageType.Void => new SKColor(120, 220, 110),
+        AshenReliquary.Core.Combat.DamageType.Cold => new SKColor(140, 200, 255),
+        AshenReliquary.Core.Combat.DamageType.Electricity => new SKColor(200, 215, 255),
+        AshenReliquary.Core.Combat.DamageType.Acid => new SKColor(160, 235, 70),
+        AshenReliquary.Core.Combat.DamageType.Taint => new SKColor(170, 80, 210),
         _ => new SKColor(255, 230, 160),
     };
 

@@ -143,7 +143,7 @@
   "immunities": [
    "Poison"
   ],
-  "voice": "zombie",
+  "voice": "crawler",
   "damage": "1d4"
  },
  {
@@ -169,7 +169,7 @@
   "resistances": {
    "Poison": 3
   },
-  "voice": "zombie"
+  "voice": "cultist"
  },
  {
   "id": "cult_chanter",
@@ -195,7 +195,34 @@
   "resistances": {
    "Poison": 3
   },
-  "voice": "zombie"
+  "voice": "cultist"
+ },
+ {
+  "id": "drowned_prior",
+  "name": "Prior Aldous Venn",
+  "sprite": "skeleton",
+  "damageType": "Slashing",
+  "attacksPerSecond": 0.9,
+  "moveSpeed": 2.2,
+  "aggroRadius": 9,
+  "attackRange": 1.4,
+  "scale": 1.15,
+  "tint": "#a9cfc4",
+  "weaknesses": {
+   "Vitality": 3,
+   "Bludgeoning": 2
+  },
+  "resistances": {
+   "Piercing": 3,
+   "Poison": 3
+  },
+  "immunities": [
+   "Poison"
+  ],
+  "voice": "skeleton",
+  "named": true,
+  "rareDrop": true,
+  "hitPointsScale": 0.7
  },
  {
   "id": "mother_sallow",
@@ -230,7 +257,7 @@
    "feet": "mage_boots",
    "main": "staff"
   },
-  "voice": "zombie",
+  "voice": "crone",
   "boss": {
    "arenaRadius": 10,
    "deathFlag": "act1.sallow",

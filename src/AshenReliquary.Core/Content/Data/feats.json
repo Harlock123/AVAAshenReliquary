@@ -391,7 +391,7 @@
   "name": "Swipe",
   "type": "Class",
   "level": 4,
-  "description": "A new ability: one swing that strikes the target and one more enemy within reach. 15 Fury.",
+  "description": "A new ability: one whirling swing at every enemy within reach, all around you. 25 Fury.",
   "effects": [
    {
     "ability": "swipe"

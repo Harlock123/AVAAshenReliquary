@@ -17,6 +17,9 @@ public sealed record StrikeResult(
 {
     public DegreeOfSuccess Degree => LostToImpairedVision ? DegreeOfSuccess.Failure : Check.Degree;
 
+    /// <summary>A failure that still dealt half damage.</summary>
+    public bool Grazed => Degree == DegreeOfSuccess.Failure && Graze == GrazeEffect.Half && !LostToImpairedVision && Damage > 0;
+
     /// <summary>The floating-text word the HUD shows: CRIT, hit, GRAZE (a failure that still deals half) or MISS.</summary>
     public string Label => Degree switch
     {
@@ -33,6 +36,19 @@ public sealed record StrikeResult(
 /// </summary>
 public static class Strike
 {
+    /// <summary>
+    /// A weapon Strike that fails by this much or less still grazes for half damage (spec, section 10: GRAZE, a failure
+    /// with a partial effect). Real time made a run of plain misses feel limp; about one d20 roll in seven grazes.
+    /// </summary>
+    public const int NearMissMargin = 3;
+
+    /// <summary>The graze a check comes to: <see cref="GrazeEffect.Near"/> becomes Half on a near miss, else None.</summary>
+    public static GrazeEffect Effective(GrazeEffect graze, CheckResult check) => graze switch
+    {
+        GrazeEffect.Near => check.Degree == DegreeOfSuccess.Failure && check.Total >= check.Dc - NearMissMargin ? GrazeEffect.Half : GrazeEffect.None,
+        _ => graze,
+    };
+
     /// <param name="extraDice">Extra weapon damage dice (Power Attack adds 1, 2 at level 10, 3 at 18).</param>
     /// <param name="cadenceAttacks">How many attacks this counts as for the cadence penalty (Power Attack: 2).</param>
     public static StrikeResult Resolve(Character attacker, IDefender target, AttackCadence cadence, double now,
@@ -50,6 +66,7 @@ public static class Strike
             return new StrikeResult(default, penalty, 0, weapon.Definition.DamageType, false, true);
 
         var check = Check.Roll(random, attacker.AttackModifier().Total + penalty, target.ArmorClass().Total);
+        graze = Effective(graze, check);
         var damage = 0;
         if (DamageCalculator.DegreeMultiplier(check.Degree, graze) > 0)
         {

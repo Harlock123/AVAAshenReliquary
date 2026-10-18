@@ -8,7 +8,8 @@ namespace AshenReliquary.App.Rendering;
 
 /// <summary>
 /// A trader's table, on the left while the inventory is open on the right. Wares with their prices, a potion
-/// charge, and what you sold this visit (buy it back for what you were paid). Left-click buys; right-click a bag
+/// charge, the trader's supplies (belt items, never sold out), and what you sold this visit (buy it back for what you
+/// were paid). Left-click buys; right-click a bag
 /// item (in the inventory) sells it. Tooltips show the price and what wearing the item would change.
 /// A smith (<see cref="VendorDefinition.Runework"/>) adds a Runework tab: a bench with the item to work on and one to
 /// take runes from (right-click gear in the inventory to put it there), and a button for each rune he can etch or move.
@@ -24,7 +25,7 @@ internal sealed class VendorPanel
     public VendorPanel(Action<SKCanvas, Core.Items.ItemDefinition, SKRect> drawIcon) => _drawIcon = drawIcon;
 
     public SKRect Bounds { get; private set; }
-    private float _waresTop, _potionTop, _buybackTop;
+    private float _waresTop, _potionTop, _suppliesTop, _buybackTop;
     private int _rows;
 
     /// <summary>The Runework tab is showing (a smith only).</summary>
@@ -66,6 +67,10 @@ internal sealed class VendorPanel
 
     private SKRect WareRect(int index) => CellRect(_waresTop, index);
     private SKRect BuybackRect(int index) => CellRect(_buybackTop, index);
+    private SKRect SupplyRect(int index) => CellRect(_suppliesTop, index);
+
+    /// <summary>The centre of supply <paramref name="index"/> as last laid out (for tests that click it).</summary>
+    public SKPoint SupplyCentre(int index) => new(SupplyRect(index).MidX, SupplyRect(index).MidY);
 
     private SKRect CellRect(float top, int index) =>
         SKRect.Create(Bounds.Left + Pad + index % Columns * Step, top + index / Columns * Step, Cell, Cell);
@@ -77,25 +82,31 @@ internal sealed class VendorPanel
         _rows = Math.Max(1, (vendor.Definition.StockSize + Columns - 1) / Columns);
         _waresTop = Bounds.Top + (vendor.Definition.Runework ? 112 : 92);
         _potionTop = _waresTop + _rows * Step + 8;
-        _buybackTop = _potionTop + 34 + 40;
+        _suppliesTop = _potionTop + 34 + 40;
+        _buybackTop = (vendor.Definition.Supplies is { Count: > 0 } ? _suppliesTop + Step + 30 : _potionTop + 34) + 40;
     }
 
-    /// <summary>What is under a point: a ware, the potion button, a buyback slot, or nothing.</summary>
-    public (int? Ware, bool Potion, int? Buyback) HitTest(SKPoint p, Vendor vendor)
+    /// <summary>What is under a point: a ware, the potion button, a supply, a buyback slot, or nothing.</summary>
+    public (int? Ware, bool Potion, int? Buyback, int? Supply) HitTest(SKPoint p, Vendor vendor)
     {
         for (var i = 0; i < vendor.Stock.Count; i++)
         {
             if (WareRect(i).Contains(p))
-                return (i, false, null);
+                return (i, false, null, null);
         }
         if (PotionButton.Contains(p))
-            return (null, true, null);
+            return (null, true, null, null);
+        for (var i = 0; i < (vendor.Definition.Supplies?.Count ?? 0); i++)
+        {
+            if (SupplyRect(i).Contains(p))
+                return (null, false, null, i);
+        }
         for (var i = 0; i < vendor.Buyback.Count; i++)
         {
             if (BuybackRect(i).Contains(p))
-                return (null, false, i);
+                return (null, false, i, null);
         }
-        return (null, false, null);
+        return (null, false, null, null);
     }
 
     /// <summary>Handles a click inside the panel; true when it was inside.</summary>
@@ -117,11 +128,13 @@ internal sealed class VendorPanel
                 act();
             return true;
         }
-        var (ware, potion, buyback) = HitTest(p, vendor);
+        var (ware, potion, buyback, supply) = HitTest(p, vendor);
         if (ware is { } w)
             world.Buy(w);
         else if (potion)
             world.BuyPotion();
+        else if (supply is { } s && s < world.Supplies.Count)
+            world.BuySupply(world.Supplies[s]);
         else if (buyback is { } b)
             world.BuyBack(b);
         return true;
@@ -152,7 +165,7 @@ internal sealed class VendorPanel
         using var font = new SKFont(WorldOverlay.Serif, 13);
         using var small = new SKFont(WorldOverlay.Serif, 11);
 
-        var (hoverWare, hoverPotion, hoverBuyback) = pointer is { } pt && Bounds.Contains(pt) ? HitTest(pt, vendor) : (null, false, null);
+        var (hoverWare, hoverPotion, hoverBuyback, hoverSupply) = pointer is { } pt && Bounds.Contains(pt) ? HitTest(pt, vendor) : (null, false, null, null);
 
         canvas.DrawRect(Bounds, back);
         canvas.DrawRect(Bounds, frame);
@@ -202,6 +215,28 @@ internal sealed class VendorPanel
         canvas.DrawText($"Healing potion charge  ({c.Potion.Charges} / {HealingPotion.MaxCharges})", button.Left + 12, button.MidY + 5, SKTextAlign.Left, font, full ? dim : ink);
         canvas.DrawText(full ? "full" : $"{price} gold", button.Right - 12, button.MidY + 5, SKTextAlign.Right, font, full ? dim : gear.Gold >= price ? gold : poor);
 
+        // Supplies: belt items, never sold out, priced by the hero's level.
+        var supplies = world.Supplies;
+        if (supplies.Count > 0)
+        {
+            canvas.DrawText("Supplies", Bounds.Left + Pad, _suppliesTop - 10, SKTextAlign.Left, font, ink);
+            canvas.DrawText("for the belt: keys 7 to 0", Bounds.Left + Pad + 64, _suppliesTop - 10, SKTextAlign.Left, small, dim);
+            for (var i = 0; i < supplies.Count; i++)
+            {
+                var rect = SupplyRect(i);
+                canvas.DrawRect(rect, cellBack);
+                _drawIcon(canvas, supplies[i], SKRect.Inflate(rect, -4, -4));
+                canvas.DrawRect(rect, faint);
+                var cost = Pricing.SupplyPrice(supplies[i], c);
+                canvas.DrawText($"{cost}", rect.MidX, rect.Bottom + 13, SKTextAlign.Center, small, gear.Gold >= cost ? gold : poor);
+                var held = gear.CountOf(supplies[i]);
+                if (held > 0)
+                    InventoryPanel.StackCount(canvas, rect, held, small);
+                if (i == hoverSupply)
+                    Outline(canvas, rect);
+            }
+        }
+
         canvas.DrawText("Sold this visit", Bounds.Left + Pad, _buybackTop - 10, SKTextAlign.Left, font, ink);
         canvas.DrawText("buy back for what you were paid", Bounds.Left + Pad + 104, _buybackTop - 10, SKTextAlign.Left, small, dim);
         for (var i = 0; i < Vendor.BuybackSize; i++)
@@ -231,6 +266,8 @@ internal sealed class VendorPanel
                 (hovered, where) = (vendor.Stock[w], $"Costs {Pricing.BuyPrice(vendor.Stock[w], c)} gold");
             else if (hoverBuyback is { } b && b < vendor.Buyback.Count)
                 (hovered, where) = (vendor.Buyback[b], $"Buy back for {Pricing.SellPrice(vendor.Buyback[b])} gold");
+            else if (hoverSupply is { } s && s < supplies.Count)
+                (hovered, where) = (new Item(supplies[s], Rarity.Common, c.Level), $"Costs {Pricing.SupplyPrice(supplies[s], c)} gold · you have {gear.CountOf(supplies[s])}");
             if (hovered is not null)
             {
                 var worn = gear.SlotFor(hovered) is { } slot ? gear.In(slot) : null;

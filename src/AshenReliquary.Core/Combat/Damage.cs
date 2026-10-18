@@ -24,11 +24,15 @@ public enum DamageType
     Taint,
 }
 
-/// <summary>How an ability treats a failed attack: a plain miss, or a graze for half damage.</summary>
+/// <summary>
+/// How an ability treats a failed attack: a plain miss, a graze for half damage, or (<see cref="Near"/>, the hero's
+/// weapon Strikes) a graze only when the attack missed by <see cref="Strike.NearMissMargin"/> or less.
+/// </summary>
 public enum GrazeEffect
 {
     None,
     Half,
+    Near,
 }
 
 /// <summary>Immunities, resistances and weaknesses by damage type ("resistance 5 fire", "weakness 5 vitality").</summary>

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rebuilds src/AshenReliquary.App/Assets/Audio from the original sound and music packs, with ffmpeg.
 
-Usage: tools/build_audio.py <packs dir>
+Usage: tools/build_audio.py <packs dir> [group ...]
   <packs dir>/kenney/OGG/...                         Kenney, 50 RPG sound effects (CC0)
   <packs dir>/lrsf/Fantasy Sound Library/Wav/...     Little Robot Sound Factory, Fantasy Sound Effects Library (CC-BY 3.0)
   <packs dir>/rpgpack/RPG Sound Pack/...             artisticdude, RPG Sound Pack (CC0)
@@ -9,6 +9,9 @@ Usage: tools/build_audio.py <packs dir>
   <packs dir>/music/Ossuary *.mp3                    Kevin MacLeod, incompetech.com (CC BY 4.0)
   <packs dir>/zhelanov/Battle Theme *.mp3            Alexandr Zhelanov, Battle themes (CC-BY 4.0)
   <packs dir>/ambience/dungeon_ambient_1_0.ogg       JaggedStone, Loopable Dungeon Ambience (CC0)
+  <packs dir>/flare/...                              Flare's soundfx (mods/fantasycore/soundfx, CC-BY-SA 3.0)
+
+Naming groups converts only those, merged into the existing audio.json (handy when only one pack is on disk).
 
 Effects become mono 44.1 kHz Ogg Vorbis (mono so OpenAL can place them left or right); music becomes stereo
 Ogg Vorbis at about 112 kbps. Each game sound id may have several variants (one is picked at random).
@@ -16,7 +19,7 @@ Writes audio.json: id -> files, plus every file's source, author and licence.
 """
 import json, os, subprocess, sys
 
-K, L, R, S = "kenney/OGG", "lrsf/Fantasy Sound Library/Wav", "rpgpack/RPG Sound Pack", "swords"
+K, L, R, S, F = "kenney/OGG", "lrsf/Fantasy Sound Library/Wav", "rpgpack/RPG Sound Pack", "swords", "flare"
 SOURCES = {
     "kenney": ("Kenney, 50 RPG sound effects", "https://opengameart.org/content/50-rpg-sound-effects", "CC0"),
     "lrsf": ("Little Robot Sound Factory, Fantasy Sound Effects Library", "https://opengameart.org/content/fantasy-sound-effects-library", "CC-BY 3.0"),
@@ -25,6 +28,7 @@ SOURCES = {
     "music": ("Kevin MacLeod, incompetech.com", "https://incompetech.com/music/royalty-free/music.html", "CC BY 4.0"),
     "zhelanov": ("Alexandr Zhelanov, Battle themes", "https://opengameart.org/node/76534", "CC-BY 4.0"),
     "ambience": ("JaggedStone, Loopable Dungeon Ambience", "https://opengameart.org/content/loopable-dungeon-ambience", "CC0"),
+    "flare": ("Flare: Empyrean Campaign, soundfx", "https://github.com/flareteam/flare-game", "CC-BY-SA 3.0"),
 }
 
 def r(pattern, numbers): return [pattern.format(n) for n in numbers]
@@ -57,12 +61,28 @@ EFFECTS = {
     "footstep": r(L + "/Footsteps/Footstep_Dirt_0{}.wav", [0, 1, 2, 3, 4, 5]),
     "inventory": [f"{L}/Inventory_Open_00.wav", f"{L}/Inventory_Open_01.wav"],
     "click": [f"{R}/interface/interface1.wav", f"{R}/interface/interface2.wav"],
+    # Flare's own sounds: chests, shields, bombs and the voices of crawlers, cultists and Mother Sallow.
+    "chest": [f"{F}/wood_open.ogg"],
+    "ward-shield": [f"{F}/inventory/inventory_heavy.ogg"],
+    "ward-spell": [f"{F}/powers/shield.ogg"],
+    "block": [f"{F}/powers/block.ogg"],
+    "bomb-fire": [f"{F}/powers/fireball.ogg"],
+    "bomb-cold": [f"{F}/powers/freeze.ogg"],
+    "bomb-electricity": [f"{F}/powers/shock.ogg"],
+    "bomb-acid": [f"{F}/powers/burn.ogg"],
+    "crawler": [f"{F}/enemies/antlion_ment.ogg", f"{F}/enemies/antlion_phys.ogg"],
+    "crawler-death": [f"{F}/enemies/antlion_die.ogg", f"{F}/enemies/antlion_critdie.ogg"],
+    "cultist": [f"{F}/male_hit.ogg"],
+    "cultist-death": [f"{F}/male_die.ogg"],
+    "crone": [f"{F}/female_hit.ogg"],
+    "crone-death": [f"{F}/female_die.ogg"],
 }
 
 MUSIC = {
     "title": ["music/Ossuary 1 - A Beginning.mp3"],
     "explore": ["music/Ossuary 5 - Rest.mp3", "music/Ossuary 6 - Air.mp3"],
     "combat": ["zhelanov/Battle Theme 1.mp3", "zhelanov/Battle Theme 2.mp3"],
+    "boss": ["zhelanov/Battle Theme 2.mp3"],
 }
 
 AMBIENCE = {"road": ["ambience/dungeon_ambient_1_0.ogg"]}
@@ -70,15 +90,19 @@ AMBIENCE = {"road": ["ambience/dungeon_ambient_1_0.ogg"]}
 def slug(path): return os.path.splitext(os.path.basename(path))[0].lower().replace(" ", "-").replace(".", "-")
 
 def main():
-    packs = sys.argv[1]
+    packs, only = sys.argv[1], set(sys.argv[2:])
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out = os.path.join(root, "src/AshenReliquary.App/Assets/Audio")
     listing = {"effects": {}, "music": {}, "ambience": {}, "files": []}
+    if only:
+        with open(os.path.join(out, "audio.json")) as f:
+            listing = json.load(f)
     def convert(kind, group, items, args):
         os.makedirs(os.path.join(out, kind), exist_ok=True)
         files = []
         for source in items:
             name = f"{kind}/{group}-{slug(source)}.ogg"
+            listing["files"] = [entry for entry in listing["files"] if entry["file"] != name]
             target = os.path.join(out, name)
             subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", os.path.join(packs, source), *args, target], check=True)
             files.append(name)
@@ -86,12 +110,16 @@ def main():
             title, url, licence = SOURCES[pack]
             listing["files"].append({"file": name, "source": title, "url": url, "original": os.path.basename(source), "licence": licence})
         return files
+    def wanted(group): return not only or group in only
     for group, items in EFFECTS.items():
-        listing["effects"][group] = convert("sfx", group, items, ["-ac", "1", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "4"])
+        if wanted(group):
+            listing["effects"][group] = convert("sfx", group, items, ["-ac", "1", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "4"])
     for group, items in MUSIC.items():
-        listing["music"][group] = convert("music", group, items, ["-ac", "2", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "3"])
+        if wanted(group):
+            listing["music"][group] = convert("music", group, items, ["-ac", "2", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "3"])
     for group, items in AMBIENCE.items():
-        listing["ambience"][group] = convert("ambience", group, items, ["-ac", "2", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "2"])
+        if wanted(group):
+            listing["ambience"][group] = convert("ambience", group, items, ["-ac", "2", "-ar", "44100", "-c:a", "libvorbis", "-q:a", "2"])
     with open(os.path.join(out, "audio.json"), "w") as f:
         json.dump(listing, f, indent=1)
     print(f"{len(listing['files'])} files: {len(EFFECTS)} effects, {len(MUSIC)} music groups, {len(AMBIENCE)} ambience")

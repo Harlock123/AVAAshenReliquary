@@ -42,7 +42,10 @@ public enum Rarity
 /// <summary>
 /// A base item from items.json. <see cref="Icon"/> indexes Flare's icon sheet, <see cref="Gfx"/> names the paper-doll
 /// layer drawn on the hero, <see cref="Loot"/> the sprite shown on the ground. Only weapons fill the weapon fields and
-/// only body armour (the chest slot) the armour fields; other worn pieces are looks plus affixes.
+/// only body armour (the chest slot) the armour fields; other worn pieces are looks plus affixes. A shield (the
+/// off-hand) gives <see cref="AcBonus"/> only while raised, and blocks <see cref="Hardness"/> of a blow. A consumable
+/// names the <see cref="Ability"/> it is used as, stacks up to <see cref="Stack"/> in one bag cell and is worth
+/// <see cref="Price"/> gold apiece.
 /// </summary>
 public sealed record ItemDefinition(
     string Id,
@@ -72,7 +75,11 @@ public sealed record ItemDefinition(
     double LightRadius = 0,
     string? Glyph = null,
     string? Description = null,
-    bool Unique = false)
+    bool Unique = false,
+    int Hardness = 0,
+    string? Ability = null,
+    int Stack = 1,
+    int Price = 0)
 {
     [JsonIgnore]
     public bool IsWeapon => Category == ItemCategory.Weapon;
@@ -82,6 +89,17 @@ public sealed record ItemDefinition(
 
     [JsonIgnore]
     public bool IsJewelry => Slot is EquipSlot.Amulet or EquipSlot.Ring1 or EquipSlot.Ring2;
+
+    [JsonIgnore]
+    public bool IsShield => Slot == EquipSlot.OffHand;
+
+    /// <summary>A weapon held in both hands (a staff): no shield beside it.</summary>
+    [JsonIgnore]
+    public bool IsTwoHanded => IsWeapon && Traits?.Contains(WeaponTrait.TwoHand) == true;
+
+    /// <summary>Used up from the belt (a bomb, an elixir).</summary>
+    [JsonIgnore]
+    public bool IsBeltItem => Category == ItemCategory.Consumable && Ability is not null;
 
     private WeaponDefinition? _weapon;
     private ArmorDefinition? _armor;

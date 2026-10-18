@@ -43,8 +43,8 @@ public class BalanceReport(ITestOutputHelper output)
     /// <summary>The starting kits as the game hands them out (GameSession.StartingKit), and variants to compare.</summary>
     public static readonly Dictionary<string, string[]> Kits = new()
     {
-        ["fighter"] = ["longsword", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
-        ["fighter in leather"] = ["longsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves"],
+        ["fighter"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
+        ["fighter in leather"] = ["longsword", "wooden_shield", "leather_chest", "leather_pants", "leather_boots", "leather_gloves"],
         ["wizard"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
     };
 
@@ -108,6 +108,7 @@ public class BalanceReport(ITestOutputHelper output)
             {
                 if (hero.HitPoints < hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                     potions++;
+                Tactics.Upkeep(world);
                 var target = world.Monsters
                     .Where(m => !m.IsDead && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                     .MinBy(m => m.DistanceTo(world.Hero));
@@ -188,6 +189,22 @@ public class BalanceReport(ITestOutputHelper output)
         }
     }
 
+    /// <summary>The optional Prior's Ossuary at level 4, lantern in hand (it is under the chapel), down to Prior Aldous and back up.</summary>
+    [Theory]
+    [InlineData("fighter")]
+    [InlineData("wizard")]
+    public void The_Priors_Ossuary_at_level_4(string kit)
+    {
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("prior_ossuary", "chapel", kit, seed, 4, lantern: true)).ToList();
+        output.WriteLine($"{kit}: the Prior's Ossuary, every pack and Prior Aldous, then back up the stair, {runs.Count} runs");
+        foreach (var r in runs)
+            output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "back in the chapel" : "did not finish")}");
+        output.WriteLine($"  average deaths {runs.Average(r => r.Deaths):0.0}, downs {runs.Average(r => r.Deaths + r.HeroPointsSpent):0.0}, minutes {runs.Average(r => r.Minutes):0.0}");
+        foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(8))
+            output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+        Assert.NotEmpty(runs);
+    }
+
     /// <summary>
     /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTo"/> makes them): every pack
     /// in the zone file's order (in the Fens the main route, then the Sunken Road, then back for the Old Dyke), then the
@@ -238,6 +255,7 @@ public class BalanceReport(ITestOutputHelper output)
             {
                 if (hero.HitPoints < hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                     potions++;
+                Tactics.Upkeep(world);
                 var target = world.Monsters
                     .Where(m => !m.IsDead && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                     .MinBy(m => m.DistanceTo(world.Hero));
@@ -398,6 +416,7 @@ public class BalanceReport(ITestOutputHelper output)
         {
             if (hero.HitPoints < hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                 potions++;
+            Tactics.Upkeep(world);
             if (StepOutOfPool(world, ref nextDodge) is { } pool)
             {
             }
@@ -493,6 +512,7 @@ public class BalanceReport(ITestOutputHelper output)
         {
             if (hero.HitPoints < hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                 potions++;
+            Tactics.Upkeep(world);
             var target = world.Monsters.Where(m => !m.IsDead).MinBy(m => m.DistanceTo(world.Hero));
             if (target is not null && !world.Hero.IsSwinging)
                 Act(world, bar, classId, target);
@@ -509,27 +529,9 @@ public class BalanceReport(ITestOutputHelper output)
         return (downs, 100.0 * (hero.MaxHitPoints - Math.Max(0, hero.HitPoints)) / hero.MaxHitPoints, potions, world.Time - start);
     }
 
-    internal static void Act(GameWorld world, IReadOnlyDictionary<string, Abilities.AbilityDefinition> bar, string classId, MonsterActor target)
-    {
-        var resource = world.Hero.Resource;
-        bool Ready(string slot) => bar.TryGetValue(slot, out var a) && resource.CanSpend(a.Cost) && world.CooldownRemaining(a) <= 0;
-        if (classId == "fighter")
-        {
-            if (Ready("1") && target.DistanceTo(world.Hero) > 2.5)
-                world.UseSlot("1", target);
-            else if (Ready("rmb") && target.DistanceTo(world.Hero) < 1.6)
-                world.UseSlot("rmb", target);
-            else if (world.Hero.CurrentTarget != target)
-                world.Attack(target);
-        }
-        else
-        {
-            if (Ready("rmb"))
-                world.UseSlot("rmb", target);
-            else if (world.Hero.CurrentTarget != target)
-                world.Attack(target);
-        }
-    }
+    /// <summary>The bot's choice of action (shared with the "--battle" demo: <see cref="Tactics"/>).</summary>
+    internal static void Act(GameWorld world, IReadOnlyDictionary<string, Abilities.AbilityDefinition> bar, string classId, MonsterActor target) =>
+        Tactics.Act(world, classId, target);
 
     private static (double X, double Y) NearestOpen(TileMap map, double x, double y, double distance)
     {
@@ -547,8 +549,13 @@ public class BalanceReport(ITestOutputHelper output)
     {
         foreach (var id in Kits[kit])
             gear.Equip(new Items.Item(TestCharacters.Content.Item(id), Items.Rarity.Common, 1));
+        foreach (var (id, count) in StartingBelt)
+            gear.TryAdd(new Items.Item(TestCharacters.Content.Item(id), Items.Rarity.Common, 1, count: count));
         hero.RestAtShrine();
     }
+
+    /// <summary>The belt every hero starts with (GameSession.StartingBelt).</summary>
+    public static readonly (string Id, int Count)[] StartingBelt = [("alchemists_fire", 3), ("antidote", 1)];
 
     private static Character Dressed(string classId, string kit)
     {

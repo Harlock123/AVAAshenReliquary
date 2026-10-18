@@ -2,7 +2,8 @@
 # Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour, and rune
 # work), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash, the Lantern altar
 # (respec) and the Fort Shrine. A west gate (revision 2) leads out to the Rotwater Fens. Side stories (M2 step 9): the
-# old well (Maren's letter) and Brother Anselm, the last of the Lantern Order, by the altar.
+# old well (Maren's letter) and Brother Anselm, the last of the Lantern Order, by the altar. Wenna also sells the belt's
+# bombs and antidotes (her "supplies").
 # Deterministic.
 import json, sys
 
@@ -122,6 +123,7 @@ zone = {
     "vendors": [
         {"id": "wenna", "name": "Wenna Marsh", "title": "Peddler", "at": [cx - 5, 9], "facing": 5, "stockSize": 12,
          "greeting": "Coin for kit, kit for coin. Behind walls, at last.",
+         "supplies": ["alchemists_fire", "frost_vial", "bottled_lightning", "acid_flask", "antidote"],
          "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "cloth_gloves", "legs": "cloth_pants",
                   "feet": "cloth_sandals", "main": "dagger"}},
         {"id": "garrow", "name": "Garrow", "title": "Smith", "at": [cx + 5, 9], "facing": 6, "stockSize": 12,

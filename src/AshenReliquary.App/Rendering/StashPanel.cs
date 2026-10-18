@@ -69,6 +69,8 @@ internal sealed class StashPanel
             if (slots[i] is { } item)
             {
                 _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -2, -2));
+                if (item.Count > 1)
+                    InventoryPanel.StackCount(canvas, rect, item.Count, small);
                 using var edge = new SKPaint
                 {
                     IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = item.Rarity == Rarity.Common ? 1 : 2,

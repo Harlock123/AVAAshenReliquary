@@ -95,17 +95,22 @@ public sealed class GameSession
     /// <summary>The classes the vertical slice can start as: the ones with abilities and a starting kit.</summary>
     public static bool IsPlayable(string classId) => classId is "fighter" or "wizard";
 
-    /// <summary>Each playable class's starting gear, all common item level 1.</summary>
+    /// <summary>Each playable class's starting gear, all common item level 1 (the fighter's sword and shield).</summary>
     public static IReadOnlyList<string> StartingKit(string classId) => classId == "wizard"
         ? ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"]
-        : ["longsword", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"];
+        : ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"];
 
-    /// <summary>Puts a class's starting kit on a character (used by the game and by the creation preview).</summary>
+    /// <summary>What every hero starts with on the belt: a few bombs and an antidote.</summary>
+    public static IReadOnlyList<(string Id, int Count)> StartingBelt { get; } = [("alchemists_fire", 3), ("antidote", 1)];
+
+    /// <summary>Puts a class's starting kit on a character, and its belt items in the bag (the game and the creation preview).</summary>
     public static Equipment Dress(Character hero, Equipment gear, string classId)
     {
         var content = ContentDatabase.Embedded;
         foreach (var id in StartingKit(classId))
             gear.Equip(new Item(content.Item(id), Rarity.Common, 1));
+        foreach (var (id, count) in StartingBelt)
+            gear.TryAdd(new Item(content.Item(id), Rarity.Common, 1, count: count));
         return gear;
     }
 

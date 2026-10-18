@@ -25,6 +25,12 @@ public enum SoundCue
     Death,
     ZoneComplete,
     CacheOpen,
+    /// <summary>A bomb bursting; its variant is the damage type ("fire", "cold").</summary>
+    Bomb,
+    /// <summary>A ward going up: "shield" raised, a "spell" cast, a Shielded "monster" warding its pack.</summary>
+    Ward,
+    /// <summary>Shield Block taking a blow.</summary>
+    Block,
 }
 
 /// <summary>

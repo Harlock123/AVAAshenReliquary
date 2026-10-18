@@ -9,7 +9,9 @@ public sealed record LootDrop(Item? Item, int Gold = 0, bool Draught = false);
 /// <summary>
 /// Rolls drops from the spec's Act 1 tables. Rarity: 70% common, 25% uncommon, 5% rare (uniques and sets come
 /// later). Item level is the monster's effective level; runes are gated by item level (weapon potency from 2,
-/// striking from 4, armour potency from 5, resilient from 8). Uncommon items get 1 to 2 affixes, rares 3 to 4.
+/// striking from 4, armour potency from 5, resilient from 8). Uncommon items get 1 to 2 affixes, rares 3 to 4. Belt
+/// items (bombs, elixirs) drop on their own roll: 6% from a normal monster, 30% from a champion or better, 35% from a
+/// chest, one or two at a time.
 /// </summary>
 public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> items, IReadOnlyList<AffixDefinition> affixes)
 {
@@ -43,7 +45,19 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             drops.Add(new LootDrop(null, Gold: (int)Math.Max(1, random.Roll(2, 6) * (1 + level) * goldMultiplier)));
         if (rank != CreatureRank.Minion && random.Roll(1, 100) <= 5)
             drops.Add(new LootDrop(null, Draught: true));
+        if (rank != CreatureRank.Minion && random.Roll(1, 100) <= (rank >= CreatureRank.Champion ? 30 : 6) && BeltItem(level, random) is { } belt)
+            drops.Add(new LootDrop(belt));
         return drops;
+    }
+
+    /// <summary>One or two of a random belt item for <paramref name="level"/>, or null when there are none.</summary>
+    public Item? BeltItem(int level, IRandomSource random)
+    {
+        var pool = Items.Values.Where(i => i.IsBeltItem && i.MinLevel <= level).ToList();
+        if (pool.Count == 0)
+            return null;
+        var definition = Pick(pool, random);
+        return new Item(definition, Rarity.Common, Math.Max(1, level), count: random.Roll(1, 2));
     }
 
     /// <summary>
@@ -69,6 +83,8 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         drops.Add(new LootDrop(null, Gold: gold));
         if (random.Roll(1, 100) <= (kind == World.CacheKind.Reliquary ? 60 : 30))
             drops.Add(new LootDrop(null, Draught: true));
+        if (random.Roll(1, 100) <= 35 && BeltItem(level, random) is { } belt)
+            drops.Add(new LootDrop(belt));
         return drops;
     }
 

@@ -37,7 +37,14 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (dialogues, the old well, Sallow's hearth, Brother Anselm, the Gallows Road scarecrow), boons (`Boon` feats kept by
   `boon.<id>` flags), uniques (`unique` items), `takeItem` effects, pack flags, still NPCs. Step 10, the bot's
   part, done: `CampaignReport` plays Act 1 end to end (loot, upgrades, runes, level picks) and asserts Mother Sallow
-  dies and Act 1 ends at level 5-6; zones pay `xpScale` of monster XP (the Fens 0.6); Ignition is 2d6. Left for M2:
+  dies and Act 1 ends at level 5-6; zones pay `xpScale` of monster XP (the Fens 0.6); Ignition is 2d6. Then the arsenal (spec section 16):
+  grazes on near misses (`GrazeEffect.Near`), hit-stop and shake on crits, the fighter's Cleave and Finishing Blow (an
+  ability's `level`, `arc`, `spendAll`), shields in the off hand with Raise a Shield and automatic Shield Block, the
+  wizard's Shield cantrip (`GameWorld.Wards.cs`), the belt of bombs and antidotes (keys 7-0, `GameWorld.Belt.cs`, stacks,
+  Wenna's `supplies`), the Hasted, Shielded and Tainted affixes and the Taint meter's whispers (`GameWorld.Affixes.cs`),
+  the optional Prior's Ossuary under the chapel (`tools/prior_ossuary_mapgen.py`, Prior Aldous: `named`, `rareDrop`),
+  Flare's sounds for chests, bombs, wards and the crawler/cultist/crone voices, a third orc portrait. The bots and
+  `--battle` share `World/Tactics.cs`. Left for M2:
   the user's own play-through of Act 1 (they asked to do it once more of the game exists), then whatever it shows.
   `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
@@ -49,10 +56,11 @@ implementation decisions made so far). `README.md` has the run commands and cont
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter
   BalanceReport --logger "console;verbosity=detailed"`. Its bot never kites, so the wizard rows are a worst case;
   it keeps its own copy of the starting kits.
-- **Open ideas, not yet asked for:** Act 1 plays about 1.5 hours against the 2 decided (the chapel is shortest);
-  gold piles up with little to buy; cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3
-  in the Fens; move the skeleton pack just south of the camp fence if it crowds the peddler; orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art); a
-  real chest-opening sound (chests reuse the inventory-open clunk).
+- **Open ideas, not yet asked for:** Act 1 plays about 1.5 hours against the 2 decided (the ossuary adds a little);
+  gold still ends near 2,000 in the bot's hands (supplies are a sink a player may use more); bombs fly as a glow, not a
+  tumbling flask; check the bog's frame time with F3 in the Fens; orcs have 3 portraits (orchidrabbit's CC BY pack, $5,
+  has three more); the level-4 wizard's Mire zone report dies ~40 times a run (as before the arsenal; the campaign's
+  level-5 wizard is fine); shields have no hit points; Mirrored waits for Act 3.
 
 ## The development machine
 

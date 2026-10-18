@@ -43,7 +43,7 @@ public class TradeTests
         Assert.True(index >= 0);
 
         // Right-click it in the bag: sold, and on the buyback row.
-        var bagAt = new Point(1312 - 560 - 16 + 20 + 18 + index % 10 * 50, 16 + 58 + 250 + 34 + 18 + index / 10 * 50);
+        var bagAt = kit.Window.View.BagCell(index);
         kit.Window.MouseDown(bagAt, MouseButton.Right);
         kit.Window.MouseUp(bagAt, MouseButton.Right);
         kit.Pump();
@@ -79,7 +79,7 @@ public class TradeTests
         void RightClickBag(Core.Items.Item item)
         {
             var index = gear.Bag.ToList().IndexOf(item);
-            var at = new Point(1312 - 560 - 16 + 20 + 18 + index % 10 * 50, 16 + 58 + 250 + 34 + 18 + index / 10 * 50);
+            var at = kit.Window.View.BagCell(index);
             kit.Window.MouseDown(at, MouseButton.Right);
             kit.Window.MouseUp(at, MouseButton.Right);
             kit.Pump();

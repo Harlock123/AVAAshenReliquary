@@ -47,7 +47,7 @@ public class ChapelTests
         Assert.True(zone.IsDark);
         Assert.All(zone.Spawns.SelectMany(s => s.Pack), m => Assert.True(Content.Creatures.ContainsKey(m.Creature), m.Creature));
         Assert.Equal(3, zone.Shrines.Count);
-        Assert.Equal(["fens", "mire"], zone.Exits.Select(e => e.Id).Order());
+        Assert.Equal(["fens", "mire", "ossuary"], zone.Exits.Select(e => e.Id).Order());
         Assert.Equal("sallows_mire", zone.Exits.Single(e => e.Id == "mire").To);
         Assert.Equal([3, 4], zone.Spawns.Select(s => s.Level ?? zone.Level).Distinct().Order());
         Assert.True(map.Lights.Count >= 20, $"only {map.Lights.Count} lights");

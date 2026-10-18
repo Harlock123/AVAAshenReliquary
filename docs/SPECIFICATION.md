@@ -169,7 +169,7 @@ The world is a chain of 16 hand-authored zones, four per act, connected through 
 
 - **Monster level** = the zone's level band. Each pack is built against Pathfinder 2e's threat budgets (Trivial 40, Low 60, Moderate 80, Severe 120, Extreme 160), but for one hero each creature costs its level-based XP × a rank weight: Minion 0.25, Normal 0.5, Champion 1.0, Elite 2.0. Three same-level Normals = 60 (Low).
 - **Pack mix by act:** Act 1 mostly Trivial and Low packs; Act 2 Moderate with 1 champion; Act 3 Moderate and Severe with affix champions; Act 4 Severe, with every pack led by an elite.
-- **Monster affixes** (Grim Dawn-style "Hero" monsters) are introduced one per act: Act 1 *Vengeful*, Act 2 *Shielded*, Act 3 *Mirrored*, Act 4 *Tainted* (leaves corruption pools). Affixes stack in later acts.
+- **Monster affixes** (Grim Dawn-style "Hero" monsters) were planned one per act: Act 1 *Vengeful*, Act 2 *Shielded*, Act 3 *Mirrored*, Act 4 *Tainted* (leaves corruption pools). Act 1 now has *Vengeful*, *Hasted*, *Shielded* and *Tainted* champions (section 16, the arsenal), to freshen it; *Mirrored* waits for Act 3, and affixes stack in later acts.
 - **Behaviour escalation:** each act adds an AI behaviour, in this order: flanking, ranged kiting, crowd-control casters, and finally coordinated packs where a leader buffs the rest.
 - **Hubs** hold a stash, vendors, a crafting smith, a respec altar, side-story NPCs and a **Rift Shrine** for fast travel. Each zone has 2–3 checkpoint shrines that also respawn enemies when used.
 - **Gating:** a zone's entrance warns the player when they are 3 or more levels below it but never blocks them. Only Herald gates block progress.
@@ -682,7 +682,9 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; step 10's bot exit test and tuning. Left: the human play-through from the gallows to Sallow's death).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; step 10's bot exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow,
+shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional
+Prior's Ossuary. Left: the human play-through from the gallows to Sallow's death).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -978,6 +980,71 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **The zone reports since:** with the starting kit and Ignition's new dice, deaths per run: the Fens fighter 2.3,
   wizard 11.7 (it stays level 2 longer now); the chapel fighter 1.8, wizard 3.5 with the lantern and 5.2 without; Mother
   Sallow at level 5, the fighter 6 of 6, the wizard 4 of 6. Zone runs now end when the hero walks on into the next zone.
+- **After the arsenal** (8 campaigns per class): both kill Mother Sallow every time, met at level 5; deaths over the
+  act fall to 0-1 for the fighter (was 0-3) and 0-4 for the wizard (was 0-8); 18-20 minutes of bot play for the
+  fighter, 24-27 for the wizard. The bot keeps its belt, restocks five alchemist's fires and two antidotes at Wenna's on
+  each fort trip (3-13 bought) and drinks an antidote when poisoned; gold still ends near 2,000 in its hands.
+
+### The arsenal (M2, after step 10)
+
+Added after the bots' exit test, from the suggestions taken up on 2026-10-18, to give fights more to them before the
+human play-through.
+
+- **Grazes** (section 10's GRAZE): the hero's weapon Strikes that fail by 3 or less still graze for half damage
+  (`GrazeEffect.Near`, `Strike.NearMissMargin`), about one d20 roll in seven. A graze builds half the Fury and carries
+  none of the ability's other effects; it floats as "graze N" in a dull orange. Spells, bombs and monsters don't graze.
+- **Hit feel:** a critical hit stops the world for 0.07 s (hit-stop, `MainWindow.HitStopSeconds`) and shakes the view
+  (5 px for 0.22 s when the hero lands one, 7 px for 0.3 s when the hero takes one); the HUD and text don't shake. The
+  crit already had its own sword sound.
+- **The fighter's Fury:** **Cleave** (slot 2, level 1): 2 actions, 20 Fury, Strikes the target and up to two more
+  enemies within reach and 60° of it (`arc`). **Finishing Blow** (slot 4, joins the bar at level 2, an ability's
+  `level`): 2 actions, a Flourish, spends all the Fury there is (at least 30) for one more weapon die per 25
+  (`spendAll`, `resourcePerDie`). A sweep's other targets never build Fury, so a crowd can't feed Cleave forever.
+  **Swipe** (the level-4 feat) became a whirl at every enemy in reach all round for 25 Fury, so it isn't a weaker
+  Cleave.
+- **Shields:** the off hand holds a shield (`slot: OffHand`, its `acBonus` and `hardness`): the wooden buckler (+1,
+  hardness 3), wooden shield (+2, 3), iron buckler (+1, 5) and steel shield (+2, 5) from Flare's art; the fighter
+  starts with a wooden shield. A two-handed weapon (the staff) and a shield put each other in the bag. **Raise a Shield**
+  (the fighter's slot 3, 1 action) gives the shield's AC as a circumstance bonus for 6 s; while it is up, **Shield
+  Block** (a reaction, so automatic, with the spec's 6 s internal cooldown) takes the hardness off a monster's blow.
+  The hero holds the shield up (Flare's block animation) and a gold ring marks the ward. Shields don't wear down:
+  Pathfinder's shield hit points would need a repair loop the game doesn't have. Shields roll the defensive affixes.
+- **The wizard's Shield** (slot 2, the cantrip): +1 AC for 6 s and a Shield Block of 5 (+5 every two spell ranks); once
+  it blocks, the ward breaks and the cantrip can't be cast for 10 s (the Remaster's 10 minutes, made real time). A
+  blue ring marks it.
+- **The belt** (section 11's consumables): four slots, keys 7 to 0, above the ability bar's right end. A bomb or elixir
+  that comes into the bag takes the first free slot while any are left; they stack ten to a bag cell (`stack`). Bombs
+  are thrown from 6 tiles (DEX + the class's attack proficiency against AC, line of sight needed): a hit deals the dice
+  and any persistent damage or condition, doubled on a critical hit, and anything but a critical failure splashes the
+  target and everyone within 1.5 tiles. **Alchemist's fire** 1d8 fire, 1 persistent fire, splash 1; **frost vial**
+  1d6 cold and slowed 3 s; **bottled lightning** 1d6 electricity and off-guard 3 s; **acid flask** 1 acid and 1d6
+  persistent acid. Like cantrips they heighten every two levels (the dice, persistent damage and splash × the spell
+  rank). An **antidote** ends poison and gives +2 to saves against poison (the bog, the rot) for 2 minutes. Every hero
+  starts with three alchemist's fires and an antidote; normal monsters drop one or two 6% of the time, champions and
+  better 30%, chests 35%; Wenna sells all five. The bot (`Tactics`, shared with `--battle`) throws a bomb at a
+  champion and drinks an antidote when poisoned.
+- **Monster affixes:** **Hasted** (a quarter more attacks a second, 15% faster; first tried at a third and a quarter,
+  which cost the non-kiting wizard bot up to 17 deaths an act), **Shielded** (on waking and every 10 s it wards itself
+  and its pack within 6 tiles: each ward soaks 4 + 2 × level damage for 8 s, shown as a blue glow and in the target
+  frame), **Tainted** (it dies in a pool of Taint, 1.6 tiles across for 8 s after a 0.6 s warning: a basic Fortitude
+  save each second against 1d6 (more from level 3) Taint, DC 14 + level). Taint damage fills the **Taint meter**
+  (3 a point) for the first time; at 100 the whispers reverse the hero's walking for 2 s, as section 10's Tainted condition planned. The
+  target frame lists a monster's affixes and ward; its tooltip says what each does. Every blow, spell, bomb and burn on
+  a monster goes through one place (`DamageMonster`) so wards soak them all. In Act 1: a Hasted cultist and a Shielded
+  grave knight in the Fens, a Tainted cultist in the chapel's west crypt, a Shielded grave knight in the Mire, and all
+  three in the ossuary.
+- **The Prior's Ossuary** (`tools/prior_ossuary_mapgen.py`, level 4, `xpScale` 0.6): an optional dungeon down a stair
+  from the Drowned Chapel's east crypt (the chapel is at revision 2), about 5 minutes for the bot: a stair hall, a bone
+  gallery, the flooded charnel pit, the reliquary vault, the processional and the lower hall (two shrines), and the
+  Prior's tomb. **Prior Aldous Venn** is a named elite (`named`: no "the Elite" in his name) in a level-3 pack (so a
+  level-5 foe), Shielded, at 70% of an elite's HP, who always drops a rare (`rareDrop`); his death sets
+  `act1.prior = slain`. On a lectern by his sarcophagus his **confession** (40 XP and a journal entry) tells how he
+  drowned the fever-sick in the chapel, and of the herb-girl in the grey shawl who did not drown: Sallow. With the
+  lantern at level 4 the fighter bot dies about once there, the wizard about six times.
+- **Polish:** chests creak open (Flare's `wood_open`); plague crawlers have Flare's antlion voice, cultists and chanters
+  a man's, Mother Sallow a woman's; bombs, wards and Shield Block have Flare's power sounds; orcs have a third portrait,
+  PolygonDan's half-orc sketch, its paper toned to parchment (`AssetTool portrait --parchment`). The skeleton pack that
+  might crowd the road camp's peddler needs nothing now: the peddler moved into the fort in step 3.
 
 ### Dialogue, flags and the journal (M2)
 
@@ -992,11 +1059,11 @@ Building the rules core and the vertical slice settled these. Where a number her
 
 - **Skills** have proficiency ranks. A new character is trained in the background's skill and Lore, the class's skills (Fighter: Athletics; Wizard: Arcana) and as many more as the class allows plus Intelligence (Fighter 3, Wizard 2), picked on the creation screen. Skill increases at levels 3 and 5 raise one skill a rank (expert from 3, master from 7). A skill check is its attribute + proficiency + the armour's check penalty (Strength and Dexterity skills) + feats' circumstance bonuses.
 - **Feats** (`feats.json`, 62 so far, levels 1–5): four ancestry feats per ancestry (one chosen at creation, another at 5), each background's skill feat (granted at 1, by name), skill feats (2 and 4; each needs training in its skill), general feats at 3 (Toughness, Fleet, Canny Acumen, Incredible Recovery) and class feats at 2 and 4. Fighter: Intimidating Strike, Brutish Shove, Lunge; Knockdown, Swipe, Furious Focus. Wizard: Reach Spell, Electric Arc, Ray of Frost; Force Volley, Linked Focus, Arcane Ward. Effects are data: a bonus to a statistic or a skill, HP per level, speed, resistance, faster recovery or Mana, slower Taint, critical damage, Fury per hit, reach, spell range, a new ability, an extra Force Bolt missile, ignoring armour's speed penalty. (The spec's six ancestry feats each are four for now; more come with later acts.)
-- **Feat abilities** go on the bar in the first free number slots. Abilities can now apply a condition on a hit (frightened, off-guard, prone, slowed), knock the target back, strike a second enemy within reach (Swipe) or leap to a second enemy (Electric Arc). A prone monster can't move.
+- **Feat abilities** go on the bar in the first free number slots after the class's own. Abilities can now apply a condition on a hit (frightened, off-guard, prone, slowed), knock the target back, sweep through more enemies within reach (Cleave, Swipe) or leap to a second enemy (Electric Arc). A prone monster can't move.
 - **Levelling:** a new level raises HP and proficiencies at once; its picks wait. A "Level up!" prompt sits above the ability bar; **L** opens the level-up screen for the lowest waiting level: a list per feat it grants (each with what it does), the skills that can rise, and at 5 four attribute boosts; Confirm once all are picked. Saves record each level's picks and replay them through the rules; older saves keep their boosts and choose the rest again.
 - **The Step dodge** (spec, section 10): **Shift** dashes 2 tiles toward the pointer in 0.25 s, during which no blow lands, with a 4 s cooldown (shown beside the potions).
 - **Respec:** the **Lantern altar** in Fort Gallowmere lets go of every pick since level 1 (feats, skill increases, boosts), leaving those levels to choose again (the conversation closes and the level-up screen opens); level, XP and gear stay. The first respec in an act is free, then 20 gold per level. Dialogue effects can charge gold per level ("{cost}" in a choice's text shows the price).
-- **Shield Block** waits for shields (an off-hand slot and art the paper doll lacks).
+- **Shield Block** came with shields (section 16, the arsenal).
 
 ### Runes and the smith (M2)
 
@@ -1019,13 +1086,13 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **What:** chests placed in a zone file (`caches`: id, tile, kind, facing) hold loot of their own, so exploring pays as well as fighting. A **cache** is Flare's wooden chest (dimmed once opened, as the art has no open one); a **reliquary** is the spiked skull chest, whose lid opens, rarer and richer and usually guarded.
 - **Opening:** click a chest and the hero walks over and opens it (within 1.6 tiles); its loot spills onto the ground around it, to be picked up like any drop. A chest opens once; saves remember which (`OpenedCaches`).
 - **Contents, rolled when opened at the hero's level (never below the zone's):** a cache holds one item (45% common, 45% uncommon, 10% rare, against 70/25/5 from a monster), 3–18 × (1 + level) gold and a 30% chance of a healing draught. A reliquary holds two items, the first at least uncommon (25% rare) and the second rolled like a Champion's, triple the gold and a 60% chance of a draught.
-- **Finding them:** a shut chest gives off a faint glint (warm for a cache, violet for a reliquary), shows its name when the hero is within 6 tiles or the pointer is on it, and the minimap marks explored chests (gold, violet, or grey once opened). Opening plays the chest sound (the inventory-open clunk) and the loot-drop sound.
+- **Finding them:** a shut chest gives off a faint glint (warm for a cache, violet for a reliquary), shows its name when the hero is within 6 tiles or the pointer is on it, and the minimap marks explored chests (gold, violet, or grey once opened). Opening plays Flare's wooden chest creak and the loot-drop sound.
 - **Gallows Road:** eight, mostly in the side glades: the graveyard's far corner, the poachers' glade, the hanging tree, the farmstead, the drowned cottage, the barrow field and the refugee camp hold caches, and the grave knight Champion guards a reliquary in its barrow. They are placed by `tools/gallows_road_mapgen.py` on open ground after the map is drawn, so adding them changed no tile.
 
 ### Vendors (M1)
 
 - **Where:** in M1 the slice had no hub, so **Wenna Marsh, Peddler**, stood in the tent camp at the end of the Gallows Road; since M2 she trades inside Fort Gallowmere, beside Garrow the smith. Traders are placed in a zone file (`vendors`: id, name, title, tile, facing, stock size, greeting, and a paper-doll `look` from Flare's avatar layers). Their tile blocks movement, a lantern lights them, their name shows when you are near or hover them, and the minimap marks them in gold.
-- **Trading:** click the trader and the hero walks over; their table opens on the left with the bag on the right. Left-click a ware to buy it, right-click a bag item to sell it (instead of dropping it), and the *Sold this visit* row buys back anything sold since the table opened, for what you were paid. A potion charge can be bought too. Esc, closing the bag or walking away (more than ~4 tiles) leaves, and leaving autosaves. Tooltips show the price and the same green, red and yellow "If you wear it" comparison as the bag.
+- **Trading:** click the trader and the hero walks over; their table opens on the left with the bag on the right. Left-click a ware to buy it, right-click a bag item to sell it (instead of dropping it), and the *Sold this visit* row buys back anything sold since the table opened, for what you were paid. A potion charge can be bought too, and a trader with `supplies` (Wenna) sells belt items, never sold out, at their price × 2 × (1 + ½ per spell rank above 1) through the haggle. Esc, closing the bag or walking away (more than ~4 tiles) leaves, and leaving autosaves. Tooltips show the price and the same green, red and yellow "If you wear it" comparison as the bag.
 - **Prices:** an item's value is a base (weapon 12, body armour 10 + 4 × AC, other armour 7, jewellery 20) × rarity (common 1, uncommon 2.5, rare 6) × (1 + 0.35 per item level above 1), plus 25 per potency rune, 40 per striking rune, 30 per resilient rune and 4 per affix. Traders sell at 2× value and buy at ¼. Charisma haggles 2% per point of its modifier either way (at most 10%), and a Street Urchin background takes another 5% off what you pay. A potion charge costs 10 + 5 × level.
 - **Stock:** 12 items, two thirds common and the rest uncommon, at the zone level or the hero's level, whichever is higher. It is rolled from the world seed, the trader and the level with its own dice, so a trader never changes the fight's rolls; reaching a new level brings new stock (standing in for "restock on returning to the hub"). The table is saved with the game.
 
