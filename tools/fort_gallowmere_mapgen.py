@@ -1,11 +1,11 @@
 # Generates zones/fort_gallowmere.json: Act 1's hub, a walled yard behind the gate at the north end of Gallows Road.
 # Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour, and rune
 # work), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash, the Lantern altar
-# (respec) and the Fort Shrine.
+# (respec) and the Fort Shrine. A west gate (revision 2) leads out to the Rotwater Fens.
 # Deterministic.
 import json, sys
 
-REVISION = 1
+REVISION = 2
 W, H = 30, 28
 grid = [['.'] * W for _ in range(H)]
 seed = 7654321
@@ -45,6 +45,16 @@ grid[y1][cx + 2] = 'P'
 for y in range(y1 + 1, H):
     for x in range(cx - 2, cx + 3):
         grid[y][x] = '=' if abs(x - cx) <= 1 else '-'
+
+# The west gate (revision 2): a track from the road out through the west wall to the Rotwater Fens.
+wy = 12
+for x in range(0, cx - 1):
+    grid[wy][x] = '='
+    for y in (wy - 1, wy + 1):
+        if x < x0 or grid[y][x] == '.':
+            grid[y][x] = '-'
+grid[wy - 1][x0] = 'P'
+grid[wy + 1][x0] = 'P'
 
 # The yard: a campfire, tents and crates for now.
 grid[11][cx] = 'c'
@@ -115,7 +125,9 @@ zone = {
                   "main": "mace"}},
     ],
     "exits": [{"id": "gate", "label": "Gallows Road", "at": gate, "radius": 1.5,
-               "to": "gallows_road", "toExit": "fort_gallowmere", "arrive": [cx, H - 6]}],
+               "to": "gallows_road", "toExit": "fort_gallowmere", "arrive": [cx, H - 6]},
+              {"id": "west_gate", "label": "The Rotwater Fens", "at": [1, wy], "radius": 1.5,
+               "to": "rotwater_fens", "toExit": "fort", "arrive": [x0 + 3, wy]}],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)
 print("\n".join(rows))

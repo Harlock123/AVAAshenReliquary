@@ -20,6 +20,33 @@ public class RenderTests
         Assert.Equal(1440, frame.PixelSize.Width);
     }
 
+    [AvaloniaFact]
+    public void The_fens_render_bog_cultists_and_plague_crawlers()
+    {
+        var kit = TestKit.Open(zoneId: "rotwater_fens");
+        var world = kit.World;
+        kit.Play(0.5);
+        kit.Capture(Shot("fens-landing"));
+
+        // Stand where a pack of cultists can be seen, and wake it.
+        var cultist = world.Monsters.First(m => m.Definition.Id == "cultist" && m.Creature.Stats.Rank == Core.Creatures.CreatureRank.Champion);
+        var spot = Enumerable.Range(0, 16).Select(i => (X: cultist.X + 7 * Math.Cos(i * Math.PI / 8), Y: cultist.Y + 7 * Math.Sin(i * Math.PI / 8)))
+            .First(p => world.Map.IsWalkable(p.X, p.Y) && !world.Map.HasLineOfSight(p.X, p.Y, cultist.X, cultist.Y) || world.Map.IsWalkable(p.X, p.Y));
+        TestHooks.Place(world, spot.X, spot.Y);
+        kit.Play(0.2);
+        kit.Capture(Shot("fens-cultists-waiting"));
+        TestHooks.Place(world, cultist.X + 3, cultist.Y + 3);
+        kit.Play(1.5);
+        kit.Capture(Shot("fens-cultists"));
+        Assert.NotEqual(MonsterState.Idle, cultist.State);
+
+        var crawler = world.Monsters.First(m => m.Definition.Id == "plague_crawler" && m.Creature.Stats.Rank == Core.Creatures.CreatureRank.Normal);
+        TestHooks.Place(world, crawler.X + 3, crawler.Y + 3);
+        kit.Play(1.0);
+        kit.Capture(Shot("fens-crawlers"));
+        Assert.NotEqual(MonsterState.Idle, crawler.State);
+    }
+
     [Fact]
     public void The_F3_stats_break_before_the_timings_in_a_narrow_window()
     {

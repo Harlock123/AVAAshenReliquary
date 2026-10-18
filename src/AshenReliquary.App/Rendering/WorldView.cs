@@ -731,13 +731,32 @@ public sealed class WorldView : Control
     {
         var tileset = _assets.Tileset(world.Zone.Tileset);
         VisibleCells(size, world, out var x0, out var y0, out var x1, out var y1, clampToMap: false);
+        // Poison bog: the grass darkened to a wet, rotten olive, with a sickly green that slowly swells and fades.
+        var swell = (float)(0.5 + 0.5 * Math.Sin(time * 0.9));
+        // Its edges step down in two shades, so a pool's rim doesn't show the tile grid: a bog cell beside dry land is a
+        // little lighter, and dry land beside the bog a little darker and wetter.
+        SKPaint Shade(float mul, float wet) => new()
+        {
+            ColorFilter = SKColorFilter.CreateLighting(
+                new SKColor((byte)(255 - (255 - 92) * mul), (byte)(255 - (255 - 104) * mul), (byte)(255 - (255 - 58) * mul)),
+                new SKColor((byte)((4 + 4 * swell) * wet), (byte)((14 + 10 * swell) * wet), 0)),
+        };
+        using var bog = Shade(1, 1);
+        using var rim = Shade(0.8f, 0.8f);
+        using var fringe = Shade(0.4f, 0.3f);
+        var map = world.Map;
+        int WetNeighbours(int x, int y) =>
+            (map.IsBog(x + 1, y) ? 1 : 0) + (map.IsBog(x - 1, y) ? 1 : 0) + (map.IsBog(x, y + 1) ? 1 : 0) + (map.IsBog(x, y - 1) ? 1 : 0);
         for (var y = y0; y <= y1; y++)
         for (var x = x0; x <= x1; x++)
         {
             // Beyond the map's edge the forest simply carries on, so the view never shows a void.
-            var id = world.Map.InBounds(x, y) ? world.Map.Ground(x, y) : OutsideGround(x, y);
-            if (id >= 0 && tileset.Tiles.TryGetValue(id, out var tile))
-                DrawTile(canvas, tile, ToScreen(x + 0.5, y + 0.5), time, null);
+            var id = map.InBounds(x, y) ? map.Ground(x, y) : OutsideGround(x, y);
+            if (id < 0 || !tileset.Tiles.TryGetValue(id, out var tile))
+                continue;
+            var paint = map.IsBog(x, y) ? (WetNeighbours(x, y) < 4 ? rim : bog)
+                : map.InBounds(x, y) && !map.IsWater(x, y) && WetNeighbours(x, y) > 0 ? fringe : null;
+            DrawTile(canvas, tile, ToScreen(x + 0.5, y + 0.5), time, paint);
         }
     }
 
@@ -862,14 +881,10 @@ public sealed class WorldView : Control
 
     private void DrawMonster(SKCanvas canvas, MonsterActor m, GameWorld world)
     {
-        var set = _assets.Enemy(m.Definition.Sprite);
-        if (Pick(set, m.Animation) is not { } anim)
-            return;
-        var frame = anim.Frame(anim.FrameAt(m.AnimationTime), m.Direction);
         var foot = ToScreen(m.X, m.Y);
         using var paint = new SKPaint();
         var hovered = MonsterUnderPointer() == m;
-        paint.ColorFilter = m.Creature.Stats.Rank switch
+        var filter = m.Creature.Stats.Rank switch
         {
             CreatureRank.Champion => SKColorFilter.CreateLighting(new SKColor(255, 190, 170), new SKColor(hovered ? (byte)70 : (byte)40, 0, 0)),
             CreatureRank.Minion => SKColorFilter.CreateLighting(new SKColor(200, 220, 190), new SKColor(0, hovered ? (byte)30 : (byte)8, 0)),
@@ -877,9 +892,40 @@ public sealed class WorldView : Control
             _ when hovered => SKColorFilter.CreateLighting(SKColors.White, new SKColor(35, 35, 35)),
             _ => null,
         };
+        // Vengeance glows a deepening red with each stack.
+        if (m.Vengeance > 0 && !m.IsDead)
+        {
+            var glow = (byte)(30 + 25 * m.Vengeance * (0.75 + 0.25 * Math.Sin(world.Time * 6)));
+            var red = SKColorFilter.CreateLighting(SKColors.White, new SKColor(glow, 0, 0));
+            filter = filter is null ? red : SKColorFilter.CreateCompose(red, filter);
+        }
+        // A creature's own tint (the plague crawler's bog brown) goes on first.
+        if (m.Definition.Tint is { } tint && SKColor.TryParse(tint, out var colour))
+        {
+            var own = SKColorFilter.CreateLighting(colour, SKColors.Black);
+            filter = filter is null ? own : SKColorFilter.CreateCompose(filter, own);
+        }
+        paint.ColorFilter = filter;
         if (m.IsDead)
             paint.Color = SKColors.White.WithAlpha((byte)(255 * Math.Clamp(1 - (m.DeadFor - (GameWorld.CorpseSeconds - 3)) / 3, 0, 1)));
-        DrawFrame(canvas, set.Image, frame, foot, (float)m.Definition.Scale, paint);
+        if (m.Definition.Look is { } look)
+        {
+            // A cultist: Flare's avatar layers in its robes, playing the monster's animation.
+            foreach (var slot in _assets.LayerOrder(m.Direction))
+            {
+                var layer = look.GetValueOrDefault(slot) ?? (BareBody.Contains(slot) ? (slot == "head" ? "head_short" : $"default_{slot}") : null);
+                if (layer is null || Pick(_assets.AvatarLayer(layer), m.Animation) is not { } part)
+                    continue;
+                DrawFrame(canvas, _assets.AvatarLayer(layer).Image, part.Frame(part.FrameAt(m.AnimationTime), m.Direction), foot, (float)m.Definition.Scale, paint);
+            }
+        }
+        else
+        {
+            var set = _assets.Enemy(m.Definition.Sprite);
+            if (Pick(set, m.Animation) is not { } anim)
+                return;
+            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(m.AnimationTime), m.Direction), foot, (float)m.Definition.Scale, paint);
+        }
         if (!m.IsDead && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints)
             WorldOverlay.DrawHealthBar(canvas, foot, (float)Zoom, m.Creature.HitPoints / (float)m.Creature.Stats.HitPoints,
                 m.Creature.Stats.Rank == CreatureRank.Champion);

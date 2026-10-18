@@ -48,7 +48,7 @@ public static class Pathfinder
                     continue;
                 if (dx != 0 && dy != 0 && (map.IsBlocked(current.X + dx, current.Y) || map.IsBlocked(current.X, current.Y + dy)))
                     continue;
-                var newCost = cost[current] + stepCost;
+                var newCost = cost[current] + stepCost * map.StepCost(next.X, next.Y);
                 if (cost.TryGetValue(next, out var old) && old <= newCost)
                     continue;
                 cost[next] = newCost;

@@ -264,6 +264,16 @@ internal sealed class Hud(IconStore icons)
                 .. Wrap(text, Dim),
             ], Bad));
         }
+        foreach (var type in c.Persistent.Types)
+        {
+            var name = type == DamageType.Fire ? "Burning" : type == DamageType.Poison ? "Poisoned" : $"Persistent {type.ToString().ToLowerInvariant()}";
+            var dice = c.Persistent.DiceFor(type);
+            items.Add((icons.Get($"persistent-{type}") is null ? "persistent" : $"persistent-{type}", Bad, null, null, () =>
+            [
+                new(name, Bad, dice?.ToString(), true),
+                .. Wrap($"{dice} {type.ToString().ToLowerInvariant()} damage a second; each second there's a 30% chance it ends. A shrine cleanses it.", Dim),
+            ], Bad));
+        }
         if (hero.HealRemaining > 0)
             items.Add(("healing", Good, null, null, () => [new("Healing", Good, $"+{hero.HealRemaining:0} to come", true), new("A potion's healing arrives over 2 s.", Dim)], Good));
         else if (world.Regenerating)

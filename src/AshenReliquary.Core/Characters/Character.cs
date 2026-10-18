@@ -103,6 +103,9 @@ public sealed class Character : IDefender
     }
 
     public ConditionSet Conditions { get; } = new();
+
+    /// <summary>Bleed, burning, poison on the hero (the Fens' bog, poisoned blades), ticked by the world.</summary>
+    public PersistentDamageSet Persistent { get; } = new();
     public DamageProfile Defenses { get; } = new();
     public HeroPoints HeroPoints { get; } = new();
     public HealingPotion Potion { get; } = new();
@@ -433,6 +436,7 @@ public sealed class Character : IDefender
     {
         IsDead = false;
         Conditions.Remove(ConditionKind.Drained);
+        Persistent.Clear();
         Taint.Cleanse();
         Potion.Refill();
         HitPoints = MaxHitPoints;

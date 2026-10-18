@@ -168,7 +168,7 @@ public class ZoneTravelTests
         WalkTo(world, gate.At[0] + 0.5, gate.At[1] + 0.5, 4);
         Assert.Equal("fort_gallowmere", world.Zone.Id);
         Assert.Equal("Fort Gallowmere", world.Arrival?.Title);
-        var back = world.Zone.Exits.Single();
+        var back = world.Zone.Exits.Single(e => e.Id == "gate");
         WalkTo(world, back.At[0] + 0.5, back.At[1] + 0.5);
         Assert.Equal("gallows_road", world.Zone.Id);
     }
@@ -201,7 +201,7 @@ public class ZoneTravelTests
         Assert.Equal("fort_gallowmere", loaded.Zone.Id);
         Assert.Contains(0, loaded.Memories["gallows_road"].Slain);
         Assert.True(loaded.Memories["gallows_road"].Complete);
-        var back = loaded.Zone.Exits.Single();
+        var back = loaded.Zone.Exits.Single(e => e.Id == "gate");
         WalkTo(loaded, back.At[0] + 0.5, back.At[1] + 0.5);
         Assert.Equal("gallows_road", loaded.Zone.Id);
         Assert.DoesNotContain(loaded.Monsters, m => m.SpawnIndex == 0);

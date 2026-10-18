@@ -24,6 +24,11 @@ public sealed class PersistentDamageSet
 
     public void Remove(DamageType type) => _effects.Remove(type);
 
+    public void Clear() => _effects.Clear();
+
+    /// <summary>The dice of one running effect (for tooltips), or null.</summary>
+    public Dice? DiceFor(DamageType type) => _effects.TryGetValue(type, out var e) ? e.Dice : null;
+
     /// <summary>Advances time and returns the damage dealt by every tick that came due, before defences.</summary>
     public IReadOnlyList<(DamageType Type, int Amount)> Update(double deltaSeconds, IRandomSource random)
     {

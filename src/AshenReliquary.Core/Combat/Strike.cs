@@ -68,19 +68,21 @@ public static class Strike
 
     /// <summary>
     /// A creature's strike: its level-based attack bonus against the target's AC. Damage is scaled by the
-    /// rank's solo-play damage multiplier before the target's defences.
+    /// rank's solo-play damage multiplier before the target's defences. <paramref name="targetAc"/> adjusts the
+    /// target's AC for this strike (−2 when flanked), <paramref name="attackBonus"/> and <paramref name="damageScale"/>
+    /// carry a monster affix's boost (Vengeful).
     /// </summary>
     public static StrikeResult Resolve(Creature attacker, IDefender target, AttackCadence cadence, double now,
-        IRandomSource random)
+        IRandomSource random, int targetAc = 0, int attackBonus = 0, double damageScale = 1.0)
     {
         var swing = ActionTiming.AttackInterval(attacker.AttacksPerSecond, 0, attacker.Conditions.ActionTimeMultiplier);
         var penalty = cadence.Attack(now, swing, agile: false);
-        var check = Check.Roll(random, attacker.AttackModifier().Total + penalty, target.ArmorClass().Total);
+        var check = Check.Roll(random, attacker.AttackModifier().Total + penalty + attackBonus, target.ArmorClass().Total + targetAc);
         var damage = 0;
         if (DamageCalculator.DegreeMultiplier(check.Degree) > 0)
         {
             var rolled = attacker.StrikeDamage.Roll(random);
-            var scaled = Math.Max(1, (int)Math.Round(rolled * attacker.Stats.DamageMultiplier, MidpointRounding.AwayFromZero));
+            var scaled = Math.Max(1, (int)Math.Round(rolled * attacker.Stats.DamageMultiplier * damageScale, MidpointRounding.AwayFromZero));
             damage = DamageCalculator.Compute(scaled, 0, check.Degree, attacker.StrikeDamageType, target.Defenses);
         }
         return new StrikeResult(check, penalty, damage, attacker.StrikeDamageType,

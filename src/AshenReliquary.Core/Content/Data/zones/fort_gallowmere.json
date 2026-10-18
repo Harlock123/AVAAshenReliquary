@@ -2,7 +2,7 @@
  "id": "fort_gallowmere",
  "name": "Fort Gallowmere",
  "level": 1,
- "revision": 1,
+ "revision": 2,
  "tileset": "tileset_grassland",
  "town": true,
  "tagline": "The refugees open the gate.",
@@ -18,9 +18,9 @@
   "TTTOL........-===-.......LTOTT",
   "TTTTL........-===-.......LTTTT",
   "TOOTL........-===-...a...LOTTT",
-  "TTTTL.x......-=c=-.......LTTTO",
-  "TOTTL........-===-.......LTOOO",
-  "TOTTL........-===-.......LOTTT",
+  "----P-x-------=c=-.......LTTTO",
+  "=================-.......LTOOO",
+  "----P---------===-.......LOTTT",
   "TTTOL........-===-.S.....LOTTT",
   "TTTTL........-===-.......LOOOT",
   "TTOTL........-===-.......LTTTO",
@@ -325,6 +325,21 @@
    "arrive": [
     15,
     22
+   ]
+  },
+  {
+   "id": "west_gate",
+   "label": "The Rotwater Fens",
+   "at": [
+    1,
+    12
+   ],
+   "radius": 1.5,
+   "to": "rotwater_fens",
+   "toExit": "fort",
+   "arrive": [
+    7,
+    12
    ]
   }
  ]

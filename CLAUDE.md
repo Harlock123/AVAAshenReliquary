@@ -26,16 +26,23 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (pending until the L screen, `LevelUpPanel`; saved and replayed), feat abilities on the bar (`GameWorld.RefreshBar`,
   on-hit conditions/knockback/targets/chain), the Shift Step dodge, respec at the Lantern altar. Step 5 done:
   `Items/Runework.cs` (rune ceilings by item level, etch and move prices), Garrow's Runework tab with a two-item
-  bench in `VendorPanel`. Next: the zones (steps 6–8).
-  The plan's five decisions for the user (act length, art, the scarecrow's "night", cuts, skills) are still open.
+  bench in `VendorPanel`. Step 6 done: the Rotwater Fens (`tools/rotwater_fens_mapgen.py`, through the fort's west
+  gate; fort revision 2): poison bog (`bog` ground, Fortitude saves, persistent poison on the hero), plague crawlers,
+  cultists and chanters (avatar-drawn creatures: `look`), the Vengeful affix, flanking (rule and AI), per-pack levels.
+  Next: step 7, the Drowned Chapel (dungeon tileset, darkness).
+  The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
+  of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
+  weeps after the chapel, the full skill list.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter
   BalanceReport --logger "console;verbosity=detailed"`. Its bot never kites, so the wizard rows are a worst case;
   it keeps its own copy of the starting kits.
-- **Open ideas, not yet asked for:** move the skeleton pack just south of the camp fence if it crowds the peddler;
-  orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art);
-  a real chest-opening sound (chests reuse the inventory-open clunk).
+- **Open ideas, not yet asked for:** the wizard falls behind from level 1 to 3 (see the Fens' balance note in spec
+  section 16); cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3 in the Fens; move
+  the skeleton pack just south of the camp fence if it crowds the peddler; orcs have only 2 portraits (a paid pack is
+  an option); Shield Block (needs shields: an off-hand slot and art); a real chest-opening sound (chests reuse the
+  inventory-open clunk).
 
 ## The development machine
 

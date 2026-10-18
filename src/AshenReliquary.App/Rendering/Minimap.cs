@@ -177,6 +177,8 @@ internal sealed class Minimap
         var ground = map.Ground(x, y);
         if (map.IsWater(x, y))
             return new SKColor(40, 62, 70);
+        if (map.IsBog(x, y))
+            return new SKColor(62, 74, 34);
         if (map.IsBlocked(x, y))
             return map.Objects(x, y).Any(id => id >= 240) ? new SKColor(28, 40, 26) : new SKColor(70, 64, 56);
         if (ground is >= 32 and <= 47)

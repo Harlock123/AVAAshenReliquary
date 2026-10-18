@@ -122,5 +122,79 @@
    "Mental"
   ],
   "voice": "grave"
+ },
+ {
+  "id": "plague_crawler",
+  "name": "Plague crawler",
+  "sprite": "antlion_small",
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.0,
+  "moveSpeed": 3.0,
+  "aggroRadius": 8,
+  "attackRange": 1.0,
+  "scale": 1.15,
+  "flanks": true,
+  "poisonOnHit": "1d2",
+  "poisonChance": 0.15,
+  "tint": "#d6c48e",
+  "weaknesses": {
+   "Fire": 2
+  },
+  "immunities": [
+   "Poison"
+  ],
+  "voice": "zombie",
+  "damage": "1d4"
+ },
+ {
+  "id": "cultist",
+  "name": "Rot cultist",
+  "sprite": "avatar",
+  "damageType": "Piercing",
+  "attacksPerSecond": 0.9,
+  "moveSpeed": 2.6,
+  "aggroRadius": 9,
+  "attackRange": 1.2,
+  "flanks": true,
+  "poisonOnHit": "1d2",
+  "poisonChance": 0.15,
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest_alt2",
+   "hands": "mage_sleeves_alt2",
+   "legs": "mage_skirt_alt2",
+   "feet": "mage_boots_alt2",
+   "main": "dagger"
+  },
+  "resistances": {
+   "Poison": 3
+  },
+  "voice": "zombie"
+ },
+ {
+  "id": "cult_chanter",
+  "name": "Rot chanter",
+  "sprite": "avatar",
+  "damageType": "Poison",
+  "attacksPerSecond": 0.6,
+  "moveSpeed": 2.0,
+  "aggroRadius": 10,
+  "attackRange": 6,
+  "ranged": true,
+  "caster": true,
+  "poisonOnHit": "1d3",
+  "poisonChance": 0.2,
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest_alt2",
+   "hands": "mage_sleeves_alt2",
+   "legs": "mage_skirt_alt2",
+   "feet": "mage_boots_alt2",
+   "main": "staff"
+  },
+  "resistances": {
+   "Poison": 3
+  },
+  "voice": "zombie"
  }
 ]

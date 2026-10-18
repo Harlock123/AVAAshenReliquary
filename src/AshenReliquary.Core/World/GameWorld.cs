@@ -210,7 +210,8 @@ public sealed partial class GameWorld
             foreach (var member in spawn.Pack)
             {
                 for (var i = 0; i < member.Count; i++)
-                    SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId).SpawnIndex = _nextSpawnIndex++;
+                    SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId, spawn.Level, member.Affixes)
+                        .SpawnIndex = _nextSpawnIndex++;
             }
         }
 
@@ -277,7 +278,8 @@ public sealed partial class GameWorld
             if (zone.Level - Hero.Character.Level >= 3)
                 warning = $"{zone.Name} is a level {zone.Level} area. Tread carefully.";
         }
-        if (zone.Town)
+        // A town's banner shows on every arrival; a zone with a tagline shows it the first time it is entered.
+        if (zone.Town || (first && zone.Tagline is not null))
             Arrival = new Banner(zone.Name, zone.Tagline, Time);
         if (warning is not null || !zone.Town)
             Say(warning ?? $"You enter {zone.Name}.");
@@ -927,6 +929,9 @@ public sealed partial class GameWorld
         }
 
         Regenerate(dt);
+        if (!TickHeroPersistent(dt))
+            return;
+        Bog(dt);
 
         foreach (var shrine in Zone.Shrines)
         {
@@ -1012,7 +1017,7 @@ public sealed partial class GameWorld
                     PlanPath(hero, target.X, target.Y);
                     hero.RepathIn = 0.3;
                 }
-                if (FollowPath(hero, c.MoveSpeedTilesPerSecond() * MapSpeedScale, dt, null))
+                if (FollowPath(hero, HeroSpeed(), dt, null))
                     hero.Play("run");
                 return;
             }
@@ -1036,8 +1041,7 @@ public sealed partial class GameWorld
             return;
         }
 
-        var speed = c.MoveSpeedTilesPerSecond() * MapSpeedScale;
-        if (FollowPath(hero, speed, dt, hero.Goal))
+        if (FollowPath(hero, HeroSpeed(), dt, hero.Goal))
             hero.Play("run");
         else
         {
@@ -1432,6 +1436,75 @@ public sealed partial class GameWorld
             Hero.Order = null;
         if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
             DropLoot(monster);
+        Avenge(monster);
+    }
+
+    public const int VengeanceMax = 3;
+    public const double VengeanceRadius = 12.0;
+
+    /// <summary>A fallen monster's Vengeful pack-mates nearby take a stack of Vengeance each, and come for the hero.</summary>
+    private void Avenge(MonsterActor fallen)
+    {
+        foreach (var m in _monsters.Where(m => m != fallen && !m.IsDead && m.PackId == fallen.PackId && m.Has(MonsterAffix.Vengeful)
+                     && m.Vengeance < VengeanceMax && m.DistanceTo(fallen) <= VengeanceRadius))
+        {
+            m.Vengeance++;
+            Float(m, m.Vengeance == VengeanceMax ? "VENGEANCE!" : "vengeance", FloatingTextKind.Critical, 0.8);
+            if (m.State == MonsterState.Idle)
+                Aggro(m);
+        }
+    }
+
+    /// <summary>A monster's Vengeance: to-hit, damage share and speed share.</summary>
+    private static (int Attack, double Damage, double Speed) VengeanceBonus(MonsterActor m) =>
+        (m.Vengeance, 1 + 0.1 * m.Vengeance, 1 + 0.05 * m.Vengeance);
+
+    /// <summary>
+    /// Pathfinder's flanking (spec, section 9): a monster in melee reach of the hero, with another monster in melee
+    /// reach on a side more than 120 degrees round from it, has the hero off-guard: −2 AC to its strikes.
+    /// </summary>
+    internal bool IsFlanking(MonsterActor m) => !m.Definition.Ranged && InMelee(m) && FlankPartner(m, requireFlank: true) is not null;
+
+    private bool InMelee(MonsterActor m) =>
+        !m.IsDead && !m.Definition.Ranged && !m.Definition.IsSpawner && m.DistanceTo(Hero) <= m.Definition.AttackRange + Hero.Radius + 0.3;
+
+    /// <summary>Another monster in melee with the hero; with <paramref name="requireFlank"/>, only one on a far side.</summary>
+    private MonsterActor? FlankPartner(MonsterActor m, bool requireFlank)
+    {
+        var (ax, ay) = (m.X - Hero.X, m.Y - Hero.Y);
+        foreach (var other in _monsters)
+        {
+            if (other == m || !InMelee(other))
+                continue;
+            if (!requireFlank)
+                return other;
+            var (bx, by) = (other.X - Hero.X, other.Y - Hero.Y);
+            var cos = (ax * bx + ay * by) / Math.Max(1e-6, Math.Sqrt(ax * ax + ay * ay) * Math.Sqrt(bx * bx + by * by));
+            if (cos < Math.Cos(120 * Math.PI / 180))
+                return other;
+        }
+        return null;
+    }
+
+    /// <summary>Where a flanker wants to stand: across the hero from an ally already in melee, on open ground.</summary>
+    private (double X, double Y)? FlankSpot(MonsterActor m)
+    {
+        if (FlankPartner(m, requireFlank: false) is not { } ally)
+            return null;
+        var (dx, dy) = (Hero.X - ally.X, Hero.Y - ally.Y);
+        var length = Math.Sqrt(dx * dx + dy * dy);
+        if (length < 1e-6)
+            return null;
+        var reach = Math.Max(0.8, m.Definition.AttackRange * 0.8);
+        foreach (var turn in new[] { 0.0, 0.5, -0.5 })
+        {
+            var (cos, sin) = (Math.Cos(turn), Math.Sin(turn));
+            var (ux, uy) = ((dx * cos - dy * sin) / length, (dx * sin + dy * cos) / length);
+            var (sx, sy) = (Hero.X + ux * reach, Hero.Y + uy * reach);
+            if (Map.IsWalkable(sx, sy))
+                return (sx, sy);
+        }
+        return null;
     }
 
     /// <summary>Set by the app so a death can pick "critdie" only for sprites that have it.</summary>
@@ -1542,8 +1615,25 @@ public sealed partial class GameWorld
 
         var inRange = distance <= def.AttackRange + hero.Radius
             && (!def.Ranged || Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y));
+        // A flanker in reach but not yet flanking circles round for up to 3 s while an ally holds the hero's attention.
+        if (inRange && def.Flanks && m.AttackCooldown <= 0 && !IsFlanking(m) && m.FlankTime < 3 && !def.Stationary
+            && m.Creature.Conditions.CanMove && FlankSpot(m) is { } spot)
+        {
+            m.FlankTime += dt;
+            m.State = MonsterState.Chase;
+            m.RepathIn -= dt;
+            if (m.Path.Count == 0 || m.RepathIn <= 0)
+            {
+                PlanPath(m, spot.X, spot.Y);
+                m.RepathIn = 0.4;
+            }
+            if (FollowPath(m, MonsterSpeed(m), dt, null))
+                m.Play("run");
+            return;
+        }
         if (inRange)
         {
+            m.FlankTime = 0;
             m.Path.Clear();
             m.Face(hero.X, hero.Y);
             if (m.AttackCooldown <= 0)
@@ -1551,7 +1641,7 @@ public sealed partial class GameWorld
                 m.State = MonsterState.Attack;
                 m.AttackElapsed = 0;
                 m.AttackLanded = false;
-                var anim = def.Ranged ? (def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";
+                var anim = def.Ranged ? (def.Caster || def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";
                 if (def.Ranged)
                     Sound(anim == "cast" ? SoundCue.WitchCast : SoundCue.Bow, m);
                 var windup = Math.Min(0.6, 0.6 / def.AttacksPerSecond);
@@ -1578,10 +1668,17 @@ public sealed partial class GameWorld
             m.Play("stance");
             return;
         }
-        if (FollowPath(m, def.MoveSpeed * m.Creature.Conditions.ActionTimeMultiplier switch { > 1 => 1 / m.Creature.Conditions.ActionTimeMultiplier, _ => 1 }, dt, null))
+        if (FollowPath(m, MonsterSpeed(m), dt, null))
             m.Play("run");
         else
             m.Play("stance");
+    }
+
+    /// <summary>A monster's walking speed: slowed by the Slowed condition, quickened by Vengeance.</summary>
+    private static double MonsterSpeed(MonsterActor m)
+    {
+        var slowed = m.Creature.Conditions.ActionTimeMultiplier;
+        return m.Definition.MoveSpeed * (slowed > 1 ? 1 / slowed : 1) * VengeanceBonus(m).Speed;
     }
 
     private void UpdateSpawner(MonsterActor m, double dt)
@@ -1599,7 +1696,7 @@ public sealed partial class GameWorld
         if (alive >= 3)
             return;
         m.Summoned++;
-        var child = SpawnNear(def.Summons, CreatureRank.Minion, m.X, m.Y, 1.5, m.PackId);
+        var child = SpawnNear(def.Summons, CreatureRank.Minion, m.X, m.Y, 1.5, m.PackId, m.Creature.Stats.Level);
         child.SummonedBy = m;
         child.Play("spawn", restart: true);
         Sound(SoundCue.GraveRise, m, "grave");
@@ -1614,32 +1711,110 @@ public sealed partial class GameWorld
             Float(Hero, "dodged", FloatingTextKind.Miss, 0.3);
             return;
         }
-        var result = Strike.Resolve(m.Creature, Hero.Character, m.Cadence, Time, Random);
+        // Flanked: off-guard to this strike, unless the hero is off-guard already (prone, say).
+        var flanked = IsFlanking(m) && !Hero.Character.Conditions.IsOffGuard;
+        if (flanked && Time - _flankedShownAt > 3)
+        {
+            _flankedShownAt = Time;
+            Float(Hero, "flanked", FloatingTextKind.Info, 0.5);
+        }
+        var (attack, damage, _) = VengeanceBonus(m);
+        var result = Strike.Resolve(m.Creature, Hero.Character, m.Cadence, Time, Random,
+            targetAc: flanked ? -ConditionSet.OffGuardAcPenalty : 0, attackBonus: attack, damageScale: damage);
         if (result.Damage > 0)
         {
-            var outcome = Hero.Character.TakeDamage(result.Damage);
-            Hero.Resource.OnCombat(taken: true);
             Sound(SoundCue.HeroHurt, Hero);
-            Float(Hero, result.Damage.ToString(), FloatingTextKind.DamageTaken);
-            if (outcome == DeathOutcome.RevivedByHeroPoint)
-            {
-                Say("A Hero Point pulls you back from death!");
-                Float(Hero, "HERO POINT", FloatingTextKind.Info, 1.0);
-            }
-            else if (outcome == DeathOutcome.Died)
-            {
-                HeroDied();
-            }
-            else if (!Hero.IsSwinging && Hero.Path.Count == 0)
-            {
-                Hero.Play("hit", restart: true);
-            }
+            if (!HurtHero(result.Damage))
+                return;
+            if (m.Definition.PoisonOnHit is { } poison && Random.Roll(1, 100) <= m.Definition.PoisonChance * 100)
+                Poison(Dice.Parse(poison));
         }
         else
         {
             Float(Hero, "miss", FloatingTextKind.Miss);
         }
     }
+
+    private double _flankedShownAt = double.MinValue;
+
+    /// <summary>Damage the hero takes: the number, the Hero Point or death. False when the hero fell for good.</summary>
+    private bool HurtHero(int dealt)
+    {
+        var outcome = Hero.Character.TakeDamage(dealt);
+        Hero.Resource.OnCombat(taken: true);
+        Float(Hero, dealt.ToString(), FloatingTextKind.DamageTaken);
+        if (outcome == DeathOutcome.RevivedByHeroPoint)
+        {
+            Say("A Hero Point pulls you back from death!");
+            Float(Hero, "HERO POINT", FloatingTextKind.Info, 1.0);
+        }
+        else if (outcome == DeathOutcome.Died)
+        {
+            HeroDied();
+            return false;
+        }
+        else if (!Hero.IsSwinging && Hero.Path.Count == 0)
+        {
+            Hero.Play("hit", restart: true);
+        }
+        return true;
+    }
+
+    /// <summary>Persistent poison on the hero (a stronger dose replaces a weaker one).</summary>
+    private void Poison(Dice dice)
+    {
+        if (Hero.Character.Defenses.Immunities.Contains(DamageType.Poison))
+            return;
+        Hero.Character.Persistent.Add(DamageType.Poison, dice);
+        Float(Hero, "poisoned", FloatingTextKind.Info, 0.5);
+    }
+
+    public const double BogSaveSeconds = 2.0;
+    public const double BogSpeed = 0.7;
+
+    /// <summary>The Fortitude DC of the bog's rot: 13 + the zone's level (15 in the Fens).</summary>
+    public int BogDc => 13 + Zone.Level;
+
+    private double _bogTimer;
+
+    /// <summary>
+    /// Standing in poison bog: every <see cref="BogSaveSeconds"/> a Fortitude save against <see cref="BogDc"/>. A failure
+    /// brings persistent poison (1d4, 2d4 on a critical failure) that runs on after the hero climbs out.
+    /// </summary>
+    private void Bog(double dt)
+    {
+        if (!Map.IsBog(Hero.X, Hero.Y) || Hero.DodgeRemaining > 0)
+        {
+            _bogTimer = 0;
+            return;
+        }
+        _bogTimer += dt;
+        if (_bogTimer < BogSaveSeconds)
+            return;
+        _bogTimer -= BogSaveSeconds;
+        var save = Check.Roll(Random, Hero.Character.Save(StatisticKind.Fortitude).Total, BogDc);
+        if (save.Degree >= DegreeOfSuccess.Success)
+            return;
+        if (Hero.Character.Persistent.DiceFor(DamageType.Poison) is null)
+            Say("The bog's rot seeps into you. Get out of the water.");
+        Poison(save.Degree == DegreeOfSuccess.CriticalFailure ? new Dice(2, 4) : new Dice(1, 4));
+    }
+
+    /// <summary>Persistent damage on the hero ticks (bog rot, poisoned blades). False when it killed the hero.</summary>
+    private bool TickHeroPersistent(double dt)
+    {
+        foreach (var (type, amount) in Hero.Character.Persistent.Update(dt, Random))
+        {
+            var dealt = DamageCalculator.ApplyDefenses(amount, type, Hero.Character.Defenses);
+            if (dealt > 0 && !HurtHero(dealt))
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>The hero's walking speed here: slower in the bog.</summary>
+    private double HeroSpeed() =>
+        Hero.Character.MoveSpeedTilesPerSecond() * MapSpeedScale * (Map.IsBog(Hero.X, Hero.Y) ? BogSpeed : 1.0);
 
     private void HeroDied()
     {
@@ -1812,7 +1987,7 @@ public sealed partial class GameWorld
     private void PlanPath(Actor actor, double x, double y)
     {
         actor.Path.Clear();
-        if (WalkableLine(actor.X, actor.Y, x, y))
+        if (WalkableLine(actor.X, actor.Y, x, y) && BogCrossed(actor.X, actor.Y, x, y) == 0)
         {
             actor.Path.Add((x, y));
             return;
@@ -1822,17 +1997,43 @@ public sealed partial class GameWorld
             return;
         if (path.Count > 0 && Map.IsWalkable(x, y))
             path[^1] = (x, y);
-        // Drop waypoints we can already see past, so movement isn't stuck to the grid.
+        // Drop waypoints we can already see past, so movement isn't stuck to the grid; but never cut across more bog
+        // than the path itself crosses, or the shortcut would wade through the pool the path went round.
         var smoothed = new List<(double X, double Y)>();
         var from = (actor.X, actor.Y);
+        var bog = 0;
         for (var i = 0; i < path.Count; i++)
         {
-            if (i + 1 < path.Count && WalkableLine(from.Item1, from.Item2, path[i + 1].X, path[i + 1].Y))
+            bog += Map.IsBog(path[i].X, path[i].Y) ? 1 : 0;
+            if (i + 1 < path.Count && WalkableLine(from.Item1, from.Item2, path[i + 1].X, path[i + 1].Y)
+                && BogCrossed(from.Item1, from.Item2, path[i + 1].X, path[i + 1].Y) <= bog + (Map.IsBog(path[i + 1].X, path[i + 1].Y) ? 1 : 0))
                 continue;
             smoothed.Add(path[i]);
             from = path[i];
+            bog = 0;
         }
         actor.Path.AddRange(smoothed);
+    }
+
+    /// <summary>How many bog cells a straight line passes through, leaving its start cell out.</summary>
+    private int BogCrossed(double x0, double y0, double x1, double y1)
+    {
+        var distance = Math.Sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+        var steps = Math.Max(1, (int)(distance * 4));
+        var start = ((int)Math.Floor(x0), (int)Math.Floor(y0));
+        var last = start;
+        var count = 0;
+        for (var i = 1; i <= steps; i++)
+        {
+            var t = (double)i / steps;
+            var cell = ((int)Math.Floor(x0 + (x1 - x0) * t), (int)Math.Floor(y0 + (y1 - y0) * t));
+            if (cell == last)
+                continue;
+            last = cell;
+            if (Map.IsBog(cell.Item1, cell.Item2))
+                count++;
+        }
+        return count;
     }
 
     private bool WalkableLine(double x0, double y0, double x1, double y1)
@@ -1916,16 +2117,20 @@ public sealed partial class GameWorld
 
     // ----- Helpers -------------------------------------------------------------------
 
-    private MonsterActor SpawnNear(string creatureId, CreatureRank rank, double x, double y, double radius, int packId)
+    private MonsterActor SpawnNear(string creatureId, CreatureRank rank, double x, double y, double radius, int packId,
+        int? level = null, IReadOnlyList<string>? affixNames = null)
     {
         var def = _creatures.TryGetValue(creatureId, out var d) ? d : throw new InvalidDataException($"Unknown creature '{creatureId}'.");
-        var stats = CreatureStats.For(Zone.Level, rank);
+        var stats = CreatureStats.For(level ?? Zone.Level, rank);
         var dice = def.Damage is { } text ? Dice.Parse(text) : stats.DefaultStrikeDamage;
+        var affixes = (affixNames ?? []).Select(a => Enum.TryParse<MonsterAffix>(a, ignoreCase: true, out var affix)
+            ? affix : throw new InvalidDataException($"Unknown monster affix '{a}'.")).ToList();
+        var prefix = string.Concat(affixes.Select(a => $"{a} "));
         var title = rank switch
         {
-            CreatureRank.Champion => $"{def.Name} Champion",
-            CreatureRank.Elite => $"{def.Name}, the Elite",
-            _ => def.Name,
+            CreatureRank.Champion => $"{prefix}{def.Name} Champion",
+            CreatureRank.Elite => $"{prefix}{def.Name}, the Elite",
+            _ => prefix + def.Name,
         };
         var creature = new Creature(title, stats, dice, def.DamageType, def.BuildDefenses(), def.AttacksPerSecond);
         double px = x, py = y;
@@ -1945,6 +2150,7 @@ public sealed partial class GameWorld
             Y = py,
             Direction = Random.Roll(0, 7),
             Radius = def.Stationary ? 0.6 : 0.35 * def.Scale,
+            Affixes = affixes,
         };
         if (def.IsSpawner)
             monster.SummonIn = 1.0;

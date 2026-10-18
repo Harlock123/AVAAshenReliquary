@@ -57,7 +57,9 @@ audio layer) with positional sound effects, footsteps, crossfading exploration a
 from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Chests in the glades and ruins hold loot for your level (click to open; a skull-chest reliquary guarded by the
 Champion). Fort Gallowmere, beyond the gate, is Act 1's hub: Wenna the peddler and Garrow the smith
 buy and sell (click them; right-click bag items to sell), Garrow etches and moves weapon and armour runes (his
-Runework tab: right-click gear to put it on his bench), and a stash keeps what you can't carry. Shrines wake when you pass within 5 tiles.
+Runework tab: right-click gear to put it on his bench), and a stash keeps what you can't carry. The fort's west gate
+leads into the Rotwater Fens (levels 2–3): poison bog that sickens anyone who wades in it, plague-crawler swarms, rot
+cultists who flank, and Vengeful champions who grow stronger as their pack falls. Shrines wake when you pass within 5 tiles.
 The exit test (gallows to gate in one sitting) passed on 2026-10-17. Next is M2: the rest of Act 1.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 

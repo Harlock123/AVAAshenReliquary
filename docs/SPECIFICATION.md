@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–5 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -811,12 +811,53 @@ Building the rules core and the vertical slice settled these. Where a number her
 
 - **Exits** lead to other zones (`to`, `toExit` in the zone file): walking into one completes the zone and travels, arriving at the other zone's matching exit, on its `arrive` tile (outside its radius, so the hero doesn't bounce back). An exit that leads to no known zone shows its banner ("The way on is not open yet"). Gallows Road's gate leads into Fort Gallowmere and back.
 - **Zones remember** (`ZoneMemory`): the monsters killed, chests opened, the explored map, loot left lying, completion and the traders' tables are kept when the hero leaves and restored on return. The save keeps the current zone's state where it always was and the others under `OtherZones`; a remembered zone remade since (another revision) starts afresh.
-- **The first visit** to a zone gives a Hero Point (up to 3) and, when the zone is 3 or more levels above the hero, a warning. A **town** zone (`town`, `tagline`) shows its banner on every arrival.
+- **The first visit** to a zone gives a Hero Point (up to 3) and, when the zone is 3 or more levels above the hero, a warning. A **town** zone (`town`, `tagline`) shows its banner on every arrival; any other zone with a `tagline` shows it on the first.
 - **Rift Shrines:** click a woken shrine (the hero walks to it) to open its Rift, a list of every other woken shrine in any zone; pick one to step through. Shrine ids are unique across zones.
 - **Autosave** on entering a zone, as well as when a shrine wakes and on leaving a trader.
 - **Fort Gallowmere** (`tools/fort_gallowmere_mapgen.py`), Act 1's hub: a palisaded yard behind the gate at the end of Gallows Road, with no monsters. Its people: **Sergeant Brask** at the gate; **Wenna Marsh** the peddler (moved in from the roadside camp) and **Garrow** the smith, who sells only arms and armour and etches and moves runes; **Ysolde** the herbalist and **Old Coll** the ferryman, who introduce themselves and hint at their side stories (the wells, the ferry) without starting them; the **stash** chest; the **Fort Shrine**. Every person carries a little light so faces read in the dark.
 - **The stash:** 60 slots that stay in the fort while the hero travels, saved with the character. Click the chest and the hero walks over; it opens on the left with the bag on the right. Left-click a stashed item to take it, right-click a bag item to stash it; Esc, closing the bag or walking away closes it. An interactable with `action: "stash"` opens it instead of a dialogue.
 - **Traders** can sell only some kinds of item (`sells`: weapons, armour, jewellery); a smith's table holds arms and armour.
+
+### The Rotwater Fens (M2)
+
+- **The zone** (`tools/rotwater_fens_mapgen.py`, 96×180, revision 1), Act 1's second: through the **west gate** of Fort
+  Gallowmere (fort revision 2) and down to the old ferry landing. A causeway runs south-west through the reed maze and
+  the **drowned village** (a cult camp in its ruins) to a fork: the **Sunken Road** west, half under the bog, or the
+  **Old Dyke** east, dry and busier, round a black mere. They meet at the **rot altar** (a ring of standing stones and
+  the zone's reliquary), and the chapel road ends at the sealed doors of the **Drowned Chapel** (zone 1.3, M2 step 7:
+  for now the exit shows "The way on is not open yet"). 33 packs, 10 chests, 4 shrines. Packs are level 2 to the end
+  of the fork and 3 from the altar on (a pack's `level` overrides the zone's); the four champions are level 2.
+- **Poison bog** (ground `bog`): walkable, drawn as grass darkened to a wet olive that slowly swells and fades, its rim
+  shaded in two steps, with reeds. The hero wades at 70% speed, and every 2 s in it makes a **Fortitude save** against
+  DC 13 + the zone's level (15 here): a failure brings persistent poison 1d4 (2d4 on a critical failure) that runs on
+  after the hero climbs out. A step onto bog costs the pathfinder 3, and path smoothing never cuts across more bog than
+  the path itself, so a click across a pool walks round it when the way round is short. Monsters path the same way but
+  take no harm and no slowing from it.
+- **Persistent damage on the hero** (it was monsters only): ticks once a second, a 30% chance each tick to end, shown in
+  the buff row with its dice; a shrine (and respawning) cleanses it. Creatures can poison on a hit (`poisonOnHit`,
+  `poisonChance`).
+- **New creatures:** **plague crawlers**, the Fens' swarm (Flare's small antlion, tinted a sickly pale yellow by the
+  creature's `tint`; in packs of 2–3 normal and 3 minions; 1d4 bites, a 15% chance of 1d2 poison); **rot cultists**
+  (daggers, 15% chance of 1d2 poison) and **rot chanters** (casters of poison bolts at 6 tiles, 20% chance of 1d3
+  poison), both drawn from Flare's avatar layers in its dark-red mage robes (`look` on a creature; `caster` picks the
+  cast animation). Fen zombies, drowned dead, bone archers, bog witches and grave knights carry on from the road.
+- **Monster affixes** (`affixes` on a pack member): Act 1's is **Vengeful**: each ally of its pack that falls within 12
+  tiles gives it a stack of Vengeance (at most 3): +1 to hit, +10% damage and +5% speed per stack, a red glow that
+  deepens, a "vengeance" callout, and it comes for the hero if it was idle. Its name reads "Vengeful ...". Every Fens
+  champion has it.
+- **Flanking**, the rule (section 9): a monster in melee reach of the hero, with another monster in melee reach more
+  than 120° round from it, has the hero off-guard: −2 AC to its strikes ("flanked" floats up now and then). It applies
+  everywhere; Gallows Road's numbers did not move (bot downs per run 1.1 / 1.7 / 1.3 before, 1.1 / 1.3 / 1.3 after).
+  **Flanking AI**, Act 1's behaviour (`flanks` on a creature: crawlers and cultists): a flanker in reach but not yet
+  flanking circles to the far side of the hero from an ally in melee, for up to 3 s, before striking from where it is.
+- **Balance** (`BalanceReport`: `The_Rotwater_Fens_at_level_2` plays the whole zone, every pack in file order, from a
+  level-2 hero; `Rotwater_Fens_packs` fights each pack at hero level 2 and 3). The bot clears the zone in about 8 minutes
+  as a fighter and 10–11 as a wizard (Gallows Road: about 4.5, which a player takes 10–13), so a player should take
+  about 20–25. The fighter bot dies once or twice a run (1.2–2.5 over runs of 6) and ends at level 3; at level 3 every
+  level-3 pack costs a fighter 14–50% of its HP. The wizard bot, which never kites, dies 7–9 times: from level 1 to 3
+  monster HP rises about 2.7 times and the wizard's damage 1.5 times, so a level-3 wizard standing still loses 44–82%
+  to a level-3 pack (Gallows Road at level 1: 0–39%). That is the wizard's scaling, not the zone's, and wants a look of
+  its own.
 
 ### Dialogue, flags and the journal (M2)
 

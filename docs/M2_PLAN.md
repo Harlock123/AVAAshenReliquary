@@ -80,7 +80,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - Property runes start at item level 8, after Act 1, so they wait for M3.
 - *Done when:* a striking rune moves from an old sword to a new one at the smith, and the tooltips agree.
 
-### 6. Zone 1.2, the Rotwater Fens (levels 2–3)
+### 6. Zone 1.2, the Rotwater Fens (levels 2–3) — done 2026-10-18 (the bot clears it; the play-test is yours)
 
 - Poison bog terrain (standing in it: persistent poison, a Fortitude save), plague-rat swarms (minions in numbers),
   cultists, the first monster affix (**Vengeful**) and the Act 1 AI behaviour (**flanking**).
@@ -117,7 +117,23 @@ Built on step 2, placed in zones 1.1–1.4 and the hub (section 4):
 - BalanceReport learns to play several zones in a row; the XP curve is set so Act 1 ends at level 5.
 - A full play-through from the gallows to Sallow's death, then the tuning it shows a need for.
 
-## Decisions for you
+## Decisions (taken 2026-10-18: the user said to go with the suggestions)
+
+- **Length:** zones 1.2–1.4 are each about 30 minutes (two to three times Gallows Road), for an Act 1 of about two
+  hours; the spec's 3–4 hours is revisited after the exit test.
+- **Art:** Flare first. The survey (2026-10-18) of the whole Flare repository (CC BY-SA 3.0 throughout): no rats,
+  cultists or witch-queen. Its creatures beyond what we use: goblins (and elites, runners), hobgoblins (and archers),
+  antlions (small, armoured, fossilised), fire and ice ants, minotaurs, wyverns (four elements and a boss), zombie
+  variants (dark, frozen, ghost), skeleton boss variants; the alpha demo's necromancer is too small and coarse to use.
+  Tilesets: cave, dungeon, snowplains. So: the Fens' swarm is **plague crawlers** (the small antlion, tinted bog
+  brown), **cultists** are drawn from the avatar layers (mage hoods, vests and skirts with daggers and staves, like
+  the fort's people), the Drowned Chapel uses the dungeon tileset, and Mother Sallow is the open art question for step
+  8 (a recoloured avatar caster at boss scale, or a paid pack).
+- **The scarecrow** weeps once the Drowned Chapel is cleared (a flag), not "at night": no day/night cycle.
+- **Cuts if time runs short:** as listed below (most are built already).
+- **Skills:** the full list (done in step 4); checks are written only for the ones Act 1 uses.
+
+## Decisions as they were put
 
 1. **The exit test's length.** Gallows Road takes 10–13 minutes once known. Four zones of that size plus the hub and
    side stories come to roughly an hour, not 3–4. Options: make zones 1.2–1.4 two to three times Gallows Road's

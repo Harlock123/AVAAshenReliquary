@@ -10,11 +10,14 @@ namespace AshenReliquary.Core.World;
 /// </summary>
 public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false);
 
-/// <summary>One monster in a pack: a creature id and its rank.</summary>
-public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1);
+/// <summary>One monster in a pack: a creature id, its rank and any monster affixes ("vengeful").</summary>
+public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null);
 
-/// <summary>A pack placed on the map. Members scatter within <see cref="Radius"/> tiles of <see cref="At"/>.</summary>
-public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, double Radius = 2.0);
+/// <summary>
+/// A pack placed on the map. Members scatter within <see cref="Radius"/> tiles of <see cref="At"/>. <see cref="Level"/>
+/// sets the pack's level where it differs from the zone's (the Fens run from 2 to 3).
+/// </summary>
+public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, double Radius = 2.0, int? Level = null);
 
 /// <summary>A shrine: checkpoint, respawn point, potion refill and Taint cleanse.</summary>
 public sealed record ShrineDefinition(string Id, string Name, int[] At);
@@ -55,7 +58,12 @@ public sealed record ZoneDefinition(
     public int Width => Rows.Max(r => r.Length);
 }
 
-/// <summary>A monster type: its look, behaviour and defences. Level and rank come from where it is placed.</summary>
+/// <summary>
+/// A monster type: its look, behaviour and defences. Level and rank come from where it is placed. <see cref="Look"/>
+/// draws it from Flare's avatar layers (a cultist) instead of an enemy sprite sheet; <see cref="Caster"/> picks the
+/// cast animation for a ranged attack; <see cref="Flanks"/> makes it circle to the far side of the hero from an ally
+/// (Act 1's AI behaviour); <see cref="PoisonOnHit"/> gives its hits a <see cref="PoisonChance"/> of persistent poison.
+/// </summary>
 public sealed record CreatureDefinition(
     string Id,
     string Name,
@@ -76,7 +84,12 @@ public sealed record CreatureDefinition(
     int SummonCap = 0,
     bool Stationary = false,
     string? Tint = null,
-    string Voice = "zombie")
+    string Voice = "zombie",
+    IReadOnlyDictionary<string, string>? Look = null,
+    bool Caster = false,
+    bool Flanks = false,
+    string? PoisonOnHit = null,
+    double PoisonChance = 0)
 {
     [JsonIgnore]
     public bool IsSpawner => Summons is not null;

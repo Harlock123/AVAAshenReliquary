@@ -12,6 +12,9 @@ public sealed class TileMap
         ["path"] = Enumerable.Range(32, 12).ToArray(),
         ["path_edge"] = Enumerable.Range(44, 4).ToArray(),
         ["water"] = Enumerable.Range(176, 16).ToArray(),
+        // The Fens' bog: grass the renderer darkens to wet, rotten olive (Flare's water sits a level down, so it can't
+        // lie flat among the ground tiles).
+        ["bog"] = Enumerable.Range(16, 16).ToArray(),
         ["none"] = [],
     };
 
@@ -20,6 +23,10 @@ public sealed class TileMap
     private readonly bool[,] _blocked;
     private readonly bool[,] _blocksSight;
     private readonly bool[,] _water;
+    private readonly bool[,] _bog;
+
+    /// <summary>What a step onto a bog cell costs the pathfinder: walkers go round a pool when the way round is short.</summary>
+    public const double BogStepCost = 3.0;
 
     public TileMap(ZoneDefinition zone)
     {
@@ -30,6 +37,7 @@ public sealed class TileMap
         _blocked = new bool[Width, Height];
         _blocksSight = new bool[Width, Height];
         _water = new bool[Width, Height];
+        _bog = new bool[Width, Height];
 
         for (var y = 0; y < Height; y++)
         {
@@ -44,6 +52,7 @@ public sealed class TileMap
                 if (entry.Objects is { Count: > 0 } objects)
                     _objects[x, y] = entry.Stack ? [.. objects] : [objects[Hash(x, y, 1) % objects.Count]];
                 _water[x, y] = entry.Ground == "water";
+                _bog[x, y] = entry.Ground == "bog";
                 _blocked[x, y] = entry.Blocks || _water[x, y];
                 _blocksSight[x, y] = entry.BlocksSight;
             }
@@ -72,6 +81,14 @@ public sealed class TileMap
 
     /// <summary>True for a cell the zone file marks as water (its edge cells show a shore).</summary>
     public bool IsWater(int x, int y) => InBounds(x, y) && _water[x, y];
+
+    /// <summary>True for poison bog: walkable, but slow and sickening to stand in.</summary>
+    public bool IsBog(int x, int y) => InBounds(x, y) && _bog[x, y];
+
+    public bool IsBog(double x, double y) => IsBog((int)Math.Floor(x), (int)Math.Floor(y));
+
+    /// <summary>The pathfinder's cost multiplier for stepping onto a cell.</summary>
+    public double StepCost(int x, int y) => IsBog(x, y) ? BogStepCost : 1.0;
 
     /// <summary>
     /// Flare's water lies a level below the ground, so a pond needs its banks: cliff tiles whose grass top covers the

@@ -206,6 +206,26 @@ public sealed class MonsterActor : Actor
     internal MonsterActor? SummonedBy { get; set; }
     /// <summary>Seconds left of the red hit flash.</summary>
     public double HitFlinch { get; internal set; }
+
+    /// <summary>Monster affixes (Act 1: <see cref="MonsterAffix.Vengeful"/>).</summary>
+    public IReadOnlyList<MonsterAffix> Affixes { get; internal set; } = [];
+
+    /// <summary>Vengeance stacks, 0 to <see cref="GameWorld.VengeanceMax"/>: each ally of its pack that dies adds one.</summary>
+    public int Vengeance { get; internal set; }
+
+    /// <summary>Seconds spent circling for a flank before it gives up and strikes from where it is.</summary>
+    internal double FlankTime { get; set; }
+
+    public bool Has(MonsterAffix affix) => Affixes.Contains(affix);
+}
+
+/// <summary>
+/// Grim Dawn-style "hero" monster affixes, one new per act (spec, section 7). Act 1's <b>Vengeful</b>: each ally of its
+/// pack that falls nearby gives it a stack of Vengeance, up to three: +1 to hit, +10% damage and +5% speed each.
+/// </summary>
+public enum MonsterAffix
+{
+    Vengeful,
 }
 
 public enum FloatingTextKind
