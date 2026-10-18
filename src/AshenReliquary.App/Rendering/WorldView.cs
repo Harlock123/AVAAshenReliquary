@@ -196,6 +196,11 @@ public sealed class WorldView : Control
             world.TalkTo(vendor);
             _holding = false;
         }
+        else if (CacheUnder(p) is { } cache)
+        {
+            world.OpenCache(cache);
+            _holding = false;
+        }
         else
         {
             var (x, y) = ToMap(p);
@@ -291,6 +296,21 @@ public sealed class WorldView : Control
         return null;
     }
 
+    /// <summary>The chest under a screen point.</summary>
+    public Cache? CacheUnder(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        var z = (float)Zoom;
+        foreach (var c in world.Caches)
+        {
+            var foot = ToScreen(c.X, c.Y);
+            if (p.X >= foot.X - 44 * z && p.X <= foot.X + 44 * z && p.Y >= foot.Y - 80 * z && p.Y <= foot.Y + 30 * z)
+                return c;
+        }
+        return null;
+    }
+
     // ----- Rendering -------------------------------------------------------------------------
 
     public override void Render(DrawingContext context) => context.Custom(new DrawOp(this, new Rect(Bounds.Size)));
@@ -379,6 +399,7 @@ public sealed class WorldView : Control
         _viewport = SKRect.Create(size);
         DrawLootLabels(canvas, world);
         DrawVendorLabels(canvas, world);
+        DrawCacheLabels(canvas, world);
         WorldOverlay.DrawFloatingText(this, canvas, world);
         var pointer = _pointer is { } pt ? new SKPoint((float)pt.X, (float)pt.Y) : (SKPoint?)null;
         var hud = HudLayer;
@@ -614,6 +635,11 @@ public sealed class WorldView : Control
             var vendor = v;
             items.Add((v.X + v.Y, v.X, () => DrawVendor(canvas, vendor)));
         }
+        foreach (var c in world.Caches)
+        {
+            var cache = c;
+            items.Add((c.X + c.Y, c.X, () => DrawCache(canvas, cache, tileset, world.Time)));
+        }
         foreach (var g in world.GroundItems)
         {
             var ground = g;
@@ -705,6 +731,48 @@ public sealed class WorldView : Control
             if (Pick(set, "stance") is not { } anim)
                 continue;
             DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(World!.Time), direction), foot, 1f, paint);
+        }
+    }
+
+    /// <summary>
+    /// A chest from the tileset: a plain cache is Flare's wooden chest (76, 77 by facing), dimmed once opened, as the art
+    /// has no open one; a reliquary is the spiked skull chest, shut (297, 299) or open (298, 300). Brighter when hovered.
+    /// </summary>
+    private void DrawCache(SKCanvas canvas, Cache cache, FlareTileset tileset, double time)
+    {
+        var facing = cache.Definition.Facing == 1 ? 1 : 0;
+        var id = cache.Definition.Kind == CacheKind.Reliquary
+            ? (facing == 0 ? 297 : 299) + (cache.Opened ? 1 : 0)
+            : 76 + facing;
+        if (!tileset.Tiles.TryGetValue(id, out var tile))
+            return;
+        var hovered = _pointer is { } p && CacheUnder(p) == cache;
+        using var paint = hovered
+            ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(40, 35, 25)) }
+            : cache.Opened && cache.Definition.Kind == CacheKind.Cache
+                ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(new SKColor(120, 115, 110), SKColors.Black) }
+                : null;
+        DrawTile(canvas, tile, ToScreen(cache.X, cache.Y), time, paint);
+    }
+
+    /// <summary>A chest's name when near (and still shut) or hovered.</summary>
+    private void DrawCacheLabels(SKCanvas canvas, GameWorld world)
+    {
+        using var font = new SKFont(WorldOverlay.Serif, 13);
+        using var ink = new SKPaint { IsAntialias = true };
+        using var back = new SKPaint { Color = new SKColor(0, 0, 0, 160) };
+        foreach (var c in world.Caches)
+        {
+            var hovered = _pointer is { } p && CacheUnder(p) == c;
+            if (!hovered && (c.Opened || world.Hero.DistanceTo(c.X, c.Y) > 6))
+                continue;
+            var text = c.Opened ? $"{c.Name} (empty)" : c.Name;
+            ink.Color = c.Opened ? Palette.Dim : c.Definition.Kind == CacheKind.Reliquary ? new SKColor(230, 170, 255) : Palette.Gold;
+            var foot = ToScreen(c.X, c.Y);
+            var top = foot.Y - 90 * (float)Zoom - 18;
+            var width = font.MeasureText(text) + 14;
+            canvas.DrawRect(SKRect.Create(foot.X - width / 2, top, width, 20), back);
+            canvas.DrawText(text, foot.X, top + 14, SKTextAlign.Center, font, ink);
         }
     }
 
@@ -873,6 +941,13 @@ public sealed class WorldView : Control
                 else if (id == 265)
                     lights.Add((ToScreen(x + 0.5, y + 0.5), 3.5f + flicker * 0.3f, new SKColor(110, 170, 255, 60)));
             }
+        }
+        // A faint glint on a shut chest, so it can be found in the dark.
+        foreach (var c in world.Caches)
+        {
+            if (!c.Opened)
+                lights.Add((ToScreen(c.X, c.Y), 1.5f + (float)Math.Sin(time * 2.1 + c.X) * 0.15f,
+                    c.Definition.Kind == CacheKind.Reliquary ? new SKColor(200, 140, 255, 55) : new SKColor(255, 210, 120, 45)));
         }
         // A trader's lantern, so the stall reads from across the camp.
         foreach (var v in world.Vendors)

@@ -51,7 +51,8 @@ choices and level-up boosts. The HUD: game-icons.net icons (CC BY 3.0, rasterise
 the hero and reveals as you explore (saved with the game), the target's weaknesses, resistances and conditions, a
 character sheet (C), and a tooltip on every element: every number is one hover away. Audio: OpenAL Soft (the AVA1942
 audio layer) with positional sound effects, footsteps, crossfading exploration and battle music, and an ambience loop,
-from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. A peddler in the camp at
+from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Chests in the glades and ruins hold loot for your level (click to open; a skull-chest reliquary guarded by the
+Champion). A peddler in the camp at
 the end of the road buys and sells (click her; right-click bag items to sell). Still to come in M1: the 20-minute
 play-through and tuning pass.
 `tools/screenshots.sh` renders frames headlessly from the real window.

@@ -849,6 +849,80 @@
    "radius": 2.0
   }
  ],
+ "caches": [
+  {
+   "id": "graveyard",
+   "at": [
+    26,
+    203
+   ],
+   "kind": "Cache",
+   "facing": 0
+  },
+  {
+   "id": "poachers",
+   "at": [
+    46,
+    179
+   ],
+   "kind": "Cache",
+   "facing": 1
+  },
+  {
+   "id": "hanging_tree",
+   "at": [
+    6,
+    163
+   ],
+   "kind": "Cache",
+   "facing": 0
+  },
+  {
+   "id": "farmstead",
+   "at": [
+    36,
+    137
+   ],
+   "kind": "Cache",
+   "facing": 1
+  },
+  {
+   "id": "drowned_cottage",
+   "at": [
+    44,
+    116
+   ],
+   "kind": "Cache",
+   "facing": 0
+  },
+  {
+   "id": "barrows",
+   "at": [
+    7,
+    69
+   ],
+   "kind": "Cache",
+   "facing": 1
+  },
+  {
+   "id": "knights_barrow",
+   "at": [
+    42,
+    45
+   ],
+   "kind": "Reliquary",
+   "facing": 0
+  },
+  {
+   "id": "camp",
+   "at": [
+    41,
+    8
+   ],
+   "kind": "Cache",
+   "facing": 1
+  }
+ ],
  "vendors": [
   {
    "id": "wenna",

@@ -42,6 +42,32 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         return drops;
     }
 
+    /// <summary>
+    /// A chest's contents at <paramref name="level"/> (the hero's): a plain cache holds one item (45% common, 45%
+    /// uncommon, 10% rare), 3 to 18 x (1 + level) gold and a 30% chance of a healing draught; a reliquary holds two items,
+    /// the first at least uncommon (25% rare), triple the gold and a 60% chance of a draught.
+    /// </summary>
+    public IReadOnlyList<LootDrop> RollCache(World.CacheKind kind, int level, IRandomSource random)
+    {
+        level = Math.Max(1, level);
+        var drops = new List<LootDrop>();
+        if (kind == World.CacheKind.Reliquary)
+        {
+            drops.Add(new LootDrop(Generate(level, random.Roll(1, 100) <= 25 ? Rarity.Rare : Rarity.Uncommon, random)));
+            drops.Add(new LootDrop(Generate(level, RollRarity(CreatureRank.Champion, random), random)));
+        }
+        else
+        {
+            var roll = random.Roll(1, 100);
+            drops.Add(new LootDrop(Generate(level, roll <= 45 ? Rarity.Common : roll <= 90 ? Rarity.Uncommon : Rarity.Rare, random)));
+        }
+        var gold = random.Roll(3, 18) * (1 + level) * (kind == World.CacheKind.Reliquary ? 3 : 1);
+        drops.Add(new LootDrop(null, Gold: gold));
+        if (random.Roll(1, 100) <= (kind == World.CacheKind.Reliquary ? 60 : 30))
+            drops.Add(new LootDrop(null, Draught: true));
+        return drops;
+    }
+
     public static Rarity RollRarity(CreatureRank rank, IRandomSource random)
     {
         var roll = random.Roll(1, 1000);

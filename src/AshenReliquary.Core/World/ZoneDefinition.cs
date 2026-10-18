@@ -38,7 +38,8 @@ public sealed record ZoneDefinition(
     IReadOnlyList<ShrineDefinition> Shrines,
     IReadOnlyList<ExitDefinition> Exits,
     IReadOnlyList<VendorDefinition>? Vendors = null,
-    int Revision = 1)
+    int Revision = 1,
+    IReadOnlyList<CacheDefinition>? Caches = null)
 {
     public int Height => Rows.Count;
     public int Width => Rows.Max(r => r.Length);

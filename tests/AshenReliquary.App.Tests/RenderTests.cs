@@ -32,6 +32,23 @@ public class RenderTests
     }
 
     [AvaloniaFact]
+    public void Clicking_a_chest_opens_it_and_spills_its_loot()
+    {
+        var kit = TestKit.Open();
+        var world = kit.World;
+        var cache = world.Caches.Single(c => c.Definition.Id == "graveyard");
+        world.MoveTo(cache.X + 1, cache.Y + 1);
+        kit.PlayUntil(() => world.Hero.DistanceTo(cache.X + 1, cache.Y + 1) < 0.6, 20);
+        var at = kit.Window.View.ToScreen(cache.X, cache.Y);
+        kit.Click(new Point(at.X, at.Y - 20));
+        kit.PlayUntil(() => cache.Opened, 5);
+        kit.Play(0.4);
+        kit.Capture(Shot("cache-opened"));
+        Assert.True(cache.Opened);
+        Assert.Contains(world.GroundItems, g => g.Drop.Item is not null);
+    }
+
+    [AvaloniaFact]
     public void Clicking_the_ground_walks_the_hero_there()
     {
         var kit = TestKit.Open();

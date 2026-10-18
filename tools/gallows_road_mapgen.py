@@ -181,6 +181,35 @@ grid[2][g1 + 1] = 'P'
 exit_at = [(g0 + g1) // 2, 4]
 
 rows = [''.join(r) for r in grid]
+
+# Chests, placed after the rows are drawn (they sit on open ground and don't change the map), mostly in the side
+# glades so exploring pays. Each goes on the plain-grass cell nearest its spot that has open ground beside it.
+def open_cell(x, y):
+    best = None
+    for dy in range(-4, 5):
+        for dx in range(-4, 5):
+            cx_, cy_ = x + dx, y + dy
+            if not inside(cx_, cy_) or rows[cy_][cx_] != '.':
+                continue
+            if not any(rows[cy_ + ny][cx_ + nx] in '.,=-' for nx, ny in ((1, 0), (-1, 0), (0, 1), (0, -1))):
+                continue
+            d = dx * dx + dy * dy
+            if best is None or d < best[0]:
+                best = (d, [cx_, cy_])
+    return best[1]
+def cache(id, x, y, kind="Cache", facing=0):
+    return {"id": id, "at": open_cell(x, y), "kind": kind, "facing": facing}
+caches = [
+    cache("graveyard", gx - 12, 203),
+    cache("poachers", int(path_x(178)) + 15, 179, facing=1),
+    cache("hanging_tree", int(path_x(164)) - 13, 163),
+    cache("farmstead", fx + 4, 137, facing=1),
+    cache("drowned_cottage", int(path_x(118)) + 10, 116),
+    cache("barrows", bx - 11, 69, facing=1),
+    cache("knights_barrow", int(path_x(46)) + 14, 45, kind="Reliquary"),
+    cache("camp", cx + 6, 8, facing=1),
+]
+
 def pack(*members, at, radius=2.0):
     return {"at": at, "radius": radius, "pack": [dict(zip(("creature", "rank", "count"), m)) for m in members]}
 N, M, C = "Normal", "Minion", "Champion"
@@ -252,6 +281,7 @@ zone = {
         {"id": "barrow_shrine", "name": "The Barrow Shrine", "at": shrine3},
     ],
     "exits": [{"id": "fort_gallowmere", "label": "Fort Gallowmere", "at": exit_at, "radius": 2.0}],
+    "caches": caches,
     "vendors": [
         {
             "id": "wenna", "name": "Wenna Marsh", "title": "Peddler", "at": [cx - 8, 12], "facing": 5, "stockSize": 12,

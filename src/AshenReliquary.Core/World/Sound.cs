@@ -24,6 +24,7 @@ public enum SoundCue
     Shrine,
     Death,
     ZoneComplete,
+    CacheOpen,
 }
 
 /// <summary>

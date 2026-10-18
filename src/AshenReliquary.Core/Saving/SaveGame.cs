@@ -60,6 +60,9 @@ public sealed record SaveGame
     public List<SavedGroundItem> Ground { get; init; } = [];
     public bool ZoneComplete { get; init; }
 
+    /// <summary>The chests already opened; missing in older saves, where every chest is still shut.</summary>
+    public List<string> OpenedCaches { get; init; } = [];
+
     /// <summary>The zone layout's revision when saved; older saves have none and count as revision 1.</summary>
     public int ZoneRevision { get; init; } = 1;
 
@@ -118,6 +121,7 @@ public sealed record SaveGame
             Gold = gear.Gold,
             ZoneId = world.Zone.Id,
             ZoneRevision = world.Zone.Revision,
+            OpenedCaches = world.Caches.Where(c => c.Opened).Select(c => c.Definition.Id).ToList(),
             Seed = seed,
             HeroX = c.IsDead ? world.RespawnPoint.X : hero.X,
             HeroY = c.IsDead ? world.RespawnPoint.Y : hero.Y,
@@ -180,7 +184,7 @@ public sealed record SaveGame
         }
         var ground = Ground.Select(g => new GroundItem(g.X, g.Y,
             new LootDrop(g.Item is { } item ? Load(content, item) : null, g.Gold, g.Draught), 0));
-        world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp, Explored);
+        world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp, Explored, OpenedCaches);
         foreach (var vendor in Vendors)
             world.RestoreVendor(vendor.Id, vendor.StockedForLevel, vendor.Stock.Select(i => Load(content, i)));
         return world;

@@ -50,7 +50,7 @@ public class WorldTests
     }
 
     [Fact]
-    public void Every_pack_shrine_and_trader_on_gallows_road_can_be_walked_to()
+    public void Every_pack_shrine_trader_and_chest_on_gallows_road_can_be_walked_to()
     {
         var zone = Content.Zone("gallows_road");
         var map = new TileMap(zone);
@@ -61,7 +61,8 @@ public class WorldTests
             : (at[0], at[1]);
         var places = zone.Spawns.Select(s => ("pack at " + string.Join(",", s.At), s.At))
             .Concat(zone.Shrines.Select(s => (s.Name, s.At)))
-            .Concat((zone.Vendors ?? []).Select(v => (v.Name, v.At)));
+            .Concat((zone.Vendors ?? []).Select(v => (v.Name, v.At)))
+            .Concat((zone.Caches ?? []).Select(c => ("chest " + c.Id, c.At)));
         foreach (var (name, at) in places)
             Assert.True(Pathfinder.Find(map, from, Near(at), maxNodes: 40000) is not null, $"{name} can't be reached");
     }

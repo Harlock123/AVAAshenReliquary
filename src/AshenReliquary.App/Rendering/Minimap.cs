@@ -69,6 +69,19 @@ internal sealed class Minimap
             region(SKRect.Create(at.X - 6, at.Y - 6, 12, 12), () => [new(v.Definition.Name, Palette.Gold, v.Definition.Title, true), new("Click them to trade.", Palette.Dim)],
                 Palette.Gold);
         }
+        foreach (var cache in world.Caches)
+        {
+            if (!world.IsExplored((int)cache.X, (int)cache.Y))
+                continue;
+            var at = At(cache.X, cache.Y);
+            var colour = cache.Opened ? Palette.Dim : cache.Definition.Kind == CacheKind.Reliquary ? new SKColor(230, 170, 255) : Palette.Gold;
+            paint.Color = colour;
+            canvas.DrawRect(SKRect.Create(at.X - 2.5f, at.Y - 2.5f, 5, 5), paint);
+            var c = cache;
+            region(SKRect.Create(at.X - 6, at.Y - 6, 12, 12), () =>
+                [new(c.Name, colour, c.Opened ? "opened" : "shut", true), new(c.Opened ? "Already looted." : "Click it to open it: loot for your level.", Palette.Dim)],
+                colour);
+        }
         foreach (var exit in world.Zone.Exits)
         {
             var at = At(exit.At[0] + 0.5, exit.At[1] + 0.5);

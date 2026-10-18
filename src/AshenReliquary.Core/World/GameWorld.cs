@@ -148,6 +148,7 @@ public sealed class GameWorld
             _vendors.Add(v);
             Restock(v);
         }
+        _caches.AddRange((zone.Caches ?? []).Select(c => new Cache(c)));
 
         var packId = 0;
         foreach (var spawn in zone.Spawns)
@@ -172,6 +173,7 @@ public sealed class GameWorld
     public IReadOnlyList<Impact> Impacts => _impacts;
     public IReadOnlyList<GroundItem> GroundItems => _ground;
     public IReadOnlyList<Vendor> Vendors => _vendors;
+    public IReadOnlyList<Cache> Caches => _caches;
 
     /// <summary>The trader whose wares are open, or null. Walking away (or dying) closes it.</summary>
     public Vendor? OpenVendor { get; private set; }
@@ -208,6 +210,7 @@ public sealed class GameWorld
         Hero.Order = null;
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
         Hero.Goal = (x, y);
         PlanPath(Hero, x, y);
     }
@@ -236,6 +239,7 @@ public sealed class GameWorld
         Hero.Order = new HeroOrder(ability, target);
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
     }
@@ -247,6 +251,7 @@ public sealed class GameWorld
             return;
         Hero.Order = null;
         Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
         Hero.PickupTarget = item;
         Hero.Goal = (item.X, item.Y);
         PlanPath(Hero, item.X, item.Y);
@@ -261,6 +266,51 @@ public sealed class GameWorld
         return true;
     }
 
+    // ----- Caches --------------------------------------------------------------------
+
+    private readonly List<Cache> _caches = [];
+
+    /// <summary>Walk to a chest (a click on it) and open it on arrival. An opened one just says so.</summary>
+    public void OpenCache(Cache cache)
+    {
+        if (Hero.IsDead || !_caches.Contains(cache))
+            return;
+        Hero.Order = null;
+        Hero.PickupTarget = null;
+        Hero.TalkTarget = null;
+        if (cache.Opened)
+        {
+            Say($"The {cache.Name.ToLowerInvariant()} is empty.");
+            return;
+        }
+        if (cache.DistanceTo(Hero.X, Hero.Y) <= Cache.OpenRadius)
+        {
+            Loot(cache);
+            return;
+        }
+        Hero.CacheTarget = cache;
+        var (fx, fy) = InFrontOf(cache.X, cache.Y);
+        Hero.Goal = (fx, fy);
+        PlanPath(Hero, fx, fy);
+    }
+
+    /// <summary>Opens a chest: its loot, rolled at the hero's level (never below the zone's), spills around it.</summary>
+    private void Loot(Cache cache)
+    {
+        Hero.CacheTarget = null;
+        Hero.Goal = null;
+        Hero.Path.Clear();
+        Hero.Face(cache.X, cache.Y);
+        cache.Opened = true;
+        Sound(SoundCue.CacheOpen, cache.X, cache.Y);
+        Say($"You open the {cache.Name.ToLowerInvariant()}.");
+        if (_loot is null)
+            return;
+        var drops = _loot.RollCache(cache.Definition.Kind, Math.Max(Hero.Character.Level, Zone.Level), Random);
+        Spill(cache.X, cache.Y, drops);
+        Sound(SoundCue.LootDrop, cache.X, cache.Y);
+    }
+
     // ----- Trading -------------------------------------------------------------------
 
     /// <summary>Walk to a trader (a click on them) and open their wares on arrival.</summary>
@@ -270,26 +320,27 @@ public sealed class GameWorld
             return;
         Hero.Order = null;
         Hero.PickupTarget = null;
+        Hero.CacheTarget = null;
         if (vendor.DistanceTo(Hero.X, Hero.Y) <= Vendor.TalkRadius)
         {
             Open(vendor);
             return;
         }
         Hero.TalkTarget = vendor;
-        var (fx, fy) = InFrontOf(vendor);
+        var (fx, fy) = InFrontOf(vendor.X, vendor.Y);
         Hero.Goal = (fx, fy);
         PlanPath(Hero, fx, fy);
     }
 
-    /// <summary>The walkable spot next to a trader closest to the hero, so the walk ends facing them.</summary>
-    private (double X, double Y) InFrontOf(Vendor vendor)
+    /// <summary>The walkable spot next to something standing on its own tile closest to the hero, so the walk ends facing it.</summary>
+    private (double X, double Y) InFrontOf(double ox, double oy)
     {
-        var best = (vendor.X + 1, vendor.Y + 1);
+        var best = (ox + 1, oy + 1);
         var bestDistance = double.MaxValue;
         for (var dy = -1; dy <= 1; dy++)
         for (var dx = -1; dx <= 1; dx++)
         {
-            var (x, y) = (vendor.X + dx, vendor.Y + dy);
+            var (x, y) = (ox + dx, oy + dy);
             if ((dx == 0 && dy == 0) || !Map.IsWalkable(x, y))
                 continue;
             var d = Hero.DistanceTo(x, y);
@@ -302,6 +353,7 @@ public sealed class GameWorld
     private void Open(Vendor vendor)
     {
         Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
         if (OpenVendor == vendor)
@@ -559,6 +611,8 @@ public sealed class GameWorld
         CollectLoot();
         if (hero.TalkTarget is { } talk && talk.DistanceTo(hero.X, hero.Y) <= Vendor.TalkRadius)
             Open(talk);
+        if (hero.CacheTarget is { } chest && chest.DistanceTo(hero.X, hero.Y) <= Cache.OpenRadius)
+            Loot(chest);
         if (OpenVendor is { } open && open.DistanceTo(hero.X, hero.Y) > Vendor.TalkRadius + 2.5)
             CloseVendor();
 
@@ -722,14 +776,22 @@ public sealed class GameWorld
         if (_loot is null)
             return;
         var drops = _loot.Roll(monster.Creature.Stats.Rank, monster.Creature.Stats.EffectiveLevel, Random, monster.Definition.IsSpawner);
+        Spill(monster.X, monster.Y, drops);
+        if (drops.Count > 0)
+            Sound(drops.Any(d => d.Gold > 0 && d.Item is null) && drops.All(d => d.Item is null) ? SoundCue.Gold : SoundCue.LootDrop, monster);
+    }
+
+    /// <summary>Scatters drops on walkable ground within a tile or so of a point (a corpse, a chest).</summary>
+    private void Spill(double cx, double cy, IEnumerable<LootDrop> drops)
+    {
         foreach (var drop in drops)
         {
-            double x = monster.X, y = monster.Y;
-            for (var attempt = 0; attempt < 8; attempt++)
+            double x = cx, y = cy;
+            for (var attempt = 0; attempt < 12; attempt++)
             {
                 var angle = Random.Roll(0, 359) * Math.PI / 180;
-                var r = 0.4 + Random.Roll(0, 80) / 100.0;
-                double px = monster.X + Math.Cos(angle) * r, py = monster.Y + Math.Sin(angle) * r;
+                var r = 0.6 + Random.Roll(0, 80) / 100.0;
+                double px = cx + Math.Cos(angle) * r, py = cy + Math.Sin(angle) * r;
                 if (Map.IsWalkable(px, py))
                 {
                     (x, y) = (px, py);
@@ -738,8 +800,6 @@ public sealed class GameWorld
             }
             _ground.Add(new GroundItem(x, y, drop, Time));
         }
-        if (drops.Count > 0)
-            Sound(drops.Any(d => d.Gold > 0 && d.Item is null) && drops.All(d => d.Item is null) ? SoundCue.Gold : SoundCue.LootDrop, monster);
     }
 
     /// <summary>Weapon abilities need melee reach; spells their range; reach grows with the target's size.</summary>
@@ -1174,6 +1234,7 @@ public sealed class GameWorld
         Hero.Action = null;
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
         OpenVendor = null;
         Hero.Goal = null;
         Hero.Path.Clear();
@@ -1301,8 +1362,14 @@ public sealed class GameWorld
     /// loot left lying around and whether the zone was finished. Called right after construction.
     /// </summary>
     internal void Restore(double heroX, double heroY, (double X, double Y) respawn, IEnumerable<string> shrines,
-        IEnumerable<int> slain, IEnumerable<GroundItem> ground, bool complete, int level, int xp, string? explored = null)
+        IEnumerable<int> slain, IEnumerable<GroundItem> ground, bool complete, int level, int xp, string? explored = null,
+        IEnumerable<string>? openedCaches = null)
     {
+        foreach (var id in openedCaches ?? [])
+        {
+            if (_caches.FirstOrDefault(c => c.Definition.Id == id) is { } cache)
+                cache.Opened = true;
+        }
         RestoreExplored(explored);
         Hero.X = heroX;
         Hero.Y = heroY;

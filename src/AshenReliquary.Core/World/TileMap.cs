@@ -49,11 +49,11 @@ public sealed class TileMap
             }
         }
         ShapeShores();
-        // Traders stand on their tile: walk round them, not through.
-        foreach (var vendor in zone.Vendors ?? [])
+        // Traders and chests stand on their tile: walk round them, not through.
+        foreach (var at in (zone.Vendors ?? []).Select(v => v.At).Concat((zone.Caches ?? []).Select(c => c.At)))
         {
-            if (InBounds(vendor.At[0], vendor.At[1]))
-                _blocked[vendor.At[0], vendor.At[1]] = true;
+            if (InBounds(at[0], at[1]))
+                _blocked[at[0], at[1]] = true;
         }
     }
 

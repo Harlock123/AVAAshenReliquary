@@ -132,6 +132,7 @@ public sealed class AudioDirector
         SoundCue.Shrine => "shrine",
         SoundCue.Death => "death",
         SoundCue.ZoneComplete => "zone-complete",
+        SoundCue.CacheOpen => "inventory",
         _ => "click",
     };
 

@@ -22,7 +22,8 @@ implementation decisions made so far). `README.md` has the run commands and cont
 - **Next:** repeat the M1 exit test on the longer road — a 20-minute play-through from the gallows to the gate —
   then the tuning it shows a need for, then mark M1 done in section 15. The bot takes about 4.7 minutes now (1.5
   before) and reaches level 2; a wizard play-test took 13 minutes of play. Ponds have rocky banks
-  (`TileMap.ShapeShores`).
+  (`TileMap.ShapeShores`). Chests (`caches` in the zone file, `World/Cache.cs`, `LootGenerator.RollCache`) hold loot
+  rolled at the hero's level when opened: eight on Gallows Road, a reliquary in the Champion's barrow.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter
