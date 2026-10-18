@@ -18,6 +18,10 @@ internal static class TestHooks
     public static void Sound(GameWorld world, SoundEvent sound) =>
         ((List<SoundEvent>)typeof(GameWorld).GetField("_sounds", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(world)!).Add(sound);
 
+    /// <summary>Awards XP as if a monster had died (levelling up as it goes).</summary>
+    public static void GainXp(GameWorld world, int xp) =>
+        typeof(GameWorld).GetMethod("GainXp", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(world, [xp, world.Hero]);
+
     /// <summary>Moves the hero to a map point at once.</summary>
     public static void Place(GameWorld world, double x, double y)
     {

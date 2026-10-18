@@ -91,6 +91,13 @@ public sealed class HeroActor : Actor
     internal Cache? CacheTarget { get; set; }
     internal ShrineDefinition? ShrineTarget { get; set; }
     internal Interactive? InteractTarget { get; set; }
+    internal double DodgeRemaining { get; set; }
+    internal (double X, double Y) DodgeDirection { get; set; }
+    internal double DodgeReadyAt { get; set; }
+    internal double InvulnerableUntil { get; set; }
+
+    /// <summary>True during a Step dodge: monsters' blows pass through.</summary>
+    public bool IsDodging => DodgeRemaining > 0;
     internal double FlourishReadyAt { get; set; }
     internal double StaggerRemaining { get; set; }
     internal double RespawnIn { get; set; }
@@ -133,6 +140,9 @@ public sealed class Projectile(AbilityDefinition ability, MonsterActor target, i
     public double X { get; internal set; } = x;
     public double Y { get; internal set; } = y;
     public double LaunchAt { get; } = now + index * 0.12;
+
+    /// <summary>How many more enemies this spell leaps to after it strikes (Electric Arc).</summary>
+    public int ChainLeft { get; init; }
 }
 
 /// <summary>Loot lying on the ground: an item, a pile of gold or a healing draught.</summary>

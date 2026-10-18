@@ -64,7 +64,9 @@ public sealed record ClassDefinition(
     string Resource,
     IReadOnlyList<string> Subclasses,
     IReadOnlyDictionary<ProficiencyTrack, IReadOnlyDictionary<int, ProficiencyRank>> Proficiencies,
-    IReadOnlyList<ArmorCategory>? ArmorCategories = null)
+    IReadOnlyList<ArmorCategory>? ArmorCategories = null,
+    IReadOnlyList<string>? TrainedSkills = null,
+    int SkillPicks = 0)
 {
     /// <summary>
     /// Whether the class is trained in an armour category. Unarmoured defence always is; in armour it isn't trained

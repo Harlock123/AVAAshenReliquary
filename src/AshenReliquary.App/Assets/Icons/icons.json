@@ -42,6 +42,48 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "intimidating_strike",
+  "file": "intimidating_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/screaming.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "brutish_shove",
+  "file": "brutish_shove.png",
+  "source": "https://game-icons.net/1x1/delapouite/push.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "knockdown",
+  "file": "knockdown.png",
+  "source": "https://game-icons.net/1x1/lorc/stomp.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "swipe",
+  "file": "swipe.png",
+  "source": "https://game-icons.net/1x1/lorc/sword-spin.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "electric_arc",
+  "file": "electric_arc.png",
+  "source": "https://game-icons.net/1x1/lorc/lightning-arc.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "ray_of_frost",
+  "file": "ray_of_frost.png",
+  "source": "https://game-icons.net/1x1/lorc/ice-bolt.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",
@@ -199,6 +241,13 @@
   "id": "potion",
   "file": "potion.png",
   "source": "https://game-icons.net/1x1/lorc/heart-bottle.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "step",
+  "file": "step.png",
+  "source": "https://game-icons.net/1x1/lorc/sprint.html",
   "author": "Lorc",
   "licence": "CC BY 3.0"
  }

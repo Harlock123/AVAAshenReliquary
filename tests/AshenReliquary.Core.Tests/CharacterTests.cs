@@ -178,10 +178,13 @@ public class CharacterStatsTests
     }
 
     [Fact]
-    public void Level_cap_is_twenty_and_boost_levels_need_boosts()
+    public void Level_cap_is_twenty_and_a_boost_level_waits_for_its_boosts()
     {
         var c = TestCharacters.AtLevel(TestCharacters.Fighter(), 4);
-        Assert.Throws<RulesException>(() => c.LevelUp());
+        c.LevelUp();                                         // level 5's boosts can wait for the level-up screen
+        Assert.Equal(5, c.Level);
+        Assert.Contains(5, c.PendingLevels);
+        Assert.Throws<RulesException>(() => c.LevelUp([AttributeKind.Strength]));
         TestCharacters.AtLevel(c, 20);
         Assert.Throws<RulesException>(() => c.LevelUp());
     }

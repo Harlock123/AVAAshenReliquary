@@ -114,7 +114,7 @@ public sealed class GameSession
     {
         var content = ContentDatabase.Embedded;
         var hero = CharacterBuilder.Create(content, choices);
-        var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, seed, content.AbilityBar(choices.ClassId), content.Loot, content.Zones, content.Dialogues);
+        var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, seed, content.AbilityBar(choices.ClassId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, choices.ClassId);
         hero.RestAtShrine();
         var session = new GameSession(world, choices.ClassId) { SaveId = Services.SaveStore.NewSaveId(choices.Name), Seed = seed };

@@ -12,6 +12,9 @@ ICONS = {
     # Abilities (abilities.json ids)
     "strike": "lorc/broadsword", "power_attack": "lorc/hammer-drop", "sudden_charge": "delapouite/charging-bull",
     "ignition": "lorc/fireball", "force_bolt": "delapouite/bolt-spell-cast", "staff_strike": "lorc/wizard-staff",
+    # Feat abilities (M2)
+    "intimidating_strike": "lorc/screaming", "brutish_shove": "delapouite/push", "knockdown": "lorc/stomp",
+    "swipe": "lorc/sword-spin", "electric_arc": "lorc/lightning-arc", "ray_of_frost": "lorc/ice-bolt",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",
@@ -22,7 +25,7 @@ ICONS = {
     "persistent": "lorc/dripping-blade",
     # HUD
     "healing": "lorc/heart-bottle", "tainted": "lorc/daemon-skull", "hero-point": "lorc/laurel-crown",
-    "flourish": "lorc/hourglass", "potion": "lorc/heart-bottle",
+    "flourish": "lorc/hourglass", "potion": "lorc/heart-bottle", "step": "lorc/sprint",
 }
 
 AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll"}

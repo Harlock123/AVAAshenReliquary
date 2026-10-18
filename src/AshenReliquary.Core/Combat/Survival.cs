@@ -73,7 +73,12 @@ public sealed class TaintMeter(double rateMultiplier = 1.0)
     public const double PenaltyThreshold = 50;
     public const double WhispersSeconds = 2.0;
 
-    public double RateMultiplier { get; } = rateMultiplier;
+    public double RateMultiplier { get; private set; } = rateMultiplier;
+
+    /// <summary>Makes Taint build more slowly by a share (a feat): 0.25 means a quarter more slowly.</summary>
+    public void SlowBy(double share) => RateMultiplier *= Math.Clamp(1 - share, 0, 1);
+
+    internal void ResetRate(double rate) => RateMultiplier = rate;
     public double Value { get; private set; }
     public double ReversedMovementRemaining { get; private set; }
 

@@ -59,6 +59,13 @@ public sealed class AttributeSet
             Boost(kind);
     }
 
+    /// <summary>Takes on another set's values (a respec back to the level-1 attributes).</summary>
+    public void CopyFrom(AttributeSet other)
+    {
+        Array.Copy(other._modifiers, _modifiers, 6);
+        Array.Copy(other._partial, _partial, 6);
+    }
+
     public AttributeSet Clone()
     {
         var copy = new AttributeSet();

@@ -23,7 +23,8 @@ Left-click the ground to walk (hold to keep walking), left-click a monster for y
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
-items (right-click bag items to stash them), **J** the journal, **F5** saves,
+items (right-click bag items to stash them), **J** the journal, **L** the level-up screen (when a level is waiting), **Shift** steps
+(a quick dodge toward the pointer), **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,

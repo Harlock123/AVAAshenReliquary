@@ -39,7 +39,7 @@ public sealed class ClassResource
 
     /// <summary>Mana or Focus per second: 1 + a quarter per point of the key attribute + a tenth per level.</summary>
     public double RegenPerSecond => Kind == ResourceKind.Fury ? 0
-        : (1 + 0.25 * Math.Max(0, _character.Attributes[_character.KeyAttribute]) + 0.1 * _character.Level) * (1 + _character.Gear.ResourceRegen);
+        : (1 + 0.25 * Math.Max(0, _character.Attributes[_character.KeyAttribute]) + 0.1 * _character.Level) * (1 + _character.Gear.ResourceRegen + _character.ResourceRegenBonus);
 
     public bool CanSpend(double amount) => Current + 1e-9 >= amount;
 
@@ -56,7 +56,7 @@ public sealed class ClassResource
     {
         _sinceCombat = 0;
         if (Kind == ResourceKind.Fury)
-            Current = Math.Min(Max, Current + (taken ? FuryWhenHit : (critical ? FuryPerCrit : FuryPerHit) + _character.Gear.FuryPerHit));
+            Current = Math.Min(Max, Current + (taken ? FuryWhenHit : (critical ? FuryPerCrit : FuryPerHit) + _character.Gear.FuryPerHit + _character.FuryPerHitBonus));
     }
 
     public void Update(double dt)

@@ -134,9 +134,9 @@ public class DialogueTests
     {
         var hero = TestCharacters.Fighter();                // a Deserter: trained in Athletics and Warfare Lore
         var str = hero.Attributes[AttributeKind.Strength];
-        Assert.Equal(str + 2 + hero.Level, hero.Skill("Athletics").Total);
+        Assert.Equal(str + 2 + hero.Level + 2, hero.Skill("Athletics").Total); // + Hardy Recovery, the Deserter's skill feat
         Assert.Equal(hero.Attributes[AttributeKind.Intelligence] + 2 + hero.Level, hero.Skill("Warfare Lore").Total);
-        Assert.Equal(hero.Attributes[AttributeKind.Charisma], hero.Skill("Diplomacy").Total);
+        Assert.Equal(hero.Attributes[AttributeKind.Charisma] + 2, hero.Skill("Diplomacy").Total); // untrained, + Cooperative Nature
         Assert.Throws<RulesException>(() => hero.Skill("Juggling"));
     }
 

@@ -21,7 +21,11 @@ implementation decisions made so far). `README.md` has the run commands and cont
   Gallowmere as a stub zone (`tools/fort_gallowmere_mapgen.py`), world flags, `dialogues.json` with checks and
   effects (`GameWorld.Dialogue.cs`, `DialoguePanel`), NPCs and interactables in zone files, the journal (J,
   `JournalPanel`), a provisional `Character.Skill`. Step 3 done: the fort's people (Brask, Wenna moved in, Garrow
-  the smith selling arms and armour, Ysolde, Old Coll), the stash (`Stash`, `StashPanel`). Next: step 4 (feats and skills).
+  the smith selling arms and armour, Ysolde, Old Coll), the stash (`Stash`, `StashPanel`). Step 4 done: skill ranks
+  and creation skill picks, `feats.json` + `Characters/Feats.cs` (data effects), per-level `LevelChoice`s
+  (pending until the L screen, `LevelUpPanel`; saved and replayed), feat abilities on the bar (`GameWorld.RefreshBar`,
+  on-hit conditions/knockback/targets/chain), the Shift Step dodge, respec at the Lantern altar. Next: step 5
+  (the smith's runes), then the zones (steps 6–8).
   The plan's five decisions for the user (act length, art, the scarecrow's "night", cuts, skills) are still open.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs
@@ -29,8 +33,8 @@ implementation decisions made so far). `README.md` has the run commands and cont
   BalanceReport --logger "console;verbosity=detailed"`. Its bot never kites, so the wizard rows are a worst case;
   it keeps its own copy of the starting kits.
 - **Open ideas, not yet asked for:** move the skeleton pack just south of the camp fence if it crowds the peddler;
-  orcs have only 2 portraits (a paid pack is an option); the Step dodge and Shield Block from the spec (melee has
-  no active defence yet); a real chest-opening sound (chests reuse the inventory-open clunk).
+  orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art);
+  a real chest-opening sound (chests reuse the inventory-open clunk).
 
 ## The development machine
 

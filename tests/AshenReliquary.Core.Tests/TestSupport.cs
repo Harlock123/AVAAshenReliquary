@@ -34,7 +34,8 @@ internal static class TestCharacters
         AncestryFreeBoosts: [AttributeKind.Strength, AttributeKind.Constitution],
         BackgroundBoost: AttributeKind.Strength,
         BackgroundFreeBoost: AttributeKind.Dexterity,
-        FreeBoosts: [AttributeKind.Strength, AttributeKind.Dexterity, AttributeKind.Constitution, AttributeKind.Wisdom]);
+        FreeBoosts: [AttributeKind.Strength, AttributeKind.Dexterity, AttributeKind.Constitution, AttributeKind.Wisdom],
+        AncestryFeat: "cooperative_nature"); // touches only Diplomacy, so the tests' numbers stay plain
 
     public static Character Fighter() => CharacterBuilder.Create(Content, FighterChoices);
 
@@ -44,7 +45,8 @@ internal static class TestCharacters
         AncestryFreeBoosts: [AttributeKind.Wisdom],
         BackgroundBoost: AttributeKind.Intelligence,
         BackgroundFreeBoost: AttributeKind.Constitution,
-        FreeBoosts: [AttributeKind.Intelligence, AttributeKind.Dexterity, AttributeKind.Constitution, AttributeKind.Charisma]));
+        FreeBoosts: [AttributeKind.Intelligence, AttributeKind.Dexterity, AttributeKind.Constitution, AttributeKind.Charisma],
+        AncestryFeat: "elven_lore"));
 
     public static Character AtLevel(Character character, int level)
     {

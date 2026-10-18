@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AshenReliquary.Core.Abilities;
 using AshenReliquary.Core.Characters;
 using AshenReliquary.Core.Combat;
@@ -138,11 +139,13 @@ public sealed partial class GameWorld
     /// <param name="zones">Every zone an exit or a Rift Shrine can lead to; without it exits only complete the zone.</param>
     public GameWorld(ZoneDefinition zone, IReadOnlyDictionary<string, CreatureDefinition> creatures, Character hero, int seed,
         IReadOnlyDictionary<string, AbilityDefinition>? bar = null, LootGenerator? loot = null,
-        IReadOnlyDictionary<string, ZoneDefinition>? zones = null, IReadOnlyDictionary<string, DialogueDefinition>? dialogues = null)
+        IReadOnlyDictionary<string, ZoneDefinition>? zones = null, IReadOnlyDictionary<string, DialogueDefinition>? dialogues = null,
+        IReadOnlyDictionary<string, AbilityDefinition>? abilities = null)
     {
         _loot = loot;
         _dialogues = dialogues ?? _dialogues;
-        Bar = bar ?? new Dictionary<string, AbilityDefinition>();
+        _classBar = bar ?? new Dictionary<string, AbilityDefinition>();
+        _abilities = abilities ?? new Dictionary<string, AbilityDefinition>();
         _creatures = creatures;
         _zones = zones ?? new Dictionary<string, ZoneDefinition> { [zone.Id] = zone };
         Random = new SeededRandom(seed);
@@ -150,6 +153,7 @@ public sealed partial class GameWorld
         Hero = new HeroActor(hero) { X = zone.PlayerStart[0] + 0.5, Y = zone.PlayerStart[1] + 0.5 };
         Experience = new Experience();
         _startZone = zone.Id;
+        RefreshBar();
         Populate(zone, null);
         RespawnPoint = (Hero.X, Hero.Y);
         hero.HeroPoints.GainForZone();
@@ -293,6 +297,52 @@ public sealed partial class GameWorld
         return true;
     }
 
+    // ----- The Step dodge ------------------------------------------------------------------
+
+    /// <summary>The Step dodge (spec, section 10): 2 tiles in a quarter of a second, untouchable meanwhile, every 4 s.</summary>
+    public const double DodgeTiles = 2.0;
+    public const double DodgeSeconds = 0.25;
+    public const double DodgeCooldown = 4.0;
+
+    public double DodgeCooldownRemaining => Math.Max(0, Hero.DodgeReadyAt - Time);
+
+    /// <summary>Steps toward a point, dropping whatever the hero was doing. False on cooldown, unable to move, or dead.</summary>
+    public bool Dodge(double towardX, double towardY)
+    {
+        if (Hero.IsDead || !Hero.Character.Conditions.CanMove || Time < Hero.DodgeReadyAt || Hero.DodgeRemaining > 0)
+            return false;
+        var (dx, dy) = (towardX - Hero.X, towardY - Hero.Y);
+        var length = Math.Sqrt(dx * dx + dy * dy);
+        if (length < 1e-6)
+            return false;
+        Hero.Order = null;
+        Hero.Action = null;
+        Hero.Goal = null;
+        Hero.Path.Clear();
+        Hero.DodgeDirection = (dx / length, dy / length);
+        Hero.DodgeRemaining = DodgeSeconds;
+        Hero.InvulnerableUntil = Time + DodgeSeconds;
+        Hero.DodgeReadyAt = Time + DodgeCooldown;
+        Hero.Face(towardX, towardY);
+        Hero.Play("run", rate: 2.0, restart: true);
+        Sound(SoundCue.Swing, Hero);
+        return true;
+    }
+
+    private void AdvanceDodge(double dt)
+    {
+        var step = Math.Min(dt, Hero.DodgeRemaining);
+        Hero.DodgeRemaining -= step;
+        var distance = DodgeTiles / DodgeSeconds * step;
+        var (nx, ny) = (Hero.X + Hero.DodgeDirection.X * distance, Hero.Y + Hero.DodgeDirection.Y * distance);
+        if (Map.IsWalkable(nx, ny))
+            (Hero.X, Hero.Y) = (nx, ny);
+        else
+            Hero.DodgeRemaining = 0; // stopped by a wall or a tree
+        if (Hero.DodgeRemaining <= 0)
+            Hero.Play("stance");
+    }
+
     // ----- Rift Shrines ------------------------------------------------------------------
 
     /// <summary>The shrine whose Rift is open (its travel list on screen), or null.</summary>
@@ -406,7 +456,33 @@ public sealed partial class GameWorld
     // ----- Commands from the player ------------------------------------------------
 
     /// <summary>The ability bar: "lmb", "rmb" and "1".."6" to abilities. The basic attack is the "lmb" slot.</summary>
-    public IReadOnlyDictionary<string, AbilityDefinition> Bar { get; }
+    public IReadOnlyDictionary<string, AbilityDefinition> Bar => _bar;
+
+    private readonly IReadOnlyDictionary<string, AbilityDefinition> _classBar;
+    private readonly IReadOnlyDictionary<string, AbilityDefinition> _abilities;
+    private readonly Dictionary<string, AbilityDefinition> _bar = [];
+
+    /// <summary>The class's abilities in their slots, then those feats have granted in the free number slots, in order.</summary>
+    private void RefreshBar()
+    {
+        _bar.Clear();
+        foreach (var (slot, ability) in _classBar)
+            _bar[slot] = ability;
+        var free = new Queue<string>(new[] { "1", "2", "3", "4", "5", "6" }.Where(s => !_bar.ContainsKey(s)));
+        foreach (var id in Hero.Character.GrantedAbilities)
+        {
+            if (_abilities.TryGetValue(id, out var ability) && free.TryDequeue(out var slot))
+                _bar[slot] = ability;
+        }
+    }
+
+    /// <summary>Makes a level's picks (the level-up screen's Confirm); new abilities go on the bar.</summary>
+    public void ChooseLevel(int level, Characters.LevelChoice choice)
+    {
+        Hero.Character.Choose(level, choice);
+        RefreshBar();
+        Say($"Level {level}: your choices are made.");
+    }
 
     /// <summary>The basic attack: the "lmb" slot, or a plain weapon Strike when the bar has none.</summary>
     public AbilityDefinition BasicAbility => Bar.GetValueOrDefault("lmb") ?? DefaultStrike;
@@ -851,6 +927,11 @@ public sealed partial class GameWorld
         if (OpenVendor is { } open && open.DistanceTo(hero.X, hero.Y) > Vendor.TalkRadius + 2.5)
             CloseVendor();
 
+        if (hero.DodgeRemaining > 0)
+        {
+            AdvanceDodge(dt);
+            return;
+        }
         if (hero.StaggerRemaining > 0)
         {
             hero.StaggerRemaining -= dt;
@@ -940,7 +1021,7 @@ public sealed partial class GameWorld
         Regenerating = Time - _calmSince >= RegenDelaySeconds && c.HitPoints < c.MaxHitPoints;
         if (!Regenerating)
             return;
-        _healCarry += c.MaxHitPoints * RegenShare * dt;
+        _healCarry += c.MaxHitPoints * RegenShare * (1 + c.RecoveryBonus) * dt;
         var whole = (int)_healCarry;
         if (whole > 0)
         {
@@ -1038,8 +1119,8 @@ public sealed partial class GameWorld
     }
 
     /// <summary>Weapon abilities need melee reach; spells their range; reach grows with the target's size.</summary>
-    private static double ReachFor(AbilityDefinition ability, MonsterActor target) =>
-        ability.IsSpell ? ability.Range : MeleeReach + target.Radius;
+    private double ReachFor(AbilityDefinition ability, MonsterActor target) =>
+        ability.IsSpell ? ability.Range + Hero.Character.SpellRangeBonus : MeleeReach + Hero.Character.ReachBonus + target.Radius;
 
     /// <summary>Why an ability can't start right now, or null if it can.</summary>
     private string? WhyNot(AbilityDefinition ability)
@@ -1129,14 +1210,18 @@ public sealed partial class GameWorld
         {
             case AbilityKind.WeaponStrike or AbilityKind.ChargeStrike:
                 if (!target.IsDead && Hero.DistanceTo(target) <= ReachFor(ability, target) + 0.3)
-                    HeroStrike(target, ability.ExtraDiceAt(Hero.Character.Level), ability.CadenceAttacks);
+                    HeroStrike(target, ability, ability.ExtraDiceAt(Hero.Character.Level), ability.CadenceAttacks);
+                // A sweeping ability strikes more enemies within reach, nearest first.
+                foreach (var other in _monsters.Where(m => !m.IsDead && m != target && Hero.DistanceTo(m) <= ReachFor(ability, m) + 0.3)
+                             .OrderBy(m => Hero.DistanceTo(m)).Take(ability.Targets - 1).ToList())
+                    HeroStrike(other, ability, ability.ExtraDiceAt(Hero.Character.Level), ability.CadenceAttacks);
                 break;
             case AbilityKind.SpellBolt:
-                _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, 0));
+                _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, 0) { ChainLeft = ability.Chain });
                 Sound(SoundCue.Ignition, Hero);
                 break;
             case AbilityKind.Missiles:
-                var count = ability.MissilesAt(rank);
+                var count = ability.MissilesAt(rank) + Hero.Character.ExtraMissiles(ability.Id);
                 for (var i = 0; i < count; i++)
                     _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, i));
                 Sound(SoundCue.ForceBolt, Hero);
@@ -1184,6 +1269,7 @@ public sealed partial class GameWorld
             var result = Strike.ResolveSpellAttack(Hero.Character, target.Creature, dice, ability.DamageType, Random);
             critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
             damage = result.Damage;
+            Chain(p);
             if (damage == 0)
             {
                 Float(target, result.Label, FloatingTextKind.Miss);
@@ -1208,11 +1294,54 @@ public sealed partial class GameWorld
         Sound(SoundCue.Impact, target);
         if (target.IsDead)
             Kill(target, critical);
+        else
+            OnHit(ability, target, critical);
+    }
+
+    /// <summary>A chaining spell leaps from where it struck to the nearest other enemy within 3 tiles.</summary>
+    private void Chain(Projectile p)
+    {
+        if (p.ChainLeft <= 0)
+            return;
+        var next = _monsters.Where(m => !m.IsDead && m != p.Target && m.DistanceTo(p.Target) <= 3.0).MinBy(m => m.DistanceTo(p.Target));
+        if (next is not null)
+            _projectiles.Add(new Projectile(p.Ability, next, p.Rank, p.Target.X, p.Target.Y, Time, 0) { ChainLeft = p.ChainLeft - 1 });
+    }
+
+    /// <summary>
+    /// What an ability does to a target it hits, besides damage: a condition (frightened one step more on a
+    /// critical hit) and knockback away from the hero, stopping at anything that blocks.
+    /// </summary>
+    private void OnHit(AbilityDefinition ability, MonsterActor target, bool critical)
+    {
+        if (ability.OnHit is { } name && Enum.TryParse<ConditionKind>(name, out var kind))
+        {
+            var value = ability.OnHitValue + (critical && kind == ConditionKind.Frightened ? 1 : 0);
+            target.Creature.Conditions.Apply(kind, value, ability.OnHitSeconds > 0 ? ability.OnHitSeconds : null);
+            Float(target, Regex.Replace(name, "(?<=[a-z])(?=[A-Z])", "-").ToLowerInvariant(), FloatingTextKind.Info, 0.3);
+        }
+        if (ability.Knockback > 0)
+        {
+            var (dx, dy) = (target.X - Hero.X, target.Y - Hero.Y);
+            var length = Math.Sqrt(dx * dx + dy * dy);
+            if (length > 1e-6)
+            {
+                (dx, dy) = (dx / length, dy / length);
+                for (var moved = 0.0; moved < ability.Knockback; moved += 0.25)
+                {
+                    var (nx, ny) = (target.X + dx * 0.25, target.Y + dy * 0.25);
+                    if (!Map.IsWalkable(nx, ny))
+                        break;
+                    (target.X, target.Y) = (nx, ny);
+                }
+                target.Path.Clear();
+            }
+        }
     }
 
     private void AddImpact(double x, double y, DamageType type) => _impacts.Add(new Impact(x, y, type, Time));
 
-    private void HeroStrike(MonsterActor target, int extraDice = 0, int cadenceAttacks = 1)
+    private void HeroStrike(MonsterActor target, AbilityDefinition? ability = null, int extraDice = 0, int cadenceAttacks = 1)
     {
         var result = Strike.Resolve(Hero.Character, target.Creature, Hero.Cadence, Time, Random,
             attackSpeedBonus: Hero.Character.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks);
@@ -1220,9 +1349,10 @@ public sealed partial class GameWorld
         Sound(result.Damage > 0 ? (critical ? SoundCue.Crit : SoundCue.Hit) : SoundCue.Miss, target);
         if (result.Damage > 0)
         {
-            target.Creature.TakeDamage(result.Damage);
+            var damage = result.Damage + (critical ? Hero.Character.CritDamageBonus : 0);
+            target.Creature.TakeDamage(damage);
             Hero.Resource.OnCombat(critical);
-            Float(target, critical ? $"{result.Damage}!" : result.Damage.ToString(), critical ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
+            Float(target, critical ? $"{damage}!" : damage.ToString(), critical ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
             target.HitFlinch = 0.15;
             Aggro(target);
         }
@@ -1234,6 +1364,8 @@ public sealed partial class GameWorld
             Hero.StaggerRemaining = ActionTiming.CritFailStaggerSeconds;
         if (target.IsDead)
             Kill(target, critical);
+        else if (result.Damage > 0 && ability is not null)
+            OnHit(ability, target, critical);
     }
 
 
@@ -1273,14 +1405,9 @@ public sealed partial class GameWorld
         var gained = Experience.Add(xp);
         for (var i = 0; i < gained; i++)
         {
-            var next = Hero.Character.Level + 1;
-            // The vertical slice has no level-up screen yet: boost levels pick the key attribute, CON, DEX and WIS.
-            IReadOnlyCollection<AttributeKind>? boosts = AttributeSet.BoostLevels.Contains(next)
-                ? new[] { Hero.Character.KeyAttribute, AttributeKind.Constitution, AttributeKind.Dexterity, AttributeKind.Wisdom }
-                    .Concat(Enum.GetValues<AttributeKind>()).Distinct().Take(4).ToArray()
-                : null;
-            Hero.Character.LevelUp(boosts);
-            Say($"Level {Hero.Character.Level}!");
+            // Hit points rise at once; the level's feats, skill increase and boosts wait for the level-up screen.
+            Hero.Character.LevelUp();
+            Say($"Level {Hero.Character.Level}! Press L to choose what it brings.");
             Sound(SoundCue.LevelUp, Hero);
             Float(Hero, "LEVEL UP", FloatingTextKind.Info, 1.2);
         }
@@ -1402,6 +1529,11 @@ public sealed partial class GameWorld
             PlanPath(m, hero.X, hero.Y);
             m.RepathIn = 0.5 + Random.Roll(0, 20) / 100.0;
         }
+        if (!m.Creature.Conditions.CanMove)
+        {
+            m.Play("stance");
+            return;
+        }
         if (FollowPath(m, def.MoveSpeed * m.Creature.Conditions.ActionTimeMultiplier switch { > 1 => 1 / m.Creature.Conditions.ActionTimeMultiplier, _ => 1 }, dt, null))
             m.Play("run");
         else
@@ -1433,6 +1565,11 @@ public sealed partial class GameWorld
 
     private void MonsterStrike(MonsterActor m)
     {
+        if (Time < Hero.InvulnerableUntil)
+        {
+            Float(Hero, "dodged", FloatingTextKind.Miss, 0.3);
+            return;
+        }
         var result = Strike.Resolve(m.Creature, Hero.Character, m.Cadence, Time, Random);
         if (result.Damage > 0)
         {

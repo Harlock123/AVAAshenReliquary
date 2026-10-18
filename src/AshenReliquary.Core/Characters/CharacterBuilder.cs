@@ -14,7 +14,9 @@ public sealed record CharacterChoices(
     AttributeKind BackgroundBoost,
     AttributeKind BackgroundFreeBoost,
     IReadOnlyList<AttributeKind> FreeBoosts,
-    string? HeritageId = null);
+    string? HeritageId = null,
+    IReadOnlyList<string>? Skills = null,
+    string? AncestryFeat = null);
 
 /// <summary>
 /// Builds a level-1 character in Pathfinder order: ancestry, background, class, then four free boosts.
@@ -65,11 +67,64 @@ public static class CharacterBuilder
         if (string.IsNullOrWhiteSpace(choices.Name))
             throw new RulesException("Your character needs a name.");
 
-        return new Character(choices.Name.Trim(), ancestry, background, characterClass, choices.KeyAttribute, attributes, heritage)
+        var character = new Character(choices.Name.Trim(), ancestry, background, characterClass, choices.KeyAttribute, attributes, heritage)
         {
             Choices = choices,
+            Content = content,
         };
+
+        // Skills: the background's and the class's are trained, plus the class's picks + INT (older saves have none
+        // recorded and get the recommended ones).
+        character.Train(background.Skill);
+        foreach (var skill in characterClass.TrainedSkills ?? [])
+            character.Train(skill);
+        var picks = SkillPicks(characterClass, attributes);
+        var chosen = choices.Skills ?? RecommendSkills(character, picks);
+        if (chosen.Count != Math.Min(picks, UntrainedSkills(character).Count))
+            throw new RulesException($"Choose {picks} skill(s) to be trained in, not {chosen.Count}.");
+        foreach (var skill in chosen)
+        {
+            if (!Skills.Attribute.ContainsKey(skill))
+                throw new RulesException($"Unknown skill '{skill}'.");
+            if (character.SkillRank(skill) >= ProficiencyRank.Trained)
+                throw new RulesException($"You are already trained in {skill}.");
+            character.Train(skill);
+        }
+
+        // Feats: the background's skill feat, and an ancestry feat (older saves get the first one).
+        if (content.Feats.Values.FirstOrDefault(f => f.Name == background.SkillFeat) is { } backgroundFeat)
+            character.Grant(backgroundFeat);
+        var ancestryFeats = AncestryFeats(content, ancestry.Id);
+        if (choices.AncestryFeat is { } featId)
+        {
+            var feat = ancestryFeats.FirstOrDefault(f => f.Id == featId)
+                ?? throw new RulesException($"'{featId}' isn't a level-1 {ancestry.Name} feat.");
+            character.Grant(feat);
+        }
+        else if (ancestryFeats.Count > 0)
+        {
+            character.Grant(ancestryFeats[0]);
+        }
+        character.RestoreHitPointsToMax();
+        character.MarkCreated();
+        return character;
     }
+
+    /// <summary>How many extra skills a class lets a new character train: its own number plus Intelligence (if positive).</summary>
+    public static int SkillPicks(ClassDefinition characterClass, AttributeSet attributes) =>
+        characterClass.SkillPicks + Math.Max(0, attributes[AttributeKind.Intelligence]);
+
+    /// <summary>The skills a character isn't trained in yet, alphabetically.</summary>
+    public static IReadOnlyList<string> UntrainedSkills(Character character) =>
+        Skills.Attribute.Keys.Where(s => character.SkillRank(s) < ProficiencyRank.Trained).Order().ToList();
+
+    /// <summary>The level-1 ancestry feats open to an ancestry, in the file's order.</summary>
+    public static IReadOnlyList<FeatDefinition> AncestryFeats(ContentDatabase content, string ancestryId) =>
+        content.Feats.Values.Where(f => f.Type == FeatType.Ancestry && f.Level == 1 && f.Ancestry == ancestryId).ToList();
+
+    /// <summary>Sensible skills to train: those using the character's best attributes first, alphabetically within.</summary>
+    private static IReadOnlyList<string> RecommendSkills(Character character, int picks) =>
+        UntrainedSkills(character).OrderByDescending(s => character.Attributes[Skills.AttributeFor(s)]).ThenBy(s => s).Take(picks).ToList();
 
     /// <summary>
     /// A legal, sensible set of boosts for an ancestry, background and class: the key attribute first, then CON,

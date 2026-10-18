@@ -32,10 +32,12 @@ public sealed record SkillCheckDefinition(string Skill, int Dc, string Success, 
 
 /// <summary>
 /// Something a node or choice does: set a world flag, write or update a journal entry, or give XP, gold or an item
-/// (an item base id, common, at the hero's level).
+/// (an item base id, common, at the hero's level). <see cref="PayPerLevel"/> charges that much gold per hero level
+/// first (an answer the hero can't afford does nothing; "{cost}" in its text shows the price); <see cref="Respec"/>
+/// lets every level from 2 be chosen again.
 /// </summary>
 public sealed record DialogueEffect(string? Flag = null, string? Value = null, JournalEntryDefinition? Journal = null,
-    int Xp = 0, int Gold = 0, string? Item = null);
+    int Xp = 0, int Gold = 0, string? Item = null, int PayPerLevel = 0, bool Respec = false);
 
 /// <summary>A journal entry: <see cref="Kind"/> is "main" or "side". Writing the same id again replaces the text.</summary>
 public sealed record JournalEntryDefinition(string Id, string Title, string Text, string Kind = "side");

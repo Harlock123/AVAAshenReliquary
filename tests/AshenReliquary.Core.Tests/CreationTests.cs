@@ -46,9 +46,10 @@ public class CreationTests
     public void Ashborn_fire_resistance_grows_with_level()
     {
         var ashborn = Make("ashborn", "cinder-veined");
-        Assert.Equal(1, ashborn.Defenses.Resistances[DamageType.Fire]);
+        // Half the level (at least 1), plus 2 from the recommended ancestry feat, Cinder Skin.
+        Assert.Equal(1 + 2, ashborn.Defenses.Resistances[DamageType.Fire]);
         TestCharacters.AtLevel(ashborn, 6);
-        Assert.Equal(3, ashborn.Defenses.Resistances[DamageType.Fire]);
+        Assert.Equal(3 + 2, ashborn.Defenses.Resistances[DamageType.Fire]);
     }
 
     [Fact]

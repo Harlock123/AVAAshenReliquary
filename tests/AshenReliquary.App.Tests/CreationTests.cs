@@ -34,6 +34,48 @@ public class CreationTests
         kit.Capture(Shot("character-creation"));
     }
 
+    [AvaloniaFact]
+    public void Trained_skills_and_the_ancestry_feat_are_picked_at_creation()
+    {
+        var (window, vm, kit) = Open();
+        var athletics = vm.SkillOptions.Single(o => o.Name == "Athletics");
+        Assert.True(athletics.IsSelected && !athletics.IsEnabled);          // the Deserter fighter's, fixed
+        var picked = vm.SkillOptions.Where(o => o.IsSelected && o.IsEnabled).ToList();
+        Assert.Equal(3, picked.Count);                                     // the fighter's 3 + INT +0
+        Assert.True(vm.CanBegin, vm.Problem);
+
+        picked[0].Toggle.Execute(null);                                    // one short now
+        Assert.False(vm.CanBegin);
+        Assert.Contains("1 more trained skill", vm.Problem);
+        var society = vm.SkillOptions.Single(o => o.Name == "Society");
+        Assert.False(society.IsSelected);
+        society.Toggle.Execute(null);
+        vm.AncestryFeat = vm.AncestryFeats.Single(f => f.Id == "road_hardened");
+        kit.Pump();
+        Assert.True(vm.CanBegin, vm.Problem);
+        kit.Capture(Shot("character-creation-skills"));
+
+        vm.BeginCommand.Execute(null);
+        kit.Pump();
+        var hero = window.Session!.World.Hero.Character;
+        Assert.Equal(AshenReliquary.Core.Rules.ProficiencyRank.Trained, hero.SkillRank("Society"));
+        Assert.Contains(hero.Feats, f => f.Id == "road_hardened");
+    }
+
+    [AvaloniaFact]
+    public void A_new_level_offers_the_level_up_screen()
+    {
+        var kit = TestKit.Open();
+        var world = kit.World;
+        TestHooks.GainXp(world, 1000);
+        kit.Play(0.2);
+        kit.Window.View.LevelUpOpen = true;
+        kit.Play(0.2);
+        kit.Capture(Shot("level-up"));
+        Assert.Equal([2], world.Hero.Character.PendingLevels);
+        Assert.NotEmpty(world.Hero.Character.FeatOptions(AshenReliquary.Core.Characters.FeatType.Class, 2));
+    }
+
     [Fact]
     public void The_fighter_starts_in_chain_mail_without_slowing_down()
     {

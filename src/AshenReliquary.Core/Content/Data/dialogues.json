@@ -326,5 +326,53 @@
         ]
       }
     }
+  },
+  {
+    "id": "fort_altar",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A weathered Lantern altar, its glass long broken. Kneeling here, you feel the choices of your road loosen, as if they could be made again.",
+        "choices": [
+          {
+            "text": "Let go of what I have chosen, and choose again (free, once this act).",
+            "requires": {
+              "act1.respec": ""
+            },
+            "to": "done",
+            "effects": [
+              {
+                "respec": true
+              },
+              {
+                "flag": "act1.respec",
+                "value": "used"
+              }
+            ]
+          },
+          {
+            "text": "Let go of what I have chosen, and choose again ({cost} gold).",
+            "requires": {
+              "act1.respec": "used"
+            },
+            "to": "done",
+            "effects": [
+              {
+                "payPerLevel": 20
+              },
+              {
+                "respec": true
+              }
+            ]
+          },
+          {
+            "text": "Rise and leave."
+          }
+        ]
+      },
+      "done": {
+        "text": "The altar's cold light passes through you. What you have learned stays; what you chose is yours to choose again. (Press L.)"
+      }
+    }
   }
 ]

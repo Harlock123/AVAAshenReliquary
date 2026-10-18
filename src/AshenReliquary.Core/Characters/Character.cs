@@ -94,6 +94,8 @@ public sealed class Character : IDefender
             total[type] = total.GetValueOrDefault(type) + value;
         foreach (var (type, value) in Heritage?.Resistances ?? new Dictionary<DamageType, int>())
             total[type] = total.GetValueOrDefault(type) + value;
+        foreach (var (type, value) in _featResistances)
+            total[type] = total.GetValueOrDefault(type) + value;
         if (Ancestry.FireResistancePerTwoLevels > 0)
             total[DamageType.Fire] = total.GetValueOrDefault(DamageType.Fire) + Math.Max(1, Level / 2) * Ancestry.FireResistancePerTwoLevels;
         foreach (var (type, value) in total)
@@ -116,15 +118,17 @@ public sealed class Character : IDefender
 
     // ----- Levels ----------------------------------------------------------------
 
-    /// <summary>Gains a level. Levels 5, 10, 15 and 20 need four boosts to different attributes.</summary>
+    /// <summary>
+    /// Gains a level: hit points and proficiencies rise at once. What the level lets the player pick (feats, a skill
+    /// increase, attribute boosts) waits in <see cref="PendingLevels"/> until <see cref="Choose"/>; boosts may also be
+    /// passed here directly (tests and older saves).
+    /// </summary>
     public void LevelUp(IReadOnlyCollection<AttributeKind>? boosts = null)
     {
         if (Level >= MaxLevel)
             throw new RulesException($"Level {MaxLevel} is the cap.");
         var next = Level + 1;
         var needsBoosts = AttributeSet.BoostLevels.Contains(next);
-        if (needsBoosts && boosts is null)
-            throw new RulesException($"Level {next} needs {AttributeSet.BoostsPerLevelUp} attribute boosts.");
         if (!needsBoosts && boosts is not null)
             throw new RulesException($"Level {next} does not grant attribute boosts.");
 
@@ -140,6 +144,241 @@ public sealed class Character : IDefender
     }
 
     private readonly Dictionary<int, AttributeKind[]> _levelUpBoosts = [];
+    private readonly Dictionary<int, LevelChoice> _levelChoices = [];
+
+    /// <summary>The picks made at each level (feats, skill increase, boosts), so a save can replay them.</summary>
+    public IReadOnlyDictionary<int, LevelChoice> LevelChoices => _levelChoices;
+
+    /// <summary>Whether a level grants anything to pick (every level from 2 does).</summary>
+    public static bool LevelHasChoices(int level) => level >= 2 && (Progression.LevelProgression.GainsAt(level)
+        & (Progression.LevelGain.ClassFeat | Progression.LevelGain.SkillFeat | Progression.LevelGain.GeneralFeat
+           | Progression.LevelGain.AncestryFeat | Progression.LevelGain.SkillIncrease | Progression.LevelGain.AttributeBoosts)) != 0;
+
+    /// <summary>The levels reached whose picks haven't been made yet, lowest first.</summary>
+    public IReadOnlyList<int> PendingLevels =>
+        Enumerable.Range(2, Math.Max(0, Level - 1)).Where(l => LevelHasChoices(l) && !_levelChoices.ContainsKey(l)).ToList();
+
+    /// <summary>
+    /// Makes a level's picks. Everything the level grants must be chosen and nothing else: a class feat at 2 and 4,
+    /// a skill feat at 2 and 4, a general feat at 3, an ancestry feat at 5, a skill increase at 3 and 5, and four
+    /// attribute boosts at 5 (unless they were given when levelling). Each feat must be one this character may take.
+    /// </summary>
+    public void Choose(int level, LevelChoice choice)
+    {
+        if (level < 2 || level > Level)
+            throw new RulesException($"Level {level} hasn't been reached.");
+        if (_levelChoices.ContainsKey(level))
+            throw new RulesException($"Level {level}'s picks are already made.");
+        var gains = Progression.LevelProgression.GainsAt(level);
+        bool Has(Progression.LevelGain gain) => (gains & gain) != 0;
+        var feats = new List<FeatDefinition>();
+        void Want(Progression.LevelGain gain, string? pick, FeatType type, string what)
+        {
+            if (!Has(gain))
+            {
+                if (pick is not null)
+                    throw new RulesException($"Level {level} doesn't grant {what}.");
+                return;
+            }
+            if (pick is null)
+                throw new RulesException($"Level {level} grants {what}: choose one.");
+            var feat = Feat(pick) ?? throw new RulesException($"Unknown feat '{pick}'.");
+            if (feat.Type != type || !CanTake(feat, level))
+                throw new RulesException($"{feat.Name} can't be taken as {what} at level {level}.");
+            if (feats.Contains(feat))
+                throw new RulesException($"{feat.Name} is picked twice.");
+            feats.Add(feat);
+        }
+        Want(Progression.LevelGain.ClassFeat, choice.ClassFeat, FeatType.Class, "a class feat");
+        Want(Progression.LevelGain.SkillFeat, choice.SkillFeat, FeatType.Skill, "a skill feat");
+        Want(Progression.LevelGain.GeneralFeat, choice.GeneralFeat, FeatType.General, "a general feat");
+        Want(Progression.LevelGain.AncestryFeat, choice.AncestryFeat, FeatType.Ancestry, "an ancestry feat");
+
+        if (Has(Progression.LevelGain.SkillIncrease))
+        {
+            if (choice.SkillIncrease is not { } skill)
+                throw new RulesException($"Level {level} grants a skill increase: choose a skill.");
+            if (!CanIncrease(skill, level))
+                throw new RulesException($"{skill} can't be raised at level {level}.");
+        }
+        else if (choice.SkillIncrease is not null)
+        {
+            throw new RulesException($"Level {level} doesn't grant a skill increase.");
+        }
+
+        var needsBoosts = Has(Progression.LevelGain.AttributeBoosts) && !_levelUpBoosts.ContainsKey(level);
+        if (needsBoosts && choice.Boosts is null)
+            throw new RulesException($"Level {level} grants {AttributeSet.BoostsPerLevelUp} attribute boosts.");
+        if (!needsBoosts && choice.Boosts is not null)
+            throw new RulesException($"Level {level} has no attribute boosts to give.");
+
+        var before = MaxHitPoints;
+        if (choice.Boosts is { } boosts)
+        {
+            Attributes.ApplyLevelUpBoosts(level, boosts);
+            _levelUpBoosts[level] = boosts.ToArray();
+        }
+        if (choice.SkillIncrease is { } raised)
+            _skillRanks[raised] = SkillRank(raised) + 1;
+        foreach (var feat in feats)
+            Grant(feat);
+        _levelChoices[level] = choice;
+        RefreshDefenses();
+        HitPoints += MaxHitPoints - before;
+    }
+
+    /// <summary>Whether this character may take a feat at <paramref name="level"/>: its level, ancestry, class, skill training, not taken yet.</summary>
+    public bool CanTake(FeatDefinition feat, int level) =>
+        feat.Level <= level && !_feats.Contains(feat)
+        && (feat.Ancestry is null || feat.Ancestry == Ancestry.Id)
+        && (feat.Class is null || feat.Class == Class.Id)
+        && (feat.Skill is null || SkillRank(feat.Skill) >= ProficiencyRank.Trained);
+
+    /// <summary>Whether a skill increase at <paramref name="level"/> may raise this skill a rank (expert from 3, master from 7).</summary>
+    public bool CanIncrease(string skill, int level) =>
+        Skills.Attribute.ContainsKey(skill) && SkillRank(skill) < ProficiencyRank.Legendary
+        && Proficiency.MinimumLevelForSkillRank(SkillRank(skill) + 1) <= level;
+
+    /// <summary>The feats this character may take at a level, of a type (for the level-up screen).</summary>
+    public IReadOnlyList<FeatDefinition> FeatOptions(FeatType type, int level) =>
+        Content is null ? [] : Content.Feats.Values.Where(f => f.Type == type && CanTake(f, level)).ToList();
+
+    private FeatDefinition? Feat(string id) => Content?.Feats.GetValueOrDefault(id);
+
+    /// <summary>The content this character was built from (feats, skills); set by <see cref="CharacterBuilder"/>.</summary>
+    internal ContentDatabase? Content { get; set; }
+
+    /// <summary>Back to full health (after level-1 feats raise the maximum).</summary>
+    internal void RestoreHitPointsToMax() => HitPoints = MaxHitPoints;
+
+    // ----- Respec ----------------------------------------------------------------
+
+    private AttributeSet? _creationAttributes;
+    private Dictionary<string, ProficiencyRank>? _creationSkills;
+    private List<FeatDefinition>? _creationFeats;
+    private double _creationTaintRate;
+
+    /// <summary>Remembers the level-1 character (CharacterBuilder, at the end of creation) so a respec can go back to it.</summary>
+    internal void MarkCreated()
+    {
+        _creationAttributes = Attributes.Clone();
+        _creationSkills = new Dictionary<string, ProficiencyRank>(_skillRanks, StringComparer.OrdinalIgnoreCase);
+        _creationFeats = [.. _feats];
+        _creationTaintRate = Taint.RateMultiplier;
+    }
+
+    /// <summary>
+    /// Forgets every pick made since level 1 (feats, skill increases, attribute boosts) so each level can be chosen
+    /// again; level, XP and gear stay. Damage taken stays taken.
+    /// </summary>
+    public void Respec()
+    {
+        if (_creationAttributes is null || _creationSkills is null || _creationFeats is null)
+            throw new RulesException("Only characters made by CharacterBuilder can respec.");
+        var missing = MaxHitPoints - HitPoints;
+        Attributes.CopyFrom(_creationAttributes);
+        _skillRanks.Clear();
+        foreach (var (skill, rank) in _creationSkills)
+            _skillRanks[skill] = rank;
+        foreach (var feat in _feats)
+            RemoveModifiers(feat.Name);
+        _feats.Clear();
+        _skillBonuses.Clear();
+        _featResistances.Clear();
+        _extraMissiles.Clear();
+        _grantedAbilities.Clear();
+        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = 0;
+        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = 0;
+        IgnoresArmorSpeed = false;
+        Taint.ResetRate(_creationTaintRate);
+        foreach (var feat in _creationFeats)
+            Grant(feat);
+        _levelChoices.Clear();
+        _levelUpBoosts.Clear();
+        RefreshDefenses();
+        if (!IsDead)
+            HitPoints = Math.Clamp(MaxHitPoints - missing, 1, MaxHitPoints);
+    }
+
+    // ----- Skills ----------------------------------------------------------------
+
+    private readonly Dictionary<string, ProficiencyRank> _skillRanks = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>The skills trained or better (Lore skills aside: the background's Lore is always trained).</summary>
+    public IReadOnlyDictionary<string, ProficiencyRank> SkillRanks => _skillRanks;
+
+    public ProficiencyRank SkillRank(string skill) =>
+        Skills.IsLore(skill)
+            ? string.Equals(skill, Background.Lore, StringComparison.OrdinalIgnoreCase) ? ProficiencyRank.Trained : ProficiencyRank.Untrained
+            : _skillRanks.GetValueOrDefault(skill);
+
+    internal void Train(string skill)
+    {
+        if (SkillRank(skill) < ProficiencyRank.Trained)
+            _skillRanks[skill] = ProficiencyRank.Trained;
+    }
+
+    // ----- Feats -----------------------------------------------------------------
+
+    private readonly List<FeatDefinition> _feats = [];
+    private readonly List<(string Skill, Modifier Modifier)> _skillBonuses = [];
+    private readonly Dictionary<DamageType, int> _featResistances = [];
+    private readonly Dictionary<string, int> _extraMissiles = [];
+    private readonly List<string> _grantedAbilities = [];
+
+    public IReadOnlyList<FeatDefinition> Feats => _feats;
+
+    /// <summary>The abilities feats have added to the bar, in the order they were gained.</summary>
+    public IReadOnlyList<string> GrantedAbilities => _grantedAbilities;
+
+    public int FeatHitPointsPerLevel { get; private set; }
+    public int FeatSpeedFeet { get; private set; }
+    public double RecoveryBonus { get; private set; }
+    public int CritDamageBonus { get; private set; }
+    public int FuryPerHitBonus { get; private set; }
+    public double ResourceRegenBonus { get; private set; }
+    public double ReachBonus { get; private set; }
+    public double SpellRangeBonus { get; private set; }
+    public bool IgnoresArmorSpeed { get; private set; }
+
+    public int ExtraMissiles(string abilityId) => _extraMissiles.GetValueOrDefault(abilityId);
+
+    /// <summary>Applies a feat's effects (see <see cref="FeatEffect"/>).</summary>
+    internal void Grant(FeatDefinition feat)
+    {
+        if (_feats.Contains(feat))
+            return;
+        _feats.Add(feat);
+        var source = feat.Name;
+        foreach (var e in feat.Effects)
+        {
+            if (e.Statistic is { } stat && Enum.TryParse<StatisticKind>(stat, out var kind))
+                AddModifier(kind, new Modifier(source, e.Value));
+            if (e.Skill is { } skill)
+                _skillBonuses.Add((skill, new Modifier(source, e.Value, BonusType.Circumstance)));
+            if (e.Resist is { } type)
+                _featResistances[type] = _featResistances.GetValueOrDefault(type) + e.Value;
+            if (e.Ability is { } ability)
+            {
+                if (e.ExtraMissiles > 0)
+                    _extraMissiles[ability] = _extraMissiles.GetValueOrDefault(ability) + e.ExtraMissiles;
+                else if (!_grantedAbilities.Contains(ability))
+                    _grantedAbilities.Add(ability);
+            }
+            FeatHitPointsPerLevel += e.HitPointsPerLevel;
+            FeatSpeedFeet += e.SpeedFeet;
+            RecoveryBonus += e.Recovery;
+            CritDamageBonus += e.CritDamage;
+            FuryPerHitBonus += e.FuryPerHit;
+            ResourceRegenBonus += e.ResourceRegen;
+            ReachBonus += e.Reach;
+            SpellRangeBonus += e.SpellRange;
+            IgnoresArmorSpeed |= e.IgnoreArmorSpeed;
+            if (e.TaintRate > 0)
+                Taint.SlowBy(e.TaintRate);
+        }
+        RefreshDefenses();
+    }
 
     /// <summary>The boosts chosen at each boost level, so a save can replay the character's growth exactly.</summary>
     public IReadOnlyDictionary<int, AttributeKind[]> LevelUpBoosts => _levelUpBoosts;
@@ -154,7 +393,7 @@ public sealed class Character : IDefender
     /// <summary>Ancestry HP + (class HP + CON) x level, less drained N x level.</summary>
     public int MaxHitPoints =>
         Math.Max(1, Ancestry.HitPoints + (Class.HitPointsPerLevel + Attributes[AttributeKind.Constitution]) * Level
-            - Conditions.MaxHitPointLoss(Level) + Gear.MaxHitPoints + (Heritage?.HitPointsPerLevel ?? 0) * Level);
+            - Conditions.MaxHitPointLoss(Level) + Gear.MaxHitPoints + ((Heritage?.HitPointsPerLevel ?? 0) + FeatHitPointsPerLevel) * Level);
 
     /// <summary>
     /// Takes damage. At 0 HP the character is dying; a held Hero Point is spent at once to revive at half HP,
@@ -264,21 +503,25 @@ public sealed class Character : IDefender
         Prof(ProficiencyTrack.Perception));
 
     /// <summary>
-    /// A skill: its attribute + proficiency (trained in the background's skill and Lore, untrained otherwise, for now)
-    /// + the armour's check penalty for Strength and Dexterity skills. Step 4 of M2 brings the full skill ranks.
+    /// A skill: its attribute + proficiency rank (<see cref="SkillRank"/>) + the armour's check penalty for Strength
+    /// and Dexterity skills + feats' circumstance bonuses (the best one counts).
     /// </summary>
     public ModifierTotal Skill(string skill)
     {
         var attribute = Skills.AttributeFor(skill);
-        var trained = string.Equals(skill, Background.Skill, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(skill, Background.Lore, StringComparison.OrdinalIgnoreCase);
-        var rank = trained ? ProficiencyRank.Trained : ProficiencyRank.Untrained;
+        var rank = SkillRank(skill);
         var penalty = attribute is AttributeKind.Strength or AttributeKind.Dexterity
             ? Armor.CheckPenalty(Attributes[AttributeKind.Strength]) : 0;
+        var bonuses = _skillBonuses
+            .Where(b => string.Equals(b.Skill, skill, StringComparison.OrdinalIgnoreCase)
+                || (b.Skill == "Lore" && Skills.IsLore(skill))
+                || (b.Skill == "Untrained" && rank == ProficiencyRank.Untrained))
+            .Select(b => b.Modifier);
         return Total(StatisticKind.Skill, attribute,
-            Attr(attribute, Attributes[attribute]),
-            new Modifier(rank.ToString(), Proficiency.Bonus(rank, Level)),
-            new Modifier("Armour check penalty", penalty));
+            [Attr(attribute, Attributes[attribute]),
+             new Modifier(rank.ToString(), Proficiency.Bonus(rank, Level)),
+             new Modifier("Armour check penalty", penalty),
+             .. bonuses]);
     }
 
     /// <summary>Traps, hidden doors and stealthy enemies are spotted within 4 tiles + 0.25 per point of Perception.</summary>
@@ -301,7 +544,8 @@ public sealed class Character : IDefender
         Prof(ProficiencyTrack.Spell));
 
     /// <summary>Ancestry speed less the armour's speed penalty, in feet.</summary>
-    public int SpeedFeet => Ancestry.SpeedFeet + (Heritage?.SpeedFeet ?? 0) - Armor.SpeedPenaltyFeet(Attributes[AttributeKind.Strength]);
+    public int SpeedFeet => Ancestry.SpeedFeet + (Heritage?.SpeedFeet ?? 0) + FeatSpeedFeet
+        - (IgnoresArmorSpeed ? 0 : Armor.SpeedPenaltyFeet(Attributes[AttributeKind.Strength]));
 
     public double MoveSpeedTilesPerSecond(double moveSpeedBonus = 0) =>
         Conditions.CanMove ? ActionTiming.MoveSpeedTilesPerSecond(SpeedFeet, moveSpeedBonus + Gear.MoveSpeed) : 0;

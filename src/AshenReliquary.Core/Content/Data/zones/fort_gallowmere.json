@@ -253,6 +253,16 @@
    ],
    "tile": 76,
    "action": "stash"
+  },
+  {
+   "id": "altar",
+   "name": "Lantern altar",
+   "at": [
+    21,
+    13
+   ],
+   "tile": 142,
+   "dialogue": "fort_altar"
   }
  ],
  "vendors": [

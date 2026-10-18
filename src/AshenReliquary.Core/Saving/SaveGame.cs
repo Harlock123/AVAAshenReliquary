@@ -41,6 +41,9 @@ public sealed record SaveGame
     // The character.
     public required CharacterChoices Choices { get; init; }
     public Dictionary<int, AttributeKind[]> LevelUpBoosts { get; init; } = [];
+
+    /// <summary>Each level's picks (feats, skill increase, boosts); missing in older saves, whose levels are left to pick again.</summary>
+    public Dictionary<int, LevelChoice> LevelChoices { get; init; } = [];
     public int Level { get; init; } = 1;
     public int Xp { get; init; }
     public int HitPoints { get; init; }
@@ -125,6 +128,7 @@ public sealed record SaveGame
             PortraitId = portraitId,
             Choices = c.Choices ?? throw new InvalidOperationException("Only characters made by CharacterBuilder can be saved."),
             LevelUpBoosts = c.LevelUpBoosts.ToDictionary(kv => kv.Key, kv => kv.Value),
+            LevelChoices = c.LevelChoices.ToDictionary(kv => kv.Key, kv => kv.Value),
             Level = c.Level,
             Xp = world.Experience.Xp,
             HitPoints = c.IsDead ? c.MaxHitPoints : c.HitPoints,
@@ -180,11 +184,22 @@ public sealed record SaveGame
     {
         var character = CharacterBuilder.Create(content, Choices);
         for (var level = 2; level <= Level; level++)
-            character.LevelUp(LevelUpBoosts.TryGetValue(level, out var boosts) ? boosts : null);
+        {
+            if (LevelChoices.TryGetValue(level, out var choice))
+            {
+                character.LevelUp();
+                character.Choose(level, choice);
+            }
+            else
+            {
+                // An older save: only the boosts were recorded; the rest of the level's picks are made again.
+                character.LevelUp(LevelUpBoosts.TryGetValue(level, out var boosts) ? boosts : null);
+            }
+        }
 
         var zone = content.Zone(ZoneId);
         var world = new GameWorld(zone, content.Creatures, character, seed ?? unchecked(Seed + (int)SavedAt.ToUnixTimeSeconds()),
-            content.AbilityBar(Choices.ClassId), content.Loot, content.Zones, content.Dialogues);
+            content.AbilityBar(Choices.ClassId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
         world.RestoreStory(Flags, Journal);
         world.Stash.Restore(Stash.Select(i => i is null ? null : Load(content, i)));
         foreach (var other in OtherZones)

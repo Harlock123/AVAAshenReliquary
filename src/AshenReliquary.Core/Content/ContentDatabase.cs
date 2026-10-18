@@ -30,8 +30,10 @@ public sealed class ContentDatabase
         IEnumerable<AbilityDefinition>? abilities = null,
         IEnumerable<ItemDefinition>? items = null,
         IEnumerable<AffixDefinition>? affixes = null,
-        IEnumerable<DialogueDefinition>? dialogues = null)
+        IEnumerable<DialogueDefinition>? dialogues = null,
+        IEnumerable<Characters.FeatDefinition>? feats = null)
     {
+        Feats = (feats ?? []).ToDictionary(f => f.Id);
         Dialogues = (dialogues ?? []).ToDictionary(d => d.Id);
         Items = (items ?? []).ToDictionary(i => i.Id);
         Affixes = (affixes ?? []).ToList();
@@ -55,6 +57,7 @@ public sealed class ContentDatabase
     public IReadOnlyDictionary<string, ItemDefinition> Items { get; }
     public IReadOnlyList<AffixDefinition> Affixes { get; }
     public IReadOnlyDictionary<string, DialogueDefinition> Dialogues { get; }
+    public IReadOnlyDictionary<string, Characters.FeatDefinition> Feats { get; }
 
     public ItemDefinition Item(string id) => Find(Items, id, "item");
 
@@ -65,7 +68,7 @@ public sealed class ContentDatabase
 
     /// <summary>A class's starting ability bar: slot ("lmb", "rmb", "1".."6") to ability.</summary>
     public IReadOnlyDictionary<string, AbilityDefinition> AbilityBar(string classId) =>
-        Abilities.Values.Where(a => a.Class == classId).ToDictionary(a => a.Slot);
+        Abilities.Values.Where(a => a.Class == classId && !a.Feat).ToDictionary(a => a.Slot);
 
     public AncestryDefinition Ancestry(string id) => Find(Ancestries, id, "ancestry");
     public BackgroundDefinition Background(string id) => Find(Backgrounds, id, "background");
@@ -82,7 +85,8 @@ public sealed class ContentDatabase
         Read<List<AbilityDefinition>>("abilities.json"),
         Read<List<ItemDefinition>>("items.json"),
         Read<List<AffixDefinition>>("affixes.json"),
-        Read<List<DialogueDefinition>>("dialogues.json"));
+        Read<List<DialogueDefinition>>("dialogues.json"),
+        Read<List<Characters.FeatDefinition>>("feats.json"));
 
     /// <summary>Every embedded zone file (zones/*.json in the source tree).</summary>
     private static IEnumerable<string> ZoneFiles => Assembly.GetExecutingAssembly().GetManifestResourceNames()
@@ -94,7 +98,7 @@ public sealed class ContentDatabase
         && !KnownTables.Contains(resourceName["AshenReliquary.Content.".Length..]);
 
     private static readonly HashSet<string> KnownTables =
-        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json"];
+        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json"];
 
     private static T Read<T>(string fileName)
     {

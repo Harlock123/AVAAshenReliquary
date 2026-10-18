@@ -43,7 +43,14 @@ public sealed record AbilityDefinition(
     int Missiles = 1,
     DamageType DamageType = DamageType.Bludgeoning,
     IReadOnlyList<string>? Traits = null,
-    string Description = "")
+    string Description = "",
+    string? OnHit = null,
+    int OnHitValue = 1,
+    double OnHitSeconds = 0,
+    double Knockback = 0,
+    int Targets = 1,
+    int Chain = 0,
+    bool Feat = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 

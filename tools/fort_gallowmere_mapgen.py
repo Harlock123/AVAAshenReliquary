@@ -1,6 +1,7 @@
 # Generates zones/fort_gallowmere.json: Act 1's hub, a walled yard behind the gate at the north end of Gallows Road.
 # Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour; runes in M2
-# step 5), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash and the Fort Shrine.
+# step 5), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash, the Lantern altar
+# (respec) and the Fort Shrine.
 # Deterministic.
 import json, sys
 
@@ -100,6 +101,7 @@ zone = {
     "interactables": [
         {"id": "notice_board", "name": "Notice board", "at": [cx - 4, 16], "tile": 139, "dialogue": "fort_notice"},
         {"id": "stash", "name": "Stash", "at": [cx + 3, 17], "tile": 76, "action": "stash"},
+        {"id": "altar", "name": "Lantern altar", "at": [cx + 6, 13], "tile": 142, "dialogue": "fort_altar"},
     ],
     "vendors": [
         {"id": "wenna", "name": "Wenna Marsh", "title": "Peddler", "at": [cx - 5, 9], "facing": 5, "stockSize": 12,

@@ -213,6 +213,7 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
         {
             if (GameMenu.IsVisible) CloseMenu();
+            else if (World.LevelUpOpen) World.LevelUpOpen = false;
             else if (world.Dialogue is not null) world.EndDialogue();
             else if (World.JournalOpen) World.JournalOpen = false;
             else if (world.OpenVendor is not null) world.CloseVendor();
@@ -246,6 +247,12 @@ public partial class MainWindow : Window
                 break;
             case Key.J:
                 World.JournalOpen = !World.JournalOpen;
+                break;
+            case Key.L:
+                World.LevelUpOpen = !World.LevelUpOpen && world.Hero.Character.PendingLevels.Count > 0;
+                break;
+            case Key.LeftShift or Key.RightShift:
+                World.DodgeTowardPointer();
                 break;
             case Key.I or Key.Tab:
                 World.InventoryOpen = !World.InventoryOpen;

@@ -1,0 +1,900 @@
+[
+ {
+  "id": "haughty_obstinacy",
+  "name": "Haughty Obstinacy",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Your pride shrugs off those who would rule you: +1 to Will saves.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "ancestry": "human"
+ },
+ {
+  "id": "cooperative_nature",
+  "name": "Cooperative Nature",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You have learned to get along: +2 to Diplomacy checks.",
+  "effects": [
+   {
+    "skill": "Diplomacy",
+    "value": 2
+   }
+  ],
+  "ancestry": "human"
+ },
+ {
+  "id": "road_hardened",
+  "name": "Road-Hardened",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Years on Vardmoor's roads have toughened you: +1 HP per level.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 1
+   }
+  ],
+  "ancestry": "human"
+ },
+ {
+  "id": "clever_improviser",
+  "name": "Clever Improviser",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You make do: +1 to checks with skills you are untrained in.",
+  "effects": [
+   {
+    "skill": "Untrained",
+    "value": 1
+   }
+  ],
+  "ancestry": "human"
+ },
+ {
+  "id": "stonecunning",
+  "name": "Stonecunning",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You read stone and shadow: +1 to Perception.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "ancestry": "dwarf"
+ },
+ {
+  "id": "dwarven_toughness",
+  "name": "Dwarven Toughness",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Dwarven stubbornness keeps you standing: +1 HP per level.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 1
+   }
+  ],
+  "ancestry": "dwarf"
+ },
+ {
+  "id": "rock_runner",
+  "name": "Rock Runner",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Sure-footed on any ground: +1 to Reflex saves.",
+  "effects": [
+   {
+    "statistic": "Reflex",
+    "value": 1
+   }
+  ],
+  "ancestry": "dwarf"
+ },
+ {
+  "id": "unburdened_iron",
+  "name": "Unburdened Iron",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You were made for armour: body armour never slows you.",
+  "effects": [
+   {
+    "ignoreArmorSpeed": true
+   }
+  ],
+  "ancestry": "dwarf"
+ },
+ {
+  "id": "nimble_elf",
+  "name": "Nimble Elf",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Light on your feet: +5 ft speed.",
+  "effects": [
+   {
+    "speedFeet": 5
+   }
+  ],
+  "ancestry": "elf"
+ },
+ {
+  "id": "elven_instincts",
+  "name": "Elven Instincts",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Nothing escapes your notice: +1 to Perception.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "ancestry": "elf"
+ },
+ {
+  "id": "elven_lore",
+  "name": "Elven Lore",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You were taught the old names: +2 to Arcana and Nature checks.",
+  "effects": [
+   {
+    "skill": "Arcana",
+    "value": 2
+   },
+   {
+    "skill": "Nature",
+    "value": 2
+   }
+  ],
+  "ancestry": "elf"
+ },
+ {
+  "id": "unwavering_mien",
+  "name": "Unwavering Mien",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Your mind is your own: +1 to Will saves.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "ancestry": "elf"
+ },
+ {
+  "id": "bloody_blows",
+  "name": "Bloody Blows",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Your strikes leave deep wounds: +2 damage on a critical hit.",
+  "effects": [
+   {
+    "critDamage": 2
+   }
+  ],
+  "ancestry": "orc"
+ },
+ {
+  "id": "orc_ferocity",
+  "name": "Orc Ferocity",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You fight on through pain: +1 HP per level.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 1
+   }
+  ],
+  "ancestry": "orc"
+ },
+ {
+  "id": "orc_superstition",
+  "name": "Orc Superstition",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Old charms guard your mind: +1 to Will saves.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "ancestry": "orc"
+ },
+ {
+  "id": "menacing_presence",
+  "name": "Menacing Presence",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You know how to loom: +2 to Intimidation checks.",
+  "effects": [
+   {
+    "skill": "Intimidation",
+    "value": 2
+   }
+  ],
+  "ancestry": "orc"
+ },
+ {
+  "id": "sure_feet",
+  "name": "Sure Feet",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You never lose your footing: +1 to Reflex saves and +2 to Acrobatics checks.",
+  "effects": [
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "skill": "Acrobatics",
+    "value": 2
+   }
+  ],
+  "ancestry": "halfling"
+ },
+ {
+  "id": "halfling_luck",
+  "name": "Halfling Luck",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Luck runs in your family: +1 to Fortitude saves.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   }
+  ],
+  "ancestry": "halfling"
+ },
+ {
+  "id": "keen_eyes",
+  "name": "Keen Eyes",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Small folk see what big folk miss: +1 to Perception.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "ancestry": "halfling"
+ },
+ {
+  "id": "unfettered_halfling",
+  "name": "Unfettered Halfling",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Nothing holds you for long: +5 ft speed.",
+  "effects": [
+   {
+    "speedFeet": 5
+   }
+  ],
+  "ancestry": "halfling"
+ },
+ {
+  "id": "cinder_skin",
+  "name": "Cinder Skin",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "The god's ash lives in your skin: fire resistance 2.",
+  "effects": [
+   {
+    "resist": "Fire",
+    "value": 2
+   }
+  ],
+  "ancestry": "ashborn"
+ },
+ {
+  "id": "taint_eater",
+  "name": "Taint Eater",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Your blood is used to the Taint: it builds a quarter more slowly in you.",
+  "effects": [
+   {
+    "taintRate": 0.25
+   }
+  ],
+  "ancestry": "ashborn"
+ },
+ {
+  "id": "ember_sight",
+  "name": "Ember Sight",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "Your eyes catch a glow others can't: +1 to Perception.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "ancestry": "ashborn"
+ },
+ {
+  "id": "ash_walker",
+  "name": "Ash Walker",
+  "type": "Ancestry",
+  "level": 1,
+  "description": "You move like drifting ash: +5 ft speed.",
+  "effects": [
+   {
+    "speedFeet": 5
+   }
+  ],
+  "ancestry": "ashborn"
+ },
+ {
+  "id": "intimidating_strike",
+  "name": "Intimidating Strike",
+  "type": "Class",
+  "level": 2,
+  "description": "A new ability: Strike, and on a hit the target is frightened 1 (2 on a critical hit). 10 Fury.",
+  "effects": [
+   {
+    "ability": "intimidating_strike"
+   }
+  ],
+  "class": "fighter"
+ },
+ {
+  "id": "brutish_shove",
+  "name": "Brutish Shove",
+  "type": "Class",
+  "level": 2,
+  "description": "A new ability: Strike, and on a hit knock the target back 1.5 tiles and leave it off-guard for 2 s. 10 Fury.",
+  "effects": [
+   {
+    "ability": "brutish_shove"
+   }
+  ],
+  "class": "fighter"
+ },
+ {
+  "id": "lunge",
+  "name": "Lunge",
+  "type": "Class",
+  "level": 2,
+  "description": "You strike from further off: +1 tile of melee reach.",
+  "effects": [
+   {
+    "reach": 1.0
+   }
+  ],
+  "class": "fighter"
+ },
+ {
+  "id": "knockdown",
+  "name": "Knockdown",
+  "type": "Class",
+  "level": 4,
+  "description": "A new ability: Strike, and on a hit knock the target prone for 1.5 s. 20 Fury, 6 s cooldown.",
+  "effects": [
+   {
+    "ability": "knockdown"
+   }
+  ],
+  "class": "fighter"
+ },
+ {
+  "id": "swipe",
+  "name": "Swipe",
+  "type": "Class",
+  "level": 4,
+  "description": "A new ability: one swing that strikes the target and one more enemy within reach. 15 Fury.",
+  "effects": [
+   {
+    "ability": "swipe"
+   }
+  ],
+  "class": "fighter"
+ },
+ {
+  "id": "furious_focus",
+  "name": "Furious Focus",
+  "type": "Class",
+  "level": 4,
+  "description": "Battle feeds you: +4 Fury on every hit.",
+  "effects": [
+   {
+    "furyPerHit": 4
+   }
+  ],
+  "class": "fighter"
+ },
+ {
+  "id": "reach_spell",
+  "name": "Reach Spell",
+  "type": "Class",
+  "level": 2,
+  "description": "Your spells carry further: +3 tiles of spell range.",
+  "effects": [
+   {
+    "spellRange": 3
+   }
+  ],
+  "class": "wizard"
+ },
+ {
+  "id": "electric_arc",
+  "name": "Cantrip Expansion: Electric Arc",
+  "type": "Class",
+  "level": 2,
+  "description": "A new cantrip: an arc of lightning that leaps to a second enemy.",
+  "effects": [
+   {
+    "ability": "electric_arc"
+   }
+  ],
+  "class": "wizard"
+ },
+ {
+  "id": "ray_of_frost",
+  "name": "Cantrip Expansion: Ray of Frost",
+  "type": "Class",
+  "level": 2,
+  "description": "A new cantrip: a ray of cold that slows its target.",
+  "effects": [
+   {
+    "ability": "ray_of_frost"
+   }
+  ],
+  "class": "wizard"
+ },
+ {
+  "id": "force_volley",
+  "name": "Force Volley",
+  "type": "Class",
+  "level": 4,
+  "description": "Force Bolt looses one more missile.",
+  "effects": [
+   {
+    "ability": "force_bolt",
+    "extraMissiles": 1
+   }
+  ],
+  "class": "wizard"
+ },
+ {
+  "id": "linked_focus",
+  "name": "Linked Focus",
+  "type": "Class",
+  "level": 4,
+  "description": "Your Mana regenerates a quarter faster.",
+  "effects": [
+   {
+    "resourceRegen": 0.25
+   }
+  ],
+  "class": "wizard"
+ },
+ {
+  "id": "arcane_ward",
+  "name": "Arcane Ward",
+  "type": "Class",
+  "level": 4,
+  "description": "A standing ward: +1 to AC.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   }
+  ],
+  "class": "wizard"
+ },
+ {
+  "id": "toughness",
+  "name": "Toughness",
+  "type": "General",
+  "level": 3,
+  "description": "You can take more punishment: +1 HP per level.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 1
+   }
+  ]
+ },
+ {
+  "id": "fleet",
+  "name": "Fleet",
+  "type": "General",
+  "level": 3,
+  "description": "You move more quickly: +5 ft speed.",
+  "effects": [
+   {
+    "speedFeet": 5
+   }
+  ]
+ },
+ {
+  "id": "canny_acumen",
+  "name": "Canny Acumen",
+  "type": "General",
+  "level": 3,
+  "description": "Your mind is hard to sway: +2 to Will saves.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "incredible_recovery",
+  "name": "Incredible Recovery",
+  "type": "General",
+  "level": 3,
+  "description": "You catch your breath quickly: out-of-combat recovery is half as fast again.",
+  "effects": [
+   {
+    "recovery": 0.5
+   }
+  ]
+ },
+ {
+  "id": "sense_the_dead",
+  "name": "Sense the Dead",
+  "type": "Skill",
+  "level": 1,
+  "description": "You feel the restless dead: +2 to Religion checks and +1 to Perception.",
+  "effects": [
+   {
+    "skill": "Religion",
+    "value": 2
+   },
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "skill": "Religion"
+ },
+ {
+  "id": "hardy_recovery",
+  "name": "Hardy Recovery",
+  "type": "Skill",
+  "level": 1,
+  "description": "You've marched on worse: out-of-combat recovery is a quarter faster, and +2 to Athletics checks.",
+  "effects": [
+   {
+    "recovery": 0.25
+   },
+   {
+    "skill": "Athletics",
+    "value": 2
+   }
+  ],
+  "skill": "Athletics"
+ },
+ {
+  "id": "recall_lore",
+  "name": "Recall Lore",
+  "type": "Skill",
+  "level": 1,
+  "description": "You remember what you read: +2 to all Lore checks.",
+  "effects": [
+   {
+    "skill": "Lore",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "quick_lockpick",
+  "name": "Quick Lockpick",
+  "type": "Skill",
+  "level": 1,
+  "description": "Locks don't slow you: +2 to Thievery checks.",
+  "effects": [
+   {
+    "skill": "Thievery",
+    "value": 2
+   }
+  ],
+  "skill": "Thievery"
+ },
+ {
+  "id": "shrine_ward",
+  "name": "Shrine Ward",
+  "type": "Skill",
+  "level": 1,
+  "description": "The Lantern's rites steady you: +1 to Will saves and +2 to Religion checks.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "skill": "Religion",
+    "value": 2
+   }
+  ],
+  "skill": "Religion"
+ },
+ {
+  "id": "track_prey",
+  "name": "Track Prey",
+  "type": "Skill",
+  "level": 1,
+  "description": "You read signs in mud and grass: +2 to Survival checks and +1 to Perception.",
+  "effects": [
+   {
+    "skill": "Survival",
+    "value": 2
+   },
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "skill": "Survival"
+ },
+ {
+  "id": "pickpocket",
+  "name": "Pickpocket",
+  "type": "Skill",
+  "level": 1,
+  "description": "Light fingers: +2 to Thievery and Stealth checks.",
+  "effects": [
+   {
+    "skill": "Thievery",
+    "value": 2
+   },
+   {
+    "skill": "Stealth",
+    "value": 2
+   }
+  ],
+  "skill": "Stealth"
+ },
+ {
+  "id": "silver_tongue",
+  "name": "Silver Tongue",
+  "type": "Skill",
+  "level": 1,
+  "description": "You talk your way through: +2 to Diplomacy and Deception checks.",
+  "effects": [
+   {
+    "skill": "Diplomacy",
+    "value": 2
+   },
+   {
+    "skill": "Deception",
+    "value": 2
+   }
+  ],
+  "skill": "Diplomacy"
+ },
+ {
+  "id": "cat_fall",
+  "name": "Cat Fall",
+  "type": "Skill",
+  "level": 2,
+  "description": "You land well and dodge better: +1 to Reflex saves and +2 to Acrobatics checks.",
+  "effects": [
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "skill": "Acrobatics",
+    "value": 2
+   }
+  ],
+  "skill": "Acrobatics"
+ },
+ {
+  "id": "recognize_spell",
+  "name": "Recognize Spell",
+  "type": "Skill",
+  "level": 2,
+  "description": "You know a spell when you see one: +2 to Arcana checks and +1 to Will saves.",
+  "effects": [
+   {
+    "skill": "Arcana",
+    "value": 2
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "skill": "Arcana"
+ },
+ {
+  "id": "battle_medicine",
+  "name": "Battle Medicine",
+  "type": "Skill",
+  "level": 2,
+  "description": "You patch yourself up between fights: out-of-combat recovery is half as fast again.",
+  "effects": [
+   {
+    "recovery": 0.5
+   }
+  ],
+  "skill": "Medicine"
+ },
+ {
+  "id": "intimidating_glare",
+  "name": "Intimidating Glare",
+  "type": "Skill",
+  "level": 2,
+  "description": "A look is enough: +2 to Intimidation checks.",
+  "effects": [
+   {
+    "skill": "Intimidation",
+    "value": 2
+   }
+  ],
+  "skill": "Intimidation"
+ },
+ {
+  "id": "lie_to_me",
+  "name": "Lie to Me",
+  "type": "Skill",
+  "level": 2,
+  "description": "You know a lie when you hear one: +2 to Deception checks and +1 to Perception.",
+  "effects": [
+   {
+    "skill": "Deception",
+    "value": 2
+   },
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ],
+  "skill": "Deception"
+ },
+ {
+  "id": "quick_repair",
+  "name": "Quick Repair",
+  "type": "Skill",
+  "level": 2,
+  "description": "You can mend most things: +2 to Crafting checks.",
+  "effects": [
+   {
+    "skill": "Crafting",
+    "value": 2
+   }
+  ],
+  "skill": "Crafting"
+ },
+ {
+  "id": "natural_medicine",
+  "name": "Natural Medicine",
+  "type": "Skill",
+  "level": 2,
+  "description": "You know the healing herbs: +2 to Nature checks, and out-of-combat recovery is a quarter faster.",
+  "effects": [
+   {
+    "skill": "Nature",
+    "value": 2
+   },
+   {
+    "recovery": 0.25
+   }
+  ],
+  "skill": "Nature"
+ },
+ {
+  "id": "oddity_identification",
+  "name": "Oddity Identification",
+  "type": "Skill",
+  "level": 2,
+  "description": "You spot the uncanny: +2 to Occultism checks and +1 to Will saves.",
+  "effects": [
+   {
+    "skill": "Occultism",
+    "value": 2
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "skill": "Occultism"
+ },
+ {
+  "id": "terrain_stalker",
+  "name": "Terrain Stalker",
+  "type": "Skill",
+  "level": 2,
+  "description": "You move unseen: +2 to Stealth checks.",
+  "effects": [
+   {
+    "skill": "Stealth",
+    "value": 2
+   }
+  ],
+  "skill": "Stealth"
+ },
+ {
+  "id": "streetwise",
+  "name": "Streetwise",
+  "type": "Skill",
+  "level": 2,
+  "description": "You know how towns work: +2 to Society and Diplomacy checks.",
+  "effects": [
+   {
+    "skill": "Society",
+    "value": 2
+   },
+   {
+    "skill": "Diplomacy",
+    "value": 2
+   }
+  ],
+  "skill": "Society"
+ },
+ {
+  "id": "fascinating_performance",
+  "name": "Fascinating Performance",
+  "type": "Skill",
+  "level": 2,
+  "description": "You hold a crowd: +2 to Performance checks.",
+  "effects": [
+   {
+    "skill": "Performance",
+    "value": 2
+   }
+  ],
+  "skill": "Performance"
+ },
+ {
+  "id": "titan_wrestler",
+  "name": "Titan Wrestler",
+  "type": "Skill",
+  "level": 2,
+  "description": "You can grapple anything: +2 to Athletics checks and +1 to Fortitude saves.",
+  "effects": [
+   {
+    "skill": "Athletics",
+    "value": 2
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   }
+  ],
+  "skill": "Athletics"
+ },
+ {
+  "id": "student_of_the_canon",
+  "name": "Student of the Canon",
+  "type": "Skill",
+  "level": 2,
+  "description": "You know the Lantern's texts: +2 to Religion checks.",
+  "effects": [
+   {
+    "skill": "Religion",
+    "value": 2
+   }
+  ],
+  "skill": "Religion"
+ },
+ {
+  "id": "experienced_tracker",
+  "name": "Experienced Tracker",
+  "type": "Skill",
+  "level": 2,
+  "description": "No trail is cold to you: +2 to Survival checks.",
+  "effects": [
+   {
+    "skill": "Survival",
+    "value": 2
+   }
+  ],
+  "skill": "Survival"
+ }
+]

@@ -14,6 +14,9 @@ namespace AshenReliquary.App.Rendering;
 /// </summary>
 internal sealed class Hud(IconStore icons)
 {
+    /// <summary>The "Level up!" prompt's rect (empty when no level is waiting); clicking it opens the level-up screen.</summary>
+    public SKRect LevelUpBadge { get; private set; }
+
     private static readonly string[] Slots = ["lmb", "rmb", "1", "2", "3", "4", "5", "6"];
     private readonly List<(SKRect Rect, Func<IReadOnlyList<TipLine>> Tip, SKColor Edge)> _regions = [];
 
@@ -81,6 +84,37 @@ internal sealed class Hud(IconStore icons)
                 new("One per zone, up to three. At 0 HP one is spent", Dim),
                 new("automatically and you get up at half health.", Dim),
             ], Gold);
+        }
+
+        // The Step dodge (Shift), beside the potions: dimmed with its seconds left while it recovers.
+        var step = SKRect.Create(flaskLeft + HealingPotion.MaxCharges * 22 + 8, size.Height - 66, 28, 28);
+        var cooldown = world.DodgeCooldownRemaining;
+        icons.Draw(canvas, "step", step, cooldown > 0 ? Dim.WithAlpha(110) : Ink);
+        canvas.DrawText(cooldown > 0 ? $"{cooldown:0.0}" : "Shift", step.MidX, size.Height - 26, SKTextAlign.Center, small, dim);
+        Region(SKRect.Create(step.Left - 4, step.Top - 2, step.Width + 8, 46), () =>
+        [
+            new("Step", Ink, cooldown > 0 ? $"{cooldown:0.0}s" : "ready", true),
+            new($"Shift: dodge {GameWorld.DodgeTiles:0} tiles toward the pointer.", Dim),
+            new($"No blow lands for {GameWorld.DodgeSeconds:0.##} s; {GameWorld.DodgeCooldown:0} s cooldown.", Dim),
+        ], Ink);
+
+        // Levels waiting for their picks.
+        if (c.PendingLevels.Count > 0)
+        {
+            using var badgeFont = new SKFont(WorldOverlay.Serif, 16);
+            var pulse = (byte)(170 + 85 * Math.Abs(Math.Sin(world.Time * 2.5)));
+            using var badgeInk = new SKPaint { IsAntialias = true, Color = Gold.WithAlpha(pulse) };
+            using var badgeBack = new SKPaint { Color = new SKColor(0, 0, 0, 170) };
+            var text = $"Level up! Press L to choose what level {c.PendingLevels[0]} brings";
+            var width = badgeFont.MeasureText(text) + 24;
+            LevelUpBadge = SKRect.Create((size.Width - width) / 2, size.Height - 168, width, 28);
+            canvas.DrawRect(LevelUpBadge, badgeBack);
+            canvas.DrawText(text, size.Width / 2, LevelUpBadge.Top + 19, SKTextAlign.Center, badgeFont, badgeInk);
+            _blocked.Add(LevelUpBadge);
+        }
+        else
+        {
+            LevelUpBadge = SKRect.Empty;
         }
 
         DrawBuffs(canvas, world, new SKPoint(24, hp.Y - orbRadius - 44));

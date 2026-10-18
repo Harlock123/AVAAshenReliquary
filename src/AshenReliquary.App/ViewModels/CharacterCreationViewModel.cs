@@ -32,6 +32,19 @@ public sealed partial class BoostCell(Action toggle) : ObservableObject
     public IRelayCommand Toggle { get; } = new RelayCommand(toggle);
 }
 
+/// <summary>
+/// One skill in the trained-skills picker: fixed ones (from the background or class) show as trained and can't be
+/// toggled; the rest are the player's picks.
+/// </summary>
+public sealed partial class SkillOption(string name, Action toggle) : ObservableObject
+{
+    public string Name { get; } = name;
+    [ObservableProperty] private bool _isSelected;
+    [ObservableProperty] private bool _isEnabled;
+
+    public IRelayCommand Toggle { get; } = new RelayCommand(toggle);
+}
+
 /// <summary>One attribute's row: its boost cells in each group and the resulting modifier.</summary>
 public sealed partial class AttributeRow : ObservableObject
 {
@@ -69,6 +82,7 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     private AttributeKind _backgroundBoost;
     private AttributeKind _backgroundFree;
     private AttributeKind _key;
+    private readonly List<string> _skills = [];
     private bool _loading;
 
     public CharacterCreationViewModel()
@@ -78,11 +92,14 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         Classes = _content.Classes.Values.Select(c => new ClassOption(c, GameSession.IsPlayable(c.Id)))
             .OrderByDescending(c => c.Playable).ToList();
         Rows = new ObservableCollection<AttributeRow>(Enum.GetValues<AttributeKind>().Select(k => new AttributeRow(k, this)));
+        SkillOptions = new ObservableCollection<SkillOption>(Skills.Attribute.Keys.Order().Select(s => new SkillOption(s, () => ToggleSkill(s))));
         _ancestry = Ancestries.First(a => a.Id == "human");
         _background = Backgrounds.First(b => b.Id == "deserter");
         _selectedClass = Classes.First(c => c.Definition.Id == "fighter");
         _heritage = _ancestry.Heritages?.FirstOrDefault();
         Heritages = new ObservableCollection<HeritageDefinition>(_ancestry.Heritages ?? []);
+        AncestryFeats = new ObservableCollection<FeatDefinition>(CharacterBuilder.AncestryFeats(_content, _ancestry.Id));
+        _ancestryFeat = AncestryFeats.FirstOrDefault();
         Recommend();
     }
 
@@ -91,6 +108,8 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     public IReadOnlyList<ClassOption> Classes { get; }
     public ObservableCollection<HeritageDefinition> Heritages { get; }
     public ObservableCollection<AttributeRow> Rows { get; }
+    public ObservableCollection<SkillOption> SkillOptions { get; }
+    public ObservableCollection<FeatDefinition> AncestryFeats { get; }
     public ObservableCollection<string> Preview { get; } = [];
     public ObservableCollection<string> Abilities { get; } = [];
 
@@ -105,6 +124,25 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     [ObservableProperty] private string _ancestryHeader = "Ancestry";
     [ObservableProperty] private string _freeHeader = "Free (4)";
     [ObservableProperty] private int _portraitIndex;
+    [ObservableProperty] private FeatDefinition? _ancestryFeat;
+    [ObservableProperty] private string _skillHeader = "Trained skills";
+
+    partial void OnAncestryFeatChanged(FeatDefinition? value) => Refresh();
+
+    /// <summary>How many skills the player picks: the class's number plus Intelligence.</summary>
+    private int SkillPicks => CharacterBuilder.SkillPicks(SelectedClass.Definition, CurrentAttributes());
+
+    /// <summary>The skills the background and class train anyway.</summary>
+    private HashSet<string> FixedSkills => [Background.Skill, .. SelectedClass.Definition.TrainedSkills ?? []];
+
+    public void ToggleSkill(string skill)
+    {
+        if (FixedSkills.Contains(skill))
+            return;
+        if (!_skills.Remove(skill) && _skills.Count < SkillPicks)
+            _skills.Add(skill);
+        Refresh();
+    }
 
     /// <summary>The portraits for the chosen ancestry; ‹ › cycle through them.</summary>
     public IReadOnlyList<Portrait> AncestryPortraits => Portraits.For(Ancestry.Id);
@@ -155,6 +193,10 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         foreach (var h in value.Heritages ?? [])
             Heritages.Add(h);
         Heritage = Heritages.FirstOrDefault();
+        AncestryFeats.Clear();
+        foreach (var feat in CharacterBuilder.AncestryFeats(_content, value.Id))
+            AncestryFeats.Add(feat);
+        AncestryFeat = AncestryFeats.FirstOrDefault();
         OnPropertyChanged(nameof(AncestryDetail));
         OnPropertyChanged(nameof(AncestryPortraits));
         PortraitIndex = 0;
@@ -190,6 +232,16 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         _key = choices.KeyAttribute;
         _free.Clear();
         _free.AddRange(choices.FreeBoosts);
+        // The recommended skills: what the builder picks when none are given, less those trained anyway.
+        _skills.Clear();
+        try
+        {
+            var built = CharacterBuilder.Create(_content, choices);
+            _skills.AddRange(built.SkillRanks.Keys.Where(s => !FixedSkills.Contains(s)).Order());
+        }
+        catch (RulesException)
+        {
+        }
         Refresh();
     }
 
@@ -243,7 +295,23 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     }
 
     private CharacterChoices? BuildChoices() => new(Name, Ancestry.Id, Background.Id, SelectedClass.Definition.Id, _key,
-        _ancestryFree.ToList(), _backgroundBoost, _backgroundFree, _free.ToList(), Heritage?.Id);
+        _ancestryFree.ToList(), _backgroundBoost, _backgroundFree, _free.ToList(), Heritage?.Id, _skills.ToList(), AncestryFeat?.Id);
+
+    /// <summary>The attributes the boost table gives right now (for the skill-pick count, which follows Intelligence).</summary>
+    private AttributeSet CurrentAttributes()
+    {
+        var values = new AttributeSet();
+        foreach (var k in Enum.GetValues<AttributeKind>())
+        {
+            if (Ancestry.Boosts.Contains(k) || _ancestryFree.Contains(k)) values.Boost(k);
+            if (Ancestry.Flaws.Contains(k)) values.Flaw(k);
+            if (_backgroundBoost == k) values.Boost(k);
+            if (_backgroundFree == k) values.Boost(k);
+            if (_key == k) values.Boost(k);
+            if (_free.Contains(k)) values.Boost(k);
+        }
+        return values;
+    }
 
     private bool TryBuild(CharacterChoices choices, out Character? character)
     {
@@ -261,6 +329,11 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         if (_free.Count < CharacterBuilder.FreeBoostCount)
         {
             Problem = $"Choose {CharacterBuilder.FreeBoostCount - _free.Count} more free boost(s).";
+            return false;
+        }
+        if (_skills.Count < SkillPicks)
+        {
+            Problem = $"Choose {SkillPicks - _skills.Count} more trained skill(s).";
             return false;
         }
         try
@@ -321,6 +394,20 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         foreach (var row in Rows)
             row.Value = $"{values[row.Kind]:+0;-0;+0}";
         FreeHeader = $"Free ({_free.Count}/{CharacterBuilder.FreeBoostCount})";
+
+        // Skills: drop picks now trained anyway or beyond the count (Intelligence went down), then show the toggles.
+        var fixedSkills = FixedSkills;
+        _skills.RemoveAll(fixedSkills.Contains);
+        var picks = SkillPicks;
+        if (_skills.Count > picks)
+            _skills.RemoveRange(picks, _skills.Count - picks);
+        foreach (var option in SkillOptions)
+        {
+            var isFixed = fixedSkills.Contains(option.Name);
+            option.IsSelected = isFixed || _skills.Contains(option.Name);
+            option.IsEnabled = !isFixed && (option.IsSelected || _skills.Count < picks);
+        }
+        SkillHeader = $"Trained skills ({_skills.Count}/{picks} to pick)";
 
         Preview.Clear();
         Abilities.Clear();

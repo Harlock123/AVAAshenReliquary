@@ -60,7 +60,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - No monsters; the hub music.
 - *Done when:* the road leads into the fort, each NPC talks, the stash holds items across saves.
 
-### 4. Feats, skills and levelling to 5 (parallel track A, can start after step 1)
+### 4. Feats, skills and levelling to 5 — done 2026-10-18 (Shield Block waits for shields)
 
 - Skills: the Pathfinder list with proficiency ranks; backgrounds already name a trained skill and a skill feat.
 - Feats for levels 1–5 for the two playable classes: ancestry feats (6 per ancestry, chosen at 1 and 5), class

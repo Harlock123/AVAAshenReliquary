@@ -159,6 +159,13 @@ public sealed partial class GameWorld
         if (index < 0 || index >= choices.Count)
             return;
         var choice = choices[index];
+        var price = (choice.Effects ?? []).Sum(e => e.PayPerLevel) * Hero.Character.Level;
+        if (price > 0 && !Hero.Equipment.TrySpend(price))
+        {
+            _lastRoll = $"That costs {price} gold; you have {Hero.Equipment.Gold}.";
+            Dialogue = View();
+            return;
+        }
         foreach (var effect in choice.Effects ?? [])
             Apply(effect);
         _lastRoll = null;
@@ -202,16 +209,20 @@ public sealed partial class GameWorld
 
     private DialogueView View()
     {
+        var cost = ((_node!.Choices ?? []).SelectMany(c => c.Effects ?? []).Select(e => e.PayPerLevel).DefaultIfEmpty(0).Max()
+            * Hero.Character.Level).ToString();
         var choices = Offered(_node!).Select(c =>
         {
+            var text = c.Text.Replace("{cost}", ((c.Effects ?? []).Sum(e => e.PayPerLevel) * Hero.Character.Level).ToString());
             if (c.Check is not { } check)
-                return new ChoiceView(c.Text);
+                return new ChoiceView(text);
             var modifier = CheckModifier(check.Skill);
-            return new ChoiceView(c.Text, check.Skill, modifier, check.Dc, Rules.Check.Chance(modifier, check.Dc));
+            return new ChoiceView(text, check.Skill, modifier, check.Dc, Rules.Check.Chance(modifier, check.Dc));
         }).ToList();
         if (choices.Count == 0)
             choices.Add(new ChoiceView("Leave"));
-        return new DialogueView(_speaker!.Name, _speaker.Npc?.Portrait, _node!.Text.Replace("{hero}", Hero.Character.Name), choices, _lastRoll);
+        return new DialogueView(_speaker!.Name, _speaker.Npc?.Portrait,
+            _node!.Text.Replace("{hero}", Hero.Character.Name).Replace("{cost}", cost), choices, _lastRoll);
     }
 
     private bool Holds(IReadOnlyDictionary<string, string>? requires) =>
@@ -243,6 +254,12 @@ public sealed partial class GameWorld
         {
             Hero.Equipment.AddGold(effect.Gold);
             Float(Hero, $"+{effect.Gold} gold", FloatingTextKind.Info, 1.0);
+        }
+        if (effect.Respec)
+        {
+            Hero.Character.Respec();
+            RefreshBar();
+            Say("The Lantern takes back your choices. Press L to choose again.");
         }
         if (effect.Item is { } itemId && _loot?.Items.GetValueOrDefault(itemId) is { } definition)
         {

@@ -42,6 +42,20 @@ public sealed class WorldView : Control
     /// <summary>The journal (J).</summary>
     public bool JournalOpen { get; set; }
 
+    /// <summary>The level-up screen (L).</summary>
+    public bool LevelUpOpen { get; set; }
+
+    private readonly LevelUpPanel _levelUp = new();
+
+    /// <summary>The Step dodge (Shift): toward the pointer, or straight ahead without one.</summary>
+    public void DodgeTowardPointer()
+    {
+        if (World is not { } world)
+            return;
+        var (x, y) = _pointer is { } p ? ToMap(p) : (world.Hero.X + 1, world.Hero.Y + 1);
+        world.Dodge(x, y);
+    }
+
     private readonly DialoguePanel _dialogue = new();
     private StashPanel? _stashPanel;
     private StashPanel StashView => _stashPanel ??= new StashPanel(DrawIcon);
@@ -193,6 +207,18 @@ public sealed class WorldView : Control
         var p = e.GetPosition(this);
         var props = e.GetCurrentPoint(this).Properties;
         var sp = new SKPoint((float)p.X, (float)p.Y);
+        if (LevelUpOpen && props.IsLeftButtonPressed && _levelUp.Click(sp, world))
+        {
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
+        if (props.IsLeftButtonPressed && HudLayer.LevelUpBadge.Contains(sp))
+        {
+            LevelUpOpen = true;
+            e.Handled = true;
+            return;
+        }
         if (world.Dialogue is not null && props.IsLeftButtonPressed && _dialogue.HitTest(sp) is { } answer)
         {
             if (answer >= 0)
@@ -542,6 +568,13 @@ public sealed class WorldView : Control
             _journal.Draw(canvas, size, world);
             hud.Block(_journal.Bounds);
         }
+        if (LevelUpOpen && world.Hero.Character.PendingLevels.Count == 0)
+            LevelUpOpen = false;
+        if (LevelUpOpen)
+        {
+            _levelUp.Draw(canvas, size, world, pointer);
+            hud.Block(_levelUp.Bounds);
+        }
         if (world.Dialogue is { } talk)
         {
             _dialogue.Draw(canvas, size, talk, PortraitImage(talk.Portrait), pointer);
@@ -549,7 +582,8 @@ public sealed class WorldView : Control
         }
         var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over))
             || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
-            || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(over)));
+            || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(over))
+            || (LevelUpOpen && _levelUp.Bounds.Contains(over)));
         if (!overPanel)
             hud.DrawTooltip(canvas, size, pointer);
         Stats.Mark("text+hud");
