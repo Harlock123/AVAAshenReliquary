@@ -60,6 +60,9 @@ public sealed record SaveGame
     public List<SavedGroundItem> Ground { get; init; } = [];
     public bool ZoneComplete { get; init; }
 
+    /// <summary>The zone layout's revision when saved; older saves have none and count as revision 1.</summary>
+    public int ZoneRevision { get; init; } = 1;
+
     /// <summary>Each trader's stock; missing in older saves, whose traders roll fresh wares.</summary>
     public List<SavedVendor> Vendors { get; init; } = [];
 
@@ -114,6 +117,7 @@ public sealed record SaveGame
             Bag = gear.Bag.Select(i => i is null ? null : Save(i)).ToList(),
             Gold = gear.Gold,
             ZoneId = world.Zone.Id,
+            ZoneRevision = world.Zone.Revision,
             Seed = seed,
             HeroX = c.IsDead ? world.RespawnPoint.X : hero.X,
             HeroY = c.IsDead ? world.RespawnPoint.Y : hero.Y,
@@ -165,6 +169,15 @@ public sealed record SaveGame
         character.Potion.Restore(PotionCharges);
         world.Hero.Resource.Restore(Resource);
 
+        if (ZoneRevision != zone.Revision)
+        {
+            // The zone was remade since this save: places, kills and loot no longer line up, so the character
+            // (level, XP, gear, gold) starts the new layout afresh at its start, rested.
+            world.Restore(world.Hero.X, world.Hero.Y, world.RespawnPoint, [], [], [], false, Level, Xp);
+            character.RestAtShrine();
+            world.Announce($"{zone.Name} has changed since this save: you start again at its beginning, with all you carry.");
+            return world;
+        }
         var ground = Ground.Select(g => new GroundItem(g.X, g.Y,
             new LootDrop(g.Item is { } item ? Load(content, item) : null, g.Gold, g.Draught), 0));
         world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp, Explored);

@@ -24,15 +24,16 @@ monster for your right-mouse ability, **1** to **6** use the other bar slots on 
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
-fight north past the graveyard, the ruined farmstead and the bog, through the refugee camp, to the barred gate of
+fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
+through the refugee camp, to the barred gate of
 Fort Gallowmere, where the vertical slice ends.
 
 ## Status: M1 in progress, the vertical slice
 
 Done so far: the Avalonia app; a SkiaSharp isometric renderer for the Flare art (192x96 tiles, 8-direction
 sprites, the layered hero paper doll, depth sorting, see-through occluders, Act 1 colour grade, darkness with
-light pools, drifting ash, vignette); Gallows Road as data (`Content/Data/zones/gallows_road.json`, first draft
-from `tools/gallows_road_mapgen.py`); six Act 1 monsters with chase, melee, ranged and spawner AI; click-to-move
+light pools, drifting ash, vignette); Gallows Road as data (`Content/Data/zones/gallows_road.json`, generated
+by `tools/gallows_road_mapgen.py`: seven stretches, 24 packs, side glades and three shrines); six Act 1 monsters with chase, melee, ranged and spawner AI; click-to-move
 with A* pathfinding; real-time combat through the rules core; shrines, potions, Hero Points, XP and respawning; out-of-combat recovery (5% of max HP a second after 4 s of quiet);
 a first HUD; abilities from `Content/Data/abilities.json` (Fighter: Strike, Power Attack, Sudden Charge, built on
 Fury; Wizard: Ignition, Force Bolt, Staff Strike, on Mana) with cooldowns, the Flourish lockout and homing spell

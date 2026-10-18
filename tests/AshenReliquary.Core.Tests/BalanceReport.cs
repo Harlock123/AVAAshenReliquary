@@ -12,7 +12,8 @@ namespace AshenReliquary.Core.Tests;
 /// </summary>
 public class BalanceReport(ITestOutputHelper output)
 {
-    private const int Seeds = 40;
+    /// <summary>Fights per pack and runs per class; a handful by default so the suite stays quick, ASHEN_BALANCE_RUNS=40 for a real report.</summary>
+    private static readonly int Seeds = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_BALANCE_RUNS"), out var runs) ? runs : 4;
     private const double Tick = 1 / 30.0;
 
     public sealed record PackResult(int Pack, string Members, int Fights, int Downs, double HpLostPct, double Potions, double Seconds);
@@ -48,7 +49,7 @@ public class BalanceReport(ITestOutputHelper output)
     {
         var classId = kit.Split(' ')[0];
         var hero = new Summary(Dressed(classId, kit));
-        var runs = Enumerable.Range(1, 40).Select(seed => RoadRun(kit, seed)).ToList();
+        var runs = Enumerable.Range(1, Seeds).Select(seed => RoadRun(kit, seed)).ToList();
         output.WriteLine($"{kit}: whole road from the gallows to the camp, {runs.Count} runs");
         foreach (var r in runs)
             output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  calm {r.CalmSeconds,3:0} s  regen {r.Regenerated,3:0} HP  level {r.Level}  {(r.Reached ? "reached the camp" : "did not finish")}");
@@ -141,8 +142,9 @@ public class BalanceReport(ITestOutputHelper output)
         return string.Join(" + ", near);
     }
 
-    public static List<PackResult> Run(string classId, int seeds = Seeds)
+    public static List<PackResult> Run(string classId, int? fights = null)
     {
+        var seeds = fights ?? Seeds;
         var content = TestCharacters.Content;
         var zone = content.Zone("gallows_road");
         var results = new List<PackResult>();

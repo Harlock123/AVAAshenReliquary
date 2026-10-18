@@ -96,6 +96,29 @@ public class SaveTests
     }
 
     [Fact]
+    public void A_save_from_an_older_layout_keeps_the_character_and_starts_the_zone_afresh()
+    {
+        var world = NewWorld();
+        world.Hero.Equipment.AddGold(77);
+        world.Hero.Character.TakeDamage(5);
+        var save = SaveGame.Capture(world, "s", 3, null) with
+        {
+            ZoneRevision = world.Zone.Revision - 1, HeroX = 3.5, HeroY = 3.5, Slain = [0, 1, 2], ZoneComplete = true,
+            Shrines = [world.Zone.Shrines[^1].Id], Level = 2, Xp = 1100,
+        };
+        var loaded = SaveGame.FromJson(save.ToJson()).Restore(Content);
+        Assert.Equal((world.Zone.PlayerStart[0] + 0.5, world.Zone.PlayerStart[1] + 0.5), (loaded.Hero.X, loaded.Hero.Y));
+        Assert.Empty(loaded.Slain);
+        Assert.Empty(loaded.ActivatedShrines);
+        Assert.False(loaded.ZoneComplete);
+        Assert.Equal(world.Monsters.Count, loaded.Monsters.Count);
+        Assert.Equal(2, loaded.Hero.Character.Level);
+        Assert.Equal(77, loaded.Hero.Equipment.Gold);
+        Assert.Equal(loaded.Hero.Character.MaxHitPoints, loaded.Hero.Character.HitPoints);
+        Assert.Contains("has changed", loaded.LastMessage);
+    }
+
+    [Fact]
     public void Shrines_and_the_respawn_point_are_kept()
     {
         var world = NewWorld();

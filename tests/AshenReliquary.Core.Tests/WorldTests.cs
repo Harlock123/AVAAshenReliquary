@@ -44,9 +44,26 @@ public class WorldTests
         var map = new TileMap(zone);
         Assert.False(map.IsBlocked(zone.PlayerStart[0], zone.PlayerStart[1]));
         Assert.All(zone.Spawns.SelectMany(s => s.Pack), m => Assert.True(Content.Creatures.ContainsKey(m.Creature), m.Creature));
-        Assert.Equal(2, zone.Shrines.Count);
+        Assert.Equal(3, zone.Shrines.Count);
         var exit = zone.Exits.Single();
-        Assert.NotNull(Pathfinder.Find(map, (zone.PlayerStart[0], zone.PlayerStart[1]), (exit.At[0], exit.At[1]), maxNodes: 20000));
+        Assert.NotNull(Pathfinder.Find(map, (zone.PlayerStart[0], zone.PlayerStart[1]), (exit.At[0], exit.At[1]), maxNodes: 40000));
+    }
+
+    [Fact]
+    public void Every_pack_shrine_and_trader_on_gallows_road_can_be_walked_to()
+    {
+        var zone = Content.Zone("gallows_road");
+        var map = new TileMap(zone);
+        var from = (zone.PlayerStart[0], zone.PlayerStart[1]);
+        // A spawner stands on its own tile, so walk to a free neighbour of anything that blocks.
+        (int, int) Near(int[] at) => map.IsBlocked(at[0], at[1])
+            ? new[] { (1, 0), (-1, 0), (0, 1), (0, -1) }.Select(d => (at[0] + d.Item1, at[1] + d.Item2)).First(c => !map.IsBlocked(c.Item1, c.Item2))
+            : (at[0], at[1]);
+        var places = zone.Spawns.Select(s => ("pack at " + string.Join(",", s.At), s.At))
+            .Concat(zone.Shrines.Select(s => (s.Name, s.At)))
+            .Concat((zone.Vendors ?? []).Select(v => (v.Name, v.At)));
+        foreach (var (name, at) in places)
+            Assert.True(Pathfinder.Find(map, from, Near(at), maxNodes: 40000) is not null, $"{name} can't be reached");
     }
 
     [Fact]
