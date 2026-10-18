@@ -213,7 +213,10 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
         {
             if (GameMenu.IsVisible) CloseMenu();
+            else if (world.Dialogue is not null) world.EndDialogue();
+            else if (World.JournalOpen) World.JournalOpen = false;
             else if (world.OpenVendor is not null) world.CloseVendor();
+            else if (world.OpenShrine is not null) world.CloseRift();
             else OpenMenu();
             e.Handled = true;
             return;
@@ -234,8 +237,14 @@ public partial class MainWindow : Window
             case Key.F5:
                 SaveNow();
                 break;
+            case >= Key.D1 and <= Key.D9 when world.Dialogue is not null:
+                world.Choose((int)(e.Key - Key.D1));
+                break;
             case >= Key.D1 and <= Key.D6:
                 World.UseSlot(((int)(e.Key - Key.D1) + 1).ToString());
+                break;
+            case Key.J:
+                World.JournalOpen = !World.JournalOpen;
                 break;
             case Key.I or Key.Tab:
                 World.InventoryOpen = !World.InventoryOpen;

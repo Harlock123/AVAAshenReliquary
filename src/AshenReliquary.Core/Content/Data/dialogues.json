@@ -1,0 +1,90 @@
+[
+  {
+    "id": "fort_brask",
+    "start": "start",
+    "openings": [
+      { "node": "again", "requires": { "act1.brask": "truth" } },
+      { "node": "again", "requires": { "act1.brask": "lied" } },
+      { "node": "again_caught", "requires": { "act1.brask": "caught" } }
+    ],
+    "nodes": {
+      "start": {
+        "text": "\"Halt. The gate's open for the living, not for gallows-meat. You've a rope burn on your neck, stranger. Speak your business at Fort Gallowmere.\"",
+        "choices": [
+          { "text": "\"The rope broke. I don't know why. I need somewhere to rest.\"", "to": "truth" },
+          { "text": "\"I'm a pilgrim. I was robbed on the road.\"", "check": { "skill": "Deception", "dc": 15, "success": "believed", "failure": "caught" } },
+          { "text": "Say nothing and walk past him." }
+        ]
+      },
+      "truth": {
+        "text": "Brask studies you a long moment. \"Broke, did it. The Lantern priests used to say the dead don't take a second hanging.\" He steps aside. \"Keep your blade sheathed in the yard. Wenna sells, the shrine heals, and nobody asks twice.\"",
+        "effects": [
+          { "flag": "act1.brask", "value": "truth" },
+          { "journal": { "id": "act1_fort", "title": "Fort Gallowmere", "kind": "main", "text": "I reached Fort Gallowmere, a refugee camp behind a palisade at the end of the Gallows Road. Sergeant Brask let me in after I told him the truth: the noose broke, and I don't know why." } }
+        ]
+      },
+      "believed": {
+        "text": "\"Pilgrim.\" He snorts, but waves you through. \"Plenty of those lately. The shrine's in the yard; pray at it if it helps.\"",
+        "effects": [
+          { "flag": "act1.brask", "value": "lied" },
+          { "journal": { "id": "act1_fort", "title": "Fort Gallowmere", "kind": "main", "text": "I reached Fort Gallowmere, a refugee camp behind a palisade at the end of the Gallows Road. I told Sergeant Brask I was a robbed pilgrim, and he believed me." } }
+        ]
+      },
+      "caught": {
+        "text": "\"Pilgrims don't wear hemp necklaces.\" His hand rests on his sword, then falls away. \"Hanged or not, the road's worse than you. Get in, and stay where I can see you.\"",
+        "effects": [
+          { "flag": "act1.brask", "value": "caught" },
+          { "journal": { "id": "act1_fort", "title": "Fort Gallowmere", "kind": "main", "text": "I reached Fort Gallowmere, a refugee camp behind a palisade at the end of the Gallows Road. Sergeant Brask saw through my lie about being a pilgrim, but let me in all the same." } }
+        ]
+      },
+      "again": {
+        "text": "\"Still breathing, I see. Mind the yard.\"",
+        "choices": [
+          { "text": "\"What news?\"", "to": "news" },
+          { "text": "Leave." }
+        ]
+      },
+      "again_caught": {
+        "text": "Brask watches you without a word, thumb on his sword's pommel.",
+        "choices": [
+          { "text": "\"What news, sergeant?\"", "to": "news" },
+          { "text": "Leave." }
+        ]
+      },
+      "news": {
+        "text": "\"Dead walk the fens to the south-west, and the wells taste of rot. Folk say a witch is behind it. Folk say a lot of things.\""
+      }
+    }
+  },
+  {
+    "id": "fort_notice",
+    "start": "start",
+    "openings": [
+      { "node": "seen", "requires": { "act1.notice": "seen" } }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A notice board by the road, plastered with pleas for the missing and bills for lost cattle.",
+        "choices": [
+          { "text": "Look closer.", "requires": { "act1.notice": "" }, "check": { "skill": "Perception", "dc": 14, "success": "spotted", "failure": "missed" } },
+          { "text": "Leave it." }
+        ]
+      },
+      "spotted": {
+        "text": "Under the newer notices someone has scratched into the wood: THE FERRY STILL RUNS. ASK FOR THE OLD MAN.",
+        "effects": [
+          { "flag": "act1.notice", "value": "seen" },
+          { "xp": 20 },
+          { "journal": { "id": "act1_ferry_hint", "title": "A scratched message", "kind": "side", "text": "Someone scratched a message into the notice board at Fort Gallowmere: \"The ferry still runs. Ask for the old man.\"" } }
+        ]
+      },
+      "missed": {
+        "text": "Grief and cattle, nothing more that you can make out.",
+        "effects": [ { "flag": "act1.notice", "value": "missed" } ]
+      },
+      "seen": {
+        "text": "The scratched words are still there under the notices: THE FERRY STILL RUNS. ASK FOR THE OLD MAN."
+      }
+    }
+  }
+]

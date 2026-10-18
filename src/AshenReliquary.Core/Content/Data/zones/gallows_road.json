@@ -846,7 +846,13 @@
     30,
     4
    ],
-   "radius": 2.0
+   "radius": 2.0,
+   "to": "fort_gallowmere",
+   "toExit": "gate",
+   "arrive": [
+    30,
+    7
+   ]
   }
  ],
  "caches": [

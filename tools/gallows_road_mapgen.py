@@ -280,7 +280,8 @@ zone = {
         {"id": "farmstead_shrine", "name": "The Farmstead Shrine", "at": shrine2},
         {"id": "barrow_shrine", "name": "The Barrow Shrine", "at": shrine3},
     ],
-    "exits": [{"id": "fort_gallowmere", "label": "Fort Gallowmere", "at": exit_at, "radius": 2.0}],
+    "exits": [{"id": "fort_gallowmere", "label": "Fort Gallowmere", "at": exit_at, "radius": 2.0,
+               "to": "fort_gallowmere", "toExit": "gate", "arrive": [exit_at[0], exit_at[1] + 3]}],
     "caches": caches,
     "vendors": [
         {

@@ -49,6 +49,39 @@ public class RenderTests
     }
 
     [AvaloniaFact]
+    public void Talking_to_the_gate_sergeant_opens_a_conversation_and_the_journal_records_it()
+    {
+        var kit = TestKit.Open(zoneId: "fort_gallowmere");
+        var world = kit.World;
+        var brask = world.Interactives.Single(i => i.Id == "brask");
+        var at = kit.Window.View.ToScreen(brask.X, brask.Y);
+        kit.Click(new Point(at.X, at.Y - 60));
+        kit.PlayUntil(() => world.Dialogue is not null, 6);
+        kit.Capture(Shot("dialogue-brask"));
+        Assert.Equal("Sergeant Brask", world.Dialogue!.Speaker);
+        world.Choose(0);
+        kit.Window.View.JournalOpen = true;
+        kit.Play(0.2);
+        kit.Capture(Shot("journal"));
+        Assert.Equal("act1_fort", Assert.Single(world.Journal).Id);
+    }
+
+    [AvaloniaFact]
+    public void The_gate_at_the_end_of_gallows_road_leads_into_the_fort()
+    {
+        var kit = TestKit.Open();
+        var world = kit.World;
+        var gate = world.Zone.Exits.Single();
+        world.Hero.GetType().GetProperty("X")!.SetValue(world.Hero, gate.Arrive![0] + 0.5);
+        world.Hero.GetType().GetProperty("Y")!.SetValue(world.Hero, gate.Arrive![1] + 0.5);
+        world.MoveTo(gate.At[0] + 0.5, gate.At[1] + 0.5);
+        kit.PlayUntil(() => world.Zone.Id == "fort_gallowmere", 10);
+        kit.Play(0.5);
+        kit.Capture(Shot("fort-arrival"));
+        Assert.Equal("Fort Gallowmere", world.Arrival?.Title);
+    }
+
+    [AvaloniaFact]
     public void Clicking_the_ground_walks_the_hero_there()
     {
         var kit = TestKit.Open();

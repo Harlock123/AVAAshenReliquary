@@ -8,11 +8,15 @@ using AshenReliquary.Core.Rules;
 
 namespace AshenReliquary.Core.World;
 
+/// <summary>A banner across the screen: a town's name on arrival, or a way on that isn't open yet.</summary>
+public sealed record Banner(string Title, string? Subtitle, double At);
+
 /// <summary>
-/// One zone in play: the hero, the monsters and everything that happens between them. It integrates in
-/// fixed 60 Hz steps, so frame rate never changes gameplay, and every roll comes from one seed.
+/// The world in play: the hero, the zone they are in, its monsters and everything that happens between them. Zones
+/// the hero has left are remembered (<see cref="ZoneMemory"/>) and restored on return. It integrates in fixed 60 Hz
+/// steps, so frame rate never changes gameplay, and every roll comes from one seed.
 /// </summary>
-public sealed class GameWorld
+public sealed partial class GameWorld
 {
     public const double StepSeconds = 1.0 / 60;
 
@@ -131,21 +135,61 @@ public sealed class GameWorld
     public event Action<ShrineDefinition>? ShrineActivated;
     private double _accumulator;
 
+    /// <param name="zones">Every zone an exit or a Rift Shrine can lead to; without it exits only complete the zone.</param>
     public GameWorld(ZoneDefinition zone, IReadOnlyDictionary<string, CreatureDefinition> creatures, Character hero, int seed,
-        IReadOnlyDictionary<string, AbilityDefinition>? bar = null, LootGenerator? loot = null)
+        IReadOnlyDictionary<string, AbilityDefinition>? bar = null, LootGenerator? loot = null,
+        IReadOnlyDictionary<string, ZoneDefinition>? zones = null, IReadOnlyDictionary<string, DialogueDefinition>? dialogues = null)
     {
         _loot = loot;
+        _dialogues = dialogues ?? _dialogues;
         Bar = bar ?? new Dictionary<string, AbilityDefinition>();
-        Zone = zone;
         _creatures = creatures;
-        Map = new TileMap(zone);
+        _zones = zones ?? new Dictionary<string, ZoneDefinition> { [zone.Id] = zone };
         Random = new SeededRandom(seed);
         _seed = seed;
         Hero = new HeroActor(hero) { X = zone.PlayerStart[0] + 0.5, Y = zone.PlayerStart[1] + 0.5 };
-        _explored = new bool[Map.Width * Map.Height];
+        Experience = new Experience();
+        _startZone = zone.Id;
+        Populate(zone, null);
         RespawnPoint = (Hero.X, Hero.Y);
         hero.HeroPoints.GainForZone();
-        Experience = new Experience();
+    }
+
+    private readonly IReadOnlyDictionary<string, ZoneDefinition> _zones;
+    private readonly Dictionary<string, ZoneMemory> _memories = [];
+
+    public ZoneDefinition Zone { get; private set; } = null!;
+    public TileMap Map { get; private set; } = null!;
+
+    /// <summary>The zones visited and left, as they were left (for saving).</summary>
+    public IReadOnlyDictionary<string, ZoneMemory> Memories => _memories;
+
+    /// <summary>Raised on arriving in another zone: an autosave moment.</summary>
+    public event Action<ZoneDefinition>? ZoneEntered;
+
+    /// <summary>
+    /// Sets up a zone: its map, traders, chests and monsters, then what <paramref name="memory"/> says of an earlier
+    /// visit (kills, open chests, the explored map, loot left lying, the traders' tables), if it is for this layout.
+    /// </summary>
+    private void Populate(ZoneDefinition zone, ZoneMemory? memory)
+    {
+        Zone = zone;
+        Map = new TileMap(zone);
+        _monsters.Clear();
+        _projectiles.Clear();
+        _impacts.Clear();
+        _ground.Clear();
+        _vendors.Clear();
+        _caches.Clear();
+        _slain.Clear();
+        _nextSpawnIndex = 0;
+        _explored = new bool[Map.Width * Map.Height];
+        _lastRevealCell = (int.MinValue, int.MinValue);
+        ExploredVersion++;
+        ZoneComplete = false;
+        OpenVendor = null;
+        OpenShrine = null;
+        _insideExit = null;
         foreach (var vendor in zone.Vendors ?? [])
         {
             var v = new Vendor(vendor);
@@ -153,6 +197,7 @@ public sealed class GameWorld
             Restock(v);
         }
         _caches.AddRange((zone.Caches ?? []).Select(c => new Cache(c)));
+        PopulateInteractives(zone);
 
         var packId = 0;
         foreach (var spawn in zone.Spawns)
@@ -164,10 +209,173 @@ public sealed class GameWorld
                     SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId).SpawnIndex = _nextSpawnIndex++;
             }
         }
+
+        if (memory is null || memory.Revision != zone.Revision)
+            return;
+        RestoreExplored(memory.Explored);
+        foreach (var index in memory.Slain)
+            _slain.Add(index);
+        _monsters.RemoveAll(m => m.SpawnIndex >= 0 && _slain.Contains(m.SpawnIndex));
+        foreach (var cache in _caches.Where(c => memory.OpenedCaches.Contains(c.Definition.Id)))
+            cache.Opened = true;
+        _ground.AddRange(memory.Ground);
+        ZoneComplete = memory.Complete;
+        foreach (var vendor in memory.Vendors)
+            RestoreVendor(vendor.Id, vendor.StockedForLevel, vendor.Stock);
     }
 
-    public ZoneDefinition Zone { get; }
-    public TileMap Map { get; }
+    /// <summary>What this zone would remember if the hero left now.</summary>
+    private ZoneMemory Remember() => new()
+    {
+        Revision = Zone.Revision,
+        Slain = _slain.ToList(),
+        OpenedCaches = _caches.Where(c => c.Opened).Select(c => c.Definition.Id).ToList(),
+        Explored = ExploredBits(),
+        Ground = _ground.ToList(),
+        Complete = ZoneComplete,
+        Vendors = _vendors.Select(v => new VendorMemory(v.Definition.Id, v.StockedForLevel, v.Stock.ToList())).ToList(),
+    };
+
+    /// <summary>Puts back a zone left earlier (loading a save); a zone remade since is forgotten.</summary>
+    internal void RestoreMemory(string zoneId, ZoneMemory memory)
+    {
+        if (_zones.TryGetValue(zoneId, out var zone) && zone.Revision == memory.Revision && zoneId != Zone.Id)
+            _memories[zoneId] = memory;
+    }
+
+    /// <summary>
+    /// Leaves for another zone, arriving at (<paramref name="x"/>, <paramref name="y"/>). The zone left is remembered;
+    /// the first visit to a zone gives a Hero Point (and a warning if it is 3 or more levels above the hero); a town
+    /// shows its banner.
+    /// </summary>
+    private void Travel(ZoneDefinition zone, double x, double y)
+    {
+        _memories[Zone.Id] = Remember();
+        var first = !_memories.Remove(zone.Id, out var memory);
+        Populate(zone, memory);
+        Hero.X = x;
+        Hero.Y = y;
+        Hero.Order = null;
+        Hero.Action = null;
+        Hero.Goal = null;
+        Hero.Path.Clear();
+        Hero.PickupTarget = null;
+        Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
+        RespawnPoint = (x, y);
+        _insideExit = zone.Exits.FirstOrDefault(e => Hero.DistanceTo(e.At[0] + 0.5, e.At[1] + 0.5) <= e.Radius);
+        string? warning = null;
+        if (first && zone.Id != _startZone)
+        {
+            Hero.Character.HeroPoints.GainForZone();
+            if (zone.Level - Hero.Character.Level >= 3)
+                warning = $"{zone.Name} is a level {zone.Level} area. Tread carefully.";
+        }
+        if (zone.Town)
+            Arrival = new Banner(zone.Name, zone.Tagline, Time);
+        if (warning is not null || !zone.Town)
+            Say(warning ?? $"You enter {zone.Name}.");
+        ZoneEntered?.Invoke(zone);
+    }
+
+    private string _startZone = "";
+
+    /// <summary>Goes through an exit to the zone and exit it names, if that zone is known.</summary>
+    private bool TravelThrough(ExitDefinition exit)
+    {
+        if (exit.To is null || !_zones.TryGetValue(exit.To, out var zone))
+            return false;
+        var arrival = zone.Exits.FirstOrDefault(e => e.Id == exit.ToExit);
+        var at = arrival?.Arrive ?? arrival?.At ?? zone.PlayerStart;
+        Travel(zone, at[0] + 0.5, at[1] + 0.5);
+        return true;
+    }
+
+    // ----- Rift Shrines ------------------------------------------------------------------
+
+    /// <summary>The shrine whose Rift is open (its travel list on screen), or null.</summary>
+    public ShrineDefinition? OpenShrine { get; private set; }
+
+    /// <summary>A shrine opens its Rift when the hero stands this close to it.</summary>
+    public const double RiftRadius = 2.0;
+
+    /// <summary>Walk to a woken shrine (a click on it) and open its Rift: travel to any other woken shrine, in any zone.</summary>
+    public void UseShrine(ShrineDefinition shrine)
+    {
+        if (Hero.IsDead || !Zone.Shrines.Contains(shrine))
+            return;
+        Hero.Order = null;
+        Hero.PickupTarget = null;
+        Hero.TalkTarget = null;
+        Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
+        if (!_activatedShrines.Contains(shrine.Id))
+        {
+            Hero.ShrineTarget = shrine;
+            var (sx, sy) = ShrineRespawnPoint(shrine);
+            Hero.Goal = (sx, sy);
+            PlanPath(Hero, sx, sy);
+            return;
+        }
+        if (ShrineDistance(shrine) <= RiftRadius)
+        {
+            OpenRift(shrine);
+            return;
+        }
+        Hero.ShrineTarget = shrine;
+        var (fx, fy) = ShrineRespawnPoint(shrine);
+        Hero.Goal = (fx, fy);
+        PlanPath(Hero, fx, fy);
+    }
+
+    private double ShrineDistance(ShrineDefinition shrine) => Hero.DistanceTo(shrine.At[0] + 0.5, shrine.At[1] + 0.5);
+
+    private void OpenRift(ShrineDefinition shrine)
+    {
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
+        Hero.Goal = null;
+        Hero.Path.Clear();
+        OpenShrine = shrine;
+    }
+
+    public void CloseRift() => OpenShrine = null;
+
+    /// <summary>Every woken shrine the open Rift can reach: (zone, shrine), this zone's first, then by zone order.</summary>
+    public IReadOnlyList<(ZoneDefinition Zone, ShrineDefinition Shrine)> RiftDestinations =>
+        new[] { Zone }.Concat(_zones.Values.Where(z => z.Id != Zone.Id))
+            .SelectMany(z => z.Shrines.Where(s => _activatedShrines.Contains(s.Id) && s != OpenShrine).Select(s => (z, s)))
+            .ToList();
+
+    /// <summary>Steps through the open Rift to a woken shrine, in this zone or another.</summary>
+    public bool RiftTravel(string shrineId)
+    {
+        if (OpenShrine is null || Hero.IsDead)
+            return false;
+        var target = RiftDestinations.FirstOrDefault(d => d.Shrine.Id == shrineId);
+        if (target.Shrine is null)
+            return false;
+        var (x, y) = ShrineRespawnPoint(target.Shrine);
+        OpenShrine = null;
+        if (target.Zone.Id == Zone.Id)
+        {
+            Hero.X = x;
+            Hero.Y = y;
+            Hero.Goal = null;
+            Hero.Path.Clear();
+            RespawnPoint = (x, y);
+        }
+        else
+        {
+            Travel(target.Zone, x, y);
+        }
+        Say($"The Rift carries you to {target.Shrine.Name}.");
+        Sound(SoundCue.Shrine, Hero);
+        return true;
+    }
     public IRandomSource Random { get; }
     public HeroActor Hero { get; }
     public Experience Experience { get; }
@@ -188,8 +396,8 @@ public sealed class GameWorld
     public (double X, double Y) RespawnPoint { get; private set; }
     public bool ZoneComplete { get; private set; }
 
-    /// <summary>The town last walked into and when, for its banner; null until the hero reaches one this session.</summary>
-    public (ExitDefinition Exit, double At)? Arrival { get; private set; }
+    /// <summary>The last banner and when it went up (a town walked into); null until there is one this session.</summary>
+    public Banner? Arrival { get; private set; }
     private ExitDefinition? _insideExit;
     public string? LastMessage { get; private set; }
     public double LastMessageAt { get; private set; } = double.NegativeInfinity;
@@ -215,6 +423,8 @@ public sealed class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         Hero.Goal = (x, y);
         PlanPath(Hero, x, y);
     }
@@ -244,6 +454,8 @@ public sealed class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
     }
@@ -256,6 +468,8 @@ public sealed class GameWorld
         Hero.Order = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         Hero.PickupTarget = item;
         Hero.Goal = (item.X, item.Y);
         PlanPath(Hero, item.X, item.Y);
@@ -302,6 +516,8 @@ public sealed class GameWorld
     private void Loot(Cache cache)
     {
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
         Hero.Face(cache.X, cache.Y);
@@ -325,6 +541,8 @@ public sealed class GameWorld
         Hero.Order = null;
         Hero.PickupTarget = null;
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         if (vendor.DistanceTo(Hero.X, Hero.Y) <= Vendor.TalkRadius)
         {
             Open(vendor);
@@ -358,6 +576,8 @@ public sealed class GameWorld
     {
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         Hero.Goal = null;
         Hero.Path.Clear();
         if (OpenVendor == vendor)
@@ -599,20 +819,31 @@ public sealed class GameWorld
             if (hero.DistanceTo(exit.At[0] + 0.5, exit.At[1] + 0.5) <= exit.Radius)
                 inside = exit;
         }
-        // Walking into a town shows its banner, every time you come back in; the first time also completes the zone.
+        // Walking into an exit completes the zone the first time and goes where it leads; an exit that leads nowhere
+        // known yet shows its banner, every time it is walked into.
         if (inside is not null && inside != _insideExit)
         {
-            Arrival = (inside, Time);
             if (!ZoneComplete)
             {
                 ZoneComplete = true;
-                Say($"You reach {inside.Label}.");
                 Sound(SoundCue.ZoneComplete, hero);
             }
+            if (TravelThrough(inside))
+                return;
+            Arrival = new Banner(inside.Label, "The way on is not open yet.", Time);
+            Say($"You reach {inside.Label}.");
         }
         _insideExit = inside;
+        if (hero.ShrineTarget is { } wanted)
+        {
+            if (_activatedShrines.Contains(wanted.Id) && ShrineDistance(wanted) <= RiftRadius)
+                OpenRift(wanted);
+        }
+        if (OpenShrine is { } rift && ShrineDistance(rift) > ShrineRadius + 1)
+            OpenShrine = null;
 
         CollectLoot();
+        UpdateInteraction();
         if (hero.TalkTarget is { } talk && talk.DistanceTo(hero.X, hero.Y) <= Vendor.TalkRadius)
             Open(talk);
         if (hero.CacheTarget is { } chest && chest.DistanceTo(hero.X, hero.Y) <= Cache.OpenRadius)
@@ -1239,7 +1470,11 @@ public sealed class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.ShrineTarget = null;
+        Hero.InteractTarget = null;
         OpenVendor = null;
+        OpenShrine = null;
+        EndDialogue();
         Hero.Goal = null;
         Hero.Path.Clear();
         _projectiles.Clear();
@@ -1377,6 +1612,8 @@ public sealed class GameWorld
         RestoreExplored(explored);
         Hero.X = heroX;
         Hero.Y = heroY;
+        // A save made standing in an exit doesn't send the hero through it the moment it loads.
+        _insideExit = Zone.Exits.FirstOrDefault(e => Hero.DistanceTo(e.At[0] + 0.5, e.At[1] + 0.5) <= e.Radius);
         RespawnPoint = respawn;
         foreach (var id in shrines)
             _activatedShrines.Add(id);

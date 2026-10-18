@@ -20,6 +20,10 @@ public sealed record SavedVendor(string Id, int StockedForLevel, List<SavedItem>
 /// <summary>Loot left on the ground.</summary>
 public sealed record SavedGroundItem(double X, double Y, SavedItem? Item, int Gold, bool Draught);
 
+/// <summary>A zone visited and left: what it remembers (see <see cref="ZoneMemory"/>).</summary>
+public sealed record SavedZone(string Id, int Revision, List<int> Slain, List<string> OpenedCaches, string? Explored,
+    List<SavedGroundItem> Ground, bool Complete, List<SavedVendor> Vendors);
+
 /// <summary>
 /// A whole saved game, written as versioned JSON. The character is stored as the choices it was built from plus
 /// each level-up's boosts, so loading rebuilds it through the rules (an edited save can't smuggle in an illegal
@@ -62,6 +66,15 @@ public sealed record SaveGame
 
     /// <summary>The chests already opened; missing in older saves, where every chest is still shut.</summary>
     public List<string> OpenedCaches { get; init; } = [];
+
+    /// <summary>The story's flags; missing in older saves.</summary>
+    public Dictionary<string, string> Flags { get; init; } = [];
+
+    /// <summary>The journal, oldest first; missing in older saves.</summary>
+    public List<JournalEntry> Journal { get; init; } = [];
+
+    /// <summary>The other zones visited, as they were left; missing in older saves (one zone only).</summary>
+    public List<SavedZone> OtherZones { get; init; } = [];
 
     /// <summary>The zone layout's revision when saved; older saves have none and count as revision 1.</summary>
     public int ZoneRevision { get; init; } = 1;
@@ -122,6 +135,11 @@ public sealed record SaveGame
             ZoneId = world.Zone.Id,
             ZoneRevision = world.Zone.Revision,
             OpenedCaches = world.Caches.Where(c => c.Opened).Select(c => c.Definition.Id).ToList(),
+            Flags = world.Flags.ToDictionary(kv => kv.Key, kv => kv.Value),
+            Journal = world.Journal.ToList(),
+            OtherZones = world.Memories.Select(kv => new SavedZone(kv.Key, kv.Value.Revision, kv.Value.Slain.Order().ToList(),
+                kv.Value.OpenedCaches.ToList(), kv.Value.Explored, kv.Value.Ground.Select(SaveGround).ToList(), kv.Value.Complete,
+                kv.Value.Vendors.Select(v => new SavedVendor(v.Id, v.StockedForLevel, v.Stock.Select(Save).ToList())).ToList())).ToList(),
             Seed = seed,
             HeroX = c.IsDead ? world.RespawnPoint.X : hero.X,
             HeroY = c.IsDead ? world.RespawnPoint.Y : hero.Y,
@@ -129,13 +147,19 @@ public sealed record SaveGame
             RespawnY = world.RespawnPoint.Y,
             Shrines = world.ActivatedShrines.ToList(),
             Slain = world.Slain.Order().ToList(),
-            Ground = world.GroundItems.Select(g => new SavedGroundItem(g.X, g.Y, g.Drop.Item is { } item ? Save(item) : null, g.Drop.Gold, g.Drop.Draught)).ToList(),
+            Ground = world.GroundItems.Select(SaveGround).ToList(),
             ZoneComplete = world.ZoneComplete,
             Vendors = world.Vendors.Select(v => new SavedVendor(v.Definition.Id, v.StockedForLevel, v.Stock.Select(Save).ToList())).ToList(),
             Explored = world.ExploredBits(),
             PlaySeconds = playSeconds,
         };
     }
+
+    private static SavedGroundItem SaveGround(GroundItem g) =>
+        new(g.X, g.Y, g.Drop.Item is { } item ? Save(item) : null, g.Drop.Gold, g.Drop.Draught);
+
+    private static GroundItem LoadGround(ContentDatabase content, SavedGroundItem g) =>
+        new(g.X, g.Y, new LootDrop(g.Item is { } item ? Load(content, item) : null, g.Gold, g.Draught), 0);
 
     private static SavedItem Save(Item item) => new(item.Definition.Id, item.Rarity, item.ItemLevel, item.Potency, item.Striking,
         item.Resilient, item.Affixes.Select(a => new SavedAffix(a.Definition.Id, a.Value)).ToList(),
@@ -156,7 +180,17 @@ public sealed record SaveGame
 
         var zone = content.Zone(ZoneId);
         var world = new GameWorld(zone, content.Creatures, character, seed ?? unchecked(Seed + (int)SavedAt.ToUnixTimeSeconds()),
-            content.AbilityBar(Choices.ClassId), content.Loot);
+            content.AbilityBar(Choices.ClassId), content.Loot, content.Zones, content.Dialogues);
+        world.RestoreStory(Flags, Journal);
+        foreach (var other in OtherZones)
+        {
+            world.RestoreMemory(other.Id, new ZoneMemory
+            {
+                Revision = other.Revision, Slain = other.Slain, OpenedCaches = other.OpenedCaches, Explored = other.Explored,
+                Ground = other.Ground.Select(g => LoadGround(content, g)).ToList(), Complete = other.Complete,
+                Vendors = other.Vendors.Select(v => new VendorMemory(v.Id, v.StockedForLevel, v.Stock.Select(i => Load(content, i)).ToList())).ToList(),
+            });
+        }
         var gear = world.Hero.Equipment;
         foreach (var (slot, item) in Worn)
             gear.Equip(Load(content, item), slot);
@@ -182,8 +216,7 @@ public sealed record SaveGame
             world.Announce($"{zone.Name} has changed since this save: you start again at its beginning, with all you carry.");
             return world;
         }
-        var ground = Ground.Select(g => new GroundItem(g.X, g.Y,
-            new LootDrop(g.Item is { } item ? Load(content, item) : null, g.Gold, g.Draught), 0));
+        var ground = Ground.Select(g => LoadGround(content, g));
         world.Restore(HeroX, HeroY, (RespawnX, RespawnY), Shrines, Slain, ground, ZoneComplete, Level, Xp, Explored, OpenedCaches);
         foreach (var vendor in Vendors)
             world.RestoreVendor(vendor.Id, vendor.StockedForLevel, vendor.Stock.Select(i => Load(content, i)));

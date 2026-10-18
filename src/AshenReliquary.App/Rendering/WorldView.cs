@@ -38,6 +38,23 @@ public sealed class WorldView : Control
 
     /// <summary>The character sheet (C).</summary>
     public bool CharacterSheetOpen { get; set; }
+
+    /// <summary>The journal (J).</summary>
+    public bool JournalOpen { get; set; }
+
+    private readonly DialoguePanel _dialogue = new();
+    private readonly JournalPanel _journal = new();
+    private readonly Dictionary<string, SKImage> _portraits = [];
+
+    /// <summary>A portrait from Assets/Portraits as a Skia image, decoded once.</summary>
+    private SKImage? PortraitImage(string? id)
+    {
+        if (id is null || Services.Portraits.Find(id) is not { } p)
+            return null;
+        if (!_portraits.TryGetValue(id, out var image))
+            _portraits[id] = image = SKImage.FromEncodedData(Services.Portraits.Png(p)).ToRasterImage(ensurePixelData: true);
+        return image;
+    }
     private float _uiScale = 1f;
 
     private (string Id, SKImage Image)? _portrait;
@@ -57,6 +74,7 @@ public sealed class WorldView : Control
 
     private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawIcon);
 
+    private readonly RiftPanel _rift = new();
     private VendorPanel? _vendorPanel;
     private VendorPanel Trade => _vendorPanel ??= new VendorPanel(DrawIcon);
 
@@ -153,6 +171,20 @@ public sealed class WorldView : Control
         var p = e.GetPosition(this);
         var props = e.GetCurrentPoint(this).Properties;
         var sp = new SKPoint((float)p.X, (float)p.Y);
+        if (world.Dialogue is not null && props.IsLeftButtonPressed && _dialogue.HitTest(sp) is { } answer)
+        {
+            if (answer >= 0)
+                world.Choose(answer);
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
+        if (world.OpenShrine is not null && props.IsLeftButtonPressed && _rift.Click(sp, world))
+        {
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
         if (world.OpenVendor is not null && props.IsLeftButtonPressed && Trade.Click(sp, world))
         {
             e.Handled = true;
@@ -196,9 +228,19 @@ public sealed class WorldView : Control
             world.TalkTo(vendor);
             _holding = false;
         }
+        else if (InteractiveUnder(p) is { } who)
+        {
+            world.Interact(who);
+            _holding = false;
+        }
         else if (CacheUnder(p) is { } cache)
         {
             world.OpenCache(cache);
+            _holding = false;
+        }
+        else if (ShrineUnder(p) is { } shrine)
+        {
+            world.UseShrine(shrine);
             _holding = false;
         }
         else
@@ -292,6 +334,37 @@ public sealed class WorldView : Control
             var foot = ToScreen(v.X, v.Y);
             if (p.X >= foot.X - 38 * z && p.X <= foot.X + 38 * z && p.Y >= foot.Y - 150 * z && p.Y <= foot.Y + 12 * z)
                 return v;
+        }
+        return null;
+    }
+
+    /// <summary>The person or thing under a screen point.</summary>
+    public Interactive? InteractiveUnder(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        var z = (float)Zoom;
+        foreach (var who in world.Interactives)
+        {
+            var foot = ToScreen(who.X, who.Y);
+            var height = who.Npc is null ? 100 : 150;
+            if (p.X >= foot.X - 40 * z && p.X <= foot.X + 40 * z && p.Y >= foot.Y - height * z && p.Y <= foot.Y + 20 * z)
+                return who;
+        }
+        return null;
+    }
+
+    /// <summary>The shrine under a screen point (its flat stone circle).</summary>
+    public ShrineDefinition? ShrineUnder(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        var z = (float)Zoom;
+        foreach (var s in world.Zone.Shrines)
+        {
+            var at = ToScreen(s.At[0] + 0.5, s.At[1] + 0.5);
+            if (Math.Abs(p.X - at.X) / (70 * z) + Math.Abs(p.Y - at.Y) / (36 * z) <= 1)
+                return s;
         }
         return null;
     }
@@ -400,6 +473,7 @@ public sealed class WorldView : Control
         DrawLootLabels(canvas, world);
         DrawVendorLabels(canvas, world);
         DrawCacheLabels(canvas, world);
+        DrawInteractiveLabels(canvas, world);
         WorldOverlay.DrawFloatingText(this, canvas, world);
         var pointer = _pointer is { } pt ? new SKPoint((float)pt.X, (float)pt.Y) : (SKPoint?)null;
         var hud = HudLayer;
@@ -425,7 +499,24 @@ public sealed class WorldView : Control
             Trade.Draw(canvas, size, world, pointer);
             hud.Block(Trade.Bounds);
         }
-        var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over)));
+        if (world.OpenShrine is not null)
+        {
+            _rift.Draw(canvas, size, world, pointer);
+            hud.Block(_rift.Bounds);
+        }
+        if (JournalOpen)
+        {
+            _journal.Draw(canvas, size, world);
+            hud.Block(_journal.Bounds);
+        }
+        if (world.Dialogue is { } talk)
+        {
+            _dialogue.Draw(canvas, size, talk, PortraitImage(talk.Portrait), pointer);
+            hud.Block(_dialogue.Bounds);
+        }
+        var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over))
+            || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
+            || (JournalOpen && _journal.Bounds.Contains(over)));
         if (!overPanel)
             hud.DrawTooltip(canvas, size, pointer);
         Stats.Mark("text+hud");
@@ -640,6 +731,11 @@ public sealed class WorldView : Control
             var cache = c;
             items.Add((c.X + c.Y, c.X, () => DrawCache(canvas, cache, tileset, world.Time)));
         }
+        foreach (var i in world.Interactives)
+        {
+            var who = i;
+            items.Add((i.X + i.Y, i.X, () => DrawInteractive(canvas, who, tileset, world.Time)));
+        }
         foreach (var g in world.GroundItems)
         {
             var ground = g;
@@ -715,12 +811,13 @@ public sealed class WorldView : Control
     private static readonly string[] BareBody = ["head", "chest", "legs", "feet", "hands"];
 
     /// <summary>A trader: Flare's avatar in the clothes their zone file gives them, idling, brighter when hovered.</summary>
-    private void DrawVendor(SKCanvas canvas, Vendor vendor)
+    private void DrawVendor(SKCanvas canvas, Vendor vendor) =>
+        DrawPaperDoll(canvas, ToScreen(vendor.X, vendor.Y), vendor.Definition.Look, vendor.Definition.Facing,
+            _pointer is { } p && VendorUnder(p) == vendor);
+
+    /// <summary>Someone drawn from Flare's avatar layers (a trader, an NPC), idling, brighter when hovered.</summary>
+    private void DrawPaperDoll(SKCanvas canvas, SKPoint foot, IReadOnlyDictionary<string, string> look, int direction, bool hovered)
     {
-        var foot = ToScreen(vendor.X, vendor.Y);
-        var look = vendor.Definition.Look;
-        var direction = vendor.Definition.Facing;
-        var hovered = _pointer is { } p && VendorUnder(p) == vendor;
         using var paint = hovered ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(35, 35, 35)) } : null;
         foreach (var slot in _assets.LayerOrder(direction))
         {
@@ -753,6 +850,45 @@ public sealed class WorldView : Control
                 ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(new SKColor(120, 115, 110), SKColors.Black) }
                 : null;
         DrawTile(canvas, tile, ToScreen(cache.X, cache.Y), time, paint);
+    }
+
+    private void DrawInteractive(SKCanvas canvas, Interactive who, FlareTileset tileset, double time)
+    {
+        var hovered = _pointer is { } p && InteractiveUnder(p) == who;
+        if (who.Npc is { } npc)
+        {
+            DrawPaperDoll(canvas, ToScreen(who.X, who.Y), npc.Look, npc.Facing, hovered);
+            return;
+        }
+        if (who.Thing?.Tile is { } id && tileset.Tiles.TryGetValue(id, out var tile))
+        {
+            using var paint = hovered ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(40, 35, 25)) } : null;
+            DrawTile(canvas, tile, ToScreen(who.X, who.Y), time, paint);
+        }
+    }
+
+    /// <summary>A person's name and calling, or a thing's name, when near or hovered.</summary>
+    private void DrawInteractiveLabels(SKCanvas canvas, GameWorld world)
+    {
+        using var nameFont = new SKFont(WorldOverlay.Serif, 14);
+        using var small = new SKFont(WorldOverlay.Serif, 11);
+        using var ink = new SKPaint { IsAntialias = true, Color = new SKColor(200, 225, 255) };
+        using var dim = new SKPaint { IsAntialias = true, Color = Palette.Dim };
+        using var back = new SKPaint { Color = new SKColor(0, 0, 0, 160) };
+        foreach (var who in world.Interactives)
+        {
+            var hovered = _pointer is { } p && InteractiveUnder(p) == who;
+            if (!hovered && world.Hero.DistanceTo(who.X, who.Y) > (who.Npc is null ? 5 : 9))
+                continue;
+            var foot = ToScreen(who.X, who.Y);
+            var top = foot.Y - (who.Npc is null ? 100 : 150) * (float)Zoom - 30;
+            var width = Math.Max(nameFont.MeasureText(who.Name), who.Title is null ? 0 : small.MeasureText(who.Title)) + 16;
+            var height = who.Title is null ? 20 : 32;
+            canvas.DrawRect(SKRect.Create(foot.X - width / 2, top, width, height), back);
+            canvas.DrawText(who.Name, foot.X, top + 14, SKTextAlign.Center, nameFont, ink);
+            if (who.Title is { } title)
+                canvas.DrawText(title, foot.X, top + 27, SKTextAlign.Center, small, dim);
+        }
     }
 
     /// <summary>A chest's name when near (and still shut) or hovered.</summary>

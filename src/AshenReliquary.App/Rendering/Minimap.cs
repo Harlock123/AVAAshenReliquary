@@ -54,7 +54,7 @@ internal sealed class Minimap
             Diamond(canvas, at, 4.5f, paint);
             var s = shrine;
             region(SKRect.Create(at.X - 6, at.Y - 6, 12, 12), () =>
-                [new(s.Name, new SKColor(120, 190, 255), lit ? "awake" : "asleep", true), new("Walk near it to wake it and refill your potions. You rise at the nearest shrine when you fall.", Palette.Dim)],
+                [new(s.Name, new SKColor(120, 190, 255), lit ? "awake" : "asleep", true), new(lit ? "Click it to open its Rift: travel to any woken shrine." : "Walk near it to wake it and refill your potions.", Palette.Dim), new("You rise at the nearest shrine when you fall.", Palette.Dim)],
                 new SKColor(120, 190, 255));
         }
         foreach (var vendor in world.Vendors)

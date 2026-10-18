@@ -89,6 +89,8 @@ public sealed class HeroActor : Actor
     internal GroundItem? PickupTarget { get; set; }
     internal Vendor? TalkTarget { get; set; }
     internal Cache? CacheTarget { get; set; }
+    internal ShrineDefinition? ShrineTarget { get; set; }
+    internal Interactive? InteractTarget { get; set; }
     internal double FlourishReadyAt { get; set; }
     internal double StaggerRemaining { get; set; }
     internal double RespawnIn { get; set; }

@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–2 done: zone travel, Rift Shrines, flags, dialogue and the journal).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -806,6 +806,24 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **Sounds:** the world queues sound events with a position (swing, hit, critical, hurt, a creature's aggro and death in its own voice, bow, witch cast, grave rising, Ignition, Force Bolt, impacts, loot, gold, pickups by material, potion, level up, shrine, death, zone complete); the app plays a random variant, fading with distance (full within ~3 tiles, quiet by ~18) and panned by screen position. Footsteps play every 0.34 s while running. A sound can't repeat within 60 ms.
 - **Music:** the title theme off the road (*Ossuary 1*), exploration on it (*Ossuary 5* or *6* at random), and a battle theme (Zhelanov 1 or 2) while any monster within 16 tiles is hunting the hero, held 5 s after the last. A dungeon-wind ambience loop plays under the music on the road.
 - **Settings:** Master, Effects, Music and Ambience sliders in the Escape menu, saved to `settings.json` beside the saves folder. Every button clicks.
+
+### Zones and travel (M2)
+
+- **Exits** lead to other zones (`to`, `toExit` in the zone file): walking into one completes the zone and travels, arriving at the other zone's matching exit, on its `arrive` tile (outside its radius, so the hero doesn't bounce back). An exit that leads to no known zone shows its banner ("The way on is not open yet"). Gallows Road's gate leads into Fort Gallowmere and back.
+- **Zones remember** (`ZoneMemory`): the monsters killed, chests opened, the explored map, loot left lying, completion and the traders' tables are kept when the hero leaves and restored on return. The save keeps the current zone's state where it always was and the others under `OtherZones`; a remembered zone remade since (another revision) starts afresh.
+- **The first visit** to a zone gives a Hero Point (up to 3) and, when the zone is 3 or more levels above the hero, a warning. A **town** zone (`town`, `tagline`) shows its banner on every arrival.
+- **Rift Shrines:** click a woken shrine (the hero walks to it) to open its Rift, a list of every other woken shrine in any zone; pick one to step through. Shrine ids are unique across zones.
+- **Autosave** on entering a zone, as well as when a shrine wakes and on leaving a trader.
+- **Fort Gallowmere** (`tools/fort_gallowmere_mapgen.py`) is a walled yard for now, with the Fort Shrine; step 3 brings its people.
+
+### Dialogue, flags and the journal (M2)
+
+- **World flags** (name → value, `act1.brask = truth`) hold the story's state and are saved. Dialogue reads and sets them; spawns, vendors and gates will too.
+- **Dialogues** live in `dialogues.json`: nodes of text with answers. An answer can require flags (a value, or "" for not set), go to another node or end the talk, carry effects (set a flag, write a journal entry, give XP, gold or an item), or make a **check**: a skill, Perception or a save against a DC, rolled through the rules core and going to a success or a failure node. The panel shows each check's modifier, DC and odds, and the last roll's result. A dialogue can open at a different node on later visits (`openings`, by flags).
+- **People and things:** zones place NPCs (`npcs`: drawn from Flare's avatar layers like traders, with a portrait in conversation) and interactables (`interactables`: a tile and a dialogue told as narration). Click one and the hero walks over and the conversation opens above the ability bar; answer with a click or the number keys; Esc or walking away ends it.
+- **The journal** (J) lists main-story and side-story entries, written by dialogue effects; an entry appears only once something is found.
+- **Skills (for now):** a skill is its attribute + proficiency (trained in the background's skill and Lore, untrained otherwise) + the armour's check penalty for Strength and Dexterity skills. Step 4 brings skill ranks and increases.
+- **First content:** Sergeant Brask at the fort gate asks your business (the truth, or a Deception check DC 15), and a notice board hides a scratched message about the ferry (Perception DC 14, once).
 
 ### Caches (M1)
 

@@ -18,9 +18,9 @@ internal sealed class TestKit
     public MainWindow Window { get; }
     public GameWorld World => Window.Session!.World;
 
-    public static TestKit Open(string classId = "fighter", int seed = 1337, int width = 1440, int height = 900)
+    public static TestKit Open(string classId = "fighter", int seed = 1337, int width = 1440, int height = 900, string zoneId = "gallows_road")
     {
-        var window = new MainWindow { Session = GameSession.NewGame(classId, seed), Width = width, Height = height };
+        var window = new MainWindow { Session = GameSession.NewGame(classId, seed, zoneId), Width = width, Height = height };
         window.View.FixedTime = 0;
         window.Show();
         var kit = new TestKit(window);

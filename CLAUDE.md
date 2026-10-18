@@ -16,9 +16,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `tools/gallows_road_mapgen.py` whenever the layout changes), rocky pond banks (`TileMap.ShapeShores`), chests
   (`caches` in the zone file, `World/Cache.cs`, `LootGenerator.RollCache`: eight on the road, a reliquary in the
   Champion's barrow) and shrines waking from 5 tiles. A fighter clears the road with every chest in about 10 minutes.
-- **Next:** M2, Act 1 complete (section 15): Fort Gallowmere as a hub (the gate opens into it), three more Act 1
-  zones, Mother Sallow, the three Act 1 side stories, the feat UI, runes and the smith; exit test Act 1 at level 5
-  in 3–4 hours. Write a short plan and agree the order with the user before building.
+- **M2 (Act 1 complete):** in progress, following `docs/M2_PLAN.md`. Steps 1–2 done: zone travel with per-zone
+  memory (`ZoneMemory`, `OtherZones` in the save), Hero Point per new zone, Rift Shrines (`RiftPanel`), Fort
+  Gallowmere as a stub zone (`tools/fort_gallowmere_mapgen.py`), world flags, `dialogues.json` with checks and
+  effects (`GameWorld.Dialogue.cs`, `DialoguePanel`), NPCs and interactables in zone files, the journal (J,
+  `JournalPanel`), a provisional `Character.Skill`. Next: step 3 (the hub's people) and step 4 (feats and skills).
+  The plan's five decisions for the user (act length, art, the scarecrow's "night", cuts, skills) are still open.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter

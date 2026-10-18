@@ -21,14 +21,15 @@ dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
-**Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, **F5** saves,
+**Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
+or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), **J** the journal, **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
-through the refugee camp, to the barred gate of
-Fort Gallowmere, where the vertical slice ends.
+through the refugee camp, to the gate of
+Fort Gallowmere, where Sergeant Brask asks your business.
 
-## Status: M1 done, the vertical slice
+## Status: M1 done; M2 (Act 1) in progress
 
 Done so far: the Avalonia app; a SkiaSharp isometric renderer for the Flare art (192x96 tiles, 8-direction
 sprites, the layered hero paper doll, depth sorting, see-through occluders, Act 1 colour grade, darkness with

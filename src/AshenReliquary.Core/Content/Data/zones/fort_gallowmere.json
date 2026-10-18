@@ -1,0 +1,218 @@
+{
+ "id": "fort_gallowmere",
+ "name": "Fort Gallowmere",
+ "level": 1,
+ "revision": 1,
+ "tileset": "tileset_grassland",
+ "town": true,
+ "tagline": "The refugees open the gate.",
+ "rows": [
+  "TTTTTTOTTTTTTTTTTTTTOTTOTTTOTT",
+  "TOTOTTTTOTOTTTOTTTTTTTTTOTTTTT",
+  "OTOTTTTTOTTTTTOTOTTTOOTOTTTTOT",
+  "OOTTPFFFFFFFFFFFFFFFFFFFFPTTTO",
+  "OTTTL.,..................LTTTT",
+  "OTTOL........-===-.......LTTOT",
+  "TTTTL..tX....-===-...tX..LTTTT",
+  "TTTTL..XX....-===-...XX..LOOOT",
+  "TTTOL........-===-.......LTOTT",
+  "TTTTL........-===-.......LTTTT",
+  "TOOTL........-===-.......LOTTT",
+  "TTTTL.x......-=c=-.......LTTTO",
+  "TOTTL........-===-.......LTOOO",
+  "TOTTL........-===-.......LOTTT",
+  "TTTOL........-===-.S.....LOTTT",
+  "TTTTL........-===-.......LOOOT",
+  "TTOTL........-===-.......LTTTO",
+  "TTOOL........-===-.......LTTTO",
+  "TOTTL..tX....-===-.......LTOTT",
+  "TTTOL..XX....-===-.......LTOTT",
+  "TTTTL........-===-....xx.LOTTT",
+  "TTTTL........-===-.......LTOTT",
+  "TTTTL......,.-===-.....,.LTTOT",
+  "TTTTL........-===-.......LOTTT",
+  "TTOTPFFFFFFFFP===PFFFFFFFPTTTT",
+  "TOTTTTTOOTTTO-===-TOTTOTTTOTTT",
+  "TTTOTTOTTTTTT-===-TTTTOTTTOTTT",
+  "TTTTTTTTTTTTT-===-TTTTOTTOTOTO"
+ ],
+ "legend": {
+  ".": {
+   "ground": "grass"
+  },
+  ",": {
+   "ground": "grass",
+   "objects": [
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127
+   ]
+  },
+  "=": {
+   "ground": "path"
+  },
+  "-": {
+   "ground": "path_edge"
+  },
+  "T": {
+   "ground": "grass",
+   "objects": [
+    248,
+    249,
+    250,
+    251
+   ],
+   "blocks": true,
+   "blocksSight": true
+  },
+  "O": {
+   "ground": "grass",
+   "objects": [
+    252,
+    253,
+    254,
+    255
+   ],
+   "blocks": true,
+   "blocksSight": true
+  },
+  "c": {
+   "ground": "path",
+   "objects": [
+    102
+   ],
+   "blocks": true
+  },
+  "t": {
+   "ground": "grass",
+   "objects": [
+    72,
+    75
+   ],
+   "blocks": true,
+   "blocksSight": true
+  },
+  "x": {
+   "ground": "grass",
+   "objects": [
+    96,
+    97,
+    98,
+    99,
+    100,
+    101
+   ],
+   "blocks": true
+  },
+  "S": {
+   "ground": "grass",
+   "objects": [
+    265
+   ]
+  },
+  "X": {
+   "ground": "grass",
+   "blocks": true
+  },
+  "P": {
+   "ground": "grass",
+   "objects": [
+    132
+   ],
+   "blocks": true,
+   "blocksSight": true
+  },
+  "F": {
+   "ground": "grass",
+   "objects": [
+    107
+   ],
+   "blocks": true
+  },
+  "L": {
+   "ground": "grass",
+   "objects": [
+    104
+   ],
+   "blocks": true
+  }
+ },
+ "playerStart": [
+  15,
+  22
+ ],
+ "spawns": [],
+ "shrines": [
+  {
+   "id": "fort_shrine",
+   "name": "The Fort Shrine",
+   "at": [
+    19,
+    14
+   ]
+  }
+ ],
+ "npcs": [
+  {
+   "id": "brask",
+   "name": "Sergeant Brask",
+   "title": "Gate warden",
+   "at": [
+    17,
+    21
+   ],
+   "facing": 7,
+   "portrait": "flare/male05",
+   "dialogue": "fort_brask",
+   "look": {
+    "head": "chain_coif",
+    "chest": "chain_cuirass",
+    "hands": "chain_gloves",
+    "legs": "chain_greaves",
+    "feet": "chain_boots",
+    "main": "shortsword"
+   }
+  }
+ ],
+ "interactables": [
+  {
+   "id": "notice_board",
+   "name": "Notice board",
+   "at": [
+    11,
+    16
+   ],
+   "tile": 139,
+   "dialogue": "fort_notice"
+  }
+ ],
+ "exits": [
+  {
+   "id": "gate",
+   "label": "Gallows Road",
+   "at": [
+    15,
+    26
+   ],
+   "radius": 1.5,
+   "to": "gallows_road",
+   "toExit": "fort_gallowmere",
+   "arrive": [
+    15,
+    22
+   ]
+  }
+ ]
+}

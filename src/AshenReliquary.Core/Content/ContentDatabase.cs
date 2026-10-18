@@ -29,8 +29,10 @@ public sealed class ContentDatabase
         IEnumerable<ZoneDefinition>? zones = null,
         IEnumerable<AbilityDefinition>? abilities = null,
         IEnumerable<ItemDefinition>? items = null,
-        IEnumerable<AffixDefinition>? affixes = null)
+        IEnumerable<AffixDefinition>? affixes = null,
+        IEnumerable<DialogueDefinition>? dialogues = null)
     {
+        Dialogues = (dialogues ?? []).ToDictionary(d => d.Id);
         Items = (items ?? []).ToDictionary(i => i.Id);
         Affixes = (affixes ?? []).ToList();
         Abilities = (abilities ?? []).ToDictionary(a => a.Id);
@@ -52,6 +54,7 @@ public sealed class ContentDatabase
     public IReadOnlyDictionary<string, AbilityDefinition> Abilities { get; }
     public IReadOnlyDictionary<string, ItemDefinition> Items { get; }
     public IReadOnlyList<AffixDefinition> Affixes { get; }
+    public IReadOnlyDictionary<string, DialogueDefinition> Dialogues { get; }
 
     public ItemDefinition Item(string id) => Find(Items, id, "item");
 
@@ -78,7 +81,8 @@ public sealed class ContentDatabase
         ZoneFiles.Select(Read<ZoneDefinition>),
         Read<List<AbilityDefinition>>("abilities.json"),
         Read<List<ItemDefinition>>("items.json"),
-        Read<List<AffixDefinition>>("affixes.json"));
+        Read<List<AffixDefinition>>("affixes.json"),
+        Read<List<DialogueDefinition>>("dialogues.json"));
 
     /// <summary>Every embedded zone file (zones/*.json in the source tree).</summary>
     private static IEnumerable<string> ZoneFiles => Assembly.GetExecutingAssembly().GetManifestResourceNames()
@@ -90,7 +94,7 @@ public sealed class ContentDatabase
         && !KnownTables.Contains(resourceName["AshenReliquary.Content.".Length..]);
 
     private static readonly HashSet<string> KnownTables =
-        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json"];
+        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json"];
 
     private static T Read<T>(string fileName)
     {

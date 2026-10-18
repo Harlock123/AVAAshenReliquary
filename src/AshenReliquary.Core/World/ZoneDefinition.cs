@@ -19,8 +19,14 @@ public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, d
 /// <summary>A shrine: checkpoint, respawn point, potion refill and Taint cleanse.</summary>
 public sealed record ShrineDefinition(string Id, string Name, int[] At);
 
-/// <summary>A zone exit; reaching it ends the zone (in the vertical slice: arriving at Fort Gallowmere).</summary>
-public sealed record ExitDefinition(string Id, string Label, int[] At, double Radius = 2.0);
+/// <summary>
+/// A way out of a zone. Walking within <see cref="Radius"/> of <see cref="At"/> completes the zone and, when
+/// <see cref="To"/> names a zone, travels there, arriving at that zone's exit <see cref="ToExit"/>. A hero arriving
+/// through an exit stands at its <see cref="Arrive"/> tile (outside its radius, so they don't bounce straight back),
+/// or at <see cref="At"/> when it has none.
+/// </summary>
+public sealed record ExitDefinition(string Id, string Label, int[] At, double Radius = 2.0, string? To = null, string? ToExit = null,
+    int[]? Arrive = null);
 
 /// <summary>
 /// A hand-authored zone. <see cref="Rows"/> is the map drawn in characters, row 0 at the top (north-west
@@ -39,7 +45,11 @@ public sealed record ZoneDefinition(
     IReadOnlyList<ExitDefinition> Exits,
     IReadOnlyList<VendorDefinition>? Vendors = null,
     int Revision = 1,
-    IReadOnlyList<CacheDefinition>? Caches = null)
+    IReadOnlyList<CacheDefinition>? Caches = null,
+    bool Town = false,
+    string? Tagline = null,
+    IReadOnlyList<NpcDefinition>? Npcs = null,
+    IReadOnlyList<InteractableDefinition>? Interactables = null)
 {
     public int Height => Rows.Count;
     public int Width => Rows.Max(r => r.Length);

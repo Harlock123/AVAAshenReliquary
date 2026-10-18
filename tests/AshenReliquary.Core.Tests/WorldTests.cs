@@ -319,7 +319,7 @@ public class WorldTests
     }
 
     [Fact]
-    public void Walking_into_a_town_completes_the_zone_once_and_shows_its_banner_each_time()
+    public void Walking_into_an_exit_that_leads_nowhere_yet_completes_the_zone_and_shows_its_banner_each_time()
     {
         var zone = Arena(Enumerable.Repeat("....................", 10).ToArray()) with
         {
@@ -330,17 +330,17 @@ public class WorldTests
         world.MoveTo(16.5, 2.5);
         Run(world, 8);
         Assert.True(world.ZoneComplete);
-        var first = Assert.NotNull(world.Arrival);
-        Assert.Equal("Test Town", first.Exit.Label);
+        var first = Assert.IsType<Banner>(world.Arrival);
+        Assert.Equal("Test Town", first.Title);
 
         // Standing about in town doesn't restart it; leaving and coming back does.
         Run(world, 1);
-        Assert.Equal(first.At, world.Arrival!.Value.At);
+        Assert.Equal(first.At, world.Arrival!.At);
         world.MoveTo(5.5, 5.5);
         Run(world, 8);
         world.MoveTo(16.5, 2.5);
         Run(world, 8);
-        Assert.True(world.Arrival!.Value.At > first.At);
+        Assert.True(world.Arrival!.At > first.At);
     }
 
     [Fact]

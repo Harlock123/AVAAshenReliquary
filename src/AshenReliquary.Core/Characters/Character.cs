@@ -263,6 +263,24 @@ public sealed class Character : IDefender
         Attr(AttributeKind.Wisdom, Attributes[AttributeKind.Wisdom]),
         Prof(ProficiencyTrack.Perception));
 
+    /// <summary>
+    /// A skill: its attribute + proficiency (trained in the background's skill and Lore, untrained otherwise, for now)
+    /// + the armour's check penalty for Strength and Dexterity skills. Step 4 of M2 brings the full skill ranks.
+    /// </summary>
+    public ModifierTotal Skill(string skill)
+    {
+        var attribute = Skills.AttributeFor(skill);
+        var trained = string.Equals(skill, Background.Skill, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(skill, Background.Lore, StringComparison.OrdinalIgnoreCase);
+        var rank = trained ? ProficiencyRank.Trained : ProficiencyRank.Untrained;
+        var penalty = attribute is AttributeKind.Strength or AttributeKind.Dexterity
+            ? Armor.CheckPenalty(Attributes[AttributeKind.Strength]) : 0;
+        return Total(StatisticKind.Skill, attribute,
+            Attr(attribute, Attributes[attribute]),
+            new Modifier(rank.ToString(), Proficiency.Bonus(rank, Level)),
+            new Modifier("Armour check penalty", penalty));
+    }
+
     /// <summary>Traps, hidden doors and stealthy enemies are spotted within 4 tiles + 0.25 per point of Perception.</summary>
     public double DetectionRangeTiles => BaseDetectionTiles + DetectionTilesPerPerception * Perception().Total;
 

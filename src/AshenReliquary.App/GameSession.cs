@@ -57,10 +57,11 @@ public sealed class GameSession
         return session;
     }
 
-    /// <summary>Autosave whenever a shrine is touched (the spec's checkpoint moments).</summary>
+    /// <summary>Autosave when a shrine wakes, on entering a zone and on leaving a trader (the spec's checkpoint moments).</summary>
     private void HookAutosave()
     {
         World.ShrineActivated += _ => Save(announce: false);
+        World.ZoneEntered += _ => Save(announce: false);
         World.TradeClosed += _ => Save(announce: false);
     }
     public string ClassId { get; }
@@ -113,7 +114,7 @@ public sealed class GameSession
     {
         var content = ContentDatabase.Embedded;
         var hero = CharacterBuilder.Create(content, choices);
-        var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, seed, content.AbilityBar(choices.ClassId), content.Loot);
+        var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, seed, content.AbilityBar(choices.ClassId), content.Loot, content.Zones, content.Dialogues);
         Dress(hero, world.Hero.Equipment, choices.ClassId);
         hero.RestAtShrine();
         var session = new GameSession(world, choices.ClassId) { SaveId = Services.SaveStore.NewSaveId(choices.Name), Seed = seed };

@@ -35,7 +35,7 @@ What M2 needs that does not exist yet:
 Each step ends playable: a play-test, tests, the spec and README updated, a commit. Later steps lean on earlier ones,
 so the order is mostly forced; the two parallel tracks are marked.
 
-### 1. Many zones (foundation)
+### 1. Many zones (foundation) — done 2026-10-17
 
 - Zone exits lead to other zones; arriving puts the hero at the matching entrance. Each zone keeps its own kills,
   chests, explored map and shrines in the save (save version 2, migrating M1 saves).
@@ -44,7 +44,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - Shrines become **Rift Shrines** for fast travel between woken shrines in any zone (spec: hubs and zones).
 - *Done when:* the Gallows Road gate leads to an empty stub zone and back, and saving and loading keeps both.
 
-### 2. World flags, interactables, dialogue and the journal (foundation)
+### 2. World flags, interactables, dialogue and the journal (foundation) — done 2026-10-17
 
 - World flags in the save, readable by dialogue, spawns, vendors and the gate.
 - Interactable objects in zone files: click, optional skill check (DC and degree odds shown), result lines, flags set.
