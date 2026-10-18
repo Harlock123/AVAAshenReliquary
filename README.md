@@ -10,6 +10,17 @@ combat. The full design is in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) (
 
 ![Trading with Wenna Marsh, the peddler](Images/AVAAshenReliquary-trade.png)
 
+| | |
+| --- | --- |
+| ![Rot cultists in their camp in the drowned village, the Rotwater Fens](Images/AVAAshenReliquary-fens.jpg) | ![Torchlight and a shrine in the narthex of the Drowned Chapel](Images/AVAAshenReliquary-chapel.jpg) |
+| *The Rotwater Fens: rot cultists in the drowned village* | *The Drowned Chapel: torchlight, braziers and a shrine in the dark* |
+| ![Mother Sallow's boss bar and a rot pool's warning ring](Images/AVAAshenReliquary-sallow.jpg) | ![Sergeant Brask at the gate of Fort Gallowmere, with a Deception check](Images/AVAAshenReliquary-dialogue.jpg) |
+| *Mother Sallow, Herald of Rot: her boss bar and a rot pool gathering* | *Fort Gallowmere: Sergeant Brask, and a skill check in conversation* |
+| ![Garrow's rune bench: etching and moving runes](Images/AVAAshenReliquary-runework.jpg) | ![The level-up screen with class and skill feats](Images/AVAAshenReliquary-level-up.jpg) |
+| *Garrow the smith etches runes and moves them between weapons* | *Levelling up: feats chosen on the level-up screen* |
+
+![Character creation, with ancestry feats and trained skills](Images/AVAAshenReliquary-creation-skills.jpg)
+
 ## Running it
 
 ```bash
