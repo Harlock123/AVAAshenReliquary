@@ -53,6 +53,15 @@ internal sealed class InventoryPanel
         _cell = Math.Clamp(room / Equipment.BagRows - Gap, 26, 48);
     }
 
+    /// <summary>
+    /// Set while the smith's rune bench is open: right-clicking a bag or worn item puts it on the bench instead of
+    /// selling it.
+    /// </summary>
+    public Func<Item, bool>? Bench { get; set; }
+
+    /// <summary>The items on the smith's bench, tagged in the bag and on the paper doll.</summary>
+    public IReadOnlyCollection<Item>? Benched { get; set; }
+
     /// <summary>What is under a point: a worn slot, a bag cell, or nothing.</summary>
     public (EquipSlot? Slot, int? Bag) HitTest(SKPoint p)
     {
@@ -76,7 +85,11 @@ internal sealed class InventoryPanel
             return false;
         var (slot, bag) = HitTest(p);
         var gear = world.Hero.Equipment;
-        if (bag is { } index && gear.Bag[index] is not null)
+        if (right && Bench is { } bench && (bag is { } b ? gear.Bag[b] : slot is { } w ? gear.In(w) : null) is { } benched)
+        {
+            bench(benched);
+        }
+        else if (bag is { } index && gear.Bag[index] is not null)
         {
             if (right && world.OpenVendor is not null)
                 world.Sell(index);
@@ -146,6 +159,8 @@ internal sealed class InventoryPanel
                 canvas.DrawRect(rect, faint);
                 canvas.DrawText(label, rect.MidX, rect.MidY + 4, SKTextAlign.Center, small, dim);
             }
+            if (gear.In(slot) is { } worn && Benched?.Contains(worn) == true)
+                Highlight(canvas, rect, Palette.Frame, "bench");
             if (slot == targetSlot)
                 Highlight(canvas, rect, new SKColor(110, 220, 110), "replaces");
             if (slot == hoverSlot)
@@ -180,11 +195,14 @@ internal sealed class InventoryPanel
             {
                 canvas.DrawRect(rect, faint);
             }
+            if (gear.Bag[i] is { } benched && Benched?.Contains(benched) == true)
+                Highlight(canvas, rect, Palette.Frame, "bench");
             if (i == hoverBag)
                 Highlight(canvas, rect, new SKColor(255, 225, 140), null);
         }
         var trading = world.OpenVendor is not null;
-        canvas.DrawText(trading ? "Bag: left-click wear · right-click sell      Worn: left-click take off"
+        canvas.DrawText(Bench is not null ? "Bag: left-click wear      Worn: left-click take off      Either: right-click to the bench"
+            : trading ? "Bag: left-click wear · right-click sell      Worn: left-click take off"
             : "Bag: left-click wear · right-click drop      Worn: left-click take off", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
 
         // Tooltip, outside the panel so it never covers the slots being compared.
@@ -193,7 +211,7 @@ internal sealed class InventoryPanel
             if (hoveredBagItem is { } bagItem)
             {
                 var worn = targetSlot is { } t ? gear.In(t) : null;
-                var where = trading ? $"In your bag · sells for {Pricing.SellPrice(bagItem)} gold" : "In your bag";
+                var where = trading && Bench is null ? $"In your bag · sells for {Pricing.SellPrice(bagItem)} gold" : "In your bag";
                 Tooltip(canvas, size, p, bagItem, worn, where, gear.PreviewEquip(bagItem), "If you wear it:", Bounds);
             }
             else if (hoverSlot is { } s && gear.In(s) is { } wornItem)

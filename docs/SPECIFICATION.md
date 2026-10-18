@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–4 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–5 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -814,7 +814,7 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **The first visit** to a zone gives a Hero Point (up to 3) and, when the zone is 3 or more levels above the hero, a warning. A **town** zone (`town`, `tagline`) shows its banner on every arrival.
 - **Rift Shrines:** click a woken shrine (the hero walks to it) to open its Rift, a list of every other woken shrine in any zone; pick one to step through. Shrine ids are unique across zones.
 - **Autosave** on entering a zone, as well as when a shrine wakes and on leaving a trader.
-- **Fort Gallowmere** (`tools/fort_gallowmere_mapgen.py`), Act 1's hub: a palisaded yard behind the gate at the end of Gallows Road, with no monsters. Its people: **Sergeant Brask** at the gate; **Wenna Marsh** the peddler (moved in from the roadside camp) and **Garrow** the smith, who sells only arms and armour (rune work in M2 step 5); **Ysolde** the herbalist and **Old Coll** the ferryman, who introduce themselves and hint at their side stories (the wells, the ferry) without starting them; the **stash** chest; the **Fort Shrine**. Every person carries a little light so faces read in the dark.
+- **Fort Gallowmere** (`tools/fort_gallowmere_mapgen.py`), Act 1's hub: a palisaded yard behind the gate at the end of Gallows Road, with no monsters. Its people: **Sergeant Brask** at the gate; **Wenna Marsh** the peddler (moved in from the roadside camp) and **Garrow** the smith, who sells only arms and armour and etches and moves runes; **Ysolde** the herbalist and **Old Coll** the ferryman, who introduce themselves and hint at their side stories (the wells, the ferry) without starting them; the **stash** chest; the **Fort Shrine**. Every person carries a little light so faces read in the dark.
 - **The stash:** 60 slots that stay in the fort while the hero travels, saved with the character. Click the chest and the hero walks over; it opens on the left with the bag on the right. Left-click a stashed item to take it, right-click a bag item to stash it; Esc, closing the bag or walking away closes it. An interactable with `action: "stash"` opens it instead of a dialogue.
 - **Traders** can sell only some kinds of item (`sells`: weapons, armour, jewellery); a smith's table holds arms and armour.
 
@@ -836,6 +836,22 @@ Building the rules core and the vertical slice settled these. Where a number her
 - **The Step dodge** (spec, section 10): **Shift** dashes 2 tiles toward the pointer in 0.25 s, during which no blow lands, with a 4 s cooldown (shown beside the potions).
 - **Respec:** the **Lantern altar** in Fort Gallowmere lets go of every pick since level 1 (feats, skill increases, boosts), leaving those levels to choose again (the conversation closes and the level-up screen opens); level, XP and gear stay. The first respec in an act is free, then 20 gold per level. Dialogue effects can charge gold per level ("{cost}" in a choice's text shows the price).
 - **Shield Block** waits for shields (an off-hand slot and art the paper doll lacks).
+
+### Runes and the smith (M2)
+
+- **Rune ceilings:** an item's level sets the highest rank of each fundamental rune it can hold, from the rune table
+  (weapon potency 2 / 10 / 16, striking 4 / 12 / 19, armour potency 5 / 11 / 18, resilient 8 / 14 / 20); loot rolls and
+  the smith both follow it (`Items/Runework.cs`). Only weapons and body armour take runes.
+- **Garrow** (a trader with `runework`) has a second tab, **Runework**: a bench with the item to **work on** and one to
+  **take runes from**. Right-click a bag or worn item to put it on the bench (it stays in the bag, tagged "bench");
+  click a bench item to take it off.
+- **Etching** raises a rune one rank, up to the item's ceiling, for twice the rune's value per rank (potency 25,
+  striking 40, resilient 30, the same values as in item prices): +1 potency costs 50 gold, striking 80.
+- **Moving** a rune puts the donor's rune on the item worked on for half its value per rank (striking: 20 gold), when
+  the item can hold it and has a weaker one; whatever weaker rune it had goes back onto the donor, so nothing is lost.
+  Each button shows the price, or why not ("Striking needs item level 4.").
+- Charisma and Street Urchin haggle as at any trader. A non-rare item's name follows its runes ("+1 Striking
+  Longsword"); a rare keeps its name and the tooltip lists the runes. Property runes start at item level 8 (M3).
 
 ### Caches (M1)
 

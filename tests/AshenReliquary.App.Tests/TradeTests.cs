@@ -57,4 +57,50 @@ public class TradeTests
         Assert.False(kit.Window.View.InventoryOpen);
         Assert.False(kit.Window.FindControl<Control>("GameMenu")!.IsVisible);
     }
+
+    [AvaloniaFact]
+    public void At_the_smiths_bench_a_striking_rune_moves_from_an_old_sword_to_a_new_one()
+    {
+        var kit = TestKit.Open(seed: 21, width: 1312, height: 824, zoneId: "fort_gallowmere");
+        var world = kit.World;
+        var garrow = world.Vendors.Single(v => v.Definition.Id == "garrow");
+        TestHooks.Place(world, garrow.X + 1, garrow.Y + 1);
+        world.TalkTo(garrow);
+        kit.PlayUntil(() => world.OpenVendor is not null, 6);
+        kit.Play(0.1);
+        var gear = world.Hero.Equipment;
+        gear.AddGold(500);
+        var longsword = Core.Content.ContentDatabase.Embedded.Item("longsword");
+        var old = new Core.Items.Item(longsword, Core.Items.Rarity.Common, 4, potency: 1, striking: 1);
+        var fresh = new Core.Items.Item(longsword, Core.Items.Rarity.Rare, 5, name: "Gallows Oath");
+        gear.TryAdd(fresh);
+        gear.TryAdd(old);
+
+        void RightClickBag(Core.Items.Item item)
+        {
+            var index = gear.Bag.ToList().IndexOf(item);
+            var at = new Point(1312 - 560 - 16 + 20 + 18 + index % 10 * 50, 16 + 58 + 250 + 34 + 18 + index / 10 * 50);
+            kit.Window.MouseDown(at, MouseButton.Right);
+            kit.Window.MouseUp(at, MouseButton.Right);
+            kit.Pump();
+        }
+
+        // The Runework tab, then the new sword to work on and the old one to take runes from.
+        kit.Click(new Point(16 + 20 + 106 + 50, 16 + 58 + 13));
+        Assert.True(kit.Window.View.InventoryOpen);
+        RightClickBag(fresh);
+        RightClickBag(old);
+        Assert.Contains(fresh, gear.Bag);                        // on the bench, not sold
+        Assert.Contains(old, gear.Bag);
+        kit.Play(0.1);
+        kit.Capture(Shot("runework"));
+
+        // Etch rows for potency and striking, then the moves: potency first, striking second.
+        var moveStriking = new Point(16 + 20 + 100, 16 + 192 + 62 + 2 * 38 + 22 + 38 + 16);
+        kit.Click(moveStriking);
+        Assert.Equal((1, 0), (fresh.Striking, old.Striking));
+        Assert.Equal(500 - 20, gear.Gold);
+        kit.Play(0.1);
+        kit.Capture(Shot("runework-moved"));
+    }
 }

@@ -45,6 +45,10 @@ public sealed class WorldView : Control
     /// <summary>The level-up screen (L).</summary>
     public bool LevelUpOpen { get; set; }
 
+    /// <summary>While the smith's Runework tab is open, right-clicked gear goes on his bench.</summary>
+    private Func<Item, bool>? BenchFor(GameWorld world) =>
+        world.OpenVendor is { Definition.Runework: true } && Trade.Runework ? item => Trade.PutOnBench(item, world) : null;
+
     /// <summary>Opens the level-up screen when a level is waiting, closing any conversation that would cover it.</summary>
     public void OpenLevelUp()
     {
@@ -265,6 +269,7 @@ public sealed class WorldView : Control
             InvalidateVisual();
             return;
         }
+        Inventory.Bench = BenchFor(world);
         if (InventoryOpen && Inventory.Click(sp, props.IsRightButtonPressed, world))
         {
             e.Handled = true;
@@ -563,6 +568,8 @@ public sealed class WorldView : Control
             hud.Block(_sheet.Bounds);
         }
         FollowTrade(world);
+        Inventory.Bench = BenchFor(world);
+        Inventory.Benched = world.OpenVendor is not null ? Trade.Benched : null;
         if (InventoryOpen)
         {
             Inventory.Draw(canvas, size, world, pointer, PortraitImage());

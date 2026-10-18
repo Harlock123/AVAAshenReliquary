@@ -1,6 +1,6 @@
 # Generates zones/fort_gallowmere.json: Act 1's hub, a walled yard behind the gate at the north end of Gallows Road.
-# Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour; runes in M2
-# step 5), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash, the Lantern altar
+# Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour, and rune
+# work), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash, the Lantern altar
 # (respec) and the Fort Shrine.
 # Deterministic.
 import json, sys
@@ -109,7 +109,8 @@ zone = {
          "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "cloth_gloves", "legs": "cloth_pants",
                   "feet": "cloth_sandals", "main": "dagger"}},
         {"id": "garrow", "name": "Garrow", "title": "Smith", "at": [cx + 5, 9], "facing": 6, "stockSize": 12,
-         "sells": ["weapons", "armour"], "greeting": "Steel for the road. Runes when I've a forge worth the name.",
+         "sells": ["weapons", "armour"], "runework": True,
+         "greeting": "Steel for the road. Bring me a blade and I'll etch it, or move the runes off your old one.",
          "look": {"chest": "leather_chest", "hands": "leather_gloves", "legs": "leather_pants", "feet": "leather_boots",
                   "main": "mace"}},
     ],

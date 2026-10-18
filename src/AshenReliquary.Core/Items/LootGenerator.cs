@@ -89,16 +89,16 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         var runeBoost = rarity == Rarity.Common ? 0 : 20;
         if (definition.IsWeapon)
         {
-            if (itemLevel >= 2 && random.Roll(1, 100) <= 30 + runeBoost)
+            if (Runework.Ceiling(definition, itemLevel, RuneKind.Potency) > 0 && random.Roll(1, 100) <= 30 + runeBoost)
                 potency = 1;
-            if (itemLevel >= 4 && random.Roll(1, 100) <= 20 + runeBoost)
+            if (Runework.Ceiling(definition, itemLevel, RuneKind.Striking) > 0 && random.Roll(1, 100) <= 20 + runeBoost)
                 striking = 1;
         }
         else if (definition.IsBodyArmor)
         {
-            if (itemLevel >= 5 && random.Roll(1, 100) <= 30 + runeBoost)
+            if (Runework.Ceiling(definition, itemLevel, RuneKind.Potency) > 0 && random.Roll(1, 100) <= 30 + runeBoost)
                 potency = 1;
-            if (itemLevel >= 8 && random.Roll(1, 100) <= 20 + runeBoost)
+            if (Runework.Ceiling(definition, itemLevel, RuneKind.Resilient) > 0 && random.Roll(1, 100) <= 20 + runeBoost)
                 resilient = 1;
         }
 

@@ -26,7 +26,8 @@ public static class Pricing
             _ => 12.0,
         };
         var value = basePrice * rarity * (1 + 0.35 * (Math.Max(1, item.ItemLevel) - 1))
-            + 25 * item.Potency + 40 * item.Striking + 30 * item.Resilient + 4 * item.Affixes.Count;
+            + Runework.Value(RuneKind.Potency) * item.Potency + Runework.Value(RuneKind.Striking) * item.Striking
+            + Runework.Value(RuneKind.Resilient) * item.Resilient + 4 * item.Affixes.Count;
         return Math.Max(1, (int)Math.Round(value));
     }
 

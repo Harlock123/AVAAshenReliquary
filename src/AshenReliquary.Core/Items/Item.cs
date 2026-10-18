@@ -21,18 +21,41 @@ public sealed class Item
         Potency = potency;
         Striking = striking;
         Resilient = resilient;
-        Name = name ?? DefaultName();
+        _name = name;
     }
+
+    private readonly string? _name;
 
     public int Id { get; } = Interlocked.Increment(ref _nextId);
     public ItemDefinition Definition { get; }
     public Rarity Rarity { get; }
     public int ItemLevel { get; }
     public IReadOnlyList<AffixRoll> Affixes { get; }
-    public int Potency { get; }
-    public int Striking { get; }
-    public int Resilient { get; }
-    public string Name { get; }
+    public int Potency { get; private set; }
+    public int Striking { get; private set; }
+    public int Resilient { get; private set; }
+
+    /// <summary>A rare's rolled name, or else the base's name with its runes and (uncommon) affixes.</summary>
+    public string Name => _name ?? DefaultName();
+
+    /// <summary>The rank of one fundamental rune.</summary>
+    public int Rune(RuneKind kind) => kind switch
+    {
+        RuneKind.Potency => Potency,
+        RuneKind.Striking => Striking,
+        _ => Resilient,
+    };
+
+    /// <summary>Sets one fundamental rune's rank (the smith's work; see <see cref="Runework"/>).</summary>
+    internal void SetRune(RuneKind kind, int rank)
+    {
+        switch (kind)
+        {
+            case RuneKind.Potency: Potency = rank; break;
+            case RuneKind.Striking: Striking = rank; break;
+            default: Resilient = rank; break;
+        }
+    }
 
     public Combat.DamageType? DamageType => Definition.IsWeapon ? Definition.DamageType : null;
 

@@ -24,8 +24,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   the smith selling arms and armour, Ysolde, Old Coll), the stash (`Stash`, `StashPanel`). Step 4 done: skill ranks
   and creation skill picks, `feats.json` + `Characters/Feats.cs` (data effects), per-level `LevelChoice`s
   (pending until the L screen, `LevelUpPanel`; saved and replayed), feat abilities on the bar (`GameWorld.RefreshBar`,
-  on-hit conditions/knockback/targets/chain), the Shift Step dodge, respec at the Lantern altar. Next: step 5
-  (the smith's runes), then the zones (steps 6–8).
+  on-hit conditions/knockback/targets/chain), the Shift Step dodge, respec at the Lantern altar. Step 5 done:
+  `Items/Runework.cs` (rune ceilings by item level, etch and move prices), Garrow's Runework tab with a two-item
+  bench in `VendorPanel`. Next: the zones (steps 6–8).
   The plan's five decisions for the user (act length, art, the scarecrow's "night", cuts, skills) are still open.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs

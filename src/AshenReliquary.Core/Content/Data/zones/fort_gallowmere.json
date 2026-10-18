@@ -300,7 +300,8 @@
     "weapons",
     "armour"
    ],
-   "greeting": "Steel for the road. Runes when I've a forge worth the name.",
+   "runework": true,
+   "greeting": "Steel for the road. Bring me a blade and I'll etch it, or move the runes off your old one.",
    "look": {
     "chest": "leather_chest",
     "hands": "leather_gloves",

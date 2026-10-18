@@ -732,6 +732,50 @@ public sealed partial class GameWorld
         return true;
     }
 
+    /// <summary>Whether <paramref name="item"/> is the hero's: in the bag or worn.</summary>
+    public bool Owns(Item item) => Hero.Equipment.Bag.Contains(item) || Hero.Equipment.Worn.Values.Contains(item);
+
+    /// <summary>Has the open smith etch the next rank of <paramref name="kind"/> onto one of the hero's items.</summary>
+    public bool Etch(Item item, RuneKind kind)
+    {
+        if (OpenVendor is not { Definition.Runework: true } || !Owns(item))
+            return false;
+        if (Runework.CannotEtch(item, kind) is { } reason)
+        {
+            Say(reason);
+            return false;
+        }
+        if (!Pay(Runework.EtchPrice(item, kind, Hero.Character)))
+            return false;
+        Runework.Etch(item, kind);
+        Hero.Equipment.Refresh();
+        Sound(SoundCue.Pickup, Hero, "metal");
+        Say($"Etched: {item.Name}.");
+        return true;
+    }
+
+    /// <summary>
+    /// Has the open smith move <paramref name="from"/>'s <paramref name="kind"/> rune onto <paramref name="to"/>
+    /// (both the hero's); the weaker rune <paramref name="to"/> held goes back onto <paramref name="from"/>.
+    /// </summary>
+    public bool MoveRune(Item from, Item to, RuneKind kind)
+    {
+        if (OpenVendor is not { Definition.Runework: true } || !Owns(from) || !Owns(to))
+            return false;
+        if (Runework.CannotMove(from, to, kind) is { } reason)
+        {
+            Say(reason);
+            return false;
+        }
+        if (!Pay(Runework.MovePrice(from, kind, Hero.Character)))
+            return false;
+        Runework.Move(from, to, kind);
+        Hero.Equipment.Refresh();
+        Sound(SoundCue.Pickup, Hero, "metal");
+        Say($"Moved the {Runework.Name(kind)} rune: {to.Name}.");
+        return true;
+    }
+
     private bool Pay(int price)
     {
         if (!Hero.Equipment.TrySpend(price))

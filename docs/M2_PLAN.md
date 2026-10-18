@@ -73,7 +73,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - Respec at the hub altar (one free per act).
 - *Done when:* a character reaches 5 through the level-up screens and every choice shows up in play and in the sheet.
 
-### 5. The smith and runes (parallel track B, after step 3)
+### 5. The smith and runes (parallel track B, after step 3) — done 2026-10-18
 
 - Runes already roll on drops. The smith **moves** a rune from one item to another for gold, and **etches**
   fundamental runes (weapon potency from item level 2, striking from 4, armour potency from 5) for gold.
