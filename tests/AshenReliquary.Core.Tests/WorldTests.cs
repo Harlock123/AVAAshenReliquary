@@ -84,6 +84,36 @@ public class WorldTests
     }
 
     [Fact]
+    public void A_pond_gets_banks_on_its_outer_ring_and_open_water_inside()
+    {
+        string[] rows =
+        [
+            "..........",
+            "..........",
+            "..wwwwww..",
+            "..wwwwww..",
+            "..wwwwww..",
+            "..wwwwww..",
+            "..wwwwww..",
+            "..wwwwww..",
+            "..........",
+            ".......w..",
+        ];
+        var zone = Arena(rows) with { Legend = new Dictionary<string, LegendEntry> { ["."] = new("grass"), ["w"] = new("water") } };
+        var map = new TileMap(zone);
+        bool Is(int x, int y, int id) => map.Ground(x, y) == id || map.Ground(x, y) == id + 4;
+        Assert.InRange(map.Ground(4, 4), 176, 191);       // open water in the middle
+        Assert.True(Is(2, 2, 152), $"{map.Ground(2, 2)}"); // the top corner of the pond: water only at its bottom corner
+        Assert.True(Is(4, 2, 145), $"{map.Ground(4, 2)}"); // the north-east bank: land along its top-right edge
+        Assert.True(Is(2, 4, 144), $"{map.Ground(2, 4)}"); // the north-west bank: land along its top-left edge
+        Assert.True(Is(7, 7, 154), $"{map.Ground(7, 7)}"); // the bottom corner: water only at its top corner
+        Assert.All(new[] { (2, 2), (4, 4), (7, 7) }, c => Assert.True(map.IsBlocked(c.Item1, c.Item2)));
+        Assert.True(map.IsWater(4, 2));
+        Assert.InRange(map.Ground(7, 9), 16, 31);          // a lone water cell is all bank: plain grass you can walk on
+        Assert.False(map.IsBlocked(7, 9));
+    }
+
+    [Fact]
     public void Pathfinder_goes_around_walls()
     {
         var map = new TileMap(Arena([

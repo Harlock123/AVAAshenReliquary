@@ -162,7 +162,7 @@ internal sealed class Minimap
     private static SKColor CellColour(TileMap map, int x, int y)
     {
         var ground = map.Ground(x, y);
-        if (ground is >= 176 and <= 191)
+        if (map.IsWater(x, y))
             return new SKColor(40, 62, 70);
         if (map.IsBlocked(x, y))
             return map.Objects(x, y).Any(id => id >= 240) ? new SKColor(28, 40, 26) : new SKColor(70, 64, 56);
