@@ -163,7 +163,7 @@ public class DialogueTests
         }
         foreach (var zone in Content.Zones.Values)
         {
-            foreach (var who in (zone.Npcs ?? []).Select(n => n.Dialogue).Concat((zone.Interactables ?? []).Select(i => i.Dialogue)))
+            foreach (var who in (zone.Npcs ?? []).Select(n => n.Dialogue).Concat((zone.Interactables ?? []).Select(i => i.Dialogue).OfType<string>()))
                 Assert.True(Content.Dialogues.ContainsKey(who), $"{zone.Id}: no dialogue {who}");
         }
     }

@@ -283,14 +283,6 @@ zone = {
     "exits": [{"id": "fort_gallowmere", "label": "Fort Gallowmere", "at": exit_at, "radius": 2.0,
                "to": "fort_gallowmere", "toExit": "gate", "arrive": [exit_at[0], exit_at[1] + 3]}],
     "caches": caches,
-    "vendors": [
-        {
-            "id": "wenna", "name": "Wenna Marsh", "title": "Peddler", "at": [cx - 8, 12], "facing": 5, "stockSize": 12,
-            "greeting": "Coin for kit, kit for coin. The fort pays worse.",
-            "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "cloth_gloves", "legs": "cloth_pants",
-                     "feet": "cloth_sandals", "main": "dagger"},
-        }
-    ],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)
 print("\n".join(rows))

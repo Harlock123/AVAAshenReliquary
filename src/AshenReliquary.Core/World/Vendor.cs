@@ -4,10 +4,21 @@ namespace AshenReliquary.Core.World;
 
 /// <summary>
 /// A trader placed in a zone. <see cref="Look"/> is the paper doll (Flare avatar layer per slot: head, chest,
-/// hands, legs, feet, main); <see cref="Facing"/> is the sprite direction they stand in.
+/// hands, legs, feet, main); <see cref="Facing"/> is the sprite direction they stand in. <see cref="Sells"/> narrows
+/// the stock to "weapons", "armour" and/or "jewellery" (a smith); null sells anything.
 /// </summary>
 public sealed record VendorDefinition(string Id, string Name, string Title, int[] At, IReadOnlyDictionary<string, string> Look,
-    int Facing = 6, int StockSize = 12, string Greeting = "Coin for kit, kit for coin.");
+    int Facing = 6, int StockSize = 12, string Greeting = "Coin for kit, kit for coin.", IReadOnlyList<string>? Sells = null)
+{
+    /// <summary>Whether this trader stocks items like <paramref name="item"/>.</summary>
+    public bool Stocks(Items.ItemDefinition item) => Sells is null || Sells.Any(kind => kind switch
+    {
+        "weapons" => item.IsWeapon,
+        "armour" => item.Category == Items.ItemCategory.Armor,
+        "jewellery" => item.IsJewelry,
+        _ => false,
+    });
+}
 
 /// <summary>A trader in play: what is on the table, and what you sold this visit (buy it back at the price you got).</summary>
 public sealed class Vendor

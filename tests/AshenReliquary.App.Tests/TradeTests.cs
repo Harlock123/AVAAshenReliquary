@@ -14,9 +14,9 @@ public class TradeTests
     [AvaloniaFact]
     public void Clicking_the_peddler_opens_her_table_beside_the_bag_and_clicks_buy_and_sell()
     {
-        var kit = TestKit.Open(seed: 21, width: 1312, height: 824);
+        var kit = TestKit.Open(seed: 21, width: 1312, height: 824, zoneId: "fort_gallowmere");
         var world = kit.World;
-        var vendor = world.Vendors.Single();
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
         TestHooks.Place(world, vendor.X + 4, vendor.Y + 1);
         kit.Play(0.1);
         var foot = kit.Window.View.ToScreen(vendor.X, vendor.Y);

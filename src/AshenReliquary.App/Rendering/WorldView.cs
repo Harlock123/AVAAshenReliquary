@@ -43,6 +43,8 @@ public sealed class WorldView : Control
     public bool JournalOpen { get; set; }
 
     private readonly DialoguePanel _dialogue = new();
+    private StashPanel? _stashPanel;
+    private StashPanel StashView => _stashPanel ??= new StashPanel(DrawIcon);
     private readonly JournalPanel _journal = new();
     private readonly Dictionary<string, SKImage> _portraits = [];
 
@@ -81,15 +83,35 @@ public sealed class WorldView : Control
     /// <summary>The trader whose table was open last frame: opening one opens the bag, leaving closes it again.</summary>
     private Vendor? _trading;
     private bool _tradeOpenedInventory;
+    private bool _stashing;
 
     /// <summary>Opens the bag beside a trader's table when trading starts, and closes it again when it ends.</summary>
     private void FollowTrade(GameWorld world)
     {
-        // Closing the bag (I) mid-trade leaves the trader too.
+        // Closing the bag (I) mid-trade leaves the trader (or the stash) too.
         if (world.OpenVendor is not null && world.OpenVendor == _trading && !InventoryOpen)
         {
             _tradeOpenedInventory = false;
             world.CloseVendor();
+        }
+        if (world.StashOpen && _stashing && !InventoryOpen)
+        {
+            _tradeOpenedInventory = false;
+            world.CloseStash();
+        }
+        if (world.StashOpen != _stashing)
+        {
+            _stashing = world.StashOpen;
+            if (_stashing && !InventoryOpen)
+            {
+                _tradeOpenedInventory = true;
+                InventoryOpen = true;
+            }
+            else if (!_stashing && _tradeOpenedInventory && world.OpenVendor is null)
+            {
+                InventoryOpen = false;
+                _tradeOpenedInventory = false;
+            }
         }
         if (world.OpenVendor == _trading)
             return;
@@ -175,6 +197,12 @@ public sealed class WorldView : Control
         {
             if (answer >= 0)
                 world.Choose(answer);
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
+        if (world.StashOpen && props.IsLeftButtonPressed && StashView.Click(sp, world))
+        {
             e.Handled = true;
             InvalidateVisual();
             return;
@@ -499,6 +527,11 @@ public sealed class WorldView : Control
             Trade.Draw(canvas, size, world, pointer);
             hud.Block(Trade.Bounds);
         }
+        if (world.StashOpen)
+        {
+            StashView.Draw(canvas, size, world, pointer);
+            hud.Block(StashView.Bounds);
+        }
         if (world.OpenShrine is not null)
         {
             _rift.Draw(canvas, size, world, pointer);
@@ -516,7 +549,7 @@ public sealed class WorldView : Control
         }
         var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over))
             || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
-            || (JournalOpen && _journal.Bounds.Contains(over)));
+            || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(over)));
         if (!overPanel)
             hud.DrawTooltip(canvas, size, pointer);
         Stats.Mark("text+hud");
@@ -1084,6 +1117,12 @@ public sealed class WorldView : Control
             if (!c.Opened)
                 lights.Add((ToScreen(c.X, c.Y), 1.5f + (float)Math.Sin(time * 2.1 + c.X) * 0.15f,
                     c.Definition.Kind == CacheKind.Reliquary ? new SKColor(200, 140, 255, 55) : new SKColor(255, 210, 120, 45)));
+        }
+        // Everyone in a town carries a little light, so faces read in the dark.
+        foreach (var who in world.Interactives)
+        {
+            if (who.Npc is not null)
+                lights.Add((ToScreen(who.X, who.Y), 2.6f + (float)Math.Sin(time * 5.1 + who.X) * 0.08f, new SKColor(255, 200, 130, 50)));
         }
         // A trader's lantern, so the stall reads from across the camp.
         foreach (var v in world.Vendors)

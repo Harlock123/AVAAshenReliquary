@@ -14,7 +14,7 @@ public class VendorTests
     private static GameWorld NewWorld(int seed = 5, string background = "deserter")
     {
         var choices = CharacterBuilder.Recommend(Content, "Hale", "human", background, "fighter");
-        return new GameWorld(Content.Zone("gallows_road"), Content.Creatures, CharacterBuilder.Create(Content, choices), seed,
+        return new GameWorld(Content.Zone("fort_gallowmere"), Content.Creatures, CharacterBuilder.Create(Content, choices), seed,
             Content.AbilityBar("fighter"), Content.Loot);
     }
 
@@ -22,7 +22,7 @@ public class VendorTests
     private static (GameWorld World, Vendor Vendor) AtTheTable(int gold = 0)
     {
         var world = NewWorld();
-        var vendor = world.Vendors.Single();
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
         world.Hero.X = vendor.X + 1;
         world.Hero.Y = vendor.Y + 1;
         world.TalkTo(vendor);
@@ -37,10 +37,10 @@ public class VendorTests
     }
 
     [Fact]
-    public void The_gallows_road_has_a_peddler_with_a_full_table_of_common_and_uncommon_gear()
+    public void The_fort_has_a_peddler_with_a_full_table_of_common_and_uncommon_gear()
     {
         var world = NewWorld();
-        var vendor = Assert.Single(world.Vendors);
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
         Assert.Equal("Wenna Marsh", vendor.Definition.Name);
         Assert.Equal(vendor.Definition.StockSize, vendor.Stock.Count);
         Assert.Equal(8, vendor.Stock.Count(i => i.Rarity == Rarity.Common));
@@ -52,11 +52,11 @@ public class VendorTests
     [Fact]
     public void The_table_comes_from_the_seed_and_not_from_the_fight_dice()
     {
-        var a = NewWorld(seed: 11).Vendors.Single().Stock.Select(i => i.Name);
-        var b = NewWorld(seed: 11).Vendors.Single().Stock.Select(i => i.Name);
+        var a = NewWorld(seed: 11).Vendors.Single(v => v.Definition.Id == "wenna").Stock.Select(i => i.Name);
+        var b = NewWorld(seed: 11).Vendors.Single(v => v.Definition.Id == "wenna").Stock.Select(i => i.Name);
         Assert.Equal(a, b);
         // Stocking uses its own dice: the world's first roll is the same as a world without a trader.
-        var plain = new GameWorld(Content.Zone("gallows_road") with { Vendors = null }, Content.Creatures,
+        var plain = new GameWorld(Content.Zone("fort_gallowmere") with { Vendors = null }, Content.Creatures,
             CharacterBuilder.Create(Content, CharacterBuilder.Recommend(Content, "Hale", "human", "deserter", "fighter")), 11,
             Content.AbilityBar("fighter"), Content.Loot);
         Assert.Equal(plain.Random.Roll(1, 1_000_000), NewWorld(seed: 11).Random.Roll(1, 1_000_000));
@@ -66,7 +66,7 @@ public class VendorTests
     public void Clicking_a_trader_walks_over_and_opens_the_table_and_walking_away_closes_it()
     {
         var world = NewWorld();
-        var vendor = world.Vendors.Single();
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
         world.Hero.X = vendor.X + 6;
         world.Hero.Y = vendor.Y + 1;
         var closed = 0;
@@ -162,7 +162,7 @@ public class VendorTests
     public void A_new_level_brings_new_wares()
     {
         var world = NewWorld();
-        var vendor = world.Vendors.Single();
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
         var before = vendor.Stock.ToList();
         world.GainXp(1000, world.Hero);
         Assert.Equal(2, world.Hero.Character.Level);
@@ -177,8 +177,8 @@ public class VendorTests
         var (world, vendor) = AtTheTable(gold: 1000);
         world.Buy(0);
         var loaded = SaveGame.FromJson(SaveGame.Capture(world, "t", 5, null).ToJson()).Restore(Content);
-        Assert.Equal(vendor.Stock.Select(i => i.Name), loaded.Vendors.Single().Stock.Select(i => i.Name));
-        Assert.Equal(vendor.StockedForLevel, loaded.Vendors.Single().StockedForLevel);
+        Assert.Equal(vendor.Stock.Select(i => i.Name), loaded.Vendors.Single(v => v.Definition.Id == "wenna").Stock.Select(i => i.Name));
+        Assert.Equal(vendor.StockedForLevel, loaded.Vendors.Single(v => v.Definition.Id == "wenna").StockedForLevel);
     }
 
     [Fact]

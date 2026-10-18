@@ -80,6 +80,8 @@ internal sealed class InventoryPanel
         {
             if (right && world.OpenVendor is not null)
                 world.Sell(index);
+            else if (right && world.StashOpen)
+                world.Store(index);
             else if (right)
                 world.DropFromBag(index);
             else

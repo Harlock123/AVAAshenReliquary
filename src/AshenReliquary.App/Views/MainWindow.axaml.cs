@@ -217,6 +217,7 @@ public partial class MainWindow : Window
             else if (World.JournalOpen) World.JournalOpen = false;
             else if (world.OpenVendor is not null) world.CloseVendor();
             else if (world.OpenShrine is not null) world.CloseRift();
+            else if (world.StashOpen) world.CloseStash();
             else OpenMenu();
             e.Handled = true;
             return;

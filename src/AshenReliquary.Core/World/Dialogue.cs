@@ -49,14 +49,16 @@ public sealed record NpcDefinition(string Id, string Name, string Title, int[] A
 
 /// <summary>
 /// Something to look at or use, placed in a zone: a well, a letter, a notice board. <see cref="Tile"/> is a tileset
-/// object to draw there (null when the map already shows it). Clicking it starts its dialogue, as narration.
+/// object to draw there (null when the map already shows it). Clicking it starts its dialogue, as narration, or does
+/// its <see cref="Action"/> instead ("stash" opens the stash).
 /// </summary>
-public sealed record InteractableDefinition(string Id, string Name, int[] At, string Dialogue, int? Tile = null, bool Blocks = true);
+public sealed record InteractableDefinition(string Id, string Name, int[] At, string? Dialogue = null, int? Tile = null, bool Blocks = true,
+    string? Action = null);
 
 /// <summary>An NPC or object in play: where it stands and what it says.</summary>
 public sealed class Interactive
 {
-    internal Interactive(string id, string name, string? title, int[] at, string dialogue, NpcDefinition? npc, InteractableDefinition? thing)
+    internal Interactive(string id, string name, string? title, int[] at, string? dialogue, NpcDefinition? npc, InteractableDefinition? thing)
     {
         Id = id;
         Name = name;
@@ -73,7 +75,7 @@ public sealed class Interactive
     public string? Title { get; }
     public double X { get; }
     public double Y { get; }
-    public string Dialogue { get; }
+    public string? Dialogue { get; }
 
     /// <summary>Set for a person (drawn as a paper doll, with a portrait in conversation).</summary>
     public NpcDefinition? Npc { get; }

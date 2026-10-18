@@ -20,7 +20,8 @@ implementation decisions made so far). `README.md` has the run commands and cont
   memory (`ZoneMemory`, `OtherZones` in the save), Hero Point per new zone, Rift Shrines (`RiftPanel`), Fort
   Gallowmere as a stub zone (`tools/fort_gallowmere_mapgen.py`), world flags, `dialogues.json` with checks and
   effects (`GameWorld.Dialogue.cs`, `DialoguePanel`), NPCs and interactables in zone files, the journal (J,
-  `JournalPanel`), a provisional `Character.Skill`. Next: step 3 (the hub's people) and step 4 (feats and skills).
+  `JournalPanel`), a provisional `Character.Skill`. Step 3 done: the fort's people (Brask, Wenna moved in, Garrow
+  the smith selling arms and armour, Ysolde, Old Coll), the stash (`Stash`, `StashPanel`). Next: step 4 (feats and skills).
   The plan's five decisions for the user (act length, art, the scarecrow's "night", cuts, skills) are still open.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
   play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs

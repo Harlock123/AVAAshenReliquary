@@ -52,7 +52,7 @@ so the order is mostly forced; the two parallel tracks are marked.
 - A journal (J): main story and discovered side stories only (an entry appears only once something is found).
 - *Done when:* a test NPC in the stub zone asks a question, the answer sets a flag, and the journal shows it.
 
-### 3. Fort Gallowmere, the hub
+### 3. Fort Gallowmere, the hub — done 2026-10-18 (the respec altar moves to step 4, with the feats it resets)
 
 - The gate opens on arrival (the banner changes) into a walled fort: Wenna Marsh moves inside, plus a **smith**,
   **Ysolde the herbalist** and the **ferryman** (the side-story givers), a **stash**, a **Rift Shrine** and the

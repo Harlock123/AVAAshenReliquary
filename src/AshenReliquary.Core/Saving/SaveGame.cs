@@ -67,6 +67,9 @@ public sealed record SaveGame
     /// <summary>The chests already opened; missing in older saves, where every chest is still shut.</summary>
     public List<string> OpenedCaches { get; init; } = [];
 
+    /// <summary>The hub stash's slots; missing in older saves.</summary>
+    public List<SavedItem?> Stash { get; init; } = [];
+
     /// <summary>The story's flags; missing in older saves.</summary>
     public Dictionary<string, string> Flags { get; init; } = [];
 
@@ -135,6 +138,7 @@ public sealed record SaveGame
             ZoneId = world.Zone.Id,
             ZoneRevision = world.Zone.Revision,
             OpenedCaches = world.Caches.Where(c => c.Opened).Select(c => c.Definition.Id).ToList(),
+            Stash = world.Stash.Slots.Select(i => i is null ? null : Save(i)).ToList(),
             Flags = world.Flags.ToDictionary(kv => kv.Key, kv => kv.Value),
             Journal = world.Journal.ToList(),
             OtherZones = world.Memories.Select(kv => new SavedZone(kv.Key, kv.Value.Revision, kv.Value.Slain.Order().ToList(),
@@ -182,6 +186,7 @@ public sealed record SaveGame
         var world = new GameWorld(zone, content.Creatures, character, seed ?? unchecked(Seed + (int)SavedAt.ToUnixTimeSeconds()),
             content.AbilityBar(Choices.ClassId), content.Loot, content.Zones, content.Dialogues);
         world.RestoreStory(Flags, Journal);
+        world.Stash.Restore(Stash.Select(i => i is null ? null : Load(content, i)));
         foreach (var other in OtherZones)
         {
             world.RestoreMemory(other.Id, new ZoneMemory

@@ -695,7 +695,7 @@ public sealed partial class GameWorld
         var count = vendor.Definition.StockSize;
         var uncommon = count / 3;
         var items = Enumerable.Range(0, count)
-            .Select(i => _loot.Generate(itemLevel, i < count - uncommon ? Rarity.Common : Rarity.Uncommon, random))
+            .Select(i => _loot.Generate(itemLevel, i < count - uncommon ? Rarity.Common : Rarity.Uncommon, random, vendor.Definition.Stocks))
             .OrderBy(i => i.Definition.Slot)
             .ThenBy(i => i.Rarity)
             .ToList();
@@ -1475,6 +1475,7 @@ public sealed partial class GameWorld
         OpenVendor = null;
         OpenShrine = null;
         EndDialogue();
+        CloseStash();
         Hero.Goal = null;
         Hero.Path.Clear();
         _projectiles.Clear();

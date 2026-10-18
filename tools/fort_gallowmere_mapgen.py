@@ -1,5 +1,7 @@
-# Generates zones/fort_gallowmere.json: Act 1's hub. For now (M2 step 1) a walled courtyard behind the gate at the
-# north end of Gallows Road, with a Rift Shrine; step 3 fills it with the hub's people. Deterministic.
+# Generates zones/fort_gallowmere.json: Act 1's hub, a walled yard behind the gate at the north end of Gallows Road.
+# Its people: Sergeant Brask at the gate, Wenna Marsh the peddler, Garrow the smith (arms and armour; runes in M2
+# step 5), Ysolde the herbalist and Old Coll the ferryman (side stories in step 9); the stash and the Fort Shrine.
+# Deterministic.
 import json, sys
 
 REVISION = 1
@@ -53,6 +55,7 @@ for (x, y) in [(x0 + 2, y0 + 1), (x1 - 2, y1 - 2), (x0 + 7, y1 - 2)]:
     grid[y][x] = ','
 shrine = [cx + 4, 14]
 grid[shrine[1]][shrine[0]] = 'S'
+grid[10][cx + 6] = 'a'                               # Garrow's anvil, beside him
 
 rows = [''.join(r) for r in grid]
 gate = [cx, H - 2]
@@ -75,6 +78,7 @@ zone = {
         "P": {"ground": "grass", "objects": [132], "blocks": True, "blocksSight": True},
         "F": {"ground": "grass", "objects": [107], "blocks": True},
         "L": {"ground": "grass", "objects": [104], "blocks": True},
+        "a": {"ground": "grass", "objects": [103], "blocks": True},
     },
     "playerStart": [cx, H - 6],
     "spawns": [],
@@ -84,9 +88,28 @@ zone = {
          "portrait": "flare/male05", "dialogue": "fort_brask",
          "look": {"head": "chain_coif", "chest": "chain_cuirass", "hands": "chain_gloves", "legs": "chain_greaves",
                   "feet": "chain_boots", "main": "shortsword"}},
+        {"id": "ysolde", "name": "Ysolde", "title": "Herbalist", "at": [cx - 6, 15], "facing": 4,
+         "portrait": "flare/female06", "dialogue": "fort_ysolde",
+         "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "mage_skirt", "feet": "cloth_sandals",
+                  "main": "staff"}},
+        {"id": "coll", "name": "Old Coll", "title": "Ferryman", "at": [cx + 7, 18], "facing": 0,
+         "portrait": "flare/male09", "dialogue": "fort_coll",
+         "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "leather_gloves", "legs": "cloth_pants",
+                  "feet": "leather_boots", "main": "rod"}},
     ],
     "interactables": [
         {"id": "notice_board", "name": "Notice board", "at": [cx - 4, 16], "tile": 139, "dialogue": "fort_notice"},
+        {"id": "stash", "name": "Stash", "at": [cx + 3, 17], "tile": 76, "action": "stash"},
+    ],
+    "vendors": [
+        {"id": "wenna", "name": "Wenna Marsh", "title": "Peddler", "at": [cx - 5, 9], "facing": 5, "stockSize": 12,
+         "greeting": "Coin for kit, kit for coin. Behind walls, at last.",
+         "look": {"head": "leather_hood", "chest": "cloth_shirt", "hands": "cloth_gloves", "legs": "cloth_pants",
+                  "feet": "cloth_sandals", "main": "dagger"}},
+        {"id": "garrow", "name": "Garrow", "title": "Smith", "at": [cx + 5, 9], "facing": 6, "stockSize": 12,
+         "sells": ["weapons", "armour"], "greeting": "Steel for the road. Runes when I've a forge worth the name.",
+         "look": {"chest": "leather_chest", "hands": "leather_gloves", "legs": "leather_pants", "feet": "leather_boots",
+                  "main": "mace"}},
     ],
     "exits": [{"id": "gate", "label": "Gallows Road", "at": gate, "radius": 1.5,
                "to": "gallows_road", "toExit": "fort_gallowmere", "arrive": [cx, H - 6]}],

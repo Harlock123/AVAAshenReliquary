@@ -44,6 +44,7 @@ public sealed partial class GameWorld
     private void PopulateInteractives(ZoneDefinition zone)
     {
         EndDialogue();
+        CloseStash();
         _interactives.Clear();
         foreach (var npc in zone.Npcs ?? [])
             _interactives.Add(new Interactive(npc.Id, npc.Name, npc.Title, npc.At, npc.Dialogue, npc, null));
@@ -79,6 +80,38 @@ public sealed partial class GameWorld
             StartDialogue(who);
         if (_speaker is { } speaker && speaker.DistanceTo(Hero.X, Hero.Y) > TalkRadius + 2.5)
             EndDialogue();
+        if (StashOpenAt is { } chest && chest.DistanceTo(Hero.X, Hero.Y) > TalkRadius + 2.5)
+            CloseStash();
+    }
+
+    // ----- The stash -----------------------------------------------------------------
+
+    /// <summary>The hub's stash, kept with the character.</summary>
+    public Stash Stash { get; } = new();
+
+    /// <summary>The stash chest the hero is standing at with it open, or null.</summary>
+    public Interactive? StashOpenAt { get; private set; }
+
+    public bool StashOpen => StashOpenAt is not null;
+
+    public void CloseStash() => StashOpenAt = null;
+
+    /// <summary>Moves a bag item into the stash (while it is open). False when either side can't.</summary>
+    public bool Store(int bagIndex)
+    {
+        if (!StashOpen || Hero.Equipment.Bag.ElementAtOrDefault(bagIndex) is not { } item || !Stash.TryAdd(item))
+            return false;
+        Hero.Equipment.TakeFromBag(bagIndex);
+        return true;
+    }
+
+    /// <summary>Moves a stash item into the bag (while it is open). False when the bag is full.</summary>
+    public bool Retrieve(int stashIndex)
+    {
+        if (!StashOpen || Stash.Slots.ElementAtOrDefault(stashIndex) is not { } item || !Hero.Equipment.TryAdd(item))
+            return false;
+        Stash.Take(stashIndex);
+        return true;
     }
 
     private void StartDialogue(Interactive who)
@@ -87,7 +120,12 @@ public sealed partial class GameWorld
         Hero.Goal = null;
         Hero.Path.Clear();
         Hero.Face(who.X, who.Y);
-        if (!_dialogues.TryGetValue(who.Dialogue, out var dialogue))
+        if (who.Thing?.Action == "stash")
+        {
+            StashOpenAt = who;
+            return;
+        }
+        if (who.Dialogue is null || !_dialogues.TryGetValue(who.Dialogue, out var dialogue))
         {
             Say($"{who.Name} has nothing to say.");
             return;

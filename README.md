@@ -8,7 +8,7 @@ combat. The full design is in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) (
 
 ![A wizard casts Force Bolt at a fen zombie in the Gallows Road graveyard](Images/AVAAshenReliquary-gameplay.png)
 
-![Trading with Wenna Marsh, the peddler at the end of the road](Images/AVAAshenReliquary-trade.png)
+![Trading with Wenna Marsh, the peddler](Images/AVAAshenReliquary-trade.png)
 
 ## Running it
 
@@ -22,7 +22,8 @@ dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor,
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
-or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), **J** the journal, **F5** saves,
+or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
+items (right-click bag items to stash them), **J** the journal, **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
@@ -53,8 +54,8 @@ the hero and reveals as you explore (saved with the game), the target's weakness
 character sheet (C), and a tooltip on every element: every number is one hover away. Audio: OpenAL Soft (the AVA1942
 audio layer) with positional sound effects, footsteps, crossfading exploration and battle music, and an ambience loop,
 from seven CC0 / CC-BY packs converted by `tools/build_audio.py`; volume sliders in the Escape menu. Chests in the glades and ruins hold loot for your level (click to open; a skull-chest reliquary guarded by the
-Champion). A peddler in the camp at
-the end of the road buys and sells (click her; right-click bag items to sell). Shrines wake when you pass within 5 tiles.
+Champion). Fort Gallowmere, beyond the gate, is Act 1's hub: Wenna the peddler and Garrow the smith
+buy and sell (click them; right-click bag items to sell), and a stash keeps what you can't carry. Shrines wake when you pass within 5 tiles.
 The exit test (gallows to gate in one sitting) passed on 2026-10-17. Next is M2: the rest of Act 1.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 

@@ -17,7 +17,7 @@
   "TTTTL..XX....-===-...XX..LOOOT",
   "TTTOL........-===-.......LTOTT",
   "TTTTL........-===-.......LTTTT",
-  "TOOTL........-===-.......LOTTT",
+  "TOOTL........-===-...a...LOTTT",
   "TTTTL.x......-=c=-.......LTTTO",
   "TOTTL........-===-.......LTOOO",
   "TOTTL........-===-.......LOTTT",
@@ -147,6 +147,13 @@
     104
    ],
    "blocks": true
+  },
+  "a": {
+   "ground": "grass",
+   "objects": [
+    103
+   ],
+   "blocks": true
   }
  },
  "playerStart": [
@@ -184,6 +191,46 @@
     "feet": "chain_boots",
     "main": "shortsword"
    }
+  },
+  {
+   "id": "ysolde",
+   "name": "Ysolde",
+   "title": "Herbalist",
+   "at": [
+    9,
+    15
+   ],
+   "facing": 4,
+   "portrait": "flare/female06",
+   "dialogue": "fort_ysolde",
+   "look": {
+    "head": "mage_hood",
+    "chest": "mage_vest",
+    "hands": "cloth_gloves",
+    "legs": "mage_skirt",
+    "feet": "cloth_sandals",
+    "main": "staff"
+   }
+  },
+  {
+   "id": "coll",
+   "name": "Old Coll",
+   "title": "Ferryman",
+   "at": [
+    22,
+    18
+   ],
+   "facing": 0,
+   "portrait": "flare/male09",
+   "dialogue": "fort_coll",
+   "look": {
+    "head": "leather_hood",
+    "chest": "cloth_shirt",
+    "hands": "leather_gloves",
+    "legs": "cloth_pants",
+    "feet": "leather_boots",
+    "main": "rod"
+   }
   }
  ],
  "interactables": [
@@ -196,6 +243,61 @@
    ],
    "tile": 139,
    "dialogue": "fort_notice"
+  },
+  {
+   "id": "stash",
+   "name": "Stash",
+   "at": [
+    18,
+    17
+   ],
+   "tile": 76,
+   "action": "stash"
+  }
+ ],
+ "vendors": [
+  {
+   "id": "wenna",
+   "name": "Wenna Marsh",
+   "title": "Peddler",
+   "at": [
+    10,
+    9
+   ],
+   "facing": 5,
+   "stockSize": 12,
+   "greeting": "Coin for kit, kit for coin. Behind walls, at last.",
+   "look": {
+    "head": "leather_hood",
+    "chest": "cloth_shirt",
+    "hands": "cloth_gloves",
+    "legs": "cloth_pants",
+    "feet": "cloth_sandals",
+    "main": "dagger"
+   }
+  },
+  {
+   "id": "garrow",
+   "name": "Garrow",
+   "title": "Smith",
+   "at": [
+    20,
+    9
+   ],
+   "facing": 6,
+   "stockSize": 12,
+   "sells": [
+    "weapons",
+    "armour"
+   ],
+   "greeting": "Steel for the road. Runes when I've a forge worth the name.",
+   "look": {
+    "chest": "leather_chest",
+    "hands": "leather_gloves",
+    "legs": "leather_pants",
+    "feet": "leather_boots",
+    "main": "mace"
+   }
   }
  ],
  "exits": [
