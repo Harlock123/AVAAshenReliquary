@@ -84,6 +84,34 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "cleave",
+  "file": "cleave.png",
+  "source": "https://game-icons.net/1x1/lorc/axe-swing.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "raise_shield",
+  "file": "raise_shield.png",
+  "source": "https://game-icons.net/1x1/sbed/shield.html",
+  "author": "Sbed",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "finishing_blow",
+  "file": "finishing_blow.png",
+  "source": "https://game-icons.net/1x1/lorc/decapitation.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "shield",
+  "file": "shield.png",
+  "source": "https://game-icons.net/1x1/lorc/magic-shield.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",
@@ -248,6 +276,13 @@
   "id": "step",
   "file": "step.png",
   "source": "https://game-icons.net/1x1/lorc/sprint.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "antidote",
+  "file": "antidote.png",
+  "source": "https://game-icons.net/1x1/lorc/drink-me.html",
   "author": "Lorc",
   "licence": "CC BY 3.0"
  },
