@@ -28,6 +28,7 @@ dotnet run --project src/AshenReliquary.App               # character creation, 
 dotnet run --project src/AshenReliquary.App -- --fighter  # skip creation: a recommended Human Fighter
 dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a recommended Human Wizard
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
+dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id, or --wizard)
 ```
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a

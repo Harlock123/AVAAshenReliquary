@@ -172,6 +172,9 @@ public partial class MainWindow : Window
         World.Focus();
     }
 
+    /// <summary>"--battle": the hero fights the zone alone.</summary>
+    public Services.BattleDemo? Demo { get; set; }
+
     /// <summary>Set by "Just quit": the window closes without writing the save.</summary>
     private bool _quitWithoutSaving;
 
@@ -182,6 +185,7 @@ public partial class MainWindow : Window
             var started = System.Diagnostics.Stopwatch.GetTimestamp();
             _session.World.Update(elapsed.TotalSeconds);
             World.Stats.Add("update", System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+            Demo?.Update(elapsed.TotalSeconds);
             _session.AddPlayTime(elapsed.TotalSeconds);
         }
         if (_session is not null && World.IsVisible)

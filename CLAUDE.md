@@ -72,7 +72,11 @@ implementation decisions made so far). `README.md` has the run commands and cont
 
 - They drive step by step ("commit it and move on to X", "run it"). **Commit only when asked**, on `main`.
 - "Run it" means: build Release, then start `dotnet src/AshenReliquary.App/bin/Release/net10.0/AVAAshenReliquary.dll`
-  in the background (`--fighter`, `--wizard` skip creation; `--mute` starts silent).
+  in the background (`--fighter`, `--wizard` skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
+  itself, `Services/BattleDemo.cs`, saving to a temp folder: use it to watch or record fights, or measure fps in combat).
+  To record: make the game fullscreen with `hyprctl dispatch 'hl.dsp.window.fullscreen({ window = "class:AVAAshenReliquary" })'`,
+  then `gpu-screen-recorder -w region -region 1500x1000+0+0 -s 1920x1280 -f 60 -k h264 -cursor no -a default_output -o <file>`
+  (re-encode its Opus sound to AAC with ffmpeg so any player takes it). Rebuild Release first: `dotnet test` builds Debug.
 - Every push runs `.github/workflows/build.yml`: build, test, then self-contained single-file builds for
   win/linux/osx on x64 and ARM; pushes to `main` refresh the `latest` pre-release.
 - Keep `docs/SPECIFICATION.md` (section 15's M1 status line and a section 16 subsection per feature) and the README
