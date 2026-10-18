@@ -35,21 +35,23 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `GameWorld.Boss.cs`: phases, rot pools, summons, flooding, fusing and a deluge timer, reset on the hero's death),
   the HUD's boss bar, boss music, the Herald gate (an exit's `requires`). Step 9 done: the three side stories
   (dialogues, the old well, Sallow's hearth, Brother Anselm, the Gallows Road scarecrow), boons (`Boon` feats kept by
-  `boon.<id>` flags), uniques (`unique` items), `takeItem` effects, pack flags, still NPCs. Next: step 10, the Act 1
-  exit test and tuning (BalanceReport across zones, the XP curve so Act 1 ends at level 5).
+  `boon.<id>` flags), uniques (`unique` items), `takeItem` effects, pack flags, still NPCs. Step 10, the bot's
+  part, done: `CampaignReport` plays Act 1 end to end (loot, upgrades, runes, level picks) and asserts Mother Sallow
+  dies and Act 1 ends at level 5-6; zones pay `xpScale` of monster XP (the Fens 0.6); Ignition is 2d6. Left for M2:
+  the user's own play-through of Act 1 (they asked to do it once more of the game exists), then whatever it shows.
   `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
   of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
   weeps after the chapel, the full skill list.
-- **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights every Gallows Road pack and runs bot
-  play-throughs of the whole road per class, reporting downs, potions and what the hero went down to. It does 4 runs
+- **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
+  of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
+  would. It does 4 runs
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter
   BalanceReport --logger "console;verbosity=detailed"`. Its bot never kites, so the wizard rows are a worst case;
   it keeps its own copy of the starting kits.
-- **Open ideas, not yet asked for:** the wizard falls behind from level 1 to 3 (see the Fens' balance note in spec
-  section 16); cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3 in the Fens; the
-  chapel plays short (about 15 minutes); bots reach Mother Sallow at level 4, not 5 (the XP curve, step 10); move the skeleton pack just south of the camp fence if it crowds the peddler;
-  orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art); a
+- **Open ideas, not yet asked for:** Act 1 plays about 1.5 hours against the 2 decided (the chapel is shortest);
+  gold piles up with little to buy; cultists and crawlers reuse the zombie grunts; check the bog's frame time with F3
+  in the Fens; move the skeleton pack just south of the camp fence if it crowds the peddler; orcs have only 2 portraits (a paid pack is an option); Shield Block (needs shields: an off-hand slot and art); a
   real chest-opening sound (chests reuse the inventory-open clunk).
 
 ## The development machine

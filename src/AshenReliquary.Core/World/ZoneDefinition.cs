@@ -62,8 +62,11 @@ public sealed record ZoneDefinition(
     IReadOnlyList<NpcDefinition>? Npcs = null,
     IReadOnlyList<InteractableDefinition>? Interactables = null,
     double? Darkness = null,
-    double HeroLight = 6.5)
+    double HeroLight = 6.5,
+    double XpScale = 1.0)
 {
+    // XpScale: the share of monster XP the zone pays, Act 1's curve tuned so a hero leaves each zone about a level up.
+
     /// <summary>How dark the zone is, 0 to 1 (the night outdoors is 0.66); see <see cref="IsDark"/>.</summary>
     public double DarknessLevel => Darkness ?? 0.66;
 

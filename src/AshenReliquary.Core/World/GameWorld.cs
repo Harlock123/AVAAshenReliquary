@@ -1456,7 +1456,7 @@ public sealed partial class GameWorld
         if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
         {
             var xp = (int)Math.Round(Encounter.CreatureXp(monster.Creature.Stats.Level, Hero.Character.Level)
-                * RankXpWeight(monster.Creature.Stats.Rank));
+                * RankXpWeight(monster.Creature.Stats.Rank) * Zone.XpScale);
             if (xp > 0)
                 GainXp(xp, monster);
         }

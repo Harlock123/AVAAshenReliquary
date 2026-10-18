@@ -112,7 +112,7 @@ Built on step 2, placed in zones 1.1–1.4 and the hub (section 4):
   (a unique ring now; the Act 4 summon later).
 - Each pays the spec's reward: XP of a 2-level-above encounter, plus a unique item or a permanent boon.
 
-### 10. Act 1 exit test and tuning
+### 10. Act 1 exit test and tuning — the bot's part done 2026-10-18 (the human play-through is the user's, later)
 
 - BalanceReport learns to play several zones in a row; the XP curve is set so Act 1 ends at level 5.
 - A full play-through from the gallows to Sallow's death, then the tuning it shows a need for.

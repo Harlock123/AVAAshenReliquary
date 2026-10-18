@@ -682,7 +682,7 @@ The build order proves the rules engine and one playable act before widening con
 
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
-3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
+3. **M2 — Act 1 complete.** *In progress (plan: `docs/M2_PLAN.md`; steps 1–6 done: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; step 10's bot exit test and tuning. Left: the human play-through from the gallows to Sallow's death).* 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours.
 4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
@@ -756,7 +756,7 @@ Building the rules core and the vertical slice settled these. Where a number her
 | Fighter | LMB | Strike | Basic attack, repeats until the target dies |
 | Fighter | RMB | Power Attack | 15 Fury, 2 actions, +1 weapon die (+2 at level 10, +3 at 18), counts as 2 attacks, Flourish |
 | Fighter | 1 | Sudden Charge | Dash up to 6 tiles at 12 tiles/s and Strike; 8 s cooldown; Flourish, Open |
-| Wizard | LMB | Ignition | Free cantrip, spell attack, 2d4 fire (+1d4 per rank above 1), critical hit adds 1d4 persistent fire per rank; range 7 |
+| Wizard | LMB | Ignition | Free cantrip, spell attack, 2d6 fire (+1d6 per rank above 1; the Remaster's melee dice at range, since M2's exit test: see section 16), critical hit adds 1d4 persistent fire per rank; range 7 |
 | Wizard | RMB | Force Bolt | 12 Mana; 2 missiles (one more every two ranks) of 1d4+1 force that never miss; range 9 |
 | Wizard | 1 | Staff Strike | Melee fallback |
 
@@ -954,6 +954,30 @@ Building the rules core and the vertical slice settled these. Where a number her
   weeps: free the spirit (`act1.scarecrow = freed`, the boon *The Scarecrow's Peace*: +1 Perception, +5 ft speed) or
   take its soul-gem (`taken`, the unique ring *The Weeping Soul-gem*: +8% cast speed, +15% resource regeneration). Its
   journal entry appears only when it weeps.
+
+### Act 1's exit test (M2)
+
+- **The campaign bot** (`CampaignReport.Act_1_from_the_gallows_to_Mother_Sallow`): one hero plays all of Act 1 in one
+  world, from the gallows through Gallows Road, the fort, the Fens, the Drowned Chapel and the Mire to Mother Sallow's
+  death, as a careful player would: every pack in each zone's order, everything that drops picked up, better gear worn
+  (by value; a caster's focus for the wizard, a melee weapon for the fighter, body armour of the kind worn), the
+  pilgrim's lantern taken, level-up picks made as levels come, and between zones a Rift trip to the fort to sell spare
+  loot and have Garrow etch runes. It fights like the balance bot (no kiting) and steps out of rot pools. It is also a
+  test: each class must kill Mother Sallow and end Act 1 at level 5 or 6.
+- **What it found and what changed:** with loot and runes both classes get through (the zone-by-zone reports, which
+  keep the starting kit, are a worst case). The **XP curve**: the Fens' many packs carried a hero from level 2 to 4, so a
+  zone now pays a share of monster XP (`xpScale`; the Fens 0.6, the rest 1.0). The **wizard** fell behind from level 1
+  to 3 (sections above), dying 0-21 times a zone and meeting Sallow at 4: **Ignition** now does 2d6 (+1d6 a rank),
+  the Remaster's melee dice at range.
+- **The result** (4 runs per class): the fighter leaves Gallows Road at 2, the Fens at 3, the chapel at 4, meets
+  Mother Sallow at 5 and kills her every time, ending at about 5.7, with 0-3 deaths in all; the wizard the same levels
+  and kills, with 0-8 deaths. About 23 minutes of bot play (fighter) and 25-29 (wizard); the bot took 4 minutes on
+  Gallows Road where players take 10-13, so a player's Act 1 should run about 1.5 hours with the hub and the side
+  stories, against the 2 hours decided and the spec's 3-4: the zones (above all the chapel) are the place to add length.
+  Gold piles up (about 2,000 by the end) with little to spend it on until M3's crafting and runes.
+- **The zone reports since:** with the starting kit and Ignition's new dice, deaths per run: the Fens fighter 2.3,
+  wizard 11.7 (it stays level 2 longer now); the chapel fighter 1.8, wizard 3.5 with the lantern and 5.2 without; Mother
+  Sallow at level 5, the fighter 6 of 6, the wizard 4 of 6. Zone runs now end when the hero walks on into the next zone.
 
 ### Dialogue, flags and the journal (M2)
 

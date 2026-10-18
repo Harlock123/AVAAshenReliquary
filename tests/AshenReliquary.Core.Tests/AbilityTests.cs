@@ -45,8 +45,8 @@ public class AbilityTests
     public void Heightening_adds_dice_extra_weapon_dice_and_missiles()
     {
         var ignition = Content.Abilities["ignition"];
-        Assert.Equal(new Dice(2, 4), ignition.DamageAt(1));
-        Assert.Equal(new Dice(4, 4), ignition.DamageAt(3));
+        Assert.Equal(new Dice(2, 6), ignition.DamageAt(1));
+        Assert.Equal(new Dice(4, 6), ignition.DamageAt(3));
         var power = Content.Abilities["power_attack"];
         Assert.Equal((1, 2, 3), (power.ExtraDiceAt(1), power.ExtraDiceAt(10), power.ExtraDiceAt(18)));
         var force = Content.Abilities["force_bolt"];

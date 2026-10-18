@@ -54,8 +54,8 @@
   "repeat": true,
   "range": 7,
   "damageType": "Fire",
-  "dice": "2d4",
-  "heightenDice": "1d4",
+  "dice": "2d6",
+  "heightenDice": "1d6",
   "critPersistent": "1d4",
   "traits": [
    "Attack",
@@ -64,7 +64,7 @@
    "Concentrate",
    "Manipulate"
   ],
-  "description": "Hurl a flame: a spell attack for 2d4 fire (+1d4 per rank above 1). A critical hit also sets the target burning."
+  "description": "Hurl a flame: a spell attack for 2d6 fire (+1d6 per rank above 1). A critical hit also sets the target burning."
  },
  {
   "id": "force_bolt",

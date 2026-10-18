@@ -17,7 +17,7 @@ public class BalanceReport(ITestOutputHelper output)
 
     /// <summary>Runs of a whole later zone: one by default (each is minutes of game time), ASHEN_BALANCE_RUNS when set.</summary>
     private static readonly int ZoneSeeds = Environment.GetEnvironmentVariable("ASHEN_BALANCE_RUNS") is { Length: > 0 } ? Seeds : 1;
-    private const double Tick = 1 / 30.0;
+    internal const double Tick = 1 / 30.0;
 
     public sealed record PackResult(int Pack, string Members, int Fights, int Downs, double HpLostPct, double Potions, double Seconds);
 
@@ -216,7 +216,7 @@ public class BalanceReport(ITestOutputHelper output)
         (double X, double Y)? routeGoal = null;
         var bossLevel = 0;
         double nextDodge = 0;
-        while (!world.ZoneComplete && world.Time < 3600)
+        while (!world.ZoneComplete && world.Zone.Id == zoneId && world.Time < 3600)
         {
             if (hero.IsDead != wasDead)
             {
@@ -288,7 +288,8 @@ public class BalanceReport(ITestOutputHelper output)
             }
             world.Update(Tick);
         }
-        return new RoadResult(deaths, spent, potions, world.Time / 60, world.ZoneComplete, hero.Level, killers) { BossLevel = bossLevel };
+        // Walking into an exit that leads on travels (and the new zone starts incomplete), so leaving counts as finishing.
+        return new RoadResult(deaths, spent, potions, world.Time / 60, world.ZoneComplete || world.Zone.Id != zoneId, hero.Level, killers) { BossLevel = bossLevel };
     }
 
 
@@ -298,7 +299,7 @@ public class BalanceReport(ITestOutputHelper output)
     /// further than its edge; from its very centre (it lands where the hero stands), sideways round the boss, so a melee
     /// hero stays in reach. Returns the pool while the hero is in one.
     /// </summary>
-    private static Hazard? StepOutOfPool(GameWorld world, ref double nextDodge)
+    internal static Hazard? StepOutOfPool(GameWorld world, ref double nextDodge)
     {
         var pool = world.Hazards.FirstOrDefault(h => h.Covers(world.Hero.X, world.Hero.Y) && world.Time < h.EndsAt);
         if (pool is null || world.Time < nextDodge)
@@ -322,7 +323,17 @@ public class BalanceReport(ITestOutputHelper output)
         while (c.Level < level)
         {
             world.GainXp(1000, world.Hero);
-            var at = c.Level;
+            ChoosePending(world);
+        }
+        c.RestAtShrine();
+    }
+
+    /// <summary>Makes the picks for every level still waiting, as <see cref="LevelTo"/> would.</summary>
+    internal static void ChoosePending(GameWorld world)
+    {
+        var c = world.Hero.Character;
+        foreach (var at in c.PendingLevels.ToList())
+        {
             var gains = Progression.LevelProgression.GainsAt(at);
             string? Feat(Progression.LevelGain gain, FeatType type, string? prefer = null) =>
                 (gains & gain) == 0 ? null : c.FeatOptions(type, at).Select(f => f.Id).OrderBy(id => id == prefer ? 0 : 1).First();
@@ -338,7 +349,6 @@ public class BalanceReport(ITestOutputHelper output)
                 AncestryFeat: Feat(Progression.LevelGain.AncestryFeat, FeatType.Ancestry),
                 SkillIncrease: (gains & Progression.LevelGain.SkillIncrease) != 0 ? Skills.Attribute.Keys.Order().First(sk => c.CanIncrease(sk, at)) : null));
         }
-        c.RestAtShrine();
     }
 
     public sealed record BossResult(bool Won, double Seconds, int Potions, int Phase, double BossHpLeft);
@@ -403,7 +413,7 @@ public class BalanceReport(ITestOutputHelper output)
             (double)sallow.Creature.HitPoints / sallow.Creature.Stats.HitPoints);
     }
 
-    private static (double X, double Y) NearestDry(TileMap map, double x, double y)
+    internal static (double X, double Y) NearestDry(TileMap map, double x, double y)
     {
         for (var r = 1; r < 12; r++)
         for (var dy = -r; dy <= r; dy++)
@@ -417,7 +427,7 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>What the hero was fighting when it went down: the living monsters within 6 tiles.</summary>
-    private static string Nearby(GameWorld world)
+    internal static string Nearby(GameWorld world)
     {
         var near = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(world.Hero) < 6)
             .GroupBy(m => m.Definition.Id + (m.Creature.Stats.Rank == Creatures.CreatureRank.Normal ? "" : $" {m.Creature.Stats.Rank}"))
@@ -499,7 +509,7 @@ public class BalanceReport(ITestOutputHelper output)
         return (downs, 100.0 * (hero.MaxHitPoints - Math.Max(0, hero.HitPoints)) / hero.MaxHitPoints, potions, world.Time - start);
     }
 
-    private static void Act(GameWorld world, IReadOnlyDictionary<string, Abilities.AbilityDefinition> bar, string classId, MonsterActor target)
+    internal static void Act(GameWorld world, IReadOnlyDictionary<string, Abilities.AbilityDefinition> bar, string classId, MonsterActor target)
     {
         var resource = world.Hero.Resource;
         bool Ready(string slot) => bar.TryGetValue(slot, out var a) && resource.CanSpend(a.Cost) && world.CooldownRemaining(a) <= 0;
@@ -533,7 +543,7 @@ public class BalanceReport(ITestOutputHelper output)
         return (x, y);
     }
 
-    private static void Dress(Character hero, Items.Equipment gear, string kit)
+    internal static void Dress(Character hero, Items.Equipment gear, string kit)
     {
         foreach (var id in Kits[kit])
             gear.Equip(new Items.Item(TestCharacters.Content.Item(id), Items.Rarity.Common, 1));

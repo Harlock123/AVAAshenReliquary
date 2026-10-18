@@ -304,6 +304,7 @@ spawns = [
 zone = {
     "id": "rotwater_fens", "name": "The Rotwater Fens", "level": 2, "revision": REVISION, "tileset": "tileset_grassland",
     "tagline": "Black water, and the reek of rot.",
+    "xpScale": 0.6,                                    # its many packs would otherwise carry a hero two levels
     "rows": rows,
     "legend": {
         ".": {"ground": "grass"},

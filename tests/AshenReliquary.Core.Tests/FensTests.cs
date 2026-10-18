@@ -280,4 +280,17 @@ public class FensTests
         Assert.True(Content.Creatures["cult_chanter"].Caster);
         Assert.True(Content.Creatures["cult_chanter"].Ranged);
     }
+
+    [Fact]
+    public void The_fens_pay_a_share_of_monster_xp_so_a_hero_leaves_them_about_a_level_up()
+    {
+        var zone = Content.Zone("rotwater_fens");
+        Assert.Equal(0.6, zone.XpScale);
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 3, Content.AbilityBar("fighter"), Content.Loot);
+        var zombie = world.Monsters.First(m => m.Definition.Id == "fen_zombie" && m.Creature.Stats.Rank == CreatureRank.Normal && m.Creature.Stats.Level == 2);
+        var before = world.Experience.Xp;
+        world.Slay(zombie);
+        // A level-2 normal against a level-1 hero: 60 XP, halved for its rank, then the Fens' 0.6.
+        Assert.Equal(before + 18, world.Experience.Xp);
+    }
 }
