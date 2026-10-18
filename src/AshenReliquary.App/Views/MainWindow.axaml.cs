@@ -179,7 +179,9 @@ public partial class MainWindow : Window
     {
         if (!Paused && _session is not null && World.IsVisible)
         {
+            var started = System.Diagnostics.Stopwatch.GetTimestamp();
             _session.World.Update(elapsed.TotalSeconds);
+            World.Stats.Add("update", System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             _session.AddPlayTime(elapsed.TotalSeconds);
         }
         if (_session is not null && World.IsVisible)

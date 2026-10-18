@@ -37,7 +37,7 @@ or the number keys), click a woken shrine to open its Rift (travel to any other 
 items (right-click bag items to stash them), **J** the journal, **L** the level-up screen (when a level is waiting), **Shift** steps
 (a quick dodge toward the pointer), **F5** saves,
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
-**Space** pauses, the mouse wheel zooms, **F3** shows the frame rate and render timings. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
+**Space** pauses, the mouse wheel zooms, **F3** shows the frame rate, render timings and the GPU's texture cache. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
 through the refugee camp, to the gate of
 Fort Gallowmere, where Sergeant Brask asks your business.

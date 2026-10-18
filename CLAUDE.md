@@ -57,8 +57,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
 ## The development machine
 
 - A Surface laptop (i7-1065G7, Intel Iris Plus + GTX 1650, 3000×2000 at scale 2) running Omarchy (Hyprland).
-  Development moved here from an aarch64 Omarchy VM. The game uses the GPU renderer; **F3** shows fps and where the
-  frame time goes, and `WorldView.WorldRenderScale` is the quality/speed knob.
+  Development moved here from an aarch64 Omarchy VM. The game uses the GPU renderer; **F3** shows fps, where the
+  frame time goes (the world's update too) and the GPU texture cache against its budget (512 MB, set in `Program.cs`;
+  Avalonia's default of ~28 MB thrashed), and `WorldView.WorldRenderScale` is the quality/speed knob. `SpriteCache`
+  keeps frames per scale: never let a draw at a new scale empty it (that once took Fens fights to ~7 fps).
 - **.NET SDK:** `global.json` asks for 10.0.400+, and Arch's source-built `dotnet-sdk` is stuck in the 10.0.1xx band,
   so SDK 10.0.402 comes from mise (`mise use -g dotnet@10.0.402`). Plain `dotnet build` in the repo uses it.
 - **Seeing the real window:** `hyprctl dispatch 'hl.dsp.send_shortcut({ mods = "", key = "F3", window = "class:AVAAshenReliquary" })'`

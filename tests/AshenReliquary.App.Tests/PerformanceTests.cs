@@ -1,4 +1,5 @@
 using Avalonia.Headless.XUnit;
+using AshenReliquary.App.Rendering;
 
 namespace AshenReliquary.App.Tests;
 
@@ -29,5 +30,37 @@ public class PerformanceTests(ITestOutputHelper output)
         output.WriteLine($"wall: {clock.Elapsed.TotalMilliseconds / 59:0.0} ms per captured frame");
         output.WriteLine(kit.Window.View.Stats.ToString());
         Assert.Equal(59, kit.Window.View.Stats.Frames);
+    }
+
+    /// <summary>
+    /// A creature drawn larger than the rest (the plague crawler at 1.15x) keeps its own frames: it used to empty the
+    /// whole cache on every change of scale, so each frame with a crawler in view resampled every tile and sprite again.
+    /// </summary>
+    [AvaloniaFact]
+    public void Sprites_at_two_scales_are_kept_side_by_side()
+    {
+        var cache = new SpriteCache(FlareAssets.Shared);
+        var plain = cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 2f);
+        var larger = cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 2.3f);
+        Assert.Same(plain, cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 2f));
+        Assert.Same(larger, cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 2.3f));
+        Assert.Equal(2, cache.Count);
+    }
+
+    /// <summary>Zooming through many scales keeps only the most recently used ones.</summary>
+    [AvaloniaFact]
+    public void Old_scales_are_dropped_least_recently_used_first()
+    {
+        var cache = new SpriteCache(FlareAssets.Shared);
+        var first = cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 1f);
+        for (var i = 1; i <= SpriteCache.MaxScales; i++)
+        {
+            cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 1f + i * 0.1f);
+            if (i < SpriteCache.MaxScales)
+                Assert.Same(first, cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 1f));
+        }
+        Assert.Equal(SpriteCache.MaxScales, cache.Scales);
+        // 1x was used just before the last new scale arrived, so 1.1x was the stalest and went instead.
+        Assert.Same(first, cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 1f));
     }
 }

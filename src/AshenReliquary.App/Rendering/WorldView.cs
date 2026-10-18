@@ -502,6 +502,7 @@ public sealed class WorldView : Control
             canvas.ClipRect(new SKRect(0, 0, (float)bounds.Width, (float)bounds.Height));
             try
             {
+                owner._gpuContext = api.GrContext;
                 owner.Draw(canvas, new SKSize((float)bounds.Width, (float)bounds.Height), gpu: api.GrContext is not null);
             }
             finally
@@ -521,6 +522,16 @@ public sealed class WorldView : Control
     public float LastWorldScale { get; private set; } = 1f;
 
     private SKSurface? _worldSurface;
+    private GRContext? _gpuContext;
+
+    /// <summary>The GPU's texture cache: what it holds against its budget (F3), or null on the CPU renderer.</summary>
+    private string? GpuCacheLine()
+    {
+        if (_gpuContext is not { } gr)
+            return null;
+        gr.GetResourceCacheUsage(out var count, out var bytes);
+        return $"textures {count}, {bytes / 1048576.0:0} of {gr.GetResourceCacheLimit() / 1048576.0:0} MB";
+    }
 
     private void Draw(SKCanvas canvas, SKSize size, bool gpu)
     {
@@ -640,7 +651,8 @@ public sealed class WorldView : Control
             _frameIntervals.Dequeue();
         if (Stats.Frames >= 60)
         {
-            _statsLine = $"{(gpu ? "GPU" : "CPU")} renderer, world at {scale:0.##}x of {deviceScale:0.##}x  ·  draw {Stats}";
+            _statsLine = $"{(gpu ? "GPU" : "CPU")} renderer, world at {scale:0.##}x of {deviceScale:0.##}x  ·  draw {Stats}"
+                + (GpuCacheLine() is { } cache ? $"  ·  {cache}" : "");
             Stats.Reset();
         }
         if (ShowStats)

@@ -35,6 +35,10 @@
   </Target>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="AshenReliquary.App.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Flare art (CC-BY-SA 3.0, see Assets/Flare/LICENSE.txt and CREDITS.md) plus its sprite and tileset definitions. -->
     <AvaloniaResource Include="Assets\**" Exclude="Assets\Audio\**" />
     <!-- Sound and music are plain files beside the executable (the decoders read files); single-file builds unpack them. -->

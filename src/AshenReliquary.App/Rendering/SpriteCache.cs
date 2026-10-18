@@ -11,23 +11,40 @@ namespace AshenReliquary.App.Rendering;
 internal sealed class SpriteCache(FlareAssets assets, SKColorFilter? grade = null)
 {
     private static readonly SKSamplingOptions Resample = new(SKCubicResampler.Mitchell);
-    private readonly Dictionary<(string Sheet, int X, int Y, int W, int H), SKImage> _cache = [];
-    private float _scale = -1;
 
-    public int Count => _cache.Count;
+    /// <summary>How many scales are kept at once: the world's zoom, the bigger creatures' own sizes, the icon slots.</summary>
+    public const int MaxScales = 8;
 
-    /// <summary>The frame at <paramref name="scale"/>; switching scale (a zoom step) drops the old frames.</summary>
+    // One group of frames per scale. A creature drawn larger (the plague crawler, Mother Sallow) or an icon in a
+    // bigger slot is its own scale; when they shared one cache that emptied itself on every change of scale, a single
+    // crawler on screen threw away and resampled every tile and sprite twice a frame.
+    private readonly Dictionary<int, (Dictionary<(string Sheet, int X, int Y, int W, int H), SKImage> Frames, long Used)> _scales = [];
+    private long _uses;
+
+    public int Count => _scales.Values.Sum(g => g.Frames.Count);
+
+    /// <summary>The scales whose frames are held.</summary>
+    public int Scales => _scales.Count;
+
+    /// <summary>The frame at <paramref name="scale"/>, cut and resampled the first time it is asked for.</summary>
     public SKImage Get(string sheet, int x, int y, int width, int height, float scale)
     {
-        if (Math.Abs(scale - _scale) > 1e-4)
+        var scaleKey = (int)MathF.Round(scale * 10000);
+        if (!_scales.TryGetValue(scaleKey, out var group))
         {
-            foreach (var image in _cache.Values)
-                image.Dispose();
-            _cache.Clear();
-            _scale = scale;
+            if (_scales.Count >= MaxScales)
+            {
+                // Zooming leaves whole scales unused: drop the one used longest ago.
+                var stale = _scales.MinBy(kv => kv.Value.Used);
+                foreach (var image in stale.Value.Frames.Values)
+                    image.Dispose();
+                _scales.Remove(stale.Key);
+            }
+            group = ([], 0);
         }
+        _scales[scaleKey] = (group.Frames, ++_uses);
         var key = (sheet, x, y, width, height);
-        if (_cache.TryGetValue(key, out var cached))
+        if (group.Frames.TryGetValue(key, out var cached))
             return cached;
 
         var source = assets.Image(sheet);
@@ -50,12 +67,12 @@ internal sealed class SpriteCache(FlareAssets assets, SKColorFilter? grade = nul
             }
             graded.SetImmutable();
             var gradedImage = SKImage.FromBitmap(graded).ToRasterImage(ensurePixelData: true);
-            _cache[key] = gradedImage;
+            group.Frames[key] = gradedImage;
             return gradedImage;
         }
         bitmap.SetImmutable();
         var scaled = SKImage.FromBitmap(bitmap).ToRasterImage(ensurePixelData: true);
-        _cache[key] = scaled;
+        group.Frames[key] = scaled;
         return scaled;
     }
 }

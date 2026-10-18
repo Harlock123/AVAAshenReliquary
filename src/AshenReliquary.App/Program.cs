@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Skia;
 using AshenReliquary.App.Services;
 
 namespace AshenReliquary.App;
@@ -16,6 +17,10 @@ internal static class Program
 
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure<App>()
         .UsePlatformDetect()
+        // Every sprite frame and tile is its own texture at the screen's full density, and a fight on a HiDPI screen
+        // needs far more than Avalonia's default budget (about 28 MB): past it Skia evicts textures and uploads them
+        // again every frame, which took fights down to single-digit frame rates.
+        .With(new SkiaOptions { MaxGpuResourceSizeBytes = 512L * 1024 * 1024 })
 #if DEBUG
         .WithDeveloperTools()
 #endif

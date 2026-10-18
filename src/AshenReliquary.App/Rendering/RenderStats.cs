@@ -25,6 +25,9 @@ public sealed class RenderStats
         _last = now;
     }
 
+    /// <summary>Time spent outside the draw (the world's update), added to the same averages.</summary>
+    public void Add(string stage, double ms) => _totals[stage] = _totals.GetValueOrDefault(stage) + ms;
+
     public IReadOnlyDictionary<string, double> AverageMs =>
         _totals.ToDictionary(kv => kv.Key, kv => Frames == 0 ? 0 : kv.Value / Frames);
 
