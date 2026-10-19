@@ -6,7 +6,8 @@ namespace AshenReliquary.App.Rendering;
 
 /// <summary>
 /// The hub's stash, on the left while the inventory is open on the right: 60 slots that stay put while the hero
-/// travels. Left-click a stashed item to take it into the bag; right-click a bag item (in the inventory) to stash it.
+/// travels. Left-click a stashed item to take it into the bag; right-click (or Shift-click) a bag item to stash it, or drag
+/// either way. <b>Sort</b> orders it like the bag.
 /// </summary>
 internal sealed class StashPanel
 {
@@ -24,6 +25,15 @@ internal sealed class StashPanel
 
     private void Layout() => Bounds = SKRect.Create(16, 16, Width, 76 + Stash.Rows * Step + 50);
 
+    private SKRect SortButton => SKRect.Create(Bounds.Right - Pad - 56, Bounds.Top + 18, 56, 20);
+    private readonly VerdictCache _verdicts = new();
+
+    /// <summary>The stash slot under a point, or null.</summary>
+    public int? CellAt(SKPoint p) => HitTest(p);
+
+    /// <summary>The centre of stash slot <paramref name="index"/> (for tests that drag to it).</summary>
+    public SKPoint CellCentre(int index) => new(CellRect(index).MidX, CellRect(index).MidY);
+
     private int? HitTest(SKPoint p)
     {
         for (var i = 0; i < Stash.Size; i++)
@@ -39,7 +49,9 @@ internal sealed class StashPanel
     {
         if (!world.StashOpen || !Bounds.Contains(p))
             return false;
-        if (HitTest(p) is { } index)
+        if (SortButton.Contains(p))
+            world.SortStash();
+        else if (HitTest(p) is { } index)
             world.Retrieve(index);
         return true;
     }
@@ -69,6 +81,8 @@ internal sealed class StashPanel
             if (slots[i] is { } item)
             {
                 _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -2, -2));
+                InventoryPanel.Judgement(canvas, rect, _verdicts.For(world, item));
+                InventoryPanel.MarkCorner(canvas, rect, item.Mark);
                 if (item.Count > 1)
                     InventoryPanel.StackCount(canvas, rect, item.Count, small);
                 using var edge = new SKPaint
@@ -88,7 +102,8 @@ internal sealed class StashPanel
                 canvas.DrawRect(SKRect.Inflate(rect, 2, 2), glow);
             }
         }
-        canvas.DrawText("Left-click to take · right-click a bag item to stash it · Esc or walk away to close", Bounds.MidX, Bounds.Bottom - 12,
+        InventoryPanel.Button(canvas, SortButton, "Sort", pointer, small, false);
+        canvas.DrawText("Left-click to take · right-click a bag item to stash it · drag either way", Bounds.MidX, Bounds.Bottom - 12,
             SKTextAlign.Center, small, dim);
 
         if (pointer is { } p && hover is { } h && slots[h] is { } hovered)

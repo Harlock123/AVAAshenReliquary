@@ -13,6 +13,10 @@ namespace AshenReliquary.App.Rendering;
 /// meant (a bright outline), the worn slot a bag item would replace (green), and a tooltip outside the panel with
 /// what wearing or removing the item would do to your statistics.
 /// Left-click a bag item to wear it, left-click a worn item to take it off, right-click a bag item to drop it.
+/// Ctrl-click marks an item junk, then locked, then neither; Shift-click sends it to the open stash or trader. The bag's
+/// <b>Sort</b> orders it for the hero (<see cref="ItemJudge"/>) and <b>Drop junk</b> (or <b>Sell junk</b> at a trader)
+/// clears the junk in one go. A green ▲ marks an upgrade on the hero, a red ▼ a downgrade; gear the class can't use
+/// well is tinted red. Items can also be dragged (see <see cref="WorldView"/>).
 /// </summary>
 internal sealed class InventoryPanel
 {
@@ -37,10 +41,26 @@ internal sealed class InventoryPanel
 
     public SKRect Bounds { get; private set; }
 
+    private SKRect SortButton => SKRect.Create(Bounds.Left + 130, _bagTop - 24, 56, 20);
+    private SKRect JunkButton => SKRect.Create(Bounds.Left + 192, _bagTop - 24, 168, 20);
+
+    /// <summary>When the Drop junk button was clicked once and is waiting for the second click to confirm.</summary>
+    private DateTime _junkArmedUntil = DateTime.MinValue;
+
+    private readonly VerdictCache _verdicts = new();
+
+    /// <summary>How an item suits the hero, from the cache.</summary>
+    public ItemVerdict VerdictFor(GameWorld world, Item item) => _verdicts.For(world, item);
+
     private float WornBottom => Bounds.Top + Header + WornRows * SlotStep;
 
     private SKRect SlotRect(int column, int row) =>
         SKRect.Create(Bounds.Left + 20 + column * 190, Bounds.Top + Header + row * SlotStep, _slotSize, _slotSize);
+
+    /// <summary>The centres of the Sort and junk buttons and of a worn slot, as last laid out (for tests).</summary>
+    public SKPoint SortCentre => new(SortButton.MidX, SortButton.MidY);
+    public SKPoint JunkCentre => new(JunkButton.MidX, JunkButton.MidY);
+    public SKPoint SlotCentre(EquipSlot slot) => Slots.Where(s => s.Slot == slot).Select(s => SlotRect(s.Column, s.Row)).Select(r => new SKPoint(r.MidX, r.MidY)).First();
 
     /// <summary>The centre of bag cell <paramref name="index"/> as last laid out (for tests that click it).</summary>
     public SKPoint BagCellCentre(int index) => new(BagRect(index).MidX, BagRect(index).MidY);
@@ -84,13 +104,39 @@ internal sealed class InventoryPanel
         return (null, null);
     }
 
-    /// <summary>Handles a click inside the panel; returns true when it was inside.</summary>
-    public bool Click(SKPoint p, bool right, GameWorld world)
+    /// <summary>
+    /// Handles a click inside the panel; returns true when it was inside. <paramref name="ctrl"/> cycles a bag item's
+    /// mark; <paramref name="shift"/> sends a bag item to the open stash or trader.
+    /// </summary>
+    public bool Click(SKPoint p, bool right, GameWorld world, bool ctrl = false, bool shift = false)
     {
         if (!Bounds.Contains(p))
             return false;
         var (slot, bag) = HitTest(p);
         var gear = world.Hero.Equipment;
+        if (!right && SortButton.Contains(p))
+        {
+            world.SortBag();
+            return true;
+        }
+        if (!right && JunkButton.Contains(p))
+        {
+            ClickJunk(world);
+            return true;
+        }
+        if (!right && ctrl && bag is { } marked && gear.Bag[marked] is { } toMark)
+        {
+            toMark.CycleMark();
+            return true;
+        }
+        if (!right && shift && bag is { } sent && gear.Bag[sent] is not null)
+        {
+            if (world.StashOpen)
+                world.Store(sent);
+            else if (world.OpenVendor is not null)
+                world.Sell(sent);
+            return true;
+        }
         if (right && Bench is { } bench && (bag is { } b ? gear.Bag[b] : slot is { } w ? gear.In(w) : null) is { } benched)
         {
             bench(benched);
@@ -111,6 +157,31 @@ internal sealed class InventoryPanel
             gear.Unequip(s);
         }
         return true;
+    }
+
+    /// <summary>
+    /// The junk button: at a trader it sells the junk at once; elsewhere the first click asks ("Drop 7? Click again")
+    /// and a second within 3 s drops it.
+    /// </summary>
+    private void ClickJunk(GameWorld world)
+    {
+        if (world.Junk.Count == 0)
+        {
+            world.Announce("Nothing is marked as junk. Ctrl-click an item to mark it.");
+            return;
+        }
+        if (world.OpenVendor is not null)
+        {
+            world.SellJunk();
+            return;
+        }
+        if (DateTime.UtcNow < _junkArmedUntil)
+        {
+            world.DropJunk();
+            _junkArmedUntil = DateTime.MinValue;
+            return;
+        }
+        _junkArmedUntil = DateTime.UtcNow.AddSeconds(3);
     }
 
     public void Draw(SKCanvas canvas, SKSize size, GameWorld world, SKPoint? pointer, SKImage? portrait = null)
@@ -187,6 +258,13 @@ internal sealed class InventoryPanel
         canvas.DrawLine(Bounds.Left + 14, dividerY, Bounds.Right - 14, dividerY, frame);
         canvas.DrawText("Bag", Bounds.Left + 20, _bagTop - 8, SKTextAlign.Left, font, ink);
         canvas.DrawText($"{gear.Bag.Count(i => i is not null)} / {Equipment.BagSize}", Bounds.Left + 56, _bagTop - 8, SKTextAlign.Left, small, dim);
+        var junk = world.Junk;
+        var selling = world.OpenVendor is not null;
+        var armed = DateTime.UtcNow < _junkArmedUntil;
+        Button(canvas, SortButton, "Sort", pointer, small, false);
+        Button(canvas, JunkButton, junk.Count == 0 ? "Drop junk (none marked)"
+            : selling ? $"Sell junk ({junk.Count}): {junk.Sum(Pricing.SellPrice)} gold"
+            : armed ? $"Drop {junk.Count}? Click again" : $"Drop junk ({junk.Count})", pointer, small, armed);
         canvas.DrawText($"{gear.Gold} gold", Bounds.Right - 20, _bagTop - 8, SKTextAlign.Right, font, gold);
         for (var i = 0; i < Equipment.BagSize; i++)
         {
@@ -195,7 +273,9 @@ internal sealed class InventoryPanel
             if (gear.Bag[i] is { } item)
             {
                 _drawIcon(canvas, item.Definition, SKRect.Inflate(rect, -2, -2));
+                Judgement(canvas, rect, VerdictFor(world, item));
                 RarityFrame(canvas, rect, item.Rarity);
+                MarkCorner(canvas, rect, item.Mark);
                 if (item.Count > 1)
                     StackCount(canvas, rect, item.Count, small);
             }
@@ -210,8 +290,9 @@ internal sealed class InventoryPanel
         }
         var trading = world.OpenVendor is not null;
         canvas.DrawText(Bench is not null ? "Bag: left-click wear      Worn: left-click take off      Either: right-click to the bench"
-            : trading ? "Bag: left-click wear · right-click sell      Worn: left-click take off"
-            : "Bag: left-click wear · right-click drop      Worn: left-click take off", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
+            : trading ? "Left-click wear · right-click sell · Ctrl-click junk/lock · drag to move or sell"
+            : world.StashOpen ? "Left-click wear · right-click stash · Ctrl-click junk/lock · drag to move or stash"
+            : "Left-click wear · right-click drop · Ctrl-click junk/lock · drag to move or drop", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
 
         // Tooltip, outside the panel so it never covers the slots being compared.
         if (pointer is { } p)
@@ -227,6 +308,67 @@ internal sealed class InventoryPanel
                 Tooltip(canvas, size, p, wornItem, null, $"Worn · {s}", gear.PreviewUnequip(s), "If you take it off:", Bounds);
             }
         }
+    }
+
+    /// <summary>A bag cell's verdict: a red wash over gear the class can't use well, a green ▲ for an upgrade, a red ▼ for a downgrade.</summary>
+    public static void Judgement(SKCanvas canvas, SKRect rect, ItemVerdict verdict)
+    {
+        if (verdict.Fit == ItemFit.PoorFit)
+        {
+            using var wash = new SKPaint { Color = new SKColor(150, 20, 15, 95) };
+            canvas.DrawRect(rect, wash);
+            return;
+        }
+        if (verdict.Comparison is not (ItemComparison.Better or ItemComparison.Worse))
+            return;
+        var up = verdict.Comparison == ItemComparison.Better;
+        var r = Math.Max(4f, rect.Width * 0.14f);
+        var (cx, cy) = (rect.Right - r - 3, rect.Top + r + 3);
+        using var path = new SKPath();
+        if (up)
+        {
+            path.MoveTo(cx, cy - r);
+            path.LineTo(cx + r, cy + r * 0.7f);
+            path.LineTo(cx - r, cy + r * 0.7f);
+        }
+        else
+        {
+            path.MoveTo(cx, cy + r);
+            path.LineTo(cx + r, cy - r * 0.7f);
+            path.LineTo(cx - r, cy - r * 0.7f);
+        }
+        path.Close();
+        using var fill = new SKPaint { IsAntialias = true, Color = up ? Better : Worse };
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.2f, Color = SKColors.Black.WithAlpha(200) };
+        canvas.DrawPath(path, fill);
+        canvas.DrawPath(path, edge);
+    }
+
+    /// <summary>A player's mark: a dull red corner for junk, a gold one for locked.</summary>
+    public static void MarkCorner(SKCanvas canvas, SKRect rect, ItemMark mark)
+    {
+        if (mark == ItemMark.None)
+            return;
+        var r = Math.Max(7f, rect.Width * 0.3f);
+        using var path = new SKPath();
+        path.MoveTo(rect.Left, rect.Bottom);
+        path.LineTo(rect.Left, rect.Bottom - r);
+        path.LineTo(rect.Left + r, rect.Bottom);
+        path.Close();
+        using var paint = new SKPaint { IsAntialias = true, Color = mark == ItemMark.Junk ? new SKColor(170, 45, 35, 230) : new SKColor(225, 185, 80, 235) };
+        canvas.DrawPath(path, paint);
+    }
+
+    /// <summary>A small text button; <paramref name="hot"/> draws it lit (a confirmation waiting).</summary>
+    public static void Button(SKCanvas canvas, SKRect rect, string label, SKPoint? pointer, SKFont font, bool hot)
+    {
+        var over = pointer is { } p && rect.Contains(p);
+        using var back = new SKPaint { Color = hot ? new SKColor(110, 40, 30, 240) : over ? new SKColor(60, 40, 34, 240) : new SKColor(34, 26, 22, 240) };
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1, Color = over || hot ? Palette.Frame : new SKColor(70, 58, 46) };
+        using var ink = new SKPaint { IsAntialias = true, Color = over || hot ? Palette.Gold : Palette.Ink };
+        canvas.DrawRect(rect, back);
+        canvas.DrawRect(rect, edge);
+        canvas.DrawText(label, rect.MidX, rect.MidY + 4, SKTextAlign.Center, font, ink);
     }
 
     /// <summary>How many are in a stack, in the cell's bottom-right corner.</summary>
@@ -354,5 +496,30 @@ internal sealed class InventoryPanel
             }
             line += 16;
         }
+    }
+}
+
+/// <summary>
+/// Items' verdicts for the hero (<see cref="GameWorld.Judge"/>), worked out again only when the worn gear, the bag or the
+/// level changes: judging compares stats by trying the item on, too much to do for every cell every frame.
+/// </summary>
+internal sealed class VerdictCache
+{
+    private readonly Dictionary<Item, ItemVerdict> _verdicts = [];
+    private int _key = int.MinValue;
+
+    public ItemVerdict For(GameWorld world, Item item)
+    {
+        var gear = world.Hero.Equipment;
+        var key = HashCode.Combine(gear.BagVersion, world.Hero.Character.Level,
+            gear.Worn.Aggregate(0, (h, kv) => HashCode.Combine(h, kv.Key, kv.Value.Id)));
+        if (key != _key)
+        {
+            _verdicts.Clear();
+            _key = key;
+        }
+        if (!_verdicts.TryGetValue(item, out var verdict))
+            _verdicts[item] = verdict = world.Judge(item);
+        return verdict;
     }
 }

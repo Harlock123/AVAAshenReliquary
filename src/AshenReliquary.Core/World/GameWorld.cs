@@ -592,12 +592,17 @@ public sealed partial class GameWorld
         PlanPath(Hero, item.X, item.Y);
     }
 
-    /// <summary>Drops an item from the bag at the hero's feet.</summary>
+    /// <summary>Drops an item from the bag at the hero's feet (never a key or a locked item).</summary>
     public bool DropFromBag(int index)
     {
         if (Hero.Equipment.Bag[index] is { Definition.Category: ItemCategory.Key } kept)
         {
             Say($"You keep the {kept.Name}.");
+            return false;
+        }
+        if (Hero.Equipment.Bag[index] is { Mark: ItemMark.Locked } locked)
+        {
+            Say($"{locked.Name} is locked. Ctrl-click it to unlock it.");
             return false;
         }
         if (Hero.Equipment.TakeFromBag(index) is not { } item)
@@ -755,6 +760,11 @@ public sealed partial class GameWorld
         if (kept.Definition.Category == ItemCategory.Key)
         {
             Say($"You keep the {kept.Name}.");
+            return false;
+        }
+        if (kept.Mark == ItemMark.Locked)
+        {
+            Say($"{kept.Name} is locked. Ctrl-click it to unlock it.");
             return false;
         }
         if (OpenVendor is not { } vendor || Hero.Equipment.TakeFromBag(index) is not { } item)
@@ -1166,7 +1176,8 @@ public sealed partial class GameWorld
         {
             var near = hero.DistanceTo(g.X, g.Y);
             var wanted = hero.PickupTarget == g && near <= PickupRadius;
-            var magnet = g.Drop.Gold > 0 && near <= GoldMagnetRadius && Time - g.DroppedAt > 0.6;
+            // Gold and belt items (bombs, antidotes) are always wanted: walking over them picks them up.
+            var magnet = (g.Drop.Gold > 0 || g.Drop.Item is { Definition.IsBeltItem: true }) && near <= GoldMagnetRadius && Time - g.DroppedAt > 0.6;
             if (!wanted && !magnet)
                 continue;
             if (hero.PickupTarget == g)
@@ -1179,7 +1190,8 @@ public sealed partial class GameWorld
             {
                 if (!hero.Equipment.TryAdd(item))
                 {
-                    Say("Your bag is full.");
+                    if (wanted)
+                        Say("Your bag is full.");
                     continue;
                 }
                 Say($"Picked up {item.Name}.");

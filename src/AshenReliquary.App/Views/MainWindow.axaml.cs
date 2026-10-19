@@ -25,8 +25,10 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+        AddHandler(KeyUpEvent, OnKeyUp, RoutingStrategies.Tunnel);
         ResumeButton.Click += (_, _) => CloseMenu();
         SaveButton.Click += (_, _) => { SaveNow(); MenuNote.Text = "Saved."; };
+        SaveCopyButton.Click += (_, _) => { if (SaveCopy() is { } name) MenuNote.Text = $"Saved a copy: {name}."; };
         TitleButton.Click += (_, _) => { SaveNow(); ShowTitle(); };
         QuitGameButton.Click += (_, _) => Close();
         JustQuitButton.Click += (_, _) => { _quitWithoutSaving = true; Close(); };
@@ -42,8 +44,11 @@ public partial class MainWindow : Window
         EffectsSlider.Value = settings.Effects;
         MusicSlider.Value = settings.Music;
         AmbienceSlider.Value = settings.Ambience;
+        HideCommonLoot.IsChecked = settings.HideCommonLoot;
+        World.HideCommonLoot = settings.HideCommonLoot;
         foreach (var slider in new[] { MasterSlider, EffectsSlider, MusicSlider, AmbienceSlider })
-            slider.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) VolumesChanged(); };
+            slider.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) SettingsChanged(); };
+        HideCommonLoot.IsCheckedChanged += (_, _) => SettingsChanged();
     }
 
     private Services.AudioDirector _audio = new(new NullAudioEngine());
@@ -59,15 +64,24 @@ public partial class MainWindow : Window
         }
     }
 
-    private void VolumesChanged()
+    private void SettingsChanged()
     {
         var settings = new Services.Settings
         {
             Master = (float)MasterSlider.Value, Effects = (float)EffectsSlider.Value,
             Music = (float)MusicSlider.Value, Ambience = (float)AmbienceSlider.Value,
+            HideCommonLoot = HideCommonLoot.IsChecked == true,
         };
         Audio.Apply(settings);
+        World.HideCommonLoot = settings.HideCommonLoot;
         settings.Save();
+    }
+
+    /// <summary>Alt held shows every loot label, filtered or not.</summary>
+    private void OnKeyUp(object? sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.LeftAlt or Key.RightAlt)
+            World.ShowAllLoot = false;
     }
 
     public WorldView View => World;
@@ -149,11 +163,29 @@ public partial class MainWindow : Window
             return;
         try
         {
-            _session.Save(announce);
+            lock (World.Gate)
+                _session.Save(announce);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException)
         {
             _session.World.Announce($"Could not save: {e.Message}");
+        }
+    }
+
+    /// <summary>Saves a copy of the game (a snapshot of its own); returns its name, or null when there is no game or it failed.</summary>
+    public string? SaveCopy()
+    {
+        if (_session is null || !World.IsVisible)
+            return null;
+        try
+        {
+            lock (World.Gate)
+                return _session.SaveCopy();
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            _session.World.Announce($"Could not save a copy: {e.Message}");
+            return null;
         }
     }
 
@@ -186,6 +218,14 @@ public partial class MainWindow : Window
 
     public void Tick(TimeSpan elapsed)
     {
+        // The render thread draws the world under the same lock (WorldView.Gate).
+        lock (World.Gate)
+            Advance(elapsed);
+        World.InvalidateVisual();
+    }
+
+    private void Advance(TimeSpan elapsed)
+    {
         if (!Paused && _session is not null && World.IsVisible)
         {
             // A critical hit stops the world for a few frames and shakes the view: the blow lands with weight.
@@ -211,7 +251,6 @@ public partial class MainWindow : Window
             Audio.Update(_session.World, elapsed.TotalSeconds, Paused);
         else
             Audio.Title(elapsed.TotalSeconds);
-        World.InvalidateVisual();
     }
 
     protected override void OnOpened(EventArgs e)
@@ -233,6 +272,12 @@ public partial class MainWindow : Window
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
+        lock (World.Gate)
+            KeyDown(e);
+    }
+
+    private void KeyDown(KeyEventArgs e)
+    {
         if (!World.IsVisible || _session?.World is not { } world)
             return;
         if (e.Key == Key.Escape)
@@ -252,6 +297,9 @@ public partial class MainWindow : Window
             return;
         switch (e.Key)
         {
+            case Key.LeftAlt or Key.RightAlt:
+                World.ShowAllLoot = true;
+                break;
             case Key.Q or Key.H:
                 world.DrinkPotion();
                 break;
@@ -263,6 +311,9 @@ public partial class MainWindow : Window
                 break;
             case Key.F5:
                 SaveNow();
+                break;
+            case Key.F6:
+                SaveCopy();
                 break;
             case >= Key.D1 and <= Key.D9 when world.Dialogue is not null:
                 World.Answer((int)(e.Key - Key.D1));

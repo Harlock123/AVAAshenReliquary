@@ -39,6 +39,17 @@ public sealed class Item
     /// <summary>How many are stacked in this one (consumables; 1 for everything else).</summary>
     public int Count { get; internal set; }
 
+    /// <summary>The player's mark: junk (to drop or sell in one go) or locked (never sold or dropped). Saved.</summary>
+    public ItemMark Mark { get; set; }
+
+    /// <summary>Junk, then locked, then unmarked (a Ctrl-click in the bag).</summary>
+    public void CycleMark() => Mark = Mark switch
+    {
+        ItemMark.None => ItemMark.Junk,
+        ItemMark.Junk => ItemMark.Locked,
+        _ => ItemMark.None,
+    };
+
     /// <summary>A rare's rolled name, or else the base's name with its runes and (uncommon) affixes.</summary>
     public string Name => _name ?? DefaultName();
 
@@ -86,6 +97,10 @@ public sealed class Item
     public IEnumerable<string> Describe()
     {
         var d = Definition;
+        if (Mark == ItemMark.Junk)
+            yield return "Marked as junk: Drop junk or Sell junk takes it";
+        else if (Mark == ItemMark.Locked)
+            yield return "Locked: it can't be sold or dropped";
         if (d.Category == ItemCategory.Key)
         {
             yield return "Carried · kept, never sold";
@@ -137,4 +152,12 @@ public sealed class Item
         foreach (var affix in Affixes)
             yield return affix.Describe();
     }
+}
+
+/// <summary>A player's mark on an item in the bag.</summary>
+public enum ItemMark
+{
+    None,
+    Junk,
+    Locked,
 }

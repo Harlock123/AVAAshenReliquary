@@ -18,7 +18,10 @@
         <StackPanel>
           <TextBlock Text="Paused" FontSize="24" Foreground="#F0C860" HorizontalAlignment="Center" Margin="0,0,0,12" />
           <Button x:Name="ResumeButton" Content="Resume" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
-          <Button x:Name="SaveButton" Content="Save game" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
+          <Button x:Name="SaveButton" Content="Save game" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7"
+                  ToolTip.Tip="Save over this character's save (F5)." />
+          <Button x:Name="SaveCopyButton" Content="Save a copy" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7"
+                  ToolTip.Tip="Keep a snapshot of the game as it is now, as a save of its own on the title screen, numbered: Elirk-2, Elirk-3 (F6). Your game still saves to its own file." />
           <Button x:Name="TitleButton" Content="Save and return to title" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
           <Button x:Name="QuitGameButton" Content="Save and quit" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
           <Button x:Name="JustQuitButton" Content="Just quit (don't save)" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7"
@@ -35,6 +38,8 @@
             <Slider Grid.Row="3" Grid.Column="1" x:Name="AmbienceSlider" Minimum="0" Maximum="1" />
           </Grid>
           <TextBlock x:Name="SoundNote" Foreground="#E8695E" FontSize="11" TextWrapping="Wrap" MaxWidth="260" />
+          <TextBlock Text="Loot" FontSize="15" Foreground="#F0C860" Margin="0,14,0,2" />
+          <CheckBox x:Name="HideCommonLoot" Content="Hide common gear on the ground (hold Alt to see it)" Foreground="#C8BCA4" />
           <TextBlock x:Name="MenuNote" Foreground="#A59B87" FontSize="12" HorizontalAlignment="Center" Margin="0,10,0,0" />
         </StackPanel>
       </Border>

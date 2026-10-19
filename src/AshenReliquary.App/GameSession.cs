@@ -25,6 +25,11 @@ public sealed class GameSession
     /// <summary>This character's save file name (Services/SaveStore).</summary>
     public string SaveId { get; private init; } = "";
 
+    /// <summary>Set when this game was loaded from a saved copy: its number (or older label), kept on every save over it.</summary>
+    public int? CopyNumber { get; private init; }
+    public string? Label { get; private init; }
+    public string? CopyOf { get; private init; }
+
     /// <summary>The seed the game started from (saved, so loot and spawns stay reproducible).</summary>
     public int Seed { get; private init; }
 
@@ -36,9 +41,26 @@ public sealed class GameSession
     /// <summary>Writes this game to its save file and says so on screen.</summary>
     public void Save(bool announce = true)
     {
-        Services.SaveStore.Write(SaveGame.Capture(World, SaveId, Seed, PortraitId, PlaySeconds));
+        Services.SaveStore.Write(SaveGame.Capture(World, SaveId, Seed, PortraitId, PlaySeconds, Label, CopyOf, CopyNumber));
         if (announce)
             World.Announce("Game saved.");
+    }
+
+    /// <summary>
+    /// Saves a copy of the game as it is now, as a save of its own (a snapshot to go back to), numbered after the
+    /// character's copies so far: Elirk-2, then Elirk-3. This game carries on saving over its own file. Returns the
+    /// copy's name.
+    /// </summary>
+    public string SaveCopy()
+    {
+        // A copy of a copy is numbered among the character's own copies, not a chain of copies.
+        var original = CopyOf ?? SaveId;
+        var number = Services.SaveStore.NextCopyNumber(original);
+        Services.SaveStore.Write(SaveGame.Capture(World, Services.SaveStore.CopyId(original, number), Seed, PortraitId, PlaySeconds,
+            copyOf: original, copyNumber: number));
+        var name = $"{World.Hero.Character.Name}-{number}";
+        World.Announce($"Saved a copy: {name}. Your game still saves to its own file.");
+        return name;
     }
 
     /// <summary>A game rebuilt from a save.</summary>
@@ -50,6 +72,9 @@ public sealed class GameSession
             PortraitId = save.PortraitId,
             SaveId = save.SaveId,
             Seed = save.Seed,
+            Label = save.Label,
+            CopyOf = save.CopyOf,
+            CopyNumber = save.CopyNumber,
         };
         session.PlaySeconds = save.PlaySeconds;
         session.HookAutosave();

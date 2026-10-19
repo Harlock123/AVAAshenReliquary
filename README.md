@@ -37,8 +37,14 @@ monster for your right-mouse ability, **1** to **6** use the other bar slots on 
 2), **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
-items (right-click bag items to stash them), **J** the journal, **L** the level-up screen (when a level is waiting), **Shift** steps
-(a quick dodge toward the pointer), **F5** saves,
+items (right-click bag items to stash them), **J** the journal, in the bag **Sort** orders it for your class (a green ▲ marks an upgrade, a red ▼ a downgrade, red
+tint gear your class can't use well), **Ctrl-click** marks an item junk then locked, **Drop junk** / **Sell junk** clears
+the junk in one go, **Shift-click** sends an item to the open stash or trader, and items can be dragged between the bag,
+your gear, the stash, a trader's table and the ground; **Alt** shows every loot label when the menu's loot filter hides
+common gear, **L** the level-up screen (when a level is waiting), **Shift** steps
+(a quick dodge toward the pointer), **F5** saves (over your character's save), **F6** saves a copy (a snapshot that
+shows on the title screen as a save of its own, numbered: Elirk-2, Elirk-3; Save a copy in the Escape menu does the
+same),
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** pauses, the mouse wheel zooms, **F3** shows the frame rate, render timings and the GPU's texture cache. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,

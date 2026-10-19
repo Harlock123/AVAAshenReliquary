@@ -13,7 +13,7 @@ namespace AshenReliquary.Core.Saving;
 /// consumables) how many; older saves have no count, which reads as one.
 /// </summary>
 public sealed record SavedItem(string Base, Rarity Rarity, int ItemLevel, int Potency, int Striking, int Resilient,
-    IReadOnlyList<SavedAffix> Affixes, string? Name, int Count = 1);
+    IReadOnlyList<SavedAffix> Affixes, string? Name, int Count = 1, ItemMark Mark = ItemMark.None);
 
 public sealed record SavedAffix(string Id, int Value);
 
@@ -40,6 +40,15 @@ public sealed record SaveGame
     public string SaveId { get; init; } = "";
     public DateTimeOffset SavedAt { get; init; }
     public string? PortraitId { get; init; }
+
+    /// <summary>
+    /// A saved copy (a snapshot): its number among the character's copies (Elirk-2, Elirk-3: the character's own save is
+    /// the first) and the save it was copied from. Null for a character's own save; a copy, once loaded, is a game of its
+    /// own that saves over itself. <see cref="Label"/> is the older copies' "copy, 18 Oct 20:45".
+    /// </summary>
+    public int? CopyNumber { get; init; }
+    public string? Label { get; init; }
+    public string? CopyOf { get; init; }
 
     // The character.
     public required CharacterChoices Choices { get; init; }
@@ -119,7 +128,8 @@ public sealed record SaveGame
     // ----- Capture ------------------------------------------------------------------------
 
     /// <summary>Records a game in progress.</summary>
-    public static SaveGame Capture(GameWorld world, string saveId, int seed, string? portraitId, double playSeconds = 0)
+    public static SaveGame Capture(GameWorld world, string saveId, int seed, string? portraitId, double playSeconds = 0,
+        string? label = null, string? copyOf = null, int? copyNumber = null)
     {
         var hero = world.Hero;
         var c = hero.Character;
@@ -129,6 +139,9 @@ public sealed record SaveGame
             SaveId = saveId,
             SavedAt = DateTimeOffset.Now,
             PortraitId = portraitId,
+            Label = label,
+            CopyOf = copyOf,
+            CopyNumber = copyNumber,
             Choices = c.Choices ?? throw new InvalidOperationException("Only characters made by CharacterBuilder can be saved."),
             LevelUpBoosts = c.LevelUpBoosts.ToDictionary(kv => kv.Key, kv => kv.Value),
             LevelChoices = c.LevelChoices.ToDictionary(kv => kv.Key, kv => kv.Value),
@@ -174,7 +187,7 @@ public sealed record SaveGame
 
     private static SavedItem Save(Item item) => new(item.Definition.Id, item.Rarity, item.ItemLevel, item.Potency, item.Striking,
         item.Resilient, item.Affixes.Select(a => new SavedAffix(a.Definition.Id, a.Value)).ToList(),
-        item.Rarity == Rarity.Rare ? item.Name : null, item.Count);
+        item.Rarity == Rarity.Rare ? item.Name : null, item.Count, item.Mark);
 
     // ----- Restore ------------------------------------------------------------------------
 
@@ -253,6 +266,6 @@ public sealed record SaveGame
             .OfType<AffixRoll>()
             .ToList();
         return new Item(content.Item(saved.Base), saved.Rarity, saved.ItemLevel, affixes, saved.Potency, saved.Striking, saved.Resilient, saved.Name,
-            Math.Max(1, saved.Count));
+            Math.Max(1, saved.Count)) { Mark = saved.Mark };
     }
 }

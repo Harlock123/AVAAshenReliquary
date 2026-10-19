@@ -14,7 +14,10 @@ public sealed class SaveEntry(SaveGame save)
     private static readonly ContentDatabase Content = ContentDatabase.Embedded;
 
     public SaveGame Save { get; } = save;
-    public string Name => Save.Choices.Name;
+
+    /// <summary>The character's name, and a saved copy's number ("Elirk-2"; an older copy, when it was taken).</summary>
+    public string Name => Save.CopyNumber is { } number ? $"{Save.Choices.Name}-{number}"
+        : Save.Label is { } label ? $"{Save.Choices.Name} · {label}" : Save.Choices.Name;
 
     public string Detail
     {

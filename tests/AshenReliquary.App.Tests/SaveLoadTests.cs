@@ -41,6 +41,57 @@ public class SaveLoadTests
     }
 
     [AvaloniaFact]
+    public void A_saved_copy_is_a_numbered_save_of_its_own_and_the_game_keeps_saving_to_the_original()
+    {
+        FreshSaves();
+        var window = new MainWindow { Width = 1288, Height = 770, Session = GameSession.NewGame("fighter", 5) };
+        window.Show();
+        Pump();
+        var session = window.Session!;
+        var world = session.World;
+        var name = world.Hero.Character.Name;
+        window.SaveNow(announce: false);
+        world.Hero.Equipment.AddGold(50);
+
+        // F6: the first copy is the character's second save, with 50 gold, beside the original.
+        window.KeyPress(Key.F6, RawInputModifiers.None, PhysicalKey.F6, null);
+        Pump();
+        var saves = SaveStore.List();
+        Assert.Equal(2, saves.Count);
+        var copy = saves.Single(s => s.CopyOf is not null);
+        var original = saves.Single(s => s.CopyOf is null);
+        Assert.Equal(session.SaveId, copy.CopyOf);
+        Assert.Equal(2, copy.CopyNumber);
+        Assert.Equal($"{session.SaveId}-2", copy.SaveId);
+        Assert.Equal(50, copy.Gold);
+        Assert.Equal(0, original.Gold);
+
+        // Playing on saves over the original, never the copy; the next copy is number 3.
+        world.Hero.Equipment.AddGold(25);
+        window.SaveNow(announce: false);
+        Assert.Equal(75, SaveStore.List().Single(s => s.SaveId == session.SaveId).Gold);
+        Assert.Equal(50, SaveStore.List().Single(s => s.CopyNumber == 2).Gold);
+        Assert.Equal($"{name}-3", window.SaveCopy());
+
+        // On the title screen the copies are named by number; a loaded copy saves over itself.
+        var title = new ViewModels.TitleViewModel();
+        Assert.Equal(new[] { name, $"{name}-2", $"{name}-3" }, title.Saves.Select(e => e.Name).Order());
+        var resumed = GameSession.FromSave(copy);
+        Assert.Equal(copy.SaveId, resumed.SaveId);
+        resumed.World.Hero.Equipment.AddGold(5);
+        resumed.Save(announce: false);
+        var after = SaveStore.List().Single(s => s.SaveId == copy.SaveId);
+        Assert.Equal(55, after.Gold);
+        Assert.Equal(2, after.CopyNumber);
+
+        // A copy of the copy takes the character's next number.
+        Assert.Equal($"{name}-4", resumed.SaveCopy());
+        var fourth = SaveStore.List().Single(s => s.CopyNumber == 4);
+        Assert.Equal(session.SaveId, fourth.CopyOf);
+        Assert.Equal($"{session.SaveId}-4", fourth.SaveId);
+    }
+
+    [AvaloniaFact]
     public void With_no_saves_the_game_opens_at_character_creation()
     {
         FreshSaves();

@@ -55,6 +55,16 @@ public static class SaveStore
             File.Delete(path);
     }
 
+    /// <summary>
+    /// The number for the next copy of save <paramref name="original"/>: one more than the highest its copies have, or 2
+    /// for the first (the character's own save counts as the first).
+    /// </summary>
+    public static int NextCopyNumber(string original) =>
+        List().Where(s => s.CopyOf == original).Select(s => s.CopyNumber ?? 1).DefaultIfEmpty(1).Max() + 1;
+
+    /// <summary>The file name for copy <paramref name="number"/> of save <paramref name="original"/>: "elirk-499135-2".</summary>
+    public static string CopyId(string original, int number) => $"{original}-{number}";
+
     /// <summary>A file name for a new character: its name made safe, plus a short unique suffix.</summary>
     public static string NewSaveId(string name)
     {

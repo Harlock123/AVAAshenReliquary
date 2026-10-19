@@ -44,7 +44,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   Wenna's `supplies`), the Hasted, Shielded and Tainted affixes and the Taint meter's whispers (`GameWorld.Affixes.cs`),
   the optional Prior's Ossuary under the chapel (`tools/prior_ossuary_mapgen.py`, Prior Aldous: `named`, `rareDrop`),
   Flare's sounds for chests, bombs, wards and the crawler/cultist/crone voices, a third orc portrait. The bots and
-  `--battle` share `World/Tactics.cs`. Left for M2:
+  `--battle` share `World/Tactics.cs`. Then the bag: Sort and the upgrade/downgrade arrows and poor-fit tint
+  (`Items/ItemJudge.cs`, `GameWorld.Bag.cs`, cached by `VerdictCache`), junk and lock marks (saved), Drop/Sell junk,
+  drag and drop (`WorldView`'s `DragState`), Shift-click to the stash or trader, belt items picked up like gold, and the
+  loot filter (a setting; Alt shows all). Left for M2:
   the user's own play-through of Act 1 (they asked to do it once more of the game exists), then whatever it shows.
   `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
@@ -68,7 +71,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   Development moved here from an aarch64 Omarchy VM. The game uses the GPU renderer; **F3** shows fps, where the
   frame time goes (the world's update too) and the GPU texture cache against its budget (512 MB, set in `Program.cs`;
   Avalonia's default of ~28 MB thrashed), and `WorldView.WorldRenderScale` is the quality/speed knob. `SpriteCache`
-  keeps frames per scale: never let a draw at a new scale empty it (that once took Fens fights to ~7 fps).
+  keeps frames per scale: never let a draw at a new scale empty it (that once took Fens fights to ~7 fps). The world
+  view is drawn on Avalonia's render thread: anything on the UI thread that touches the world (ticks, input, saving)
+  holds `WorldView.Gate`, as the draw does; a race there froze the picture once.
 - **.NET SDK:** `global.json` asks for 10.0.400+, and Arch's source-built `dotnet-sdk` is stuck in the 10.0.1xx band,
   so SDK 10.0.402 comes from mise (`mise use -g dotnet@10.0.402`). Plain `dotnet build` in the repo uses it.
 - **Seeing the real window:** `hyprctl dispatch 'hl.dsp.send_shortcut({ mods = "", key = "F3", window = "class:AVAAshenReliquary" })'`

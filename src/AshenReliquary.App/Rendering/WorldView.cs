@@ -114,6 +114,12 @@ public sealed class WorldView : Control
 
     private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawItemIcon);
 
+    /// <summary>Where the inventory's buttons and worn slots and the stash's cells are on screen (tests click them).</summary>
+    public Point SortButtonAt => Inventory.SortCentre is var c ? new Point(c.X, c.Y) : default;
+    public Point JunkButtonAt => Inventory.JunkCentre is var c ? new Point(c.X, c.Y) : default;
+    public Point WornSlot(Core.Items.EquipSlot slot) => Inventory.SlotCentre(slot) is var c ? new Point(c.X, c.Y) : default;
+    public Point StashCell(int index) => StashView.CellCentre(index) is var c ? new Point(c.X, c.Y) : default;
+
     /// <summary>Where bag cell <paramref name="index"/> is on screen while the inventory is open (tests click it).</summary>
     public Point BagCell(int index) => Inventory.BagCellCentre(index) is var c ? new Point(c.X, c.Y) : default;
 
@@ -245,7 +251,20 @@ public sealed class WorldView : Control
 
     // ----- Input ---------------------------------------------------------------------------
 
+    /// <summary>
+    /// What the render thread and the UI thread both hold while they touch the world: Avalonia draws this view on its
+    /// own thread, while the game ticks, takes input and saves on the UI thread. Without it a frame could read the world
+    /// mid-change, and the bag's verdicts, which try items on to compare them, could clash with a click on the same gear.
+    /// </summary>
+    public object Gate { get; } = new();
+
     protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        lock (Gate)
+            PointerPressed(e);
+    }
+
+    private void PointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
         Focus();
@@ -274,6 +293,16 @@ public sealed class WorldView : Control
             InvalidateVisual();
             return;
         }
+        var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
+        Inventory.Bench = BenchFor(world);
+        if (props.IsLeftButtonPressed && !ctrl && !shift && DragSource(sp, world) is { } drag)
+        {
+            // Pressed on an item: a click (on release, where it stays) or a drag (once it moves).
+            _drag = drag;
+            e.Handled = true;
+            return;
+        }
         if (world.StashOpen && props.IsLeftButtonPressed && StashView.Click(sp, world))
         {
             e.Handled = true;
@@ -292,8 +321,7 @@ public sealed class WorldView : Control
             InvalidateVisual();
             return;
         }
-        Inventory.Bench = BenchFor(world);
-        if (InventoryOpen && Inventory.Click(sp, props.IsRightButtonPressed, world))
+        if (InventoryOpen && Inventory.Click(sp, props.IsRightButtonPressed, world, ctrl, shift))
         {
             e.Handled = true;
             InvalidateVisual();
@@ -357,8 +385,16 @@ public sealed class WorldView : Control
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
+        lock (Gate)
+            PointerMoved(e);
+    }
+
+    private void PointerMoved(PointerEventArgs e)
+    {
         base.OnPointerMoved(e);
         _pointer = e.GetPosition(this);
+        if (_drag is { Moving: false } pending && Math.Abs(_pointer.Value.X - pending.Start.X) + Math.Abs(_pointer.Value.Y - pending.Start.Y) > DragThreshold)
+            pending.Moving = true;
         if (_holding && World is { } world && world.Time - _lastHoldMove > 0.12)
         {
             var (x, y) = ToMap(_pointer.Value);
@@ -369,8 +405,143 @@ public sealed class WorldView : Control
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
+        lock (Gate)
+            PointerReleased(e);
+    }
+
+    private void PointerReleased(PointerReleasedEventArgs e)
+    {
         base.OnPointerReleased(e);
         _holding = false;
+        if (_drag is not { } drag || World is not { } world)
+            return;
+        _drag = null;
+        var p = e.GetPosition(this);
+        var at = new SKPoint((float)p.X, (float)p.Y);
+        if (!drag.Moving)
+        {
+            // It stayed put: the click it always was.
+            var start = new SKPoint((float)drag.Start.X, (float)drag.Start.Y);
+            if (drag.From == DragFrom.Stash)
+                StashView.Click(start, world);
+            else
+                Inventory.Click(start, false, world);
+        }
+        else
+        {
+            DropDragged(drag, at, world);
+        }
+        e.Handled = true;
+        InvalidateVisual();
+    }
+
+    // ----- Dragging items ---------------------------------------------------------------------
+
+    /// <summary>How far the pointer moves (logical pixels) before a press on an item becomes a drag.</summary>
+    public const double DragThreshold = 6;
+
+    private enum DragFrom { Bag, Worn, Stash }
+
+    private sealed class DragState(DragFrom from, int index, Core.Items.EquipSlot slot, Core.Items.Item item, Point start)
+    {
+        public DragFrom From { get; } = from;
+        public int Index { get; } = index;
+        public Core.Items.EquipSlot Slot { get; } = slot;
+        public Core.Items.Item Item { get; } = item;
+        public Point Start { get; } = start;
+        public bool Moving { get; set; }
+    }
+
+    private DragState? _drag;
+
+    /// <summary>True while an item is being dragged (tests and the tooltip).</summary>
+    public bool Dragging => _drag is { Moving: true };
+
+    /// <summary>The item under a press that can be picked up: in the open stash, the bag, or a worn slot.</summary>
+    private DragState? DragSource(SKPoint p, GameWorld world)
+    {
+        var start = new Point(p.X, p.Y);
+        if (world.StashOpen && StashView.Bounds.Contains(p) && StashView.CellAt(p) is { } cell && world.Stash.Slots[cell] is { } stashed)
+            return new DragState(DragFrom.Stash, cell, default, stashed, start);
+        if (!InventoryOpen || !Inventory.Bounds.Contains(p))
+            return null;
+        var gear = world.Hero.Equipment;
+        return Inventory.HitTest(p) switch
+        {
+            (null, { } bag) when gear.Bag[bag] is { } item => new DragState(DragFrom.Bag, bag, default, item, start),
+            ({ } slot, null) when gear.In(slot) is { } worn => new DragState(DragFrom.Worn, -1, slot, worn, start),
+            _ => null,
+        };
+    }
+
+    /// <summary>
+    /// Where a dragged item lands: a bag cell (moved, stacked or swapped; taken off; taken from the stash), a worn slot it
+    /// fits (worn), a stash slot (stashed), the trader's table (sold), or the world outside every panel (dropped).
+    /// </summary>
+    private void DropDragged(DragState drag, SKPoint at, GameWorld world)
+    {
+        var gear = world.Hero.Equipment;
+        if (InventoryOpen && Inventory.Bounds.Contains(at))
+        {
+            switch (Inventory.HitTest(at), drag.From)
+            {
+                case ((null, { } bag), DragFrom.Bag):
+                    gear.Move(drag.Index, bag);
+                    break;
+                case ((null, { } bag), DragFrom.Worn):
+                    if (!gear.UnequipTo(drag.Slot, bag))
+                        gear.Unequip(drag.Slot);
+                    break;
+                case ((null, { } bag), DragFrom.Stash):
+                    if (!world.RetrieveAt(drag.Index, bag))
+                        world.Retrieve(drag.Index);
+                    break;
+                case (({ } slot, null), DragFrom.Bag):
+                    if (!gear.EquipFromBag(drag.Index, slot))
+                        world.Announce($"{drag.Item.Name} doesn't go there.");
+                    break;
+            }
+            return;
+        }
+        if (world.StashOpen && StashView.Bounds.Contains(at))
+        {
+            if (StashView.CellAt(at) is { } cell)
+            {
+                if (drag.From == DragFrom.Bag && !world.StoreAt(drag.Index, cell))
+                    world.Store(drag.Index);
+                else if (drag.From == DragFrom.Stash)
+                    world.Stash.Move(drag.Index, cell);
+            }
+            else if (drag.From == DragFrom.Bag)
+            {
+                world.Store(drag.Index);
+            }
+            return;
+        }
+        if (world.OpenVendor is not null && Trade.Bounds.Contains(at))
+        {
+            if (drag.From == DragFrom.Bag)
+                world.Sell(drag.Index);
+            return;
+        }
+        if (HudLayer.Contains(at) || (LevelUpOpen && _levelUp.Bounds.Contains(at)) || (JournalOpen && _journal.Bounds.Contains(at)))
+            return;
+        // Out of every panel, onto the ground.
+        if (drag.From == DragFrom.Bag)
+            world.DropFromBag(drag.Index);
+        else if (drag.From == DragFrom.Worn)
+            world.DropWorn(drag.Slot);
+    }
+
+    /// <summary>The dragged item, under the pointer.</summary>
+    private void DrawDragged(SKCanvas canvas)
+    {
+        if (_drag is not { Moving: true } drag || _pointer is not { } p)
+            return;
+        var rect = SKRect.Create((float)p.X - 22, (float)p.Y - 22, 44, 44);
+        using var shadow = new SKPaint { Color = new SKColor(0, 0, 0, 140) };
+        canvas.DrawRect(SKRect.Inflate(rect, 2, 2), shadow);
+        DrawItemIcon(canvas, drag.Item.Definition, rect);
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -518,7 +689,9 @@ public sealed class WorldView : Control
             try
             {
                 owner._gpuContext = api.GrContext;
-                owner.Draw(canvas, new SKSize((float)bounds.Width, (float)bounds.Height), gpu: api.GrContext is not null);
+                // Avalonia draws this on its render thread while the game runs on the UI thread: hold the world still.
+                lock (owner.Gate)
+                    owner.Draw(canvas, new SKSize((float)bounds.Width, (float)bounds.Height), gpu: api.GrContext is not null);
             }
             finally
             {
@@ -654,8 +827,9 @@ public sealed class WorldView : Control
             || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
             || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(over))
             || (LevelUpOpen && _levelUp.Bounds.Contains(over)));
-        if (!overPanel)
+        if (!overPanel && !Dragging)
             hud.DrawTooltip(canvas, size, pointer);
+        DrawDragged(canvas);
         Stats.Mark("text+hud");
 
         var now = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -1249,6 +1423,16 @@ public sealed class WorldView : Control
     }
 
     /// <summary>Name labels over loot, nudged upwards so they never overlap; clicking one picks the item up.</summary>
+    /// <summary>The loot filter (a setting): common gear on the ground shows no label and can't be clicked.</summary>
+    public bool HideCommonLoot { get; set; }
+
+    /// <summary>Alt held: every label shows, filtered or not.</summary>
+    public bool ShowAllLoot { get; set; }
+
+    /// <summary>Whether a ground item's label shows under the loot filter (gold, draughts and belt items always do).</summary>
+    public bool LabelShows(GroundItem g) =>
+        !HideCommonLoot || ShowAllLoot || g.Drop.Item is not { Rarity: Core.Items.Rarity.Common, Definition.IsBeltItem: false };
+
     private void DrawLootLabels(SKCanvas canvas, GameWorld world)
     {
         _lootLabels.Clear();
@@ -1259,7 +1443,7 @@ public sealed class WorldView : Control
         foreach (var g in world.GroundItems.OrderByDescending(g => g.X + g.Y))
         {
             var at = ToScreen(g.X, g.Y);
-            if (!_viewport.Contains(at))
+            if (!_viewport.Contains(at) || !LabelShows(g))
                 continue;
             var width = font.MeasureText(g.Label) + 12;
             var rect = SKRect.Create(at.X - width / 2, at.Y - 34 * (float)Zoom - 18, width, 18);

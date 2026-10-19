@@ -80,6 +80,38 @@ public sealed class Equipment
         return item;
     }
 
+    /// <summary>
+    /// Moves the item in bag cell <paramref name="from"/> to cell <paramref name="to"/>: into an empty cell, onto a
+    /// stack of the same consumable (as much as fits), or swapping with what is there. False when nothing moved.
+    /// </summary>
+    public bool Move(int from, int to)
+    {
+        if (from == to || from < 0 || to < 0 || from >= BagSize || to >= BagSize || _bag[from] is not { } item)
+            return false;
+        BagVersion++;
+        if (_bag[to] is { } there && there.Definition == item.Definition && item.Definition.Stack > 1 && there.Count < there.Definition.Stack)
+        {
+            var moved = Math.Min(item.Count, there.Definition.Stack - there.Count);
+            there.Count += moved;
+            item.Count -= moved;
+            if (item.Count == 0)
+                _bag[from] = null;
+            return true;
+        }
+        (_bag[from], _bag[to]) = (_bag[to], item);
+        return true;
+    }
+
+    /// <summary>Packs the bag into <paramref name="order"/>, the first item in the first cell, stacks topped up.</summary>
+    public void Sort(IComparer<Item> order)
+    {
+        var items = _bag.OfType<Item>().ToList();
+        Array.Clear(_bag);
+        BagVersion++;
+        foreach (var item in items.OrderBy(i => i, order))
+            TryAdd(item);
+    }
+
     /// <summary>How many of a consumable the bag holds, across its stacks.</summary>
     public int CountOf(ItemDefinition definition) => _bag.Where(i => i?.Definition == definition).Sum(i => i!.Count);
 
@@ -118,6 +150,36 @@ public sealed class Equipment
         _worn[target] = item;
         Refresh();
         return previous;
+    }
+
+    /// <summary>
+    /// Wears the item in bag cell <paramref name="index"/> in <paramref name="slot"/> (dragged onto it), when it goes
+    /// there: a ring in either ring slot, anything else only in its own.
+    /// </summary>
+    public bool EquipFromBag(int index, EquipSlot slot)
+    {
+        if (_bag[index] is not { Definition.Slot: { } own } item)
+            return false;
+        var fits = own == slot || (own is EquipSlot.Ring1 or EquipSlot.Ring2 && slot is EquipSlot.Ring1 or EquipSlot.Ring2);
+        if (!fits)
+            return false;
+        if (slot == SlotFor(item))
+            return EquipFromBag(index);
+        BagVersion++;
+        _bag[index] = Equip(item, slot);
+        return true;
+    }
+
+    /// <summary>Takes off the item in <paramref name="slot"/> into bag cell <paramref name="index"/>, if that cell is free.</summary>
+    public bool UnequipTo(EquipSlot slot, int index)
+    {
+        if (index < 0 || index >= BagSize || _bag[index] is not null || !_worn.TryGetValue(slot, out var item))
+            return false;
+        _worn.Remove(slot);
+        _bag[index] = item;
+        BagVersion++;
+        Refresh();
+        return true;
     }
 
     /// <summary>
