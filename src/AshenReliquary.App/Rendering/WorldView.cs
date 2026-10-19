@@ -139,7 +139,7 @@ public sealed class WorldView : Control
 
     /// <summary>While the smith's Runework tab is open, right-clicked gear goes on his bench.</summary>
     private Func<Item, bool>? BenchFor(GameWorld world) =>
-        world.OpenVendor is { Definition.Runework: true } && Trade.Runework ? item => Trade.PutOnBench(item, world) : null;
+        world.OpenVendor is { Definition.Runework: true } && (Trade.Runework || Trade.Crafting) ? item => Trade.PutOnBench(item, world) : null;
 
     /// <summary>Opens the level-up screen when a level (or the subclass) is waiting, closing any conversation that would cover it.</summary>
     public void OpenLevelUp()

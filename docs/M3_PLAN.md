@@ -139,7 +139,11 @@ rebuilt from feats and worn items whenever gear changes.
 - Loot beams in the tier's colour, a sound cue and a minimap ping for Unique and Set drops.
 - The Invested limit (10 items), the shoulders and cloak slots (no Flare art: icon only on the paper doll).
 
-### 8. Crafting
+### 8. Crafting — done 2026-10-19
+
+Built as below (spec section 16, "Crafting"): salvage, the four recipes, Pathfinder's level-based DCs, Garrow's fee,
+the Crafting tab. Learned on the way: a failure that kept the materials made retrying free, so the smith's small fee
+is paid on every attempt.
 
 Salvage gear at Garrow into **Ashen Dust** and **Rune Fragments**. Recipes known from the start or found: reroll an
 affix, add an affix to an Uncommon, raise a Common to Uncommon, craft a belt item. A Crafting check against a DC by

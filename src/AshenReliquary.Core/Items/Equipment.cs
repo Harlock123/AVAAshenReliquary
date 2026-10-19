@@ -28,6 +28,26 @@ public sealed class Equipment
     public IReadOnlyList<Item?> Bag => _bag;
     public int Gold { get; private set; }
 
+    /// <summary>Crafting materials, from salvage (see <see cref="Crafting"/>).</summary>
+    public int Dust { get; private set; }
+    public int Fragments { get; private set; }
+
+    public void AddMaterials(int dust, int fragments)
+    {
+        Dust += Math.Max(0, dust);
+        Fragments += Math.Max(0, fragments);
+    }
+
+    /// <summary>Spends materials; false (and nothing spent) when there aren't enough.</summary>
+    public bool TrySpendMaterials(int dust, int fragments)
+    {
+        if (dust > Dust || fragments > Fragments)
+            return false;
+        Dust -= dust;
+        Fragments -= fragments;
+        return true;
+    }
+
     /// <summary>Raised whenever what is worn changes (the paper doll redraws).</summary>
     public event Action? Changed;
 

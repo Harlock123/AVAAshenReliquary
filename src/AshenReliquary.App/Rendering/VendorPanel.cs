@@ -12,7 +12,9 @@ namespace AshenReliquary.App.Rendering;
 /// were paid). Left-click buys; right-click a bag
 /// item (in the inventory) sells it. Tooltips show the price and what wearing the item would change.
 /// A smith (<see cref="VendorDefinition.Runework"/>) adds a Runework tab: a bench with the item to work on and one to
-/// take runes from (right-click gear in the inventory to put it there), and a button for each rune he can etch or move.
+/// take runes from (right-click gear in the inventory to put it there), and a button for each rune he can etch or move;
+/// and a Crafting tab: the hero's Ashen Dust and Rune Fragments, a piece of gear on the forge to salvage or work (raise
+/// it, add or reroll an affix, each on a Crafting check), and belt items to brew.
 /// </summary>
 internal sealed class VendorPanel
 {
@@ -31,8 +33,15 @@ internal sealed class VendorPanel
     /// <summary>The Runework tab is showing (a smith only).</summary>
     public bool Runework { get; private set; }
 
-    /// <summary>What is on the bench, while the Runework tab shows.</summary>
-    public IReadOnlyCollection<Item> Benched => Runework ? new[] { _work, _donor }.OfType<Item>().ToArray() : [];
+    /// <summary>The Crafting tab is showing (a smith only).</summary>
+    public bool Crafting { get; private set; }
+
+    /// <summary>What is on the bench, while the Runework or Crafting tab shows.</summary>
+    public IReadOnlyCollection<Item> Benched => Runework ? new[] { _work, _donor }.OfType<Item>().ToArray()
+        : Crafting && _forged is not null ? [_forged] : [];
+
+    /// <summary>The item on the forge (the Crafting tab).</summary>
+    private Item? _forged;
 
     private Vendor? _vendor;
     private Item? _work, _donor;
@@ -40,6 +49,7 @@ internal sealed class VendorPanel
 
     private SKRect WaresTab => SKRect.Create(Bounds.Left + Pad, Bounds.Top + 58, 100, 26);
     private SKRect RuneworkTab => SKRect.Create(Bounds.Left + Pad + 106, Bounds.Top + 58, 100, 26);
+    private SKRect CraftingTab => SKRect.Create(Bounds.Left + Pad + 212, Bounds.Top + 58, 100, 26);
     private SKRect WorkCell => SKRect.Create(Bounds.Left + Pad, Bounds.Top + 128, 64, 64);
     private SKRect DonorCell => SKRect.Create(Bounds.Left + Pad + 210, Bounds.Top + 128, 64, 64);
 
@@ -49,6 +59,16 @@ internal sealed class VendorPanel
     /// </summary>
     public bool PutOnBench(Item item, GameWorld world)
     {
+        if (Crafting)
+        {
+            if (item.Definition.Slot is null)
+            {
+                world.Announce($"{world.OpenVendor?.Definition.Name ?? "The smith"}: \"Bring me gear to work.\"");
+                return false;
+            }
+            _forged = item;
+            return true;
+        }
         if (Runes.Kinds(item.Definition).Count == 0)
         {
             world.Announce($"{world.OpenVendor?.Definition.Name ?? "The smith"}: \"Only weapons and body armour take runes.\"");
@@ -115,9 +135,19 @@ internal sealed class VendorPanel
         if (world.OpenVendor is not { } vendor || !Bounds.Contains(p))
             return false;
         if (vendor.Definition.Runework && WaresTab.Contains(p))
-            Runework = false;
+            (Runework, Crafting) = (false, false);
         else if (vendor.Definition.Runework && RuneworkTab.Contains(p))
-            Runework = true;
+            (Runework, Crafting) = (true, false);
+        else if (vendor.Definition.Runework && CraftingTab.Contains(p))
+            (Runework, Crafting) = (false, true);
+        if (Crafting)
+        {
+            if (ForgeCell.Contains(p))
+                _forged = null;
+            else if (_buttons.FirstOrDefault(b => b.Rect.Contains(p)) is { Act: { } act })
+                act();
+            return true;
+        }
         if (Runework)
         {
             if (WorkCell.Contains(p))
@@ -147,8 +177,8 @@ internal sealed class VendorPanel
         if (vendor != _vendor)
         {
             _vendor = vendor;
-            Runework = false;
-            _work = _donor = null;
+            Runework = Crafting = false;
+            _work = _donor = _forged = null;
         }
         Layout(size, vendor);
         var c = world.Hero.Character;
@@ -178,8 +208,14 @@ internal sealed class VendorPanel
 
         if (vendor.Definition.Runework)
         {
-            Tab(canvas, WaresTab, "Wares", !Runework, pointer, font);
+            Tab(canvas, WaresTab, "Wares", !Runework && !Crafting, pointer, font);
             Tab(canvas, RuneworkTab, "Runework", Runework, pointer, font);
+            Tab(canvas, CraftingTab, "Crafting", Crafting, pointer, font);
+        }
+        if (Crafting)
+        {
+            DrawCrafting(canvas, size, world, pointer);
+            return;
         }
         if (Runework)
         {
@@ -390,6 +426,113 @@ internal sealed class VendorPanel
             if (hovered is not null)
                 InventoryPanel.Tooltip(canvas, size, at, hovered, null, "On the bench", null, avoid: Bounds);
         }
+    }
+
+    private SKRect ForgeCell => SKRect.Create(Bounds.Left + Pad, Bounds.Top + 150, 64, 64);
+
+    /// <summary>
+    /// The Crafting tab: the materials held, the piece on the forge with what salvaging it gives and the recipes that
+    /// can be worked on it (each with its DC, materials and fee, or why not), then belt items to brew.
+    /// </summary>
+    private void DrawCrafting(SKCanvas canvas, SKSize size, GameWorld world, SKPoint? pointer)
+    {
+        var c = world.Hero.Character;
+        var gear = world.Hero.Equipment;
+        if (_forged is not null && !world.Owns(_forged))
+            _forged = null;
+        _buttons.Clear();
+        using var ink = new SKPaint { IsAntialias = true, Color = Palette.Ink };
+        using var dim = new SKPaint { IsAntialias = true, Color = Palette.Dim };
+        using var gold = new SKPaint { IsAntialias = true, Color = Palette.Gold };
+        using var poor = new SKPaint { IsAntialias = true, Color = InventoryPanel.Worse };
+        using var dust = new SKPaint { IsAntialias = true, Color = new SKColor(200, 190, 170) };
+        using var cellBack = new SKPaint { Color = new SKColor(28, 23, 20, 240) };
+        using var faint = new SKPaint { IsAntialias = true, Color = new SKColor(55, 46, 38), Style = SKPaintStyle.Stroke, StrokeWidth = 1 };
+        using var font = new SKFont(WorldOverlay.Serif, 13);
+        using var small = new SKFont(WorldOverlay.Serif, 11);
+
+        var crafting = c.Skill("Crafting").Total;
+        canvas.DrawText($"Ashen Dust {gear.Dust}   ·   Rune Fragments {gear.Fragments}", Bounds.Left + Pad, Bounds.Top + 112, SKTextAlign.Left, font, dust);
+        canvas.DrawText($"Your Crafting {crafting:+0;-0;+0} ({c.SkillRank("Crafting")})", Bounds.Left + Pad, Bounds.Top + 128, SKTextAlign.Left, small, dim);
+
+        var cell = ForgeCell;
+        canvas.DrawRect(cell, cellBack);
+        canvas.DrawRect(cell, faint);
+        if (_forged is { } item)
+        {
+            _drawIcon(canvas, item.Definition, SKRect.Inflate(cell, -4, -4));
+            using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2, Color = Palette.Rarity(item.Rarity) };
+            canvas.DrawRect(cell, edge);
+            using var name = new SKPaint { IsAntialias = true, Color = Palette.Rarity(item.Rarity) };
+            canvas.DrawText(Fit(item.Name, font, Width - 2 * Pad - 80), cell.Right + 12, cell.Top + 18, SKTextAlign.Left, font, name);
+            canvas.DrawText($"item level {item.ItemLevel} · DC {Core.Items.Crafting.Dc(item.ItemLevel)}{(gear.Worn.Values.Contains(item) ? " · worn" : "")}",
+                cell.Right + 12, cell.Top + 34, SKTextAlign.Left, small, dim);
+            if (pointer is { } p && cell.Contains(p))
+                Outline(canvas, cell);
+        }
+        else
+        {
+            canvas.DrawText("empty", cell.MidX, cell.MidY + 4, SKTextAlign.Center, small, dim);
+            canvas.DrawText("Right-click a piece of gear to put it on the forge.", cell.Right + 12, cell.MidY + 4, SKTextAlign.Left, small, dim);
+        }
+
+        var y = cell.Bottom + 16;
+        void Button(string label, string? why, string cost, bool afford, Action act)
+        {
+            var rect = SKRect.Create(Bounds.Left + Pad, y, Width - 2 * Pad, 30);
+            var over = pointer is { } p && rect.Contains(p);
+            using var back = new SKPaint { Color = why is null && over ? new SKColor(60, 40, 34, 240) : new SKColor(34, 26, 22, 240) };
+            canvas.DrawRect(rect, back);
+            canvas.DrawRect(rect, faint);
+            canvas.DrawText(label, rect.Left + 12, rect.MidY + 5, SKTextAlign.Left, font, why is null ? ink : dim);
+            if (why is not null)
+                canvas.DrawText(Fit(why, small, rect.Width - font.MeasureText(label) - 40), rect.Right - 12, rect.MidY + 4, SKTextAlign.Right, small, dim);
+            else
+                canvas.DrawText(cost, rect.Right - 12, rect.MidY + 4, SKTextAlign.Right, small, afford ? gold : poor);
+            if (why is null)
+                _buttons.Add((rect, act));
+            y += 34;
+        }
+        string Cost(int d, int f, int g) => $"{d} dust{(f > 0 ? $", {f} frag." : "")}, {g} gold";
+        bool Affords((int Dust, int Fragments, int Gold) cost) => gear.Dust >= cost.Dust && gear.Fragments >= cost.Fragments && gear.Gold >= cost.Gold;
+
+        if (_forged is { } work)
+        {
+            var (gotDust, gotFragments) = Core.Items.Crafting.Salvage(work);
+            Button("Salvage it", Core.Items.Crafting.CannotSalvage(work) ?? (gear.Worn.Values.Contains(work) ? "Take it off first." : null),
+                $"+{gotDust} dust{(gotFragments > 0 ? $", +{gotFragments} frag." : "")}", true, () => world.Salvage(work));
+            foreach (var (recipe, label) in new[] { (CraftRecipe.Raise, "Raise to uncommon"), (CraftRecipe.AddAffix, "Add an affix") })
+            {
+                var r = recipe;
+                var cost = Core.Items.Crafting.Cost(recipe, work.ItemLevel);
+                Button(label, Core.Items.Crafting.CannotCraft(recipe, work), Cost(cost.Dust, cost.Fragments, cost.Gold), Affords(cost),
+                    () => world.Craft(r, work));
+            }
+            var reroll = Core.Items.Crafting.Cost(CraftRecipe.Reroll, work.ItemLevel);
+            if (Core.Items.Crafting.CannotCraft(CraftRecipe.Reroll, work) is { } noReroll)
+                Button("Reroll an affix", noReroll, "", false, () => { });
+            for (var i = 0; i < work.Affixes.Count && work.Definition is { IsSpecial: false }; i++)
+            {
+                var index = i;
+                Button($"Reroll: {Fit(work.Affixes[i].Describe(), font, 200)}", null, Cost(reroll.Dust, reroll.Fragments, reroll.Gold), Affords(reroll),
+                    () => world.Craft(CraftRecipe.Reroll, work, affix: index));
+            }
+        }
+
+        y += 10;
+        canvas.DrawText("Brew for the belt (two at a time)", Bounds.Left + Pad, y + 4, SKTextAlign.Left, font, ink);
+        y += 14;
+        foreach (var brew in world.Brewable)
+        {
+            var b = brew;
+            var cost = Core.Items.Crafting.Cost(CraftRecipe.Brew, brew.MinLevel);
+            Button($"{brew.Name} · DC {Core.Items.Crafting.Dc(Math.Max(1, brew.MinLevel))}", null, Cost(cost.Dust, cost.Fragments, cost.Gold), Affords(cost),
+                () => world.Craft(CraftRecipe.Brew, brew: b));
+        }
+
+        canvas.DrawText("Right-click gear to put it on the forge · a critical success adds an affix", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
+        if (pointer is { } at && cell.Contains(at) && _forged is not null)
+            InventoryPanel.Tooltip(canvas, size, at, _forged, null, "On the forge", null, avoid: Bounds, gear: gear);
     }
 
     private static string Fit(string text, SKFont font, float width)

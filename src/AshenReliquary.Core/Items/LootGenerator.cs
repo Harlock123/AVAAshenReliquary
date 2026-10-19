@@ -154,24 +154,30 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             _ => 0,
         };
         var rolled = new List<AffixRoll>();
-        var candidates = affixes.Where(a => a.Fits(definition, itemLevel)).ToList();
-        for (var i = 0; i < count && candidates.Count > 0; i++)
-        {
-            var prefixes = rolled.Count(r => r.Definition.Prefix);
-            var suffixes = rolled.Count - prefixes;
-            var max = rarity == Rarity.Uncommon ? 1 : 2;
-            var allowed = candidates.Where(a => (a.Prefix ? prefixes : suffixes) < max).ToList();
-            if (allowed.Count == 0)
-                break;
-            var affix = allowed[random.Roll(0, allowed.Count - 1)];
-            candidates.RemoveAll(a => a.Stat == affix.Stat && a.Resist == affix.Resist);
-            var low = (int)Math.Round(affix.Min + affix.PerLevel * itemLevel);
-            var high = (int)Math.Round(affix.Max + affix.PerLevel * itemLevel);
-            rolled.Add(new AffixRoll(affix, random.Roll(Math.Max(1, low), Math.Max(1, Math.Max(low, high)))));
-        }
+        for (var i = 0; i < count && RollAffix(definition, itemLevel, rarity, rolled, random) is { } affix; i++)
+            rolled.Add(affix);
 
         var name = rarity == Rarity.Rare ? RareName(definition, random) : null;
         return new Item(definition, rarity, itemLevel, rolled, potency, striking, resilient, name);
+    }
+
+    /// <summary>
+    /// One more affix for an item of this base, level and rarity beside the ones it has: never a second of the same
+    /// stat, at most one prefix and one suffix on an uncommon (two of each on a rare). Null when none fits.
+    /// </summary>
+    public AffixRoll? RollAffix(ItemDefinition definition, int itemLevel, Rarity rarity, IReadOnlyList<AffixRoll> existing, IRandomSource random)
+    {
+        var prefixes = existing.Count(r => r.Definition.Prefix);
+        var suffixes = existing.Count - prefixes;
+        var max = rarity == Rarity.Uncommon ? 1 : 2;
+        var allowed = affixes.Where(a => a.Fits(definition, itemLevel) && (a.Prefix ? prefixes : suffixes) < max
+            && !existing.Any(r => r.Definition.Stat == a.Stat && r.Definition.Resist == a.Resist)).ToList();
+        if (allowed.Count == 0)
+            return null;
+        var affix = allowed[random.Roll(0, allowed.Count - 1)];
+        var low = (int)Math.Round(affix.Min + affix.PerLevel * itemLevel);
+        var high = (int)Math.Round(affix.Max + affix.PerLevel * itemLevel);
+        return new AffixRoll(affix, random.Roll(Math.Max(1, low), Math.Max(1, Math.Max(low, high))));
     }
 
     /// <summary>

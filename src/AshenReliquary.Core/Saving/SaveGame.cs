@@ -112,6 +112,10 @@ public sealed record SaveGame
     /// <summary>The Necromancer's Grave Charges (its skeletons are not kept: they crumble when the game is left).</summary>
     public int GraveCharges { get; init; }
 
+    /// <summary>Crafting materials (0 in older saves).</summary>
+    public int Dust { get; init; }
+    public int Fragments { get; init; }
+
     /// <summary>A multiclass dedication's pool (a Fighter's Mana), or null without one.</summary>
     public double? DedicationResource { get; init; }
     public List<string> BarOffered { get; init; } = [];
@@ -195,6 +199,8 @@ public sealed record SaveGame
             BarOffered = world.BarOffered.ToList(),
             CompanionHitPoints = world.Companion?.Creature.HitPoints,
             GraveCharges = world.GraveCharges,
+            Dust = world.Hero.Equipment.Dust,
+            Fragments = world.Hero.Equipment.Fragments,
             DedicationResource = world.Hero.Dedication?.Current,
             PlaySeconds = playSeconds,
         };
@@ -268,6 +274,7 @@ public sealed record SaveGame
         if (CompanionHitPoints is { } companion)
             world.RestoreCompanion(companion);
         world.RestoreGraveCharges(GraveCharges);
+        world.Hero.Equipment.AddMaterials(Dust, Fragments);
         if (DedicationResource is { } pool)
             world.RestoreDedication(pool);
 

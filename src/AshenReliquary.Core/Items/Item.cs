@@ -29,9 +29,16 @@ public sealed class Item
 
     public int Id { get; } = Interlocked.Increment(ref _nextId);
     public ItemDefinition Definition { get; }
-    public Rarity Rarity { get; }
+    public Rarity Rarity { get; private set; }
     public int ItemLevel { get; }
-    public IReadOnlyList<AffixRoll> Affixes { get; }
+    public IReadOnlyList<AffixRoll> Affixes { get; private set; }
+
+    /// <summary>The forge's work: a new rarity and affixes (crafting; see <see cref="Crafting"/>).</summary>
+    internal void Reforge(Rarity rarity, IReadOnlyList<AffixRoll> affixes)
+    {
+        Rarity = rarity;
+        Affixes = affixes;
+    }
     public int Potency { get; private set; }
     public int Striking { get; private set; }
     public int Resilient { get; private set; }

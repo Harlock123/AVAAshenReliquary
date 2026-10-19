@@ -83,7 +83,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   resource, fed through `ClassResource.Partner`; `GameWorld.ResourceFor` picks the pool an ability is paid from). Step 7 done: Uniques (traits are feat `effects`
   on the item; `Character.RebuildEffects` reapplies feats and worn effects whenever gear changes), Sets (`sets.json`),
   the act drop shares (`LootGenerator.RarityShares`), the Invested limit (10; more lie `Dormant`), the shoulders and
-  cloak slots; `LootGenerator.Make` builds a hand-made item.
+  cloak slots; `LootGenerator.Make` builds a hand-made item. Step 8 done: crafting at Garrow's forge (`Items/Crafting.cs`,
+  `GameWorld.Crafting.cs`, the Crafting tab: salvage into Dust and Fragments, Raise / Add / Reroll / Brew on a Crafting
+  check against Pathfinder's level-based DC, `Item.Reforge`).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1331,6 +1331,30 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   either side of the panel now stay inside the window (they had been drawn off its right edge).
 - **The bots** wear what is worth more, so they wear Uniques and Sets; the campaign rogue now keeps to finesse blades
   (an agile hatchet had cost one run its Dexterity damage and Mother Sallow).
+
+### Crafting (M3 step 8)
+
+- **Where:** Garrow's forge, a third tab (**Crafting**) beside Wares and Runework (`GameWorld.Crafting.cs`,
+  `Items/Crafting.cs`). Right-click a piece of gear (in the bag or worn) to put it on the forge.
+- **Salvage** (bag items only; never a locked one): Ashen Dust by rarity and item level (common 1 + level ÷ 3,
+  uncommon 2 + level ÷ 2, rare 4 + level, unique or set 8 + 2 × level) and Rune Fragments, 2 for each rune rank on it,
+  +1 for a rare, +3 for a unique or set piece. Materials are counted, not carried in the bag, and saved.
+- **Recipes** (decision 5: these four, more with the acts), each a **Crafting check** against Pathfinder's level-based
+  DC for the item level (15 at 1, 18 at 3, 20 at 5, 27 at 10), with Garrow's fee of 3 + 2 × level gold paid whatever
+  comes of it:
+
+| Recipe | On | Costs |
+| --- | --- | --- |
+| Raise to uncommon | a common piece: uncommon, with an affix | 3 + level dust |
+| Add an affix | an uncommon (up to 2) or rare (up to 4) piece | 5 + level dust, 1 fragment |
+| Reroll an affix | the chosen affix of an uncommon or rare piece, rolled again (never a stat it already has) | 2 + level dust, 1 fragment |
+| Brew | two belt items (a bomb or an antidote), DC by the item's level (15) | 3 dust, 4 gold |
+
+- **Degrees:** a critical success adds a bonus affix when the piece has room (a third belt item when brewing); a
+  success does the work; a failure changes nothing and keeps the materials; a critical failure loses half of them.
+  Uniques and Set pieces are made as they are and can only be salvaged. The message says the roll, the DC and the
+  result. The Crafting skill (and Quick Repair's +2) now matters.
+- **The bots** don't craft; they still sell their spare gear.
 
 ### The arsenal (M2, after step 10)
 

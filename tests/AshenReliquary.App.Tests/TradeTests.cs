@@ -103,4 +103,53 @@ public class TradeTests
         kit.Play(0.1);
         kit.Capture(Shot("runework-moved"));
     }
+
+    [AvaloniaFact]
+    public void At_the_forge_a_piece_is_salvaged_and_another_raised_to_uncommon()
+    {
+        var kit = TestKit.Open(seed: 21, width: 1312, height: 824, zoneId: "fort_gallowmere");
+        var world = kit.World;
+        var garrow = world.Vendors.Single(v => v.Definition.Id == "garrow");
+        TestHooks.Place(world, garrow.X + 1, garrow.Y + 1);
+        world.TalkTo(garrow);
+        kit.PlayUntil(() => world.OpenVendor is not null, 6);
+        kit.Play(0.1);
+        var gear = world.Hero.Equipment;
+        gear.AddGold(500);
+        var content = Core.Content.ContentDatabase.Embedded;
+        var scrap = new Core.Items.Item(content.Item("chain_cuirass"), Core.Items.Rarity.Rare, 4, potency: 1);
+        var hood = new Core.Items.Item(content.Item("leather_hood"), Core.Items.Rarity.Common, 2);
+        gear.TryAdd(scrap);
+        gear.TryAdd(hood);
+
+        void RightClickBag(Core.Items.Item item)
+        {
+            var at = kit.Window.View.BagCell(gear.Bag.ToList().IndexOf(item));
+            kit.Window.MouseDown(at, MouseButton.Right);
+            kit.Window.MouseUp(at, MouseButton.Right);
+            kit.Pump();
+        }
+
+        // The Crafting tab; the old mail on the forge (not sold), then Salvage it.
+        kit.Click(new Point(16 + 20 + 212 + 50, 16 + 58 + 13));
+        RightClickBag(scrap);
+        Assert.Contains(scrap, gear.Bag);
+        kit.Play(0.1);
+        kit.Capture(Shot("crafting-forge"));
+        var firstButton = new Point(16 + 20 + 100, 16 + 150 + 64 + 16 + 15);
+        kit.Click(firstButton);
+        Assert.DoesNotContain(scrap, gear.Bag);
+        Assert.Equal((8, 3), (gear.Dust, gear.Fragments));
+
+        // The hood on the forge, then Raise to uncommon (the second button) until the check passes.
+        RightClickBag(hood);
+        kit.Play(0.1);
+        var raise = new Point(firstButton.X, firstButton.Y + 34);
+        for (var i = 0; i < 6 && hood.Rarity == Core.Items.Rarity.Common && gear.Dust >= 5; i++)
+            kit.Click(raise);
+        Assert.Equal(Core.Items.Rarity.Uncommon, hood.Rarity);
+        Assert.Contains("Crafting", world.LastMessage);
+        kit.Play(0.1);
+        kit.Capture(Shot("crafting-raised"));
+    }
 }

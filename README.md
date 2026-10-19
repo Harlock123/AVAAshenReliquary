@@ -154,6 +154,9 @@ trait of their own (Hangman's Mercy burns the dead, the Thornwood Bow's arrows p
 and three Sets whose bonuses grow with the pieces worn. They drop in a tall beam of their colour, with a chime and a
 ping on the minimap. Two new slots, **shoulders** and **cloak**. Only **10 invested** (magic, worn) items work at once;
 more lie dormant.
+Step 8 is done: **crafting** at Garrow's forge (his Crafting tab). Salvage gear into **Ashen Dust** and **Rune
+Fragments**, then raise a common piece to uncommon, add or reroll an affix, or brew belt items, each on a **Crafting
+check** against a DC by item level: a critical success adds a bonus affix, a critical failure loses half the materials.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,
