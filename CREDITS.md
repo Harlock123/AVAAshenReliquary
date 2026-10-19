@@ -47,7 +47,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Source: [https://opengameart.org/content/wolf-monsters-animated](https://opengameart.org/content/wolf-monsters-animated) (retrieved 2026-10-19)
 - Licence: CC-BY-SA 4.0 (also CC-BY-SA 3.0) (`src/AshenReliquary.App/Assets/Flare/README-wolf.txt`)
 - Authors: Danimal (rig, animation, Flare sprites), from Micket's CC0 "wolf 1" mesh with Poss's fur textures (OpenGameArt)
-- Changes: The grey wolf only; file names lower-cased and the definition's image path changed to match.
+- Changes: The grey wolf only, re-rendered from Danimal's Wolf.blend with Blender 2.79 and its own 8-direction set-up at twice the published resolution (256-px frames), each frame trimmed and packed into Flare's packed format by tools/build_wolf.py.
 - Files: 2 (listed in `assets.manifest.json`)
 
 ## game-icons.net
@@ -122,6 +122,14 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Authors: The Flare team and the open-licensed sound artists credited in Assets/Flare/CREDITS.txt
 - Changes: Converted with ffmpeg by tools/build_audio.py: mono 44.1 kHz Ogg Vorbis (q4). No trimming or mixing. audio.json maps every file to its original. Released under CC-BY-SA 3.0 like the originals.
 - Files: 17 (listed in `assets.manifest.json`)
+
+## rubberduck, 80 CC0 creature SFX
+
+- Source: [https://opengameart.org/content/80-cc0-creature-sfx](https://opengameart.org/content/80-cc0-creature-sfx) (retrieved 2026-10-19)
+- Licence: CC0 (`src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)`)
+- Authors: rubberduck
+- Changes: Converted with ffmpeg by tools/build_audio.py: mono 44.1 kHz Ogg Vorbis (q4). No trimming or mixing.
+- Files: 3 (listed in `assets.manifest.json`)
 
 ## Code
 

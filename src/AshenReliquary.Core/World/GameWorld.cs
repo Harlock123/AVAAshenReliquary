@@ -202,6 +202,7 @@ public sealed partial class GameWorld
         Map = new TileMap(zone);
         _monsters.Clear();
         _projectiles.Clear();
+        _monsterShots.Clear();
         _impacts.Clear();
         _ground.Clear();
         _vendors.Clear();
@@ -977,6 +978,7 @@ public sealed partial class GameWorld
         UpdateAllies(dt);
         Reveal();
         UpdateProjectiles(dt);
+        UpdateMonsterShots(dt);
         UpdateHazards(dt);
         foreach (var monster in _monsters.ToList())
             UpdateMonster(monster, dt);
@@ -1871,7 +1873,10 @@ public sealed partial class GameWorld
                 m.AttackLanded = true;
                 if (victimDistance <= def.AttackRange + victim.Radius + 0.4)
                 {
-                    if (victim is AllyActor { IsDead: false } ally)
+                    // An archer's arrow or a caster's bolt flies; its blow lands when it arrives.
+                    if (def.Ranged && victimDistance > MeleeReach + victim.Radius)
+                        Loose(m, victim);
+                    else if (victim is AllyActor { IsDead: false } ally)
                         MonsterBitesAlly(m, ally);
                     else if (victim == hero)
                         MonsterStrike(m);
@@ -2157,6 +2162,7 @@ public sealed partial class GameWorld
         Hero.Goal = null;
         Hero.Path.Clear();
         _projectiles.Clear();
+        _monsterShots.Clear();
         if (NearestShrine(Hero.X, Hero.Y) is { } shrine)
         {
             RespawnPoint = ShrineRespawnPoint(shrine);

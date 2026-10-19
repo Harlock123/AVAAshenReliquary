@@ -316,8 +316,8 @@
   "aggroRadius": 8,
   "attackRange": 1.1,
   "damage": "1d8",
-  "voice": "crawler",
-  "scale": 2.2
+  "voice": "wolf",
+  "scale": 1.1
  },
  {
   "id": "raised_skeleton",

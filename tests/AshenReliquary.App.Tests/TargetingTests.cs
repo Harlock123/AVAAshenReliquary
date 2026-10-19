@@ -77,4 +77,21 @@ public class TargetingTests
         kit.Window.MouseUp(new Point(at.X, at.Y), MouseButton.Left, RawInputModifiers.Control);
         kit.Window.KeyRelease(Key.LeftCtrl, RawInputModifiers.None, PhysicalKey.ControlLeft, "");
     }
+
+    [AvaloniaFact]
+    public void A_bone_archer_s_arrow_is_drawn_in_flight()
+    {
+        var kit = TestKit.Open("fighter", zoneId: "gallows_road");
+        var world = kit.World;
+        world.Hero.Character.CannotFall = true;
+        var archer = world.Monsters.First(m => m.Definition.Id == "bone_archer");
+        TestHooks.Place(world, archer.X - 5, archer.Y);
+        world.Attack(archer);
+        kit.Play(0.1);
+        world.Stop();
+        kit.PlayUntil(() => world.MonsterShots.Count > 0, 8);
+        Assert.NotEmpty(world.MonsterShots);
+        kit.Play(0.15);
+        kit.Capture(Shot("archer-arrow"));
+    }
 }

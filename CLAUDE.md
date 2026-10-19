@@ -88,13 +88,19 @@ implementation decisions made so far). `README.md` has the run commands and cont
   check against Pathfinder's level-based DC, `Item.Reforge`). Step 9, balance, done: bosses pick their victim by
   threat (`MonsterActor.Threat`), the fighter bot keeps its shield up, the Trickster bot tumbles through bosses, the
   Champion's Lay on Hands and Shield of Faith cost more; duels for all twelve subclasses; all 48 campaign runs pass.
-  The exit test's other half, the user playing each new class's opening zone, is still to come.
+  The exit test's other half, the user playing each new class's opening zone, is still to come. After step 9, asked
+  for: Ctrl-click attacks the nearest monster and never walks (`WorldView.AttackOnly`); then the smaller open items: the
+  bag beside a trader or the stash is scaled to fit a narrow window (`WorldView.PanelScale`), monsters' ranged blows fly
+  (`GameWorld.MonsterShots.cs`; a Step dodges one on its last stretch), the wolf barks and howls (rubberduck's CC0
+  creature pack, `tools/build_audio.py`) and was re-rendered at 256-px frames from Danimal's .blend with Blender 2.79
+  and packed (`tools/build_wolf.py`, scale 1.1), the bots take a level-4 dedication and use it, salvage and craft at
+  Garrow's forge, and the casters Step out of melee. M4's plan is `docs/M4_PLAN.md`.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
   by default; for a real report run `ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter
-  BalanceReport --logger "console;verbosity=detailed"`. Its bot never kites, so the wizard rows are a worst case;
-  it keeps its own copy of the starting kits.
+  BalanceReport --logger "console;verbosity=detailed"`. Its casters Step out of melee but don't otherwise kite; it
+  keeps its own copy of the starting kits, takes a dedication at level 4 and crafts at the forge.
 - **Open ideas, not yet asked for:** Act 1 plays about 1.5 hours against the 2 decided (the ossuary adds a little);
   gold still ends near 2,000 in the bot's hands (supplies are a sink a player may use more); bombs fly as a glow, not a
   tumbling flask; check the bog's frame time with F3 in the Fens; orcs have 3 portraits (orchidrabbit's CC BY pack, $5,

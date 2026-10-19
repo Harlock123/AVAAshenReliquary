@@ -10,6 +10,7 @@ Usage: tools/build_audio.py <packs dir> [group ...]
   <packs dir>/zhelanov/Battle Theme *.mp3            Alexandr Zhelanov, Battle themes (CC-BY 4.0)
   <packs dir>/ambience/dungeon_ambient_1_0.ogg       JaggedStone, Loopable Dungeon Ambience (CC0)
   <packs dir>/flare/...                              Flare's soundfx (mods/fantasycore/soundfx, CC-BY-SA 3.0)
+  <packs dir>/creatures/...                          rubberduck, 80 CC0 creature SFX (CC0)
 
 Naming groups converts only those, merged into the existing audio.json (handy when only one pack is on disk).
 
@@ -19,7 +20,7 @@ Writes audio.json: id -> files, plus every file's source, author and licence.
 """
 import json, os, subprocess, sys
 
-K, L, R, S, F = "kenney/OGG", "lrsf/Fantasy Sound Library/Wav", "rpgpack/RPG Sound Pack", "swords", "flare"
+K, L, R, S, F, C = "kenney/OGG", "lrsf/Fantasy Sound Library/Wav", "rpgpack/RPG Sound Pack", "swords", "flare", "creatures"
 SOURCES = {
     "kenney": ("Kenney, 50 RPG sound effects", "https://opengameart.org/content/50-rpg-sound-effects", "CC0"),
     "lrsf": ("Little Robot Sound Factory, Fantasy Sound Effects Library", "https://opengameart.org/content/fantasy-sound-effects-library", "CC-BY 3.0"),
@@ -29,6 +30,7 @@ SOURCES = {
     "zhelanov": ("Alexandr Zhelanov, Battle themes", "https://opengameart.org/node/76534", "CC-BY 4.0"),
     "ambience": ("JaggedStone, Loopable Dungeon Ambience", "https://opengameart.org/content/loopable-dungeon-ambience", "CC0"),
     "flare": ("Flare: Empyrean Campaign, soundfx", "https://github.com/flareteam/flare-game", "CC-BY-SA 3.0"),
+    "creatures": ("rubberduck, 80 CC0 creature SFX", "https://opengameart.org/content/80-cc0-creature-sfx", "CC0"),
 }
 
 def r(pattern, numbers): return [pattern.format(n) for n in numbers]
@@ -76,6 +78,10 @@ EFFECTS = {
     "cultist-death": [f"{F}/male_die.ogg"],
     "crone": [f"{F}/female_hit.ogg"],
     "crone-death": [f"{F}/female_die.ogg"],
+    # M3: a Unique or Set piece dropping; the Beastmaster's wolf barking and falling.
+    "rare-drop": [f"{F}/powers/heal.ogg"],
+    "wolf": [f"{C}/barking_01.ogg", f"{C}/barking_02.ogg"],
+    "wolf-death": [f"{C}/howl.ogg"],
 }
 
 MUSIC = {

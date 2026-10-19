@@ -158,6 +158,7 @@ public sealed partial class GameWorld
             ally.Path.Clear();
         }
         Float(sent[0], ability.Charges > 0 ? "rush!" : "sic!", FloatingTextKind.Info, 0.3);
+        Sound(SoundCue.MonsterAggro, sent[0], sent[0].Definition.Voice);
     }
 
     private void UpdateAllies(double dt)
@@ -218,7 +219,13 @@ public sealed partial class GameWorld
             ally.Command = null;
         }
         if (ally.Command is null)
+        {
+            var before = ally.Target;
             ally.Target = ChooseAllyTarget(ally);
+            // It gives voice as it falls on a new foe (the wolf barks).
+            if (ally.Target is not null && ally.Target != before && !ally.IsMinion)
+                Sound(SoundCue.MonsterAggro, ally, ally.Definition.Voice);
+        }
 
         if (ally.AttackCooldown > 0)
             ally.AttackCooldown -= dt;

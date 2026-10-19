@@ -1154,7 +1154,8 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   within 10 tiles; it bounds there at twice its speed and its next bite has one more die and knocks the target prone
   for 1.5 s. Art: Danimal's "Wolf monsters animated" (OpenGameArt, CC-BY-SA 4.0/3.0, credits Micket, Poss, Danimal), a
   Flare-format creature in Flare's older grid layout (`render_size`, `position`; `FlareAnimationSet` reads both) drawn
-  at 2.2× to match Flare's fantasycore creatures (its `.blend` sources could be re-rendered sharper).
+  at 2.2× to match Flare's fantasycore creatures. Later re-rendered from its `.blend` at twice the resolution and
+  packed (see "After M3's steps", below), drawn at 1.1.
 - **Allies** (`World/GameWorld.Allies.cs`, `AllyActor`; the Necromancer's minions will use it too): an ally follows
   the hero (within 2.5 tiles), falls on the hero's target (if it is fighting near the hero) or else the nearest monster
   fighting within 7 tiles of the hero, and never wakes a sleeping pack on its own. Its bite is a creature Strike
@@ -1386,8 +1387,38 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
     the class is meant to be, and slower to kill.
   - **The Trickster bot** rolls through a champion or boss it is fighting to leave it off-guard (its Tumble's feint),
     as a player would; at level 5 it now wins every duel (was 5 of 6).
-- **Left for later:** the wizard bot still never kites (its rows remain a worst case); the bots take no dedications and
-  don't craft; Act 1 is the only act to tune against.
+- **Left for later:** done after M3's steps (see "After M3's steps", below), but for the wizards' level-4 duels; Act 1
+  is the only act to tune against.
+
+### After M3's steps: targeting and the smaller open items
+
+- **Ctrl-click** (asked for after the user's first Necromancer play: a click meant for a monster walked the hero into
+  the pack): see "Attack only (Ctrl)" in section 16, World and renderer.
+- **The bag beside a trader or the stash** in a window too narrow for both (the 731-pixel tiled window drew the
+  trader over half the bag): both panels are drawn at a shared scale (`WorldView.PanelScale`, about 0.7 there) side by
+  side, every click, drag and tooltip mapped into that scale, and they still end above the belt. Alone, the bag is
+  full size.
+- **Monsters' shots fly** (`GameWorld.MonsterShots.cs`): an archer's arrow (Flare's arrow sprite) or a caster's bolt
+  (a glow in its damage type's colour) leaves the monster at 9 tiles a second, follows its victim and strikes when it
+  arrives; a Step or Tumble under way while it is within 2.5 tiles dodges it ("dodged"). Before, the blow landed the
+  moment the monster loosed it, with nothing drawn.
+- **The wolf** barks when sent with Sic 'Em or when it falls on a new foe, and howls as it falls (rubberduck's "80 CC0
+  creature SFX", OpenGameArt, CC0; in `tools/build_audio.py` with Flare's rare-drop shimmer). It was re-rendered from
+  Danimal's `Wolf.blend` with Blender 2.79 (the scene uses Blender Internal, which 2.8 dropped) and the file's own
+  8-direction set-up, at 256-px frames instead of 128 (the half-size render matches the published sheet to 0.9%), each
+  frame trimmed and packed into Flare's packed format (`tools/build_wolf.py`): 2048×1098, smaller in memory than the old
+  grid sheet, drawn at scale 1.1 instead of 2.2, so twice as sharp.
+- **The bots** (`Tactics`, the reports): every subclass takes a multiclass dedication at level 4 (Champion for Lay on
+  Hands, Ranger for the rogue's Hunt Prey, Fighter for the champion's Power Attack) and uses what it grants; the
+  campaign bot salvages its spare commons at Garrow's forge (selling the rest) and raises or adds affixes to what it
+  wears while dust and gold allow; the casters (wizard, necromancer) Step out of melee when the Step is ready, and the
+  wizard keeps its Shield up through a fight, as the fighter does its shield.
+- **The results:** all 48 campaign runs (four seeds for each subclass) kill Mother Sallow at level 5, in 14-24
+  minutes; over the four runs each, no subclass dies but the Marksman (2), the Pyromancer (4) and the Stormcaller (2),
+  where the wizards had died 13 and 7 times; each run salvages about 25-30 items and crafts 2-7. Alone against her at
+  level 5 every subclass now wins all 6 fights in the starting kit (the Stormcaller had won 5). At level 4 the spread narrowed: the Trickster went from 0 to 5 of 6 (Hunt Prey's d8 from its
+  Ranger dedication), the Vanguard, Beastmaster and Cutthroat win 4, the rest 6, and the wizards 1 of 6 (a frail caster
+  a level under her: left as it is).
 
 ### The arsenal (M2, after step 10)
 

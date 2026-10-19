@@ -1,4 +1,5 @@
 using AshenReliquary.Core.Items;
+using AshenReliquary.Core.Rules;
 using AshenReliquary.Core.World;
 using Xunit.Abstractions;
 
@@ -19,7 +20,8 @@ public class CampaignReport(ITestOutputHelper output)
 
     public sealed record ZoneLeg(string Zone, double Minutes, int Deaths, int Potions, int LevelIn, int XpIn, int LevelOut, int XpOut, int Gold);
 
-    public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0);
+    public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0,
+        int Salvaged = 0, int Crafted = 0, string? Dedication = null);
 
     [Theory]
     [InlineData("fighter vanguard")]
@@ -40,7 +42,7 @@ public class CampaignReport(ITestOutputHelper output)
              seed <= (only > 0 ? only : Runs); seed++)
         {
             var c = Play(kit, seed);
-            output.WriteLine($"{kit}, run {seed}: {(c.SallowSlain ? "Mother Sallow slain" : "Mother Sallow lives")} (met at level {c.SallowLevel}), {c.Minutes:0} min of play, {c.SuppliesBought} supplies bought");
+            output.WriteLine($"{kit}, run {seed}: {(c.SallowSlain ? "Mother Sallow slain" : "Mother Sallow lives")} (met at level {c.SallowLevel}), {c.Minutes:0} min of play, {c.SuppliesBought} supplies bought, {c.Salvaged} salvaged, {c.Crafted} crafted, dedication {c.Dedication ?? "none"}");
             foreach (var leg in c.Legs)
                 output.WriteLine($"  {leg.Zone,-22} {leg.Minutes,5:0.0} min  deaths {leg.Deaths,2}  potions {leg.Potions,2}  level {leg.LevelIn} ({leg.XpIn,3}) -> {leg.LevelOut} ({leg.XpOut,3})  gold {leg.Gold}");
             foreach (var g in c.Killers.GroupBy(k => k).OrderByDescending(g => g.Count()).Take(6))
@@ -73,7 +75,7 @@ public class CampaignReport(ITestOutputHelper output)
         bot.WakeAndVisitFort();
         bot.Clear("sallows_mire", "iron_march");
         return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers,
-            bot.SuppliesBought);
+            bot.SuppliesBought, bot.Salvaged, bot.Crafted, hero.DedicationClass?.Name);
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>
@@ -281,10 +283,24 @@ public class CampaignReport(ITestOutputHelper output)
             if (world.OpenVendor is not null)
             {
                 WearUpgrades();
+                // Spare commons go to the forge for Ashen Dust; the rest is sold for the runes.
+                foreach (var spare in gear.Bag.OfType<Item>().Where(i => i.Rarity == Rarity.Common && i.Definition.Slot is not null).ToList())
+                    if (world.Salvage(spare))
+                        Salvaged++;
                 for (var i = 0; i < gear.Bag.Count; i++)
                 {
                     if (gear.Bag[i] is { } item && item.Definition.Category != ItemCategory.Key && !item.Definition.IsBeltItem)
                         world.Sell(i);
+                }
+                // The worn gear at the forge: commons raised, uncommons given their second affix, while dust and gold last.
+                foreach (var worn in gear.Worn.Values.ToList())
+                {
+                    var recipe = worn.Rarity == Rarity.Common ? CraftRecipe.Raise : CraftRecipe.AddAffix;
+                    if (Crafting.CannotCraft(recipe, worn) is not null)
+                        continue;
+                    var (dust, fragments, fee) = Crafting.Cost(recipe, worn.ItemLevel);
+                    if (gear.Dust >= dust && gear.Fragments >= fragments && gear.Gold >= fee + 100 && world.Craft(recipe, worn) is { } outcome)
+                        Crafted += outcome.Check.Degree >= DegreeOfSuccess.Success ? 1 : 0;
                 }
                 // Etch what the gold allows, the weapon first.
                 foreach (var (slot, kind) in new[] { (EquipSlot.MainHand, RuneKind.Striking), (EquipSlot.MainHand, RuneKind.Potency), (EquipSlot.Chest, RuneKind.Potency) })
@@ -313,6 +329,10 @@ public class CampaignReport(ITestOutputHelper output)
 
         /// <summary>Belt items bought from Wenna over the run.</summary>
         public int SuppliesBought { get; private set; }
+
+        /// <summary>Items salvaged and pieces crafted at Garrow's forge over the run.</summary>
+        public int Salvaged { get; private set; }
+        public int Crafted { get; private set; }
 
         /// <summary>Wakes the zone's first shrine, Rifts to the fort for the smith, and comes back.</summary>
         public void WakeAndVisitFort()

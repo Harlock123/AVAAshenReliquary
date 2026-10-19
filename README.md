@@ -161,6 +161,10 @@ check** against a DC by item level: a critical success adds a bonus affix, a cri
 Step 9, balance, is done: bosses now fight whoever hurts them most (not whatever stands nearest, which made a wolf or
 a skeleton a perfect shield), the Champion's healing costs more, and every subclass's bot kills Mother Sallow at level 5
 in all of its runs. M3 closes with your play of the new classes.
+Since then: in a narrow window the bag and a trader (or the stash) are drawn smaller to sit side by side; archers'
+arrows and casters' bolts fly, and a well-timed Step dodges them; the wolf barks and howls and was re-rendered twice as
+sharp from its Blender source (`tools/build_wolf.py`); and the bots take a multiclass dedication, salvage and craft, and
+step their casters out of melee. Next is M4, Acts 2-4 (`docs/M4_PLAN.md`).
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

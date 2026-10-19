@@ -379,6 +379,17 @@ public class BalanceReport(ITestOutputHelper output)
         c.RestAtShrine();
     }
 
+    /// <summary>
+    /// The dedication a bot takes at level 4: Lay on Hands for those who can't heal themselves, Hunt Prey's d8 for the
+    /// rogue, Power Attack for the champion.
+    /// </summary>
+    internal static string Dedication(string classId) => classId switch
+    {
+        "rogue" => "ranger_dedication",
+        "champion" => "fighter_dedication",
+        _ => "champion_dedication",
+    };
+
     /// <summary>Makes the picks for every level still waiting, as <see cref="LevelTo"/> would.</summary>
     internal static void ChoosePending(GameWorld world)
     {
@@ -394,8 +405,9 @@ public class BalanceReport(ITestOutputHelper output)
                 : null;
             world.ChooseLevel(at, new LevelChoice(
                 Boosts: boosts,
-                ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class,
-                    c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", "ranger" => "far_shot", "champion" => "fervor", "necromancer" => "soul_siphon", _ => "lunge" }),
+                // Level 2 a class feat; level 4 a multiclass dedication that suits the class (the bots use what it grants).
+                ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class, at >= 4 ? Dedication(c.Class.Id)
+                    : c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", "ranger" => "far_shot", "champion" => "fervor", "necromancer" => "soul_siphon", _ => "lunge" }),
                 SkillFeat: Feat(Progression.LevelGain.SkillFeat, FeatType.Skill),
                 GeneralFeat: Feat(Progression.LevelGain.GeneralFeat, FeatType.General, "toughness"),
                 AncestryFeat: Feat(Progression.LevelGain.AncestryFeat, FeatType.Ancestry),

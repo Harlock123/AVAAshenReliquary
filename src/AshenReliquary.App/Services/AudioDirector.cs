@@ -119,13 +119,13 @@ public sealed class AudioDirector
         SoundCue.HeroHurt => "hero-hurt",
         SoundCue.MonsterAggro => sound.Variant switch
         {
-            "skeleton" or "crawler" or "cultist" or "crone" => sound.Variant,
+            "skeleton" or "crawler" or "cultist" or "crone" or "wolf" => sound.Variant,
             "grave" => "grave-rise",
             _ => "zombie",
         },
         SoundCue.MonsterDeath => sound.Variant switch
         {
-            "skeleton" or "crawler" or "cultist" or "crone" => $"{sound.Variant}-death",
+            "skeleton" or "crawler" or "cultist" or "crone" or "wolf" => $"{sound.Variant}-death",
             "grave" => "grave-rise",
             _ => "zombie-death",
         },

@@ -210,20 +210,43 @@ public sealed class WorldView : Control
     internal InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawItemIcon);
 
     /// <summary>Where the inventory's buttons and worn slots and the stash's cells are on screen (tests click them).</summary>
-    public Point SortButtonAt => Inventory.SortCentre is var c ? new Point(c.X, c.Y) : default;
-    public Point JunkButtonAt => Inventory.JunkCentre is var c ? new Point(c.X, c.Y) : default;
-    public Point WornSlot(Core.Items.EquipSlot slot) => Inventory.SlotCentre(slot) is var c ? new Point(c.X, c.Y) : default;
-    public Point StashCell(int index) => StashView.CellCentre(index) is var c ? new Point(c.X, c.Y) : default;
+    public Point SortButtonAt => Screen(Inventory.SortCentre);
+    public Point JunkButtonAt => Screen(Inventory.JunkCentre);
+    public Point WornSlot(Core.Items.EquipSlot slot) => Screen(Inventory.SlotCentre(slot));
+    public Point StashCell(int index) => Screen(StashView.CellCentre(index));
+
+    // ----- The side panels' scale --------------------------------------------------------------
+
+    /// <summary>
+    /// How much the bag and a trader's table (or the stash) are scaled to sit side by side: 1, or less when the window
+    /// is narrower than both (the 731-pixel tiled window drew the trader over half the bag). Only while both are open.
+    /// </summary>
+    public float PanelScale { get; private set; } = 1f;
+
+    /// <summary>The width the bag beside a trader or the stash needs at full size.</summary>
+    private static float SideBySideWidth => 16 + Math.Max(VendorPanel.Width, StashPanel.Width) + 16 + InventoryPanel.Width + 16;
+
+    private float PanelScaleFor(SKSize size, GameWorld world) =>
+        InventoryOpen && (world.OpenVendor is not null || world.StashOpen) && size.Width < SideBySideWidth ? size.Width / SideBySideWidth : 1f;
+
+    /// <summary>A screen point in the side panels' (scaled) space.</summary>
+    private SKPoint ToPanel(SKPoint p) => new(p.X / PanelScale, p.Y / PanelScale);
+
+    /// <summary>A side panel's point on screen.</summary>
+    private Point Screen(SKPoint panel) => new(panel.X * PanelScale, panel.Y * PanelScale);
+
+    private SKRect ScreenRect(SKRect panel) =>
+        SKRect.Create(panel.Left * PanelScale, panel.Top * PanelScale, panel.Width * PanelScale, panel.Height * PanelScale);
 
     /// <summary>Where bag cell <paramref name="index"/> is on screen while the inventory is open (tests click it).</summary>
-    public Point BagCell(int index) => Inventory.BagCellCentre(index) is var c ? new Point(c.X, c.Y) : default;
+    public Point BagCell(int index) => Screen(Inventory.BagCellCentre(index));
 
     private readonly RiftPanel _rift = new();
     private VendorPanel? _vendorPanel;
     private VendorPanel Trade => _vendorPanel ??= new VendorPanel(DrawItemIcon);
 
     /// <summary>Where a trader's supply <paramref name="index"/> is on screen while the table is open (tests click it).</summary>
-    public Point SupplyCell(int index) => Trade.SupplyCentre(index) is var c ? new Point(c.X, c.Y) : default;
+    public Point SupplyCell(int index) => Screen(Trade.SupplyCentre(index));
 
     /// <summary>The trader whose table was open last frame: opening one opens the bag, leaving closes it again.</summary>
     private Vendor? _trading;
@@ -479,14 +502,15 @@ public sealed class WorldView : Control
         var ctrl = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         var shift = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         Inventory.Bench = BenchFor(world);
-        if (props.IsLeftButtonPressed && !ctrl && !shift && DragSource(sp, world) is { } drag)
+        var pp = ToPanel(sp);
+        if (props.IsLeftButtonPressed && !ctrl && !shift && DragSource(pp, world, sp) is { } drag)
         {
             // Pressed on an item: a click (on release, where it stays) or a drag (once it moves).
             _drag = drag;
             e.Handled = true;
             return;
         }
-        if (world.StashOpen && props.IsLeftButtonPressed && StashView.Click(sp, world))
+        if (world.StashOpen && props.IsLeftButtonPressed && StashView.Click(pp, world))
         {
             e.Handled = true;
             InvalidateVisual();
@@ -498,13 +522,13 @@ public sealed class WorldView : Control
             InvalidateVisual();
             return;
         }
-        if (world.OpenVendor is not null && props.IsLeftButtonPressed && Trade.Click(sp, world))
+        if (world.OpenVendor is not null && props.IsLeftButtonPressed && Trade.Click(pp, world))
         {
             e.Handled = true;
             InvalidateVisual();
             return;
         }
-        if (InventoryOpen && Inventory.Click(sp, props.IsRightButtonPressed, world, ctrl, shift))
+        if (InventoryOpen && Inventory.Click(pp, props.IsRightButtonPressed, world, ctrl, shift))
         {
             e.Handled = true;
             InvalidateVisual();
@@ -629,7 +653,7 @@ public sealed class WorldView : Control
         if (!drag.Moving)
         {
             // It stayed put: the click it always was.
-            var start = new SKPoint((float)drag.Start.X, (float)drag.Start.Y);
+            var start = ToPanel(new SKPoint((float)drag.Start.X, (float)drag.Start.Y));
             if (drag.From == DragFrom.Stash)
                 StashView.Click(start, world);
             else
@@ -666,9 +690,9 @@ public sealed class WorldView : Control
     public bool Dragging => _drag is { Moving: true };
 
     /// <summary>The item under a press that can be picked up: in the open stash, the bag, or a worn slot.</summary>
-    private DragState? DragSource(SKPoint p, GameWorld world)
+    private DragState? DragSource(SKPoint p, GameWorld world, SKPoint screen)
     {
-        var start = new Point(p.X, p.Y);
+        var start = new Point(screen.X, screen.Y);
         if (world.StashOpen && StashView.Bounds.Contains(p) && StashView.CellAt(p) is { } cell && world.Stash.Slots[cell] is { } stashed)
             return new DragState(DragFrom.Stash, cell, default, stashed, start);
         if (!InventoryOpen || !Inventory.Bounds.Contains(p))
@@ -686,9 +710,10 @@ public sealed class WorldView : Control
     /// Where a dragged item lands: a bag cell (moved, stacked or swapped; taken off; taken from the stash), a worn slot it
     /// fits (worn), a stash slot (stashed), the trader's table (sold), or the world outside every panel (dropped).
     /// </summary>
-    private void DropDragged(DragState drag, SKPoint at, GameWorld world)
+    private void DropDragged(DragState drag, SKPoint screen, GameWorld world)
     {
         var gear = world.Hero.Equipment;
+        var at = ToPanel(screen);
         if (InventoryOpen && Inventory.Bounds.Contains(at))
         {
             switch (Inventory.HitTest(at), drag.From)
@@ -732,7 +757,7 @@ public sealed class WorldView : Control
                 world.Sell(drag.Index);
             return;
         }
-        if (HudLayer.Contains(at) || (LevelUpOpen && _levelUp.Bounds.Contains(at)) || (JournalOpen && _journal.Bounds.Contains(at)))
+        if (HudLayer.Contains(screen) || (LevelUpOpen && _levelUp.Bounds.Contains(screen)) || (JournalOpen && _journal.Bounds.Contains(screen)))
             return;
         // Out of every panel, onto the ground.
         if (drag.From == DragFrom.Bag)
@@ -1031,21 +1056,26 @@ public sealed class WorldView : Control
         FollowTrade(world);
         Inventory.Bench = BenchFor(world);
         Inventory.Benched = world.OpenVendor is not null ? Trade.Benched : null;
+        // The bag beside a trader or the stash: scaled together when the window is too narrow for both.
+        PanelScale = PanelScaleFor(size, world);
+        // Scaled, the panels still end where they would at full size (166 above the window's foot: the bar and belt).
+        var panelSize = new SKSize(size.Width / PanelScale, (size.Height - 166) / PanelScale + 166);
+        var panelPointer = pointer is { } screenPointer ? ToPanel(screenPointer) : (SKPoint?)null;
+        var unscaled = canvas.Save();
+        canvas.Scale(PanelScale);
         if (InventoryOpen)
-        {
-            Inventory.Draw(canvas, size, world, pointer, PortraitImage());
-            hud.Block(Inventory.Bounds);
-        }
+            Inventory.Draw(canvas, panelSize, world, panelPointer, PortraitImage());
         if (world.OpenVendor is not null)
-        {
-            Trade.Draw(canvas, size, world, pointer);
-            hud.Block(Trade.Bounds);
-        }
+            Trade.Draw(canvas, panelSize, world, panelPointer);
         if (world.StashOpen)
-        {
-            StashView.Draw(canvas, size, world, pointer);
-            hud.Block(StashView.Bounds);
-        }
+            StashView.Draw(canvas, panelSize, world, panelPointer);
+        canvas.RestoreToCount(unscaled);
+        if (InventoryOpen)
+            hud.Block(ScreenRect(Inventory.Bounds));
+        if (world.OpenVendor is not null)
+            hud.Block(ScreenRect(Trade.Bounds));
+        if (world.StashOpen)
+            hud.Block(ScreenRect(StashView.Bounds));
         if (world.OpenShrine is not null)
         {
             _rift.Draw(canvas, size, world, pointer);
@@ -1074,9 +1104,9 @@ public sealed class WorldView : Control
             _dialogue.Draw(canvas, size, talk, PortraitImage(talk.Portrait), pointer);
             hud.Block(_dialogue.Bounds);
         }
-        var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over))
+        var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(ToPanel(over))) || (world.OpenVendor is not null && Trade.Bounds.Contains(ToPanel(over)))
             || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
-            || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(over))
+            || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(ToPanel(over)))
             || (LevelUpOpen && _levelUp.Bounds.Contains(over)) || (AbilitiesOpen && AbilitiesView.Bounds.Contains(over)));
         if (!overPanel && !Dragging && !(AbilitiesOpen && AbilitiesView.Held is not null))
             hud.DrawTooltip(canvas, size, pointer);
@@ -2009,14 +2039,41 @@ public sealed class WorldView : Control
     }
 
     /// <summary>The hero's arrow: Flare's arrow sprite, turned to its line of flight.</summary>
-    private void DrawArrow(SKCanvas canvas, Projectile p, SKPoint at, double time)
+    private void DrawArrow(SKCanvas canvas, Projectile p, SKPoint at, double time) =>
+        DrawArrow(canvas, p.X, p.Y, p.Target.X, p.Target.Y, at, time);
+
+    /// <summary>An arrow from (x, y) toward (tx, ty): Flare's arrow sprite, turned to its line of flight.</summary>
+    private void DrawArrow(SKCanvas canvas, double x, double y, double tx, double ty, SKPoint at, double time)
     {
         var set = _assets.Power("arrows");
         if (set.Animations.Values.FirstOrDefault() is not { } anim)
             return;
-        var direction = Actor.DirectionOf(p.Target.X - p.X, p.Target.Y - p.Y);
+        var direction = Actor.DirectionOf(tx - x, ty - y);
         // Flare draws a power's sprite from its anchor at the ground, so lift the anchor to the flying height.
         DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(time), direction), new SKPoint(at.X, at.Y + 95 * (float)Zoom), 1f, null);
+    }
+
+    /// <summary>A bolt at <paramref name="at"/> flying toward a map point: a glowing ball with a trail behind it.</summary>
+    private void DrawBolt(SKCanvas canvas, SKPaint glow, SKPoint at, double tx, double ty, SKColor color, float lift)
+    {
+        var z = (float)Zoom;
+        var target = ToScreen(tx, ty);
+        target.Y -= lift;
+        var dx = at.X - target.X;
+        var dy = at.Y - target.Y;
+        var len = MathF.Max(1, MathF.Sqrt(dx * dx + dy * dy));
+        for (var i = 6; i >= 0; i--)
+        {
+            var t = i / 6f;
+            var r = (10 - 6 * t) * z * 1.6f;
+            glow.Shader = SKShader.CreateRadialGradient(new SKPoint(0, 0), r, [color.WithAlpha((byte)(220 * (1 - t))), color.WithAlpha(0)], SKShaderTileMode.Clamp);
+            canvas.Save();
+            canvas.Translate(at.X + dx / len * t * 46 * z, at.Y + dy / len * t * 46 * z);
+            canvas.DrawCircle(0, 0, r, glow);
+            canvas.Restore();
+        }
+        using var core = new SKPaint { IsAntialias = true, Color = SKColors.White.WithAlpha(230) };
+        canvas.DrawCircle(at, 3.5f * z * 1.6f, core);
     }
 
     /// <summary>Projectiles fly at chest height with a short glowing trail; impacts are a quick expanding burst.</summary>
@@ -2036,24 +2093,17 @@ public sealed class WorldView : Control
                 DrawArrow(canvas, p, at, world.Time);
                 continue;
             }
-            var color = SpellColor(p.Ability.DamageType);
-            var target = ToScreen(p.Target.X, p.Target.Y);
-            target.Y -= lift;
-            var dx = at.X - target.X;
-            var dy = at.Y - target.Y;
-            var len = MathF.Max(1, MathF.Sqrt(dx * dx + dy * dy));
-            for (var i = 6; i >= 0; i--)
-            {
-                var t = i / 6f;
-                var r = (10 - 6 * t) * z * 1.6f;
-                glow.Shader = SKShader.CreateRadialGradient(new SKPoint(0, 0), r, [color.WithAlpha((byte)(220 * (1 - t))), color.WithAlpha(0)], SKShaderTileMode.Clamp);
-                canvas.Save();
-                canvas.Translate(at.X + dx / len * t * 46 * z, at.Y + dy / len * t * 46 * z);
-                canvas.DrawCircle(0, 0, r, glow);
-                canvas.Restore();
-            }
-            using var core = new SKPaint { IsAntialias = true, Color = SKColors.White.WithAlpha(230) };
-            canvas.DrawCircle(at, 3.5f * z * 1.6f, core);
+            DrawBolt(canvas, glow, at, p.Target.X, p.Target.Y, SpellColor(p.Ability.DamageType), lift);
+        }
+        // Monsters' shots: an archer's arrow, a caster's bolt in its damage type's colour.
+        foreach (var shot in world.MonsterShots)
+        {
+            var at = ToScreen(shot.X, shot.Y);
+            at.Y -= lift;
+            if (shot.IsSpell)
+                DrawBolt(canvas, glow, at, shot.Victim.X, shot.Victim.Y, SpellColor(shot.DamageType), lift);
+            else
+                DrawArrow(canvas, shot.X, shot.Y, shot.Victim.X, shot.Victim.Y, at, world.Time);
         }
         foreach (var impact in world.Impacts)
         {

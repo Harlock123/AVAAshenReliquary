@@ -173,6 +173,13 @@
   ],
   "rare-drop": [
    "sfx/rare-drop-heal.ogg"
+  ],
+  "wolf": [
+   "sfx/wolf-barking_01.ogg",
+   "sfx/wolf-barking_02.ogg"
+  ],
+  "wolf-death": [
+   "sfx/wolf-death-howl.ogg"
   ]
  },
  "music": {
@@ -861,6 +868,34 @@
    "url": "https://github.com/flareteam/flare-game",
    "original": "female_die.ogg",
    "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/rare-drop-heal.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "heal.ogg",
+   "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/wolf-barking_01.ogg",
+   "source": "rubberduck, 80 CC0 creature SFX",
+   "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+   "original": "barking_01.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/wolf-barking_02.ogg",
+   "source": "rubberduck, 80 CC0 creature SFX",
+   "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+   "original": "barking_02.ogg",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/wolf-death-howl.ogg",
+   "source": "rubberduck, 80 CC0 creature SFX",
+   "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+   "original": "howl.ogg",
+   "licence": "CC0"
   }
  ]
 }

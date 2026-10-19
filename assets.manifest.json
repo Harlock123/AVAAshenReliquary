@@ -321,7 +321,7 @@
       "licence": "CC-BY-SA 4.0 (also CC-BY-SA 3.0)",
       "licenceFile": "src/AshenReliquary.App/Assets/Flare/README-wolf.txt",
       "authors": "Danimal (rig, animation, Flare sprites), from Micket's CC0 \"wolf 1\" mesh with Poss's fur textures (OpenGameArt)",
-      "changes": "The grey wolf only; file names lower-cased and the definition's image path changed to match.",
+      "changes": "The grey wolf only, re-rendered from Danimal's Wolf.blend with Blender 2.79 and its own 8-direction set-up at twice the published resolution (256-px frames), each frame trimmed and packed into Flare's packed format by tools/build_wolf.py.",
       "files": [
         "Flare/animations/enemies/wolf.txt",
         "Flare/images/enemies/wolf.png"
@@ -611,6 +611,21 @@
         "Audio/sfx/ward-shield-inventory_heavy.ogg (from inventory_heavy.ogg)",
         "Audio/sfx/ward-spell-shield.ogg (from shield.ogg)"
       ]
+    },
+    {
+      "id": "audio-rubberduck-creatures",
+      "title": "rubberduck, 80 CC0 creature SFX",
+      "url": "https://opengameart.org/content/80-cc0-creature-sfx",
+      "retrieved": "2026-10-19",
+      "licence": "CC0",
+      "authors": "rubberduck",
+      "changes": "Converted with ffmpeg by tools/build_audio.py: mono 44.1 kHz Ogg Vorbis (q4). No trimming or mixing.",
+      "files": [
+        "Audio/sfx/wolf-barking_01.ogg (from barking_01.ogg)",
+        "Audio/sfx/wolf-barking_02.ogg (from barking_02.ogg)",
+        "Audio/sfx/wolf-death-howl.ogg (from howl.ogg)"
+      ],
+      "licenceFile": "src/AshenReliquary.App/Assets/Audio/audio.json (licence per file)"
     }
   ]
 }

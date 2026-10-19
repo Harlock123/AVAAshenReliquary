@@ -152,4 +152,47 @@ public class TradeTests
         kit.Play(0.1);
         kit.Capture(Shot("crafting-raised"));
     }
+
+    [AvaloniaFact]
+    public void In_the_narrow_window_the_trader_and_the_bag_are_scaled_to_sit_side_by_side_and_still_trade()
+    {
+        var kit = TestKit.Open(seed: 21, zoneId: "fort_gallowmere");
+        kit.Window.MinWidth = 0;
+        kit.Window.Width = 731;
+        kit.Window.Height = 946;
+        var world = kit.World;
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
+        TestHooks.Place(world, vendor.X + 1, vendor.Y + 1);
+        world.TalkTo(vendor);
+        kit.PlayUntil(() => world.OpenVendor is not null, 6);
+        kit.Play(0.1);
+        var view = kit.Window.View;
+        Assert.True(view.InventoryOpen);
+        Assert.InRange(view.PanelScale, 0.6f, 0.75f);
+        // The trader's supplies and the bag no longer overlap: the bag's first cell lies right of the trader's table.
+        Assert.True(view.BagCell(0).X > view.SupplyCell(world.Supplies.Count - 1).X + 20);
+        Assert.True(view.BagCell(59).X < 731 && view.BagCell(59).Y < 946);
+        kit.Capture(Shot("trade-narrow"));
+
+        // Buy a supply with a click on it, then sell a bag item with a right click: both land where they are drawn.
+        world.Hero.Equipment.AddGold(500);
+        var supply = world.Supplies[0];
+        var had = world.Hero.Equipment.CountOf(supply);
+        kit.Click(view.SupplyCell(0));
+        Assert.Equal(had + 1, world.Hero.Equipment.CountOf(supply));
+        var junk = new Core.Items.Item(Core.Content.ContentDatabase.Embedded.Item("club"), Core.Items.Rarity.Common, 1);
+        world.Hero.Equipment.TryAdd(junk);
+        var at = view.BagCell(world.Hero.Equipment.Bag.ToList().IndexOf(junk));
+        kit.Window.MouseDown(at, MouseButton.Right);
+        kit.Window.MouseUp(at, MouseButton.Right);
+        kit.Pump();
+        Assert.Same(junk, vendor.Buyback.Single());
+
+        // Alone, the bag is drawn at full size again.
+        kit.Window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+        kit.Play(0.1);
+        view.InventoryOpen = true;
+        kit.Play(0.1);
+        Assert.Equal(1f, view.PanelScale);
+    }
 }

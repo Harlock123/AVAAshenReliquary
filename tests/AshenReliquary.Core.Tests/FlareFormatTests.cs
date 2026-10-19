@@ -102,6 +102,9 @@ public class FlareFormatTests
         Assert.All(Enumerable.Range(0, 8), d => Assert.True(zombie["run"]!.Frame(0, d).Width > 0));
         var wolf = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, "animations/enemies/wolf.txt")));
         Assert.Equal(["stance", "run", "swing", "hit", "die"], new[] { "stance", "run", "swing", "hit", "die" }.Where(wolf.Animations.ContainsKey));
+        // Re-rendered at 256-px frames and packed: every frame of every direction is there.
+        Assert.All(wolf.Animations.Values, a => Assert.All(Enumerable.Range(0, a.FrameCount),
+            f => Assert.All(Enumerable.Range(0, 8), d => Assert.True(a.Frame(f, d).Width > 0, $"{a.Name} {f} {d}"))));
         var arrows = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, "animations/powers/arrows.txt")));
         Assert.All(Enumerable.Range(0, 8), d => Assert.True(arrows.Animations.Values.First().Frame(0, d).Width > 0));
         var grass = FlareTileset.Parse(File.ReadAllText(Path.Combine(root, "tilesetdefs/tileset_grassland.txt")));

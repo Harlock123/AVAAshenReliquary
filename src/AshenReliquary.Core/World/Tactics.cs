@@ -14,7 +14,8 @@ namespace AshenReliquary.Core.World;
 /// (<see cref="Upkeep"/>, between fights too) and throw a bomb at a champion. Subclass abilities go off against a crowd:
 /// a Vanguard's Earthshaker, a Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap. The ranger
 /// hunts its target, springs away from anything in melee (the only bot that keeps its distance), sends its wolf, and
-/// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot. The champion keeps Shield of Faith up in a fight,
+/// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot. The casters (wizard and necromancer) Step clear of
+/// anything in melee when the Step is ready. The champion keeps Shield of Faith up in a fight,
 /// lays on hands when hurt, raises its subclass's aura with enemies close (the Oathbreaker's too when its Taint runs
 /// high, to spend it before the whispers), and Smites with what Devotion is left over. The necromancer keeps its
 /// skeletons raised, puts on Bone Armor with something close, blasts a crowd with Corpse Explosion, rushes its bones at
@@ -55,6 +56,29 @@ public static class Tactics
         }
 
         string slot;
+        // What a multiclass dedication grants, used by any class: Lay on Hands when hurt, Hunt Prey on what it fights,
+        // Power Attack in reach. (The champion's own branch uses Lay on Hands as its class does.)
+        if (classId != "champion" && hero.Character.HitPoints < hero.Character.MaxHitPoints * 0.5 && Ready("lay_on_hands", out slot))
+        {
+            world.UseSlot(slot, null);
+            return;
+        }
+        if (classId != "ranger" && hero.Prey != target && target.Creature.Stats.Rank >= CreatureRank.Normal && Ready("hunt_prey", out slot))
+            world.UseSlot(slot, target);
+        if (classId != "fighter" && distance < 1.6 && !hero.IsSwinging && Ready("power_attack", out slot))
+        {
+            world.UseSlot(slot, target);
+            return;
+        }
+        // A caster steps clear of anything in melee (the Step is free, on its cooldown) and goes on casting from there.
+        if (classId is "wizard" or "necromancer" && world.DodgeCooldownRemaining <= 0 && !hero.IsSwinging
+            && world.Monsters.Where(m => !m.IsDead && !m.Definition.Ranged && m.DistanceTo(hero) < 1.6).MinBy(m => m.DistanceTo(hero)) is { } melee
+            && melee.DistanceTo(hero) > 0.01)
+        {
+            var away = melee.DistanceTo(hero);
+            world.Dodge(hero.X + (hero.X - melee.X) / away * 4, hero.Y + (hero.Y - melee.Y) / away * 4);
+            return;
+        }
         if (classId == "fighter")
         {
             // The shield goes up as a fight starts and stays up (it costs nothing): a ranged boss never comes close.
@@ -176,7 +200,7 @@ public static class Tactics
         }
         else
         {
-            if (hero.Ward is null && Ready("shield", out slot) && world.Monsters.Any(m => !m.IsDead && m.DistanceTo(hero) < 2.5))
+            if (hero.Ward is null && Ready("shield", out slot) && distance < 8)
                 world.UseSlot(slot, null);
             if (Ready("thunderclap", out slot) && Within(2.3) >= 2 && !hero.IsSwinging)
                 world.UseSlot(slot, null);
