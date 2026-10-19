@@ -79,6 +79,52 @@ public class CreationTests
     }
 
     [AvaloniaFact]
+    public void In_a_narrow_window_the_level_up_screen_fits_and_says_what_is_left_to_choose()
+    {
+        var kit = TestKit.Open();
+        kit.Window.MinWidth = 0;
+        kit.Window.Width = 731;
+        kit.Window.Height = 946;
+        var world = kit.World;
+        TestHooks.GainXp(world, 4000);
+        foreach (var (level, choice) in new (int, AshenReliquary.Core.Characters.LevelChoice)[]
+        {
+            (2, new(ClassFeat: "lunge", SkillFeat: "titan_wrestler")),
+            (3, new(GeneralFeat: "toughness", SkillIncrease: "Athletics")),
+            (4, new(ClassFeat: "swipe", SkillFeat: "battle_medicine")),
+        })
+            world.ChooseLevel(level, choice);
+        kit.Window.View.LevelUpOpen = true;
+        kit.Play(0.1);
+        kit.Capture();
+        var panel = kit.Window.View.LevelUp;
+        var character = world.Hero.Character;
+        Assert.InRange(panel.Bounds.Left, 0, 20);
+        Assert.InRange(panel.Bounds.Right, 711, 731);
+        Assert.Equal(["ancestry feat", "a skill increase", "4 attribute boosts"], panel.Missing(character, 5));
+
+        void Pick(string title)
+        {
+            var (rect, _) = panel.Options.First(o => o.Title == title);
+            Assert.True(rect.Left >= 0 && rect.Right <= 731, $"{title} is drawn off the window: {rect}");
+            kit.Click(new Point(rect.MidX, rect.MidY));
+            kit.Capture();
+        }
+        Pick(panel.Options.First().Title);   // the ancestry feat column, leftmost
+        Pick("Medicine");
+        Pick("Strength");
+        Pick("Dexterity");
+        Assert.Equal(["2 more attribute boosts"], panel.Missing(character, 5));
+        kit.Capture(Shot("level-up-narrow"));
+        Pick("Constitution");
+        Pick("Wisdom");
+        Assert.Empty(panel.Missing(character, 5));
+        Assert.True(panel.ConfirmButton.Right <= 731);
+        kit.Click(new Point(panel.ConfirmButton.MidX, panel.ConfirmButton.MidY));
+        Assert.Empty(character.PendingLevels);
+    }
+
+    [AvaloniaFact]
     public void Respec_at_the_lantern_altar_closes_the_conversation_and_opens_the_level_up_screen()
     {
         var kit = TestKit.Open(zoneId: "fort_gallowmere");

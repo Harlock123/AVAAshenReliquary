@@ -76,6 +76,9 @@ public sealed class WorldView : Control
 
     private readonly LevelUpPanel _levelUp = new();
 
+    /// <summary>The level-up screen (L), as last drawn.</summary>
+    internal LevelUpPanel LevelUp => _levelUp;
+
     /// <summary>The Step dodge (Shift): toward the pointer, or straight ahead without one.</summary>
     public void DodgeTowardPointer()
     {
@@ -692,19 +695,43 @@ public sealed class WorldView : Control
         return null;
     }
 
-    /// <summary>The shrine under a screen point (its flat stone circle).</summary>
+    /// <summary>The shrine under a screen point: anywhere on its flat stone circle as drawn.</summary>
     public ShrineDefinition? ShrineUnder(Point p)
     {
         if (World is not { } world)
             return null;
-        var z = (float)Zoom;
         foreach (var s in world.Zone.Shrines)
         {
-            var at = ToScreen(s.At[0] + 0.5, s.At[1] + 0.5);
-            if (Math.Abs(p.X - at.X) / (70 * z) + Math.Abs(p.Y - at.Y) / (36 * z) <= 1)
+            var area = ShrineArea(world, s);
+            var (dx, dy) = ((p.X - area.MidX) / (area.Width / 2), (p.Y - area.MidY) / (area.Height / 2));
+            if (dx * dx + dy * dy <= 1)
                 return s;
         }
         return null;
+    }
+
+    /// <summary>
+    /// Where a shrine's stone circle is on screen: the rectangle its tile is drawn in. Flare's shrine art is not centred
+    /// on its cell (the grassland circle's frame is drawn well east of its cell's middle), so a hit test round the cell missed most of the
+    /// glowing ring. A shrine with no tile of its own falls back to a circle round its cell.
+    /// </summary>
+    public SKRect ShrineArea(GameWorld world, ShrineDefinition shrine)
+    {
+        var z = (float)Zoom;
+        var (x, y) = (shrine.At[0], shrine.At[1]);
+        var anchor = ToScreen(x + 0.5, y + 0.5);
+        var tiles = _assets.Tileset(world.Zone.Tileset).Tiles;
+        if (world.Map.InBounds(x, y))
+        {
+            foreach (var id in world.Map.Objects(x, y))
+            {
+                // The tile's frame has a transparent margin round the stone: keep to the inner 80%.
+                if (tiles.TryGetValue(id, out var tile))
+                    return SKRect.Inflate(SKRect.Create(anchor.X - tile.OffsetX * z, anchor.Y - tile.OffsetY * z, tile.Width * z, tile.Height * z),
+                        -tile.Width * z * 0.1f, -tile.Height * z * 0.1f);
+            }
+        }
+        return SKRect.Create(anchor.X - 80 * z, anchor.Y - 40 * z, 160 * z, 80 * z);
     }
 
     /// <summary>The chest under a screen point.</summary>

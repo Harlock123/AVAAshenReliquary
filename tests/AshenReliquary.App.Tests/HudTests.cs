@@ -60,6 +60,53 @@ public class HudTests
         kit.Capture(Shot("minimap"));
     }
 
+    [AvaloniaTheory]
+    [InlineData("gallows_road")]
+    [InlineData("fort_gallowmere")]
+    [InlineData("rotwater_fens")]
+    [InlineData("drowned_chapel")]
+    [InlineData("sallows_mire")]
+    [InlineData("prior_ossuary")]
+    public void Every_shrine_answers_to_a_click_anywhere_on_its_stone_circle(string zone)
+    {
+        var kit = TestKit.Open(zoneId: zone);
+        var world = kit.World;
+        var view = kit.Window.View;
+        foreach (var shrine in world.Zone.Shrines)
+        {
+            TestHooks.Place(world, shrine.At[0] - 1.5, shrine.At[1] + 0.5);
+            kit.Play(0.05);
+            var area = view.ShrineArea(world, shrine);
+            Assert.True(area.Width > 100 * view.Zoom, $"{shrine.Id}'s circle is only {area.Width} px across");
+            foreach (var (fx, fy) in new[] { (0f, 0f), (0.4f, 0f), (-0.4f, 0f), (0f, 0.4f), (0f, -0.4f) })
+            {
+                var p = new Point(area.MidX + fx * area.Width, area.MidY + fy * area.Height);
+                Assert.Same(shrine, view.ShrineUnder(p));
+            }
+        }
+    }
+
+    [AvaloniaFact]
+    public void Clicking_the_east_side_of_a_woken_shrine_opens_the_rift()
+    {
+        // The grassland shrine's art lies east of its cell: the click area once sat west of the glowing ring and a
+        // click on the ring's east half walked the hero there instead.
+        var kit = TestKit.Open();
+        var world = kit.World;
+        var view = kit.Window.View;
+        var shrine = world.Zone.Shrines[0];
+        TestHooks.Place(world, shrine.At[0] + 0.5, shrine.At[1] + 1.2);
+        kit.PlayUntil(() => world.ActivatedShrines.Contains(shrine.Id), 5);
+        var area = view.ShrineArea(world, shrine);
+        var anchor = view.ToScreen(shrine.At[0] + 0.5, shrine.At[1] + 0.5);
+        var click = new Point(area.MidX + area.Width * 0.38, area.MidY);
+        Assert.True(click.X > anchor.X + 60 * view.Zoom, "the probe should be well east of the shrine's cell");
+        kit.Click(click);
+        kit.Play(0.1);
+        Assert.Same(shrine, world.OpenShrine);
+        kit.Capture(Shot("rift-east-click"));
+    }
+
     [AvaloniaFact]
     public void Target_frame_shows_a_burning_monster()
     {

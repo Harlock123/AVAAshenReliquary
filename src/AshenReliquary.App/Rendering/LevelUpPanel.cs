@@ -13,8 +13,12 @@ namespace AshenReliquary.App.Rendering;
 /// </summary>
 internal sealed class LevelUpPanel
 {
+    /// <summary>The panel's width in a window wide enough; a narrower window gets a narrower panel, never one off its edges.</summary>
     public const float Width = 900;
-    private const float Pad = 22, Row = 23, ColumnWidth = 270;
+    private const float Pad = 22, Row = 23, Columns = 3;
+
+    /// <summary>One column's width: three fit across the panel (two feat columns and the skills at most).</summary>
+    private float ColumnWidth => (Bounds.Width - 2 * Pad) / Columns;
 
     public SKRect Bounds { get; private set; }
 
@@ -46,7 +50,8 @@ internal sealed class LevelUpPanel
             _boosts.Clear();
         }
         var gains = LevelProgression.GainsAt(level);
-        Bounds = SKRect.Create((size.Width - Width) / 2, 16, Width, Math.Max(420, size.Height - 32 - 150));
+        var width = Math.Min(Width, size.Width - 16);
+        Bounds = SKRect.Create((size.Width - width) / 2, 16, width, Math.Max(420, size.Height - 32 - 150));
         _hits.Clear();
 
         using var back = new SKPaint { Color = Palette.Panel.WithAlpha(255) };   // a full-screen sheet: nothing should show through
@@ -156,6 +161,13 @@ internal sealed class LevelUpPanel
             canvas.DrawRect(_confirm, button);
         canvas.DrawRect(_confirm, frame);
         canvas.DrawText("Confirm", _confirm.MidX, _confirm.MidY + 5, SKTextAlign.Center, font, ready ? gold : dim);
+        if (!ready)
+        {
+            // What still stands between the player and Confirm, so a pick missed is never a mystery.
+            var lines = Wrap($"Still to choose: {string.Join(", ", Missing(c, level))}.", small, _confirm.Left - Bounds.Left - 2 * Pad);
+            for (var i = 0; i < lines.Count; i++)
+                canvas.DrawText(lines[i], Bounds.Left + Pad, _confirm.MidY + 5 - (lines.Count - 1 - i) * 15, SKTextAlign.Left, small, gold);
+        }
     }
 
     /// <summary>The line at a level with no skill increase: none now, and the level that brings the next.</summary>
@@ -184,6 +196,29 @@ internal sealed class LevelUpPanel
         if (line.Length > 0)
             lines.Add(line);
         return lines;
+    }
+
+    /// <summary>Where each option was last drawn, by its title (tests click them).</summary>
+    public IEnumerable<(SKRect Rect, string Title)> Options => _hits.Select(h => (h.Rect, h.Title));
+
+    public SKRect ConfirmButton => _confirm;
+
+    /// <summary>What the level still needs picked before Confirm works ("ancestry feat", "2 more attribute boosts").</summary>
+    public List<string> Missing(Character c, int level)
+    {
+        var missing = new List<string>();
+        var gains = LevelProgression.GainsAt(level);
+        foreach (var (gain, type, title) in FeatGains)
+        {
+            if ((gains & gain) != 0 && !_feats.ContainsKey(type))
+                missing.Add(title.ToLowerInvariant());
+        }
+        if ((gains & LevelGain.SkillIncrease) != 0 && _skill is null)
+            missing.Add("a skill increase");
+        var boostsLeft = (gains & LevelGain.AttributeBoosts) != 0 && !c.LevelUpBoosts.ContainsKey(level) ? AttributeSet.BoostsPerLevelUp - _boosts.Count : 0;
+        if (boostsLeft > 0)
+            missing.Add($"{boostsLeft} {(boostsLeft == AttributeSet.BoostsPerLevelUp ? "" : "more ")}attribute boost{(boostsLeft == 1 ? "" : "s")}");
+        return missing;
     }
 
     /// <summary>The level's picks, once everything it grants is chosen; null until then.</summary>
