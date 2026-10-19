@@ -65,6 +65,10 @@ public sealed class DamageProfile
 
 public static class DamageCalculator
 {
+    /// <summary>How much a type is held back by these defences: immunity most, then resistance less weakness.</summary>
+    public static int Hinders(DamageType type, DamageProfile defenses) =>
+        defenses.Immunities.Contains(type) ? 1000 : defenses.Resistances.GetValueOrDefault(type) - defenses.Weaknesses.GetValueOrDefault(type);
+
     /// <summary>Critical success doubles, success is normal, a failure is a miss or a half-damage graze, a critical failure deals nothing.</summary>
     public static double DegreeMultiplier(DegreeOfSuccess degree, GrazeEffect graze = GrazeEffect.None) => degree switch
     {

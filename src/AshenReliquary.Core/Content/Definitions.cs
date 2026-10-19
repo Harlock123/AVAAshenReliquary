@@ -66,8 +66,19 @@ public sealed record ClassDefinition(
     IReadOnlyDictionary<ProficiencyTrack, IReadOnlyDictionary<int, ProficiencyRank>> Proficiencies,
     IReadOnlyList<ArmorCategory>? ArmorCategories = null,
     IReadOnlyList<string>? TrainedSkills = null,
-    int SkillPicks = 0)
+    int SkillPicks = 0,
+    bool SneakAttack = false,
+    bool FinesseDamage = false)
 {
+    // FinesseDamage (the Rogue): DEX instead of STR to damage with a finesse weapon, as Pathfinder's thief.
+
+    /// <summary>
+    /// Sneak attack's precision dice at a level (the Rogue, <see cref="SneakAttack"/>): 1d6, one more at 5, 11 and 17,
+    /// as in Pathfinder. None for other classes.
+    /// </summary>
+    public int SneakAttackDiceAt(int level) =>
+        SneakAttack ? 1 + (level >= 5 ? 1 : 0) + (level >= 11 ? 1 : 0) + (level >= 17 ? 1 : 0) : 0;
+
     /// <summary>
     /// Whether the class is trained in an armour category. Unarmoured defence always is; in armour it isn't trained
     /// in, the character gets no proficiency bonus to AC, as in Pathfinder. Null means every category.

@@ -12,7 +12,7 @@ public enum ItemFit
     Belt,
 
     /// <summary>Gear the class can't use well: untrained body armour, a caster's focus on a fighter or a blade on a
-    /// wizard, a shield for a class that never raises one.</summary>
+    /// wizard, a shield for a class that never raises one, a weapon a rogue can't sneak attack with.</summary>
     PoorFit,
 
     /// <summary>Kept and never sold (the pilgrim's lantern).</summary>
@@ -79,7 +79,12 @@ public static class ItemJudge
         if (d.IsWeapon)
         {
             var caster = c.Class.Resource.StartsWith("Mana", StringComparison.OrdinalIgnoreCase);
-            return caster ? !d.CasterFocus : d.CasterFocus;
+            if (caster)
+                return !d.CasterFocus;
+            // Sneak attack needs an agile or finesse weapon (or a ranged one).
+            if (c.Class.SneakAttack && !d.Ranged && d.Traits?.Any(t => t is WeaponTrait.Agile or WeaponTrait.Finesse) != true)
+                return true;
+            return d.CasterFocus;
         }
         return false;
     }

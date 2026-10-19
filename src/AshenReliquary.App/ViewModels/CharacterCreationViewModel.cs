@@ -437,6 +437,8 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         Preview.Add($"Perception: {character.Perception().Total:+0}");
         Preview.Add($"Class DC: {character.ClassDc().Total}");
         Preview.Add($"Resource: {character.Class.Resource}");
+        if (character.SneakAttackDice > 0)
+            Preview.Add($"Sneak attack: {character.SneakAttackDice}d6");
         foreach (var (slot, ability) in _content.AbilityBar(choices.ClassId).OrderBy(kv => kv.Key switch { "lmb" => 0, "rmb" => 1, _ => 2 }))
             Abilities.Add($"{(slot == "lmb" ? "LMB" : slot == "rmb" ? "RMB" : slot)}  {ability.Name}: {ability.Description}");
         foreach (var id in character.GrantedAbilities)

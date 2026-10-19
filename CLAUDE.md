@@ -60,7 +60,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   creation list, the level-up screen's subclass page for older saves, `Character.ChooseSubclass`), feats that modify
   abilities (`Character.Modify`), bursts with basic saves (`AbilityKind.Burst`, `GameWorld.Bursts.cs`, `Creature.Save`),
   Vanguard/Bulwark/Pyromancer/Stormcaller with Earthshaker, Challenge, Burning Hands and Thunderclap, two-handed weapons
-  (greatsword, greataxe, maul), quick-start flags per subclass, `CampaignReport` rows per subclass.
+  (greatsword, greataxe, maul), quick-start flags per subclass, `CampaignReport` rows per subclass. Step 2 done:
+  choosing the bar (`World/GameWorld.Bar.cs`: a saved layout, abilities placed once then left to the player; the
+  Abilities panel, K, `Rendering/AbilitiesPanel.cs`; `Tactics` finds abilities by id) and the Rogue
+  (`World/GameWorld.Rogue.cs`: Momentum, sneak attack on off-guard or unaware targets, Hide in Shadows, Tumble, traps;
+  Cutthroat with Gutting Strike (bleed: Act 1's dead are immune to poison) and Trickster with Snare; versatile weapons
+  pick the less-resisted type; `--rogue`, `--cutthroat`, `--trickster`).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -93,7 +98,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
 
 - They drive step by step ("commit it and move on to X", "run it"). **Commit only when asked**, on `main`.
 - "Run it" means: build Release, then start `dotnet src/AshenReliquary.App/bin/Release/net10.0/AVAAshenReliquary.dll`
-  in the background (`--fighter`, `--wizard` skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
+  in the background (`--fighter`, `--wizard`, `--rogue` or a subclass flag skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
   itself, `Services/BattleDemo.cs`, saving to a temp folder: use it to watch or record fights, or measure fps in combat).
   To record: make the game fullscreen with `hyprctl dispatch 'hl.dsp.window.fullscreen({ window = "class:AVAAshenReliquary" })'`,
   then `gpu-screen-recorder -w region -region 1500x1000+0+0 -s 1920x1280 -f 60 -k h264 -cursor no -a default_output -o <file>`

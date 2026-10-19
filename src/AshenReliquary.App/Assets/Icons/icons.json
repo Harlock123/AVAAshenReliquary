@@ -140,6 +140,69 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "rogue_strike",
+  "file": "rogue_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/stiletto.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "sneak_strike",
+  "file": "sneak_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/backstab.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "tumble",
+  "file": "tumble.png",
+  "source": "https://game-icons.net/1x1/lorc/dodging.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hide",
+  "file": "hide.png",
+  "source": "https://game-icons.net/1x1/lorc/cowled.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "eviscerate",
+  "file": "eviscerate.png",
+  "source": "https://game-icons.net/1x1/lorc/bloody-sword.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "gutting_strike",
+  "file": "gutting_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/dripping-knife.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "snare",
+  "file": "snare.png",
+  "source": "https://game-icons.net/1x1/lorc/wolf-trap.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "twin_feint",
+  "file": "twin_feint.png",
+  "source": "https://game-icons.net/1x1/lorc/daggers.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "whirling_blades",
+  "file": "whirling_blades.png",
+  "source": "https://game-icons.net/1x1/lorc/spinning-blades.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",
@@ -311,6 +374,13 @@
   "id": "antidote",
   "file": "antidote.png",
   "source": "https://game-icons.net/1x1/lorc/drink-me.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hidden",
+  "file": "hidden.png",
+  "source": "https://game-icons.net/1x1/lorc/hood.html",
   "author": "Lorc",
   "licence": "CC BY 3.0"
  },

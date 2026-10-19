@@ -35,6 +35,10 @@ public enum FeatType
 /// "modifier" feats: one more target, 5 less Fury, a longer ward).</item>
 /// <item><see cref="BlockHardness"/>: Shield Block with a shield takes this much more off a blow.
 /// <see cref="BlockCounter"/>: after a Shield Block the hero strikes back at the attacker if it is in reach.</item>
+/// <item>The Rogue's: <see cref="SneakDice"/> more sneak attack dice; <see cref="AmbushCrit"/>: a Strike out of hiding
+/// that hits is a critical hit; <see cref="SwiftSneak"/>: no slower while hidden; <see cref="TumbleFeint"/>: enemies
+/// next to a Tumble's path are left off-guard. <see cref="PersistentDice"/> on an <see cref="Ability"/>: its wound or poison
+/// deals more dice.</item>
 /// </list>
 /// </summary>
 public sealed record FeatEffect(
@@ -63,11 +67,16 @@ public sealed record FeatEffect(
     double OnHitSeconds = 0,
     double WardSeconds = 0,
     int BlockHardness = 0,
-    bool BlockCounter = false)
+    bool BlockCounter = false,
+    int SneakDice = 0,
+    bool AmbushCrit = false,
+    bool SwiftSneak = false,
+    bool TumbleFeint = false,
+    int PersistentDice = 0)
 {
     /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
     public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0
-        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0);
+        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0 || PersistentDice != 0);
 }
 
 /// <summary>

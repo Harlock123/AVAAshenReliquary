@@ -28,7 +28,7 @@
   },
   {
     "id": "rogue", "trainedSkills": ["Stealth", "Thievery"], "skillPicks": 7, "armorCategories": ["Light"], "name": "Rogue", "hitPointsPerLevel": 8, "keyAttributes": ["Dexterity"],
-    "resource": "Momentum", "subclasses": ["Cutthroat", "Trickster"],
+    "resource": "Momentum", "subclasses": ["Cutthroat", "Trickster"], "sneakAttack": true, "finesseDamage": true,
     "proficiencies": {
       "Attack": { "1": "Trained", "5": "Expert", "13": "Master" },
       "Armor": { "1": "Trained", "13": "Expert", "19": "Master" },

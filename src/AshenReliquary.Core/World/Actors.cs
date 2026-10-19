@@ -94,6 +94,17 @@ public sealed class HeroActor : Actor
     internal double DodgeRemaining { get; set; }
     internal (double X, double Y) DodgeDirection { get; set; }
     internal double DodgeReadyAt { get; set; }
+
+    /// <summary>How fast the current dodge or Tumble goes, in tiles a second.</summary>
+    internal double DodgeSpeed { get; set; }
+
+    /// <summary>The Trickster's Tumble: the enemies it has passed and left off-guard (null for a plain dodge).</summary>
+    internal HashSet<MonsterActor>? DodgeFeinted { get; set; }
+
+    /// <summary>Seconds left in the shadows (the Rogue's Hide in Shadows); 0 when seen.</summary>
+    public double HiddenRemaining { get; internal set; }
+
+    public bool IsHidden => HiddenRemaining > 0;
     internal double InvulnerableUntil { get; set; }
 
     /// <summary>True during a Step dodge: monsters' blows pass through.</summary>
@@ -137,6 +148,9 @@ internal sealed class HeroAction(AbilityDefinition ability, MonsterActor target,
 
     /// <summary>Weapon dice bought with the resource spent (Finishing Blow).</summary>
     public int ExtraDice { get; init; }
+
+    /// <summary>Begun out of hiding: its blow finds the target off-guard.</summary>
+    public bool FromHiding { get; init; }
 }
 
 /// <summary>

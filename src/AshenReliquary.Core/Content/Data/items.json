@@ -14,7 +14,8 @@
    "Agile",
    "Finesse",
    "Versatile"
-  ]
+  ],
+  "versatile": "Slashing"
  },
  {
   "id": "shortsword",
@@ -31,7 +32,8 @@
    "Agile",
    "Finesse",
    "Versatile"
-  ]
+  ],
+  "versatile": "Slashing"
  },
  {
   "id": "longsword",
@@ -46,7 +48,8 @@
   "attacksPerSecond": 1.2,
   "traits": [
    "Versatile"
-  ]
+  ],
+  "versatile": "Piercing"
  },
  {
   "id": "greatsword",
@@ -62,7 +65,8 @@
   "traits": [
    "TwoHand",
    "Versatile"
-  ]
+  ],
+  "versatile": "Piercing"
  },
  {
   "id": "greataxe",

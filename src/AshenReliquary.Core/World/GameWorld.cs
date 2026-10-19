@@ -279,6 +279,7 @@ public sealed partial class GameWorld
     {
         _memories[Zone.Id] = Remember();
         var first = !_memories.Remove(zone.Id, out var memory);
+        ClearRogueState();
         Populate(zone, memory);
         Hero.X = x;
         Hero.Y = y;
@@ -345,6 +346,8 @@ public sealed partial class GameWorld
         Hero.Path.Clear();
         Hero.DodgeDirection = (dx / length, dy / length);
         Hero.DodgeRemaining = DodgeSeconds;
+        Hero.DodgeSpeed = DodgeTiles / DodgeSeconds;
+        Hero.DodgeFeinted = null;
         Hero.InvulnerableUntil = Time + DodgeSeconds;
         Hero.DodgeReadyAt = Time + DodgeCooldown;
         Hero.Face(towardX, towardY);
@@ -357,12 +360,13 @@ public sealed partial class GameWorld
     {
         var step = Math.Min(dt, Hero.DodgeRemaining);
         Hero.DodgeRemaining -= step;
-        var distance = DodgeTiles / DodgeSeconds * step;
+        var distance = Hero.DodgeSpeed * step;
         var (nx, ny) = (Hero.X + Hero.DodgeDirection.X * distance, Hero.Y + Hero.DodgeDirection.Y * distance);
         if (Map.IsWalkable(nx, ny))
             (Hero.X, Hero.Y) = (nx, ny);
         else
             Hero.DodgeRemaining = 0; // stopped by a wall or a tree
+        FeintPassing();
         if (Hero.DodgeRemaining <= 0)
             Hero.Play("stance");
     }
@@ -479,39 +483,6 @@ public sealed partial class GameWorld
 
     // ----- Commands from the player ------------------------------------------------
 
-    /// <summary>The ability bar: "lmb", "rmb" and "1".."6" to abilities. The basic attack is the "lmb" slot.</summary>
-    public IReadOnlyDictionary<string, AbilityDefinition> Bar => _bar;
-
-    private readonly IReadOnlyDictionary<string, AbilityDefinition> _classBar;
-    private readonly IReadOnlyDictionary<string, AbilityDefinition> _abilities;
-    private readonly Dictionary<string, AbilityDefinition> _bar = [];
-
-    /// <summary>
-    /// The class's abilities in their slots (those of a higher level once it is reached), then those feats have granted
-    /// in the free number slots, in order; and the belt (<see cref="RefreshBelt"/>).
-    /// </summary>
-    private void RefreshBar()
-    {
-        _bar.Clear();
-        // Each ability as the hero's feats have changed it (a subclass's cheaper Cleave, a longer ward).
-        var c = Hero.Character;
-        foreach (var (slot, ability) in _classBar)
-        {
-            if (ability.Level <= c.Level)
-                _bar[slot] = c.Modify(ability);
-        }
-        // Feat abilities take the number slots no class ability uses first, so one doesn't have to move when a class
-        // ability joins later (Finishing Blow at 2); then any slot still empty.
-        var numbers = new[] { "1", "2", "3", "4", "5", "6" };
-        var free = new Queue<string>(numbers.Where(s => !_classBar.ContainsKey(s)).Concat(numbers.Where(s => _classBar.ContainsKey(s) && !_bar.ContainsKey(s))));
-        foreach (var id in c.GrantedAbilities)
-        {
-            if (_abilities.TryGetValue(id, out var ability) && free.TryDequeue(out var slot))
-                _bar[slot] = c.Modify(ability);
-        }
-        RefreshBelt();
-    }
-
     /// <summary>Makes a level's picks (the level-up screen's Confirm); new abilities go on the bar.</summary>
     public void ChooseLevel(int level, Characters.LevelChoice choice)
     {
@@ -528,11 +499,6 @@ public sealed partial class GameWorld
         Say($"You are a {Hero.Character.Subclass!.Name}.");
     }
 
-    /// <summary>The basic attack: the "lmb" slot, or a plain weapon Strike when the bar has none.</summary>
-    public AbilityDefinition BasicAbility => Bar.GetValueOrDefault("lmb") ?? DefaultStrike;
-
-    public static readonly AbilityDefinition DefaultStrike =
-        new("strike", "Strike", "any", "lmb", AbilityKind.WeaponStrike, Repeat: true, Traits: ["Attack"]);
 
     /// <summary>
     /// Walk to a point (a left click on the ground). Cancels any attack order. While the Taint's whispers hold the hero,
@@ -554,25 +520,31 @@ public sealed partial class GameWorld
         PlanPath(Hero, x, y);
     }
 
-    /// <summary>Basic attack on a monster (a left click on it): walk into range, then keep attacking until it dies.</summary>
-    public void Attack(MonsterActor monster) => Use(BasicAbility, monster);
+    /// <summary>
+    /// A left click on a monster: the "lmb" slot's ability (walk into range, then keep attacking until it dies), or the
+    /// basic attack when that slot is empty.
+    /// </summary>
+    public void Attack(MonsterActor monster) => Use(Bar.GetValueOrDefault("lmb") ?? BasicAbility, monster);
 
-    /// <summary>Uses the ability in a bar slot on a monster (right click, keys 1 to 6). False when the slot is empty.</summary>
-    public bool UseSlot(string slot, MonsterActor? target)
+    /// <summary>
+    /// Uses the ability in a bar slot on a monster (right click, keys 1 to 6); <paramref name="toward"/> is the point a
+    /// Tumble rolls to (the pointer). False when the slot is empty.
+    /// </summary>
+    public bool UseSlot(string slot, MonsterActor? target, (double X, double Y)? toward = null)
     {
         if (!Bar.TryGetValue(slot, out var ability))
             return false;
-        Use(ability, target);
+        Use(ability, target, toward);
         return true;
     }
 
-    private void Use(AbilityDefinition ability, MonsterActor? target)
+    private void Use(AbilityDefinition ability, MonsterActor? target, (double X, double Y)? toward = null)
     {
         if (Hero.IsDead)
             return;
         if (ability.IsSelf)
         {
-            UseOnSelf(ability);
+            UseOnSelf(ability, toward ?? (target is not null ? (target.X, target.Y) : null));
             return;
         }
         if (target is null || target.IsDead)
@@ -981,7 +953,14 @@ public sealed partial class GameWorld
         if (Hero.Equipment.BagVersion != _beltBagVersion)
             RefreshBelt();
         UpdateWard();
+        var (wasX, wasY) = (Hero.X, Hero.Y);
         UpdateHero(dt);
+        // Movement builds Momentum (not a jump to a shrine or another zone).
+        var moved = Hero.DistanceTo(wasX, wasY);
+        if (moved < 1)
+            Hero.Resource.OnMoved(moved);
+        UpdateHidden(dt);
+        UpdateTraps();
         Reveal();
         UpdateProjectiles(dt);
         UpdateHazards(dt);
@@ -1321,7 +1300,11 @@ public sealed partial class GameWorld
             ? Math.Max(swing, ability.Actions > 1 ? ActionTiming.CastTime(ability.Actions, c.Gear.AttackSpeed, slowed) : 0)
             : ActionTiming.CastTime(ability.Actions, ability.Kind == AbilityKind.Burst && !ability.IsSpellBurst ? c.Gear.AttackSpeed : c.Gear.CastSpeed, slowed);
         var dashing = ability.Kind == AbilityKind.ChargeStrike && hero.DistanceTo(target) > ReachFor(ability, target);
-        hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing, ExtraDice = extraDice };
+        // Any blow, spell or bomb brings the hero out of the shadows; its first blow still finds the target off-guard.
+        var fromHiding = hero.IsHidden;
+        if (fromHiding)
+            Unhide(null);
+        hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing, ExtraDice = extraDice, FromHiding = fromHiding };
         hero.Face(target.X, target.Y);
         if (dashing)
             hero.Play("run", 2.0, restart: true);
@@ -1368,12 +1351,12 @@ public sealed partial class GameWorld
         if (!action.Landed && action.Elapsed >= action.Duration * landsAt)
         {
             action.Landed = true;
-            ApplyAbility(action.Ability, target, action.ExtraDice);
+            ApplyAbility(action.Ability, target, action.ExtraDice, action.FromHiding);
         }
         return action.Elapsed < action.Duration;
     }
 
-    private void ApplyAbility(AbilityDefinition ability, MonsterActor target, int spentDice = 0)
+    private void ApplyAbility(AbilityDefinition ability, MonsterActor target, int spentDice = 0, bool fromHiding = false)
     {
         var rank = AbilityDefinition.SpellRank(Hero.Character.Level);
         switch (ability.Kind)
@@ -1381,7 +1364,12 @@ public sealed partial class GameWorld
             case AbilityKind.WeaponStrike or AbilityKind.ChargeStrike:
                 var dice = ability.ExtraDiceAt(Hero.Character.Level) + spentDice;
                 if (!target.IsDead && Hero.DistanceTo(target) <= ReachFor(ability, target) + 0.3)
-                    HeroStrike(target, ability, dice, ability.CadenceAttacks);
+                {
+                    HeroStrike(target, ability, dice, ability.CadenceAttacks, fromHiding: fromHiding, feint: ability.Feint);
+                    // Twin Feint: a second Strike on the heels of the first, against a target now off-guard to it.
+                    if (ability.Twin && !target.IsDead)
+                        HeroStrike(target, ability, dice, ability.CadenceAttacks, feint: true);
+                }
                 // A sweep strikes more enemies within reach and its arc, nearest first; only the main target builds Fury.
                 foreach (var other in _monsters.Where(m => !m.IsDead && m != target && Hero.DistanceTo(m) <= ReachFor(ability, m) + 0.3
                                  && WithinArc(ability.Arc, target, m))
@@ -1397,7 +1385,7 @@ public sealed partial class GameWorld
                 Sound(SoundCue.Ignition, Hero);
                 break;
             case AbilityKind.Burst:
-                Burst(ability, target);
+                Burst(ability, target, (Hero.X, Hero.Y));
                 break;
             case AbilityKind.Missiles:
                 var count = ability.MissilesAt(rank);
@@ -1517,6 +1505,11 @@ public sealed partial class GameWorld
     /// </summary>
     private void OnHit(AbilityDefinition ability, MonsterActor target, bool critical)
     {
+        if (ability.UsesWeapon && ability.WeaponPersistentAt(Hero.Character.Level) is { } persistent)
+        {
+            target.Creature.Persistent.Add(ability.DamageType, persistent);
+            Float(target, ability.DamageType.ToString().ToLowerInvariant(), FloatingTextKind.Info, 0.3);
+        }
         if (ability.OnHit is { } name && Enum.TryParse<ConditionKind>(name, out var kind))
         {
             var value = ability.OnHitValue + (critical && kind == ConditionKind.Frightened ? 1 : 0);
@@ -1544,14 +1537,21 @@ public sealed partial class GameWorld
 
     private void AddImpact(double x, double y, DamageType type) => _impacts.Add(new Impact(x, y, type, Time));
 
+    /// <param name="fromHiding">Struck out of hiding: the target is off-guard to it (and with the Cutthroat's ambush a hit is a critical).</param>
+    /// <param name="feint">The target is off-guard to this Strike (Sneak Strike, Twin Feint's second blow).</param>
     private void HeroStrike(MonsterActor target, AbilityDefinition? ability = null, int extraDice = 0, int cadenceAttacks = 1,
-        bool buildsFury = true)
+        bool buildsFury = true, bool fromHiding = false, bool feint = false)
     {
         if (LostInTheDark(target))
             return;
-        var result = Strike.Resolve(Hero.Character, target.Creature, Hero.Cadence, Time, Random, graze: GrazeEffect.Near,
-            attackSpeedBonus: Hero.Character.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks);
+        var c = Hero.Character;
+        var (offGuard, sneak) = SneakAttack(target, fromHiding || feint);
+        var result = Strike.Resolve(c, target.Creature, Hero.Cadence, Time, Random, graze: GrazeEffect.Near,
+            attackSpeedBonus: c.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks,
+            targetAc: offGuard, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
+        if (sneak > 0 && result.Damage > 0 && !result.Grazed)
+            Float(target, "sneak attack", FloatingTextKind.Info, 0.6);
         Sound(result.Damage > 0 ? (critical ? SoundCue.Crit : SoundCue.Hit) : SoundCue.Miss, target);
         if (result.Grazed)
         {
@@ -1740,8 +1740,11 @@ public sealed partial class GameWorld
 
         if (m.State == MonsterState.Idle)
         {
-            if (!hero.IsDead && distance <= def.AggroRadius && Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y))
+            // A hidden hero is noticed only close by (and is then hidden no longer).
+            if (!hero.IsDead && distance <= (hero.IsHidden ? HiddenNoticeTiles : def.AggroRadius) && Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y))
             {
+                if (hero.IsHidden)
+                    Unhide($"The {m.Name} spots you.");
                 Aggro(m);
                 Sound(SoundCue.MonsterAggro, m, def.Voice);
             }
@@ -1964,6 +1967,8 @@ public sealed partial class GameWorld
     /// <summary>Damage the hero takes: the number, the Hero Point or death. False when the hero fell for good.</summary>
     private bool HurtHero(int dealt)
     {
+        if (Hero.IsHidden)
+            Unhide("A blow drives you out of the shadows.");
         var outcome = Hero.Character.TakeDamage(dealt);
         Hero.Resource.OnCombat(taken: true);
         Float(Hero, dealt.ToString(), FloatingTextKind.DamageTaken);
@@ -2038,10 +2043,12 @@ public sealed partial class GameWorld
 
     /// <summary>The hero's walking speed here: slower in the bog.</summary>
     private double HeroSpeed() =>
-        Hero.Character.MoveSpeedTilesPerSecond() * MapSpeedScale * (Map.IsBog(Hero.X, Hero.Y) ? BogSpeed : 1.0);
+        Hero.Character.MoveSpeedTilesPerSecond() * MapSpeedScale * (Map.IsBog(Hero.X, Hero.Y) ? BogSpeed : 1.0)
+        * (Hero.IsHidden && !Hero.Character.SwiftSneak ? HiddenSpeed : 1.0);
 
     private void HeroDied()
     {
+        ClearRogueState();
         Hero.Play("die", restart: true);
         Hero.RespawnIn = RespawnSeconds;
         Sound(SoundCue.Death, Hero);

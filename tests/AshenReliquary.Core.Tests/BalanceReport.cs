@@ -24,6 +24,7 @@ public class BalanceReport(ITestOutputHelper output)
     [Theory]
     [InlineData("fighter")]
     [InlineData("wizard")]
+    [InlineData("rogue")]
     public void Gallows_Road_packs_at_level_1(string classId)
     {
         var results = Run(classId);
@@ -51,12 +52,18 @@ public class BalanceReport(ITestOutputHelper output)
         ["fighter bulwark"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         ["wizard pyromancer"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
         ["wizard stormcaller"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
+        // The Rogue (M3 step 2): a shortsword and leathers.
+        ["rogue"] = ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        ["rogue cutthroat"] = ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        ["rogue trickster"] = ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
     };
 
     [Theory]
     [InlineData("fighter")]
     [InlineData("fighter in leather")]
     [InlineData("wizard")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
     public void The_whole_road_at_level_1(string kit)
     {
         var classId = kit.Split(' ')[0];
@@ -366,7 +373,8 @@ public class BalanceReport(ITestOutputHelper output)
                 : null;
             world.ChooseLevel(at, new LevelChoice(
                 Boosts: boosts,
-                ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class, c.Class.Id == "wizard" ? "reach_spell" : "lunge"),
+                ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class,
+                    c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", _ => "lunge" }),
                 SkillFeat: Feat(Progression.LevelGain.SkillFeat, FeatType.Skill),
                 GeneralFeat: Feat(Progression.LevelGain.GeneralFeat, FeatType.General, "toughness"),
                 AncestryFeat: Feat(Progression.LevelGain.AncestryFeat, FeatType.Ancestry),
@@ -379,6 +387,8 @@ public class BalanceReport(ITestOutputHelper output)
     [Theory]
     [InlineData("fighter")]
     [InlineData("wizard")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
     public void Mother_Sallow_at_levels_4_and_5(string kit)
     {
         foreach (var (level, runed) in new[] { (4, false), (5, false), (5, true) })
@@ -502,7 +512,7 @@ public class BalanceReport(ITestOutputHelper output)
     private static (int Downs, double HpLostPct, int Potions, double Seconds) Fight(
         Content.ContentDatabase content, ZoneDefinition zone, string classId, int seed, int heroLevel = 1)
     {
-        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var hero = TestCharacters.ForKit(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, content.AbilityBar(classId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, classId);
         LevelTo(world, heroLevel);

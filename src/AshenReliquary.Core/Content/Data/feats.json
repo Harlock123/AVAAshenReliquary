@@ -1078,5 +1078,135 @@
     "knockback": 1
    }
   ]
+ },
+ {
+  "id": "cutthroat",
+  "name": "Cutthroat",
+  "type": "Subclass",
+  "level": 1,
+  "class": "rogue",
+  "description": "Sneak attacks, wounds and stealth. Gutting Strike: a Strike that opens a deep wound, 1d6 persistent bleed on a hit. A Strike out of hiding that hits is a critical hit, and you move at full speed while hidden.",
+  "effects": [
+   {
+    "ability": "gutting_strike"
+   },
+   {
+    "ambushCrit": true,
+    "swiftSneak": true
+   }
+  ]
+ },
+ {
+  "id": "trickster",
+  "name": "Trickster",
+  "type": "Subclass",
+  "level": 1,
+  "class": "rogue",
+  "description": "Traps, feints and misdirection. Snare: a trap at your feet that springs on the first enemy to step close, piercing every enemy round it (a basic Reflex save) and holding them fast on a failure. Every enemy within a tile of your Tumble is left off-guard for 3 s.",
+  "effects": [
+   {
+    "ability": "snare"
+   },
+   {
+    "tumbleFeint": true
+   }
+  ]
+ },
+ {
+  "id": "twin_feint",
+  "name": "Twin Feint",
+  "type": "Class",
+  "level": 2,
+  "class": "rogue",
+  "description": "A new ability: two quick Strikes, the second a feint the target is off-guard against. 15 Momentum.",
+  "effects": [
+   {
+    "ability": "twin_feint"
+   }
+  ]
+ },
+ {
+  "id": "nimble_dodge",
+  "name": "Nimble Dodge",
+  "type": "Class",
+  "level": 2,
+  "class": "rogue",
+  "description": "You're hard to pin down: +1 to AC.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "deep_cuts",
+  "name": "Deep Cuts",
+  "type": "Class",
+  "level": 2,
+  "class": "rogue",
+  "subclass": "cutthroat",
+  "description": "Cutthroat: Gutting Strike's wound bleeds a die more (2d6).",
+  "effects": [
+   {
+    "ability": "gutting_strike",
+    "persistentDice": 1
+   }
+  ]
+ },
+ {
+  "id": "wide_snare",
+  "name": "Wide Snare",
+  "type": "Class",
+  "level": 2,
+  "class": "rogue",
+  "subclass": "trickster",
+  "description": "Trickster: Snare catches enemies half a tile further and holds them a second longer.",
+  "effects": [
+   {
+    "ability": "snare",
+    "radius": 0.5,
+    "onHitSeconds": 1
+   }
+  ]
+ },
+ {
+  "id": "whirling_blades",
+  "name": "Whirling Blades",
+  "type": "Class",
+  "level": 4,
+  "class": "rogue",
+  "description": "A new ability: one Strike at every enemy within reach, all round you. 25 Momentum.",
+  "effects": [
+   {
+    "ability": "whirling_blades"
+   }
+  ]
+ },
+ {
+  "id": "relentless",
+  "name": "Relentless",
+  "type": "Class",
+  "level": 4,
+  "class": "rogue",
+  "description": "Every blow drives you on: +4 Momentum on every hit.",
+  "effects": [
+   {
+    "furyPerHit": 4
+   }
+  ]
+ },
+ {
+  "id": "opportunist",
+  "name": "Opportunist",
+  "type": "Class",
+  "level": 4,
+  "class": "rogue",
+  "description": "You know where it hurts: your sneak attack deals one more d6.",
+  "effects": [
+   {
+    "sneakDice": 1
+   }
+  ]
  }
 ]

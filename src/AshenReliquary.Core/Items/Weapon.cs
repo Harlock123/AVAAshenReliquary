@@ -39,6 +39,16 @@ public sealed record WeaponDefinition(
     public IReadOnlySet<WeaponTrait> Traits { get; init; } = Traits ?? new HashSet<WeaponTrait>();
 
     public bool Has(WeaponTrait trait) => Traits.Contains(trait);
+
+    /// <summary>A versatile weapon's second damage type (a shortsword's slashing beside its piercing), or null.</summary>
+    public DamageType? VersatileType { get; init; }
+
+    /// <summary>
+    /// The damage type it strikes a target with: a versatile weapon uses whichever of its two types the target's
+    /// defences take less off (Pathfinder lets the wielder choose; in real time the hero always picks well).
+    /// </summary>
+    public DamageType TypeAgainst(DamageProfile defenses) =>
+        VersatileType is { } other && DamageCalculator.Hinders(other, defenses) < DamageCalculator.Hinders(DamageType, defenses) ? other : DamageType;
 }
 
 /// <summary>

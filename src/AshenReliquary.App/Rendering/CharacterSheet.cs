@@ -113,6 +113,17 @@ internal sealed class CharacterSheet
             .. (c.Armor.SpeedPenaltyFeet(c.Attributes[AttributeKind.Strength]) is > 0 and var pen ? [new TipLine($"− armour {pen} ft", Palette.Dim)] : Array.Empty<TipLine>()),
             .. (c.Gear.MoveSpeed > 0 ? [new TipLine($"+ gear {c.Gear.MoveSpeed * 100:0}% (cap 40%)", Palette.Dim)] : Array.Empty<TipLine>()),
         ]);
+        if (c.SneakAttackDice > 0)
+        {
+            Line("Sneak attack", $"{c.SneakAttackDice}d6", () =>
+            [
+                new("Sneak attack", Palette.Ink, $"{c.SneakAttackDice}d6", true),
+                new("Precision damage on a Strike with an agile or finesse", Palette.Dim),
+                new("weapon against a target off-guard to you: unaware of", Palette.Dim),
+                new("you, struck from hiding, feinted, prone or off-guard.", Palette.Dim),
+                new($"Class {c.Class.SneakAttackDiceAt(c.Level)}d6 (more at 5, 11, 17){(c.SneakDiceBonus > 0 ? $" + feats {c.SneakDiceBonus}d6" : "")}.", Palette.Dim),
+            ]);
+        }
         foreach (var track in new[] { ProficiencyTrack.Attack, ProficiencyTrack.Armor, ProficiencyTrack.Spell })
         {
             var rank = c.Rank(track);

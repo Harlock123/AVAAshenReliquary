@@ -50,6 +50,93 @@ public sealed class WorldView : Control
     /// <summary>The level-up screen (L).</summary>
     public bool LevelUpOpen { get; set; }
 
+    /// <summary>The Abilities panel (K): what goes on the bar.</summary>
+    public bool AbilitiesOpen
+    {
+        get => _abilitiesOpen;
+        set
+        {
+            _abilitiesOpen = value;
+            AbilitiesView.Held = null;
+        }
+    }
+
+    private bool _abilitiesOpen;
+    private AbilitiesPanel? _abilitiesPanel;
+    private AbilitiesPanel AbilitiesView => _abilitiesPanel ??= new AbilitiesPanel(_icons);
+
+    /// <summary>The Abilities panel, as last drawn (tests read its rows).</summary>
+    internal AbilitiesPanel Abilities => AbilitiesView;
+
+    /// <summary>Where a bar slot is on screen, as last drawn (tests click it).</summary>
+    public Point BarSlot(string slot) => HudLayer.SlotRect(slot) is var r ? new Point(r.MidX, r.MidY) : default;
+
+    /// <summary>Where an ability's row in the Abilities panel is, as last drawn (tests click it).</summary>
+    public Point AbilityRow(string id) => AbilitiesView.RowRect(id) is var r ? new Point(r.MidX, r.MidY) : default;
+
+    /// <summary>
+    /// With the Abilities panel open, a number key puts the held ability (or the one under the pointer) on that slot.
+    /// False when there is nothing to place, so the key uses the slot as usual.
+    /// </summary>
+    public bool PlaceOnKey(string slot)
+    {
+        if (!AbilitiesOpen || World is not { } world)
+            return false;
+        var id = AbilitiesView.Held ?? (_pointer is { } p ? AbilitiesView.RowAt(new SKPoint((float)p.X, (float)p.Y)) : null);
+        if (id is null)
+            return false;
+        world.PlaceAbility(id, slot);
+        AbilitiesView.Held = null;
+        return true;
+    }
+
+    /// <summary>
+    /// A click with the Abilities panel open: on an ability, pick it up; on a bar slot, put the held one there (or pick
+    /// that slot's up to move it); a right click on a slot empties it, anywhere else puts the held one down. True when
+    /// the click was the panel's.
+    /// </summary>
+    private bool AbilitiesClick(SKPoint at, bool right, GameWorld world)
+    {
+        var panel = AbilitiesView;
+        var slot = HudLayer.SlotAt(at);
+        if (right)
+        {
+            if (slot is not null)
+                world.ClearSlot(slot);
+            var had = panel.Held is not null;
+            panel.Held = null;
+            return slot is not null || had || panel.Bounds.Contains(at);
+        }
+        if (panel.RowAt(at) is { } id)
+        {
+            panel.Held = panel.Held == id ? null : id;
+            _abilityPressedAt = at;
+            return true;
+        }
+        if (slot is not null)
+        {
+            if (panel.Held is { } held)
+            {
+                world.PlaceAbility(held, slot);
+                panel.Held = null;
+            }
+            else if (world.Bar.TryGetValue(slot, out var there))
+            {
+                panel.Held = there.Id;
+                _abilityPressedAt = at;
+            }
+            return true;
+        }
+        if (panel.Held is not null)
+        {
+            panel.Held = null;
+            return true;
+        }
+        return panel.Bounds.Contains(at);
+    }
+
+    private SKPoint? _abilityPressedAt;
+
     /// <summary>While the smith's Runework tab is open, right-clicked gear goes on his bench.</summary>
     private Func<Item, bool>? BenchFor(GameWorld world) =>
         world.OpenVendor is { Definition.Runework: true } && Trade.Runework ? item => Trade.PutOnBench(item, world) : null;
@@ -327,6 +414,12 @@ public sealed class WorldView : Control
             InvalidateVisual();
             return;
         }
+        if (AbilitiesOpen && (props.IsLeftButtonPressed || props.IsRightButtonPressed) && AbilitiesClick(sp, props.IsRightButtonPressed, world))
+        {
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
         if (props.IsLeftButtonPressed && HudLayer.LevelUpBadge.Contains(sp))
         {
             OpenLevelUp();
@@ -461,6 +554,18 @@ public sealed class WorldView : Control
     {
         base.OnPointerReleased(e);
         _holding = false;
+        // An ability dragged from the panel (or from a slot) and let go over a slot goes there.
+        if (AbilitiesOpen && _abilityPressedAt is { } pressed && AbilitiesView.Held is { } dragged && World is { } w)
+        {
+            var up = e.GetPosition(this);
+            var release = new SKPoint((float)up.X, (float)up.Y);
+            _abilityPressedAt = null;
+            if (Math.Abs(release.X - pressed.X) + Math.Abs(release.Y - pressed.Y) > DragThreshold && HudLayer.SlotAt(release) is { } slot)
+            {
+                w.PlaceAbility(dragged, slot);
+                AbilitiesView.Held = null;
+            }
+        }
         if (_drag is not { } drag || World is not { } world)
             return;
         _drag = null;
@@ -618,7 +723,7 @@ public sealed class WorldView : Control
             return;
         var point = at ?? _pointer;
         var target = point is { } p ? MonsterUnder(p) ?? NearestTo(p) : null;
-        world.UseSlot(slot, target);
+        world.UseSlot(slot, target, point is { } aim ? ToMap(aim) : null);
     }
 
     /// <summary>Throws or drinks belt slot <paramref name="slot"/> (keys 7 to 0), a bomb at the monster under the pointer.</summary>
@@ -896,6 +1001,12 @@ public sealed class WorldView : Control
             _journal.Draw(canvas, size, world);
             hud.Block(_journal.Bounds);
         }
+        hud.Placing = AbilitiesOpen ? AbilitiesView.Held : null;
+        if (AbilitiesOpen)
+        {
+            AbilitiesView.Draw(canvas, size, world, pointer, hud.AddRegion);
+            hud.Block(AbilitiesView.Bounds);
+        }
         if (LevelUpOpen && world.Hero.Character.PendingLevels.Count == 0 && !world.Hero.Character.NeedsSubclass)
             LevelUpOpen = false;
         if (LevelUpOpen)
@@ -911,10 +1022,12 @@ public sealed class WorldView : Control
         var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(over)) || (world.OpenVendor is not null && Trade.Bounds.Contains(over))
             || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
             || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(over))
-            || (LevelUpOpen && _levelUp.Bounds.Contains(over)));
-        if (!overPanel && !Dragging)
+            || (LevelUpOpen && _levelUp.Bounds.Contains(over)) || (AbilitiesOpen && AbilitiesView.Bounds.Contains(over)));
+        if (!overPanel && !Dragging && !(AbilitiesOpen && AbilitiesView.Held is not null))
             hud.DrawTooltip(canvas, size, pointer);
         DrawDragged(canvas);
+        if (AbilitiesOpen)
+            AbilitiesView.DrawHeld(canvas, pointer);
         Stats.Mark("text+hud");
 
         var now = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -999,6 +1112,7 @@ public sealed class WorldView : Control
         DrawHazards(canvas, world);
         DrawTargetMarks(canvas, world, time);
         DrawBursts(canvas, world);
+        DrawTraps(canvas, world);
         Stats.Mark("ground");
         DrawDepthSorted(canvas, size, world);
         DrawSpells(canvas, world);
@@ -1412,6 +1526,10 @@ public sealed class WorldView : Control
         }
         var layers = Session!.AppearanceLayers;
         var animation = hero.Animation;
+        // In the shadows (Hide in Shadows) the hero is a dim, half-seen shape.
+        using var hidden = hero.IsHidden
+            ? new SKPaint { Color = SKColors.White.WithAlpha(150), ColorFilter = SKColorFilter.CreateLighting(new SKColor(170, 170, 215), new SKColor(10, 10, 30)) }
+            : null;
         foreach (var slot in _assets.LayerOrder(hero.Direction))
         {
             if (!layers.TryGetValue(slot, out var layer))
@@ -1419,7 +1537,37 @@ public sealed class WorldView : Control
             var set = _assets.AvatarLayer(layer);
             if (Pick(set, animation) is not { } anim)
                 continue;
-            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(hero.AnimationTime), hero.Direction), foot, 1f, null);
+            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(hero.AnimationTime), hero.Direction), foot, 1f, hidden);
+        }
+    }
+
+    /// <summary>
+    /// The Trickster's snares on the ground: a ring of iron teeth, dull while it arms and glinting once armed, with
+    /// its burst's reach faintly marked.
+    /// </summary>
+    private void DrawTraps(SKCanvas canvas, GameWorld world)
+    {
+        var z = (float)Zoom;
+        foreach (var trap in world.Traps)
+        {
+            var armed = trap.IsArmed(world.Time);
+            var centre = ToScreen(trap.X, trap.Y);
+            using var reach = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f * z,
+                Color = new SKColor(230, 200, 140, (byte)(armed ? 70 : 30)), PathEffect = SKPathEffect.CreateDash([8 * z, 8 * z], 0) };
+            var rx = (float)(trap.Ability.Radius * 64 * z);
+            canvas.DrawOval(SKRect.Create(centre.X - rx, centre.Y - rx / 2, rx * 2, rx), reach);
+            using var teeth = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3 * z, StrokeCap = SKStrokeCap.Round,
+                Color = armed ? new SKColor(215, 205, 190) : new SKColor(120, 110, 100) };
+            const int count = 10;
+            for (var i = 0; i < count; i++)
+            {
+                var a = 2 * Math.PI * i / count;
+                var inner = new SKPoint(centre.X + (float)Math.Cos(a) * 12 * z, centre.Y + (float)Math.Sin(a) * 6 * z);
+                var outer = new SKPoint(centre.X + (float)Math.Cos(a) * 22 * z, centre.Y + (float)Math.Sin(a) * 11 * z - 6 * z);
+                canvas.DrawLine(inner, outer, teeth);
+            }
+            teeth.StrokeWidth = 2 * z;
+            canvas.DrawOval(SKRect.Create(centre.X - 14 * z, centre.Y - 7 * z, 28 * z, 14 * z), teeth);
         }
     }
 

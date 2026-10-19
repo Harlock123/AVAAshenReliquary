@@ -287,6 +287,7 @@ public partial class MainWindow : Window
         {
             if (GameMenu.IsVisible) CloseMenu();
             else if (World.LevelUpOpen) World.LevelUpOpen = false;
+            else if (World.AbilitiesOpen) World.AbilitiesOpen = false;
             else if (world.Dialogue is not null) world.EndDialogue();
             else if (World.JournalOpen) World.JournalOpen = false;
             else if (world.OpenVendor is not null) world.CloseVendor();
@@ -322,7 +323,9 @@ public partial class MainWindow : Window
                 World.Answer((int)(e.Key - Key.D1));
                 break;
             case >= Key.D1 and <= Key.D6:
-                World.UseSlot(((int)(e.Key - Key.D1) + 1).ToString());
+                var slot = ((int)(e.Key - Key.D1) + 1).ToString();
+                if (!World.PlaceOnKey(slot))
+                    World.UseSlot(slot);
                 break;
             case >= Key.D7 and <= Key.D9:
                 World.UseBelt((int)(e.Key - Key.D7));
@@ -332,6 +335,9 @@ public partial class MainWindow : Window
                 break;
             case Key.J:
                 World.JournalOpen = !World.JournalOpen;
+                break;
+            case Key.K:
+                World.AbilitiesOpen = !World.AbilitiesOpen;
                 break;
             case Key.L:
                 if (World.LevelUpOpen)

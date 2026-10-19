@@ -42,14 +42,15 @@ public sealed partial class GameWorld
             Hero.FlourishReadyAt = Time + FlourishLockoutSeconds;
         if (!Hero.IsSwinging)
             Hero.Play(ability.IsSpellBurst ? "cast" : "swing", 1.5, restart: true);
-        Burst(ability, null);
+        Burst(ability, null, (Hero.X, Hero.Y));
     }
 
     /// <summary>
-    /// Resolves a burst: every living, visible enemy within its radius (and its arc toward <paramref name="aim"/>, for a
-    /// cone) saves; damage, conditions and knockback follow. Every enemy caught turns on the hero.
+    /// Resolves a burst round <paramref name="at"/> (the hero, or a sprung trap): every living, visible enemy within its
+    /// radius (and its arc toward <paramref name="aim"/>, for a cone) saves; damage, conditions and knockback follow.
+    /// Every enemy caught turns on the hero.
     /// </summary>
-    private void Burst(AbilityDefinition ability, MonsterActor? aim)
+    private void Burst(AbilityDefinition ability, MonsterActor? aim, (double X, double Y) at)
     {
         var c = Hero.Character;
         var dc = ability.IsSpellBurst ? c.SpellDc().Total : c.ClassDc().Total;
@@ -57,10 +58,10 @@ public sealed partial class GameWorld
         var rank = AbilityDefinition.SpellRank(c.Level);
         var cone = aim is not null && ability.Arc < 360;
         var direction = cone ? Math.Atan2(aim!.Y - Hero.Y, aim.X - Hero.X) : 0;
-        _bursts.Add(new BurstEffect(Hero.X, Hero.Y, ability.Radius, cone ? ability.Arc : 360, direction,
+        _bursts.Add(new BurstEffect(at.X, at.Y, ability.Radius, cone ? ability.Arc : 360, direction,
             ability.WeaponDamage ? c.Weapon.Definition.DamageType : ability.DamageType, Time));
-        Sound(ability.IsSpellBurst ? SoundCue.Ignition : SoundCue.Swing, Hero);
-        var caught = _monsters.Where(m => !m.IsDead && IsLit(m.X, m.Y) && Hero.DistanceTo(m) <= ability.Radius + m.Radius
+        Sound(ability.IsSpellBurst ? SoundCue.Ignition : SoundCue.Swing, at.X, at.Y);
+        var caught = _monsters.Where(m => !m.IsDead && IsLit(m.X, m.Y) && m.DistanceTo(at.X, at.Y) <= ability.Radius + m.Radius
                 && (!cone || WithinArc(ability.Arc, aim!, m)))
             .ToList();
         foreach (var m in caught)

@@ -51,9 +51,12 @@ public static class Strike
 
     /// <param name="extraDice">Extra weapon damage dice (Power Attack adds 1, 2 at level 10, 3 at 18).</param>
     /// <param name="cadenceAttacks">How many attacks this counts as for the cadence penalty (Power Attack: 2).</param>
+    /// <param name="targetAc">Adjusts the target's AC for this Strike (−2 for one off-guard to it that has no condition saying so).</param>
+    /// <param name="precisionDice">Sneak attack's d6s, added to the weapon's dice (so doubled on a critical hit).</param>
+    /// <param name="hitIsCritical">A hit is a critical hit (the Cutthroat's Strike out of hiding).</param>
     public static StrikeResult Resolve(Character attacker, IDefender target, AttackCadence cadence, double now,
         IRandomSource random, GrazeEffect graze = GrazeEffect.None, double attackSpeedBonus = 0,
-        int extraDice = 0, int cadenceAttacks = 1)
+        int extraDice = 0, int cadenceAttacks = 1, int targetAc = 0, int precisionDice = 0, bool hitIsCritical = false)
     {
         var weapon = attacker.Weapon;
         var swing = ActionTiming.AttackInterval(weapon.Definition.AttacksPerSecond, attackSpeedBonus,
@@ -65,7 +68,9 @@ public static class Strike
         if (attacker.Conditions.HasImpairedVision && !random.FlatCheck(ConditionSet.ConcealmentFlatCheckDc))
             return new StrikeResult(default, penalty, 0, weapon.Definition.DamageType, false, true);
 
-        var check = Check.Roll(random, attacker.AttackModifier().Total + penalty, target.ArmorClass().Total);
+        var check = Check.Roll(random, attacker.AttackModifier().Total + penalty, target.ArmorClass().Total + targetAc);
+        if (hitIsCritical && check.Degree == DegreeOfSuccess.Success)
+            check = check with { Degree = DegreeOfSuccess.CriticalSuccess };
         graze = Effective(graze, check);
         var damage = 0;
         if (DamageCalculator.DegreeMultiplier(check.Degree, graze) > 0)
@@ -73,13 +78,14 @@ public static class Strike
             var critical = check.Degree == DegreeOfSuccess.CriticalSuccess;
             var definition = weapon.Definition;
             var die = critical && definition.FatalDie is { } fatal ? fatal : definition.DamageDie;
-            var diceTotal = new Dice(weapon.DiceCount + Math.Max(0, extraDice), die).Roll(random);
+            var diceTotal = new Dice(weapon.DiceCount + Math.Max(0, extraDice), die).Roll(random)
+                + (precisionDice > 0 ? new Dice(precisionDice, 6).Roll(random) : 0);
             var extra = critical ? CriticalExtraDice(weapon).Roll(random) : 0;
             damage = DamageCalculator.Compute(diceTotal, attacker.DamageBonus().Total, check.Degree,
-                definition.DamageType, target.Defenses, graze, extra);
+                definition.TypeAgainst(target.Defenses), target.Defenses, graze, extra);
         }
 
-        return new StrikeResult(check, penalty, damage, weapon.Definition.DamageType,
+        return new StrikeResult(check, penalty, damage, weapon.Definition.TypeAgainst(target.Defenses),
             check.Degree == DegreeOfSuccess.CriticalFailure, false, graze);
     }
 

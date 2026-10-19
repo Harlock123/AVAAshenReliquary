@@ -79,8 +79,20 @@ public sealed partial class GameWorld
     }
 
     /// <summary>Something used on the hero, no target: a ward goes up, an elixir is drunk.</summary>
-    private void UseOnSelf(AbilityDefinition ability)
+    private void UseOnSelf(AbilityDefinition ability, (double X, double Y)? toward = null)
     {
+        switch (ability.Kind)
+        {
+            case AbilityKind.Hide:
+                Hide(ability);
+                return;
+            case AbilityKind.Trap:
+                SetTrap(ability);
+                return;
+            case AbilityKind.Tumble:
+                Tumble(ability, toward);
+                return;
+        }
         if (ability.Kind == AbilityKind.Ward)
         {
             RaiseWard(ability);

@@ -470,5 +470,149 @@
    "Concentrate"
   ],
   "description": "Lightning cracks all round you: 2d4 electricity (+1d4 a rank above 1) to every enemy within 2.5 tiles against a basic Reflex save (your spell DC), knocked back a tile on a failure. 14 Mana, 3 s cooldown."
+ },
+ {
+  "id": "rogue_strike",
+  "name": "Strike",
+  "class": "rogue",
+  "slot": "lmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "repeat": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Attack with your weapon. Builds Momentum on a hit, more on a critical hit. With an agile or finesse weapon your sneak attack lands on any target off-guard to you: unaware of you, struck from hiding, prone or off-guard."
+ },
+ {
+  "id": "sneak_strike",
+  "name": "Sneak Strike",
+  "class": "rogue",
+  "slot": "rmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cost": 20,
+  "feint": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "A feint and a quick thrust: the target is off-guard against this Strike (−2 AC), so your sneak attack lands. 20 Momentum."
+ },
+ {
+  "id": "tumble",
+  "name": "Tumble",
+  "class": "rogue",
+  "slot": "1",
+  "kind": "Tumble",
+  "actions": 1,
+  "range": 3.5,
+  "cooldown": 5,
+  "traits": [
+   "Move"
+  ],
+  "description": "Roll up to 3.5 tiles toward the pointer, through enemies; nothing can hit you mid-roll. Like any movement it builds Momentum. 5 s cooldown."
+ },
+ {
+  "id": "hide",
+  "name": "Hide in Shadows",
+  "class": "rogue",
+  "slot": "2",
+  "kind": "Hide",
+  "actions": 1,
+  "cooldown": 12,
+  "buffSeconds": 10,
+  "traits": [
+   "Secret"
+  ],
+  "description": "Slip into the shadows for 10 s. Monsters that haven't seen you notice you only once you are next to them; those hunting you from further than 2 tiles may lose you (your Stealth against their Perception). Your first blow out of hiding finds its target off-guard. You move at three-quarters speed, and attacking or being hit brings you out. 12 s cooldown."
+ },
+ {
+  "id": "eviscerate",
+  "name": "Eviscerate",
+  "class": "rogue",
+  "slot": "4",
+  "level": 2,
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cost": 30,
+  "spendAll": true,
+  "resourcePerDie": 20,
+  "traits": [
+   "Attack",
+   "Flourish"
+  ],
+  "description": "Pour all your Momentum (at least 30) into one Strike: an extra weapon damage die for every 20 spent. Joins the bar at level 2."
+ },
+ {
+  "id": "gutting_strike",
+  "name": "Gutting Strike",
+  "class": "rogue",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cost": 15,
+  "damageType": "Bleed",
+  "persistentDice": "1d6",
+  "traits": [
+   "Attack"
+  ],
+  "description": "A Strike that opens a deep wound: on a hit, 1d6 persistent bleed (a die more at levels 5, 10 and 15). 15 Momentum."
+ },
+ {
+  "id": "snare",
+  "name": "Snare",
+  "class": "rogue",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Trap",
+  "actions": 1,
+  "cost": 15,
+  "cooldown": 3,
+  "radius": 1.5,
+  "save": "Reflex",
+  "damageType": "Piercing",
+  "dice": "2d6",
+  "heightenDice": "1d6",
+  "onHit": "Immobilized",
+  "onHitSeconds": 2,
+  "buffSeconds": 45,
+  "traits": [
+   "Trap",
+   "Manipulate"
+  ],
+  "description": "Set a snare at your feet (two at most). Once armed, the first enemy to step on it sets it off: 2d6 piercing (+1d6 a rank above 1) to every enemy within 1.5 tiles against a basic Reflex save (your class DC), immobilized for 2 s on a failure. 15 Momentum, 3 s cooldown."
+ },
+ {
+  "id": "twin_feint",
+  "name": "Twin Feint",
+  "class": "rogue",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 15,
+  "twin": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Two quick Strikes, the second a feint: the target is off-guard against it, so your sneak attack lands. 15 Momentum."
+ },
+ {
+  "id": "whirling_blades",
+  "name": "Whirling Blades",
+  "class": "rogue",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 25,
+  "targets": 8,
+  "arc": 360,
+  "traits": [
+   "Attack",
+   "Flourish"
+  ],
+  "description": "Spin through the press: one Strike at every enemy within reach, all round you. Only the first hit builds Momentum. 25 Momentum."
  }
 ]

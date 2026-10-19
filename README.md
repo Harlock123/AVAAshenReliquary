@@ -27,7 +27,8 @@ combat. The full design is in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) (
 dotnet run --project src/AshenReliquary.App               # character creation, then Gallows Road
 dotnet run --project src/AshenReliquary.App -- --fighter  # skip creation: a recommended Human Fighter
 dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a recommended Human Wizard
-dotnet run --project src/AshenReliquary.App -- --vanguard # or --bulwark, --pyromancer, --stormcaller: that subclass
+dotnet run --project src/AshenReliquary.App -- --rogue    # skip creation: a recommended Human Rogue
+dotnet run --project src/AshenReliquary.App -- --vanguard # or --bulwark, --pyromancer, --stormcaller, --cutthroat, --trickster
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id, or --wizard)
 ```
@@ -35,7 +36,9 @@ dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays i
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor
 (the fighter's Cleave on 2, Raise a Shield on 3 and, from level 2, Finishing Blow on 4; the wizard's Shield cantrip on
-2), **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
+2; the rogue's Tumble on 1, which rolls toward the cursor, and Hide in Shadows on 2), **K** opens the Abilities panel,
+where you choose what goes on the bar (click an ability, then a slot on the bar, or drag it there, or hover it and press
+1 to 6; right-click a slot to empty it; abilities on no slot wait in the list), **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
 items (right-click bag items to stash them), **J** the journal, in the bag **Sort** orders it for your class (a green ▲ marks an upgrade, a red ▼ a downgrade, red
@@ -105,6 +108,15 @@ slams the ground with **Earthshaker** (a two-handed weapon's damage round them, 
 sword and shield, roars a **Challenge** that turns and frightens a pack, and strikes back after each Shield Block. The
 wizard's **Pyromancer** casts **Burning Hands** (a cone of fire) and splashes Ignition round its target; the
 **Stormcaller** casts **Thunderclap** (lightning all round, knocking back) and chains Electric Arc further.
+Step 2 is done: **choosing the bar** (the Abilities panel, K: any ability in any of the eight slots, kept in the save)
+and the **Rogue**. The rogue builds **Momentum** by moving and landing blows (crits most), and deals **sneak attack**
+dice with an agile or finesse weapon (adding its Dexterity to the damage) to anything off-guard to it: a monster that hasn't noticed it, one it struck from
+hiding, feinted (**Sneak Strike**), knocked down or caught off-guard. **Hide in Shadows** lets it walk up to a pack
+unseen and shakes off hunters further off; **Tumble** rolls through enemies untouched; from level 2 **Eviscerate**
+pours all its Momentum into one blow. The **Cutthroat** opens bleeding wounds (**Gutting Strike**), and its blow out
+of hiding is a critical hit; the **Trickster** sets **Snares** that spring on the first enemy to step close, and its
+Tumble leaves the enemies it passes off-guard. Versatile weapons (the dagger and shortsword: piercing or slashing)
+strike with whichever type the target resists less.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

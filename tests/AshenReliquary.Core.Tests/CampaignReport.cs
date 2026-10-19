@@ -26,6 +26,8 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("fighter bulwark")]
     [InlineData("wizard pyromancer")]
     [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
     public void Act_1_from_the_gallows_to_Mother_Sallow(string kit)
     {
         for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
@@ -228,7 +230,8 @@ public class CampaignReport(ITestOutputHelper output)
 
         /// <summary>
         /// Wears what is better: by value (rarity, level, runes, affixes), weapons the class fights with (a caster's
-        /// focus for the wizard, a melee weapon for the fighter), body armour of the kind already worn.
+        /// focus for the wizard, a melee weapon for the fighter, an agile or finesse one for the rogue), body armour of
+        /// the kind already worn.
         /// </summary>
         private void WearUpgrades()
         {
@@ -240,8 +243,10 @@ public class CampaignReport(ITestOutputHelper output)
                 var d = item.Definition;
                 if (d.IsWeapon && (classId == "wizard" ? !d.CasterFocus : d.CasterFocus || d.Ranged))
                     continue;
-                if (d.IsShield && (classId == "wizard" || Subclass == "vanguard"))
-                    continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands
+                if (d.IsShield && classId != "fighter" || d.IsShield && Subclass == "vanguard")
+                    continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands; a rogue never raises one
+                if (d.IsWeapon && classId == "rogue" && d.Traits?.Any(t => t is WeaponTrait.Agile or WeaponTrait.Finesse) != true)
+                    continue; // sneak attack needs an agile or finesse blade
                 if (d.IsWeapon && classId == "fighter" && d.IsTwoHanded != (Subclass == "vanguard"))
                     continue; // a Vanguard fights two-handed, a Bulwark with sword and shield
                 if (d.IsBodyArmor && gear.In(EquipSlot.Chest) is { } chest && chest.Definition.ArmorCategory != d.ArmorCategory)

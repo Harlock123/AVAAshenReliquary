@@ -325,7 +325,7 @@ public class CreationTests
     public void Unplayable_classes_and_missing_boosts_block_begin()
     {
         var (_, vm, kit) = Open();
-        vm.SelectedClass = vm.Classes.First(c => c.Definition.Id == "rogue");
+        vm.SelectedClass = vm.Classes.First(c => c.Definition.Id == "ranger");
         kit.Pump();
         Assert.False(vm.CanBegin);
         Assert.Contains("M3", vm.Problem);

@@ -118,6 +118,9 @@ public sealed class Creature(
                 _ => AttributeKind.Wisdom,
             })));
 
+    /// <summary>The DC to slip past its notice (a Stealth check): 10 + its Will save, which tracks Perception at its level.</summary>
+    public int PerceptionDc => 10 + Save(StatisticKind.Will).Total;
+
     public void TakeDamage(int amount) => HitPoints = Math.Max(0, HitPoints - Math.Max(0, amount));
 
     /// <summary>Back to full health, conditions and persistent damage gone (a boss resetting when the hero falls).</summary>

@@ -322,9 +322,9 @@ public sealed class Character : IDefender
         _featResistances.Clear();
         _abilityMods.Clear();
         _grantedAbilities.Clear();
-        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = 0;
+        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = 0;
         RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = 0;
-        IgnoresArmorSpeed = BlockCounter = false;
+        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = false;
         Taint.ResetRate(_creationTaintRate);
         foreach (var feat in _creationFeats)
             Grant(feat);
@@ -382,6 +382,20 @@ public sealed class Character : IDefender
     /// <summary>Whether a Shield Block is followed by a strike back at the attacker (the Bulwark).</summary>
     public bool BlockCounter { get; private set; }
 
+    /// <summary>Sneak attack's precision d6s against an off-guard target: the class's, plus feats'. None for most classes.</summary>
+    public int SneakAttackDice => Class.SneakAttackDiceAt(Level) is var dice and > 0 ? dice + SneakDiceBonus : 0;
+
+    public int SneakDiceBonus { get; private set; }
+
+    /// <summary>A Strike out of hiding that hits is a critical hit (the Cutthroat).</summary>
+    public bool AmbushCrit { get; private set; }
+
+    /// <summary>No slower while hidden (the Cutthroat).</summary>
+    public bool SwiftSneak { get; private set; }
+
+    /// <summary>Enemies next to a Tumble's path are left off-guard (the Trickster).</summary>
+    public bool TumbleFeint { get; private set; }
+
     public int ExtraMissiles(string abilityId) => _abilityMods.GetValueOrDefault(abilityId)?.Sum(m => m.ExtraMissiles) ?? 0;
 
     /// <summary>
@@ -405,6 +419,9 @@ public sealed class Character : IDefender
                 Radius = ability.Radius + m.Radius,
                 OnHitSeconds = ability.OnHitSeconds + m.OnHitSeconds,
                 WardSeconds = ability.WardSeconds + m.WardSeconds,
+                PersistentDice = m.PersistentDice != 0 && ability.PersistentDice is { } text
+                    ? (Rules.Dice.Parse(text) is var d ? (d with { Count = d.Count + m.PersistentDice }).ToString() : text)
+                    : ability.PersistentDice,
             };
         }
         return ability;
@@ -440,6 +457,10 @@ public sealed class Character : IDefender
             }
             BlockHardnessBonus += e.BlockHardness;
             BlockCounter |= e.BlockCounter;
+            SneakDiceBonus += e.SneakDice;
+            AmbushCrit |= e.AmbushCrit;
+            SwiftSneak |= e.SwiftSneak;
+            TumbleFeint |= e.TumbleFeint;
             FeatHitPointsPerLevel += e.HitPointsPerLevel;
             FeatSpeedFeet += e.SpeedFeet;
             RecoveryBonus += e.Recovery;
@@ -558,12 +579,17 @@ public sealed class Character : IDefender
         Attr(AttributeKind.Dexterity, Attributes[AttributeKind.Dexterity]),
         Prof(ProficiencyTrack.Attack));
 
-    /// <summary>The flat damage added to the weapon's dice: STR for melee and thrown weapons, nothing for other ranged weapons.</summary>
+    /// <summary>
+    /// The flat damage added to the weapon's dice: STR for melee and thrown weapons, nothing for other ranged weapons.
+    /// A rogue (<see cref="ClassDefinition.FinesseDamage"/>) adds DEX instead with a finesse weapon, if it is higher.
+    /// </summary>
     public ModifierTotal DamageBonus()
     {
         var addsStrength = !Weapon.Definition.IsRanged || Weapon.Definition.Has(WeaponTrait.Thrown);
-        return Total(StatisticKind.Damage, addsStrength ? AttributeKind.Strength : null,
-            Attr(AttributeKind.Strength, addsStrength ? Attributes[AttributeKind.Strength] : 0),
+        var attribute = addsStrength && Class.FinesseDamage && Weapon.Definition.Has(WeaponTrait.Finesse)
+            && Attributes[AttributeKind.Dexterity] > Attributes[AttributeKind.Strength] ? AttributeKind.Dexterity : AttributeKind.Strength;
+        return Total(StatisticKind.Damage, addsStrength ? attribute : null,
+            Attr(attribute, addsStrength ? Attributes[attribute] : 0),
             new Modifier(GearSource, Gear.WeaponDamage));
     }
 

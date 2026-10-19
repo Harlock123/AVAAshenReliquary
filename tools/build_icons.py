@@ -20,6 +20,10 @@ ICONS = {
     # Subclass abilities (M3): Vanguard, Bulwark, Pyromancer, Stormcaller
     "earthshaker": "lorc/earth-crack", "challenge": "lorc/shouting", "burning_hands": "lorc/fire-breath",
     "thunderclap": "lorc/thunder-struck",
+    # The Rogue (M3): class abilities, the Cutthroat's and Trickster's, class feats
+    "rogue_strike": "lorc/stiletto", "sneak_strike": "lorc/backstab", "tumble": "lorc/dodging", "hide": "lorc/cowled",
+    "eviscerate": "lorc/bloody-sword", "gutting_strike": "lorc/dripping-knife", "snare": "lorc/wolf-trap",
+    "twin_feint": "lorc/daggers", "whirling_blades": "lorc/spinning-blades",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",
@@ -31,6 +35,7 @@ ICONS = {
     # HUD
     "healing": "lorc/heart-bottle", "tainted": "lorc/daemon-skull", "hero-point": "lorc/laurel-crown",
     "flourish": "lorc/hourglass", "potion": "lorc/heart-bottle", "step": "lorc/sprint", "antidote": "lorc/drink-me",
+    "hidden": "lorc/hood",
     # Item glyphs (items.json "glyph"), for things Flare's icon sheet lacks
     "lantern": "delapouite/old-lantern", "ember": "lorc/burning-embers",
 }

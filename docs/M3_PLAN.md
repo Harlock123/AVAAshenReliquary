@@ -60,7 +60,12 @@ The framework every class needs, proved on the two that exist.
   - **Stormcaller** (lightning chains, cold, control): Electric Arc chains once more; a frost spell that slows.
 - Feats and the bots learn about subclasses; `CampaignReport` plays each.
 
-### 2. The Rogue
+### 2. The Rogue — done 2026-10-19
+
+Built as below (spec section 16, "Choosing the bar" and "The Rogue"). Learned on the way: nearly every Act 1 monster is
+undead or a crawler immune to poison, and many resist piercing, so the Cutthroat's level-1 ability opens bleeding wounds
+(poison waits for later acts' living foes), and versatile weapons strike with whichever type is resisted less. The
+Trickster's decoys wait for step 3's ally framework.
 
 First, choosing the bar: an ability list (the spec's 8-slot bar, two mouse buttons and keys 1-6) where the player puts
 any ability they have into any slot, kept in the save; abilities not on the bar wait in the list.

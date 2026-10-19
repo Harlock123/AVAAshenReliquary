@@ -100,6 +100,13 @@ public sealed record SaveGame
     /// <summary>Each trader's stock; missing in older saves, whose traders roll fresh wares.</summary>
     public List<SavedVendor> Vendors { get; init; } = [];
 
+    /// <summary>
+    /// The ability bar's layout (slot to ability id) and the abilities already placed once; missing in older saves,
+    /// whose bar is laid out as new.
+    /// </summary>
+    public Dictionary<string, string>? Bar { get; init; }
+    public List<string> BarOffered { get; init; } = [];
+
     /// <summary>The explored map cells (base64 bitset); missing in older saves, which start unexplored.</summary>
     public string? Explored { get; init; }
     public double PlaySeconds { get; init; }
@@ -175,6 +182,8 @@ public sealed record SaveGame
             ZoneComplete = world.ZoneComplete,
             Vendors = world.Vendors.Select(v => new SavedVendor(v.Definition.Id, v.StockedForLevel, v.Stock.Select(Save).ToList())).ToList(),
             Explored = world.ExploredBits(),
+            Bar = world.BarLayout.ToDictionary(kv => kv.Key, kv => kv.Value),
+            BarOffered = world.BarOffered.ToList(),
             PlaySeconds = playSeconds,
         };
     }
@@ -216,6 +225,8 @@ public sealed record SaveGame
         var zone = content.Zone(ZoneId);
         var world = new GameWorld(zone, content.Creatures, character, seed ?? unchecked(Seed + (int)SavedAt.ToUnixTimeSeconds()),
             content.AbilityBar(Choices.ClassId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
+        if (Bar is not null)
+            world.RestoreBar(Bar, BarOffered);
         world.RestoreStory(Flags, Journal);
         world.Stash.Restore(Stash.Select(i => i is null ? null : Load(content, i)));
         foreach (var other in OtherZones)

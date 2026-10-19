@@ -6,11 +6,13 @@ namespace AshenReliquary.Core.World;
 
 /// <summary>
 /// How the computer plays a fight: the balance bots and the "--battle" demo. It plays plainly, never kiting, so its
-/// results are a worst case. The fighter raises a shield as enemies close, charges from afar, cleaves a crowd, spends a
-/// full head of Fury on Finishing Blow and otherwise Power Attacks; the wizard keeps a Shield up when something is
-/// close and casts Force Bolt whenever it can. Both drink an antidote when poisoned (<see cref="Upkeep"/>, between
-/// fights too) and throw a bomb at a champion. Subclass abilities go off against a crowd: a Vanguard's Earthshaker, a
-/// Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap.
+/// results are a worst case. It finds abilities by id wherever they sit on the bar (the player can move them). The
+/// fighter raises a shield as enemies close, charges from afar, cleaves a crowd, spends a full head of Fury on Finishing
+/// Blow and otherwise Power Attacks; the wizard keeps a Shield up when something is close and casts Force Bolt whenever
+/// it can; the rogue hides before an unaware pack and opens from the shadows, rolls away and hides when badly hurt, tumbles in from afar, opens a wound or sets a
+/// snare, spends a full head of Momentum on Eviscerate and otherwise Sneak Strikes. All drink an antidote when poisoned
+/// (<see cref="Upkeep"/>, between fights too) and throw a bomb at a champion. Subclass abilities go off against a crowd:
+/// a Vanguard's Earthshaker, a Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap.
 /// </summary>
 public static class Tactics
 {
@@ -25,55 +27,95 @@ public static class Tactics
     {
         var hero = world.Hero;
         var resource = hero.Resource;
-        bool Ready(string slot) => world.Bar.TryGetValue(slot, out var a) && resource.CanSpend(a.Cost) && world.CooldownRemaining(a) <= 0;
-        string? SlotOf(string id) => world.Bar.FirstOrDefault(kv => kv.Value.Id == id).Key;
-        bool ReadyAbility(string id, out string slot) => (slot = SlotOf(id)!) is not null && Ready(slot);
+        bool Ready(string id, out string slot)
+        {
+            slot = world.SlotOf(id)!;
+            return slot is not null && world.Bar.TryGetValue(slot, out var a) && resource.CanSpend(a.Cost) && world.CooldownRemaining(a) <= 0;
+        }
         int Within(double tiles) => world.Monsters.Count(m => !m.IsDead && m.DistanceTo(hero) <= tiles + m.Radius);
         var distance = target.DistanceTo(hero);
+        var close = world.Monsters.Count(m => !m.IsDead && m.DistanceTo(hero) < 1.8);
 
         if (hero.Character.Persistent.DiceFor(DamageType.Poison) is not null && Belt(world, "antidote") is not null)
         {
             Upkeep(world);
             return;
         }
-        if (target.Creature.Stats.Rank >= CreatureRank.Champion && distance < 6 && !hero.IsSwinging
+        if (target.Creature.Stats.Rank >= CreatureRank.Champion && distance < 6 && !hero.IsSwinging && !hero.IsHidden
             && Belt(world, "alchemists_fire", "frost_vial", "bottled_lightning", "acid_flask") is { } bomb)
         {
             world.UseBelt(bomb, target);
             return;
         }
 
+        string slot;
         if (classId == "fighter")
         {
-            var close = world.Monsters.Count(m => !m.IsDead && m.DistanceTo(hero) < 1.8);
-            if (hero.Ward is null && distance < 3 && Ready("3") && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true })
-                world.UseSlot("3", null);
-            if (ReadyAbility("challenge", out var roar) && Within(3) >= 2)
-                world.UseSlot(roar, null);
-            if (ReadyAbility("earthshaker", out var slam) && world.WieldsTwoHanded && Within(1.8) >= 2 && !hero.IsSwinging)
-                world.UseSlot(slam, null);
-            else if (Ready("1") && distance > 2.5)
-                world.UseSlot("1", target);
-            else if (Ready("4") && resource.Current >= 75 && distance < 1.6)
-                world.UseSlot("4", target);
-            else if (Ready("2") && close >= 2 && distance < 1.6)
-                world.UseSlot("2", target);
-            else if (Ready("rmb") && distance < 1.6)
-                world.UseSlot("rmb", target);
+            if (hero.Ward is null && distance < 3 && Ready("raise_shield", out slot) && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true })
+                world.UseSlot(slot, null);
+            if (Ready("challenge", out slot) && Within(3) >= 2)
+                world.UseSlot(slot, null);
+            if (Ready("earthshaker", out slot) && world.WieldsTwoHanded && Within(1.8) >= 2 && !hero.IsSwinging)
+                world.UseSlot(slot, null);
+            else if (Ready("sudden_charge", out slot) && distance > 2.5)
+                world.UseSlot(slot, target);
+            else if (Ready("finishing_blow", out slot) && resource.Current >= 75 && distance < 1.6)
+                world.UseSlot(slot, target);
+            else if (Ready("cleave", out slot) && close >= 2 && distance < 1.6)
+                world.UseSlot(slot, target);
+            else if (Ready("power_attack", out slot) && distance < 1.6)
+                world.UseSlot(slot, target);
+            else if (hero.CurrentTarget != target)
+                world.Attack(target);
+        }
+        else if (classId == "rogue")
+        {
+            // Badly hurt and not at a boss: roll away from the fight and slip into the shadows to shake it off.
+            var hurt = hero.Character.HitPoints < hero.Character.MaxHitPoints * 0.3 && target.Definition.Boss is null;
+            if (hurt && distance < 2.5 && Ready("tumble", out slot) && distance > 0.01)
+            {
+                world.UseSlot(slot, null, (hero.X + (hero.X - target.X) / distance * 4, hero.Y + (hero.Y - target.Y) / distance * 4));
+                return;
+            }
+            if (hurt && !hero.IsHidden && distance > GameWorld.HideCloseTiles && Ready("hide", out slot))
+            {
+                world.UseSlot(slot, null);
+                return;
+            }
+            // An unaware target: into the shadows first, to open with a blow it never sees coming.
+            if (!hero.IsHidden && target.State == MonsterState.Idle && distance > 2.5 && Ready("hide", out slot))
+                world.UseSlot(slot, null);
+            if (Ready("snare", out slot) && Within(2.5) >= 1 && world.Traps.Count == 0 && !hero.IsHidden)
+                world.UseSlot(slot, null);
+            if (!hero.IsHidden && distance > 3 && distance < 6 && Ready("tumble", out slot))
+                world.UseSlot(slot, target, (target.X, target.Y));
+            else if (Ready("eviscerate", out slot) && resource.Current >= 70 && distance < 1.6)
+                world.UseSlot(slot, target);
+            else if (Ready("whirling_blades", out slot) && close >= 3 && distance < 1.6)
+                world.UseSlot(slot, target);
+            else if (Ready("gutting_strike", out slot) && distance < 1.6 && target.Creature.Persistent.DiceFor(DamageType.Bleed) is null
+                     && target.Creature.Stats.Rank >= CreatureRank.Normal)
+                world.UseSlot(slot, target);
+            // Momentum is saved toward Eviscerate once the rogue has it.
+            else if (Ready("twin_feint", out slot) && distance < 1.6 && (resource.Current < 60 || world.SlotOf("eviscerate") is null))
+                world.UseSlot(slot, target);
+            else if (Ready("sneak_strike", out slot) && distance < 1.6 && (resource.Current < 60 || world.SlotOf("eviscerate") is null)
+                     && !world.IsOffGuardToHero(target))
+                world.UseSlot(slot, target);
             else if (hero.CurrentTarget != target)
                 world.Attack(target);
         }
         else
         {
-            if (hero.Ward is null && Ready("2") && world.Monsters.Any(m => !m.IsDead && m.DistanceTo(hero) < 2.5))
-                world.UseSlot("2", null);
-            if (ReadyAbility("thunderclap", out var clap) && Within(2.3) >= 2 && !hero.IsSwinging)
-                world.UseSlot(clap, null);
-            else if (ReadyAbility("burning_hands", out var flame) && distance < 2.6
+            if (hero.Ward is null && Ready("shield", out slot) && world.Monsters.Any(m => !m.IsDead && m.DistanceTo(hero) < 2.5))
+                world.UseSlot(slot, null);
+            if (Ready("thunderclap", out slot) && Within(2.3) >= 2 && !hero.IsSwinging)
+                world.UseSlot(slot, null);
+            else if (Ready("burning_hands", out slot) && distance < 2.6
                      && world.Monsters.Count(m => !m.IsDead && m.DistanceTo(target) < 1.8) >= 2)
-                world.UseSlot(flame, target);
-            else if (Ready("rmb"))
-                world.UseSlot("rmb", target);
+                world.UseSlot(slot, target);
+            else if (Ready("force_bolt", out slot))
+                world.UseSlot(slot, target);
             else if (hero.CurrentTarget != target)
                 world.Attack(target);
         }

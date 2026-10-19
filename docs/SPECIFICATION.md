@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1042,7 +1042,79 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   Pyromancer without one, Stormcaller with 6 deaths in a bot that never kites, as the plain wizard had 0-4). The
   `--battle` demo's hero can no longer fall (`Character.CannotFall`): several blows in one frame beat its top-up once.
 - **The bar fills up:** the fighter's class holds four of the six number slots, so a fighter has two for its subclass
-  and feat abilities. Choosing what goes on the bar is part of the plan (step 2 onward need it).
+  and feat abilities. Choosing what goes on the bar came next (step 2, below).
+
+### Choosing the bar (M3 step 2)
+
+- **The Abilities panel (K)** lists every ability the hero has (the class's from their level, then the feats' and the
+  subclass's), each with the slot it sits in or "not on the bar", and the tooltip the bar shows. Any ability goes in any
+  of the eight slots (spec section 9: two mouse buttons and keys 1-6): click it and then a slot on the bar, drag it
+  there, or hover it and press 1-6. Whatever was in the slot changes places with it (or goes to the list, if it came
+  from the list). With the panel open a slot's ability can be picked up and moved, and a right click on a slot empties
+  it. Below the bar, "K: N abilities off the bar" says when some are waiting.
+- **New abilities:** an ability is placed once, when the hero first has it: into its class slot if free, else the
+  first free number slot (those no class ability uses first, so Finishing Blow's 4 waits for level 2), else the list.
+  After that it stays where the player put it; one taken off stays off through level-ups. A respec forgets abilities
+  the hero no longer has, and one taken again is placed again.
+- **The basic attack:** a left click on a monster uses the LMB slot's ability; with that slot empty (or after any
+  one-off ability) the hero carries on with the basic attack, the LMB ability if it repeats, else the class's Strike or
+  cantrip wherever it sits.
+- **Saved** as the layout (slot to ability) and the abilities already placed (`Bar`, `BarOffered`); a save from before
+  this gets the automatic layout. The bots (`Tactics`) find abilities by id, so they play whatever the layout.
+
+### The Rogue (M3 step 2)
+
+- **The class** (section 7): DEX, 8 HP a level, light armour, trained in Stealth and Thievery, Reflex, Will and
+  Perception at expert. Starts with a shortsword, leather armour and hood; quick start `--rogue` (a Cutthroat),
+  `--cutthroat`, `--trickster`.
+- **Deft strikes:** with a finesse weapon the rogue adds DEX to damage instead of STR, if higher (Pathfinder's thief
+  racket, given to every rogue: a solo hero has no ally to flank with, so its blows must count without sneak attack).
+  Added after the first campaign runs, where a shortsword's +1 STR left the Cutthroat dying 17 times in Act 1.
+- **Momentum** (0-100, starts empty): +4 a tile moved (walking, tumbling, dodging), +4 a hit, +15 a critical hit (feats'
+  and gear's "per hit" add to it). Out of a fight, moving builds it only to 30, a running start; it drains 10 a second
+  once the hero has neither moved nor fought for 3 s.
+- **Sneak attack** (class feature): 1d6 precision damage (2d6 at 5, 3d6 at 11, 4d6 at 17), on a Strike with an agile or
+  finesse weapon (or a ranged one) against a target off-guard to the rogue, added to the weapon's dice so a critical
+  hit doubles it. Off-guard means: a condition says so (off-guard, prone, grabbed), the monster is unaware (it hasn't
+  noticed the hero, or lost them), the blow comes out of hiding, or a feint. Off-guard without a condition is −2 AC for
+  that Strike. Floating text says "sneak attack". A weapon that can't sneak attack is a poor fit in the bag.
+- **Versatile weapons:** the dagger and shortsword (piercing, versatile slashing), the longsword (slashing, versatile
+  piercing) and greatsword (slashing, versatile piercing) strike with whichever type the target's defences take less
+  off (Pathfinder lets the wielder choose; most of Act 1's dead resist piercing).
+- **The class's abilities:**
+
+| Slot | Ability | Numbers |
+| --- | --- | --- |
+| LMB | Strike | Basic attack; builds Momentum |
+| RMB | Sneak Strike | 20 Momentum, 1 action; the target is off-guard against it (a feint) |
+| 1 | Tumble | Roll up to 3.5 tiles toward the pointer in 0.35 s, through enemies, untouchable; 5 s cooldown |
+| 2 | Hide in Shadows | 10 s hidden; 12 s cooldown (see below) |
+| 4 | Eviscerate (level 2) | All the Momentum (at least 30) into one Strike: a die per 20 spent; 1 action, Flourish |
+
+- **Hiding:** unaware monsters notice a hidden hero only from a tile away (next to them), and noticing ends it; every
+  monster hunting the hero from further than 2 tiles makes a check (the hero's Stealth against its Perception DC, 10 +
+  its Will save) and on a failure loses them: it stands where it is, unaware, so the next blow is a sneak attack. A boss
+  never loses the hero. Hidden, the hero moves at three-quarters speed and is drawn as a dim shape; the first blow,
+  spell or bomb brings them out (that blow still counts as from hiding), and so does being hit.
+- **Cutthroat** (sneak attacks, wounds, stealth): a hit out of hiding is a critical hit, and no slowing while hidden.
+  **Gutting Strike**: 15 Momentum, a Strike that leaves 1d6 persistent bleed (a die more at 5, 10 and 15). Level-2 feat
+  **Deep Cuts**: a die more. The spec's poison is put off: every Act 1 monster but the cultists is undead or a
+  crawler immune to poison, and the cultists resist it, so poison waits for the living foes of later acts.
+- **Trickster** (traps, feints; decoys wait for the ally framework of step 3): every enemy within a tile of a Tumble's
+  path is off-guard for 3 s. **Snare**: 15 Momentum, 3 s cooldown, a trap at the hero's feet (two at most, the oldest
+  goes; each lies 45 s), armed after 0.5 s; the first enemy within 0.8 tiles springs it: 2d6 piercing (+1d6 a rank above
+  1) to every enemy within 1.5 tiles against a basic Reflex save (class DC), immobilized for 2 s on a failure. Drawn as
+  a ring of iron teeth, dull while arming. Level-2 feat **Wide Snare**: half a tile further, a second longer.
+- **Class feats:** level 2 Twin Feint (two Strikes, the second a feint; 15 Momentum) or Nimble Dodge (+1 AC); level 4
+  Whirling Blades (a Strike at every enemy in reach; 25 Momentum), Relentless (+4 Momentum a hit) or Opportunist (+1d6
+  sneak attack).
+- **The bots** hide before an unaware target and open from the shadows, tumble in from 3-6 tiles, set a snare when an
+  enemy is close, open a wound on anything of normal rank or more, Eviscerate at 70 Momentum and otherwise Sneak
+  Strike a target not already off-guard; below 30% health (not at a boss) they roll away and hide, as a player would.
+  `CampaignReport` plays Act 1 as both subclasses: over four seeds each, every run killed Mother Sallow at level 5, in
+  19-28 minutes, the Trickster without a death and the Cutthroat with 0-4 a run (the fighters 0, the Pyromancer 0, the
+  Stormcaller 6, unchanged). Alone against Mother Sallow at level 5 in the starting kit the Cutthroat wins 4 of 6 and
+  the Trickster 5 of 6 (fighter 6, wizard 3); with a +1 striking weapon and +1 armour both win every fight.
 
 ### The arsenal (M2, after step 10)
 

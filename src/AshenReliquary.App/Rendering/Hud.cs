@@ -18,7 +18,20 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
     /// <summary>The "Level up!" prompt's rect (empty when no level is waiting); clicking it opens the level-up screen.</summary>
     public SKRect LevelUpBadge { get; private set; }
 
-    private static readonly string[] Slots = ["lmb", "rmb", "1", "2", "3", "4", "5", "6"];
+    private static readonly IReadOnlyList<string> Slots = GameWorld.BarSlots;
+    private readonly Dictionary<string, SKRect> _slotRects = [];
+
+    /// <summary>
+    /// The ability being placed from the Abilities panel (K), or null: while one is held the bar's slots light up to
+    /// take it.
+    /// </summary>
+    public string? Placing { get; set; }
+
+    /// <summary>The bar slot under a point, as last drawn, or null.</summary>
+    public string? SlotAt(SKPoint p) => _slotRects.FirstOrDefault(kv => kv.Value.Contains(p)).Key;
+
+    /// <summary>Where a bar slot is on screen, as last drawn (tests click it).</summary>
+    public SKRect SlotRect(string slot) => _slotRects.GetValueOrDefault(slot);
     private readonly List<(SKRect Rect, Func<IReadOnlyList<TipLine>> Tip, SKColor Edge)> _regions = [];
 
     private static readonly SKColor Ink = Palette.Ink, Dim = Palette.Dim, Gold = new(240, 200, 90), Good = new(130, 210, 120), Bad = new(232, 105, 94);
@@ -124,25 +137,38 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         // Resource orb and the Taint bar.
         var res = new SKPoint(size.Width - 28 - orbRadius, size.Height - 28 - orbRadius);
         var resource = hero.Resource;
-        var (deep, bright) = resource.Kind == ResourceKind.Fury
-            ? (new SKColor(120, 40, 10), new SKColor(255, 140, 50))
-            : (new SKColor(20, 40, 130), new SKColor(90, 150, 255));
+        var (deep, bright) = resource.Kind switch
+        {
+            ResourceKind.Fury => (new SKColor(120, 40, 10), new SKColor(255, 140, 50)),
+            ResourceKind.Momentum => (new SKColor(14, 80, 64), new SKColor(90, 230, 170)),
+            _ => (new SKColor(20, 40, 130), new SKColor(90, 150, 255)),
+        };
         Orb(canvas, res, orbRadius, (float)(resource.Current / resource.Max), deep, bright);
         canvas.DrawText(resource.Name, res.X, res.Y - 4, SKTextAlign.Center, small, ink);
         canvas.DrawText($"{resource.Current:0} / {resource.Max:0}", res.X, res.Y + 14, SKTextAlign.Center, small, ink);
-        Region(SKRect.Create(res.X - orbRadius, res.Y - orbRadius, orbRadius * 2, orbRadius * 2), () => resource.Kind == ResourceKind.Fury
-            ?
+        var perHit = c.Gear.FuryPerHit + c.FuryPerHitBonus;
+        Region(SKRect.Create(res.X - orbRadius, res.Y - orbRadius, orbRadius * 2, orbRadius * 2), () => resource.Kind switch
+        {
+            ResourceKind.Fury =>
             [
                 new("Fury", new SKColor(255, 150, 70), $"{resource.Current:0} / {resource.Max:0}", true),
-                new($"+{ClassResource.FuryPerHit + c.Gear.FuryPerHit:0} per hit, +{ClassResource.FuryPerCrit + c.Gear.FuryPerHit:0} per critical, +{ClassResource.FuryWhenHit:0} when you are hit.", Dim),
+                new($"+{ClassResource.FuryPerHit + perHit:0} per hit, +{ClassResource.FuryPerCrit + perHit:0} per critical, +{ClassResource.FuryWhenHit:0} when you are hit.", Dim),
                 new($"Drains {ClassResource.FuryDecayPerSecond:0} a second after {ClassResource.FuryDecayDelay:0} s out of combat.", Dim),
-            ]
-            :
+            ],
+            ResourceKind.Momentum =>
+            [
+                new("Momentum", bright, $"{resource.Current:0} / {resource.Max:0}", true),
+                new($"+{ClassResource.MomentumPerTile:0} a tile you move, +{ClassResource.MomentumPerHit + perHit:0} per hit, +{ClassResource.MomentumPerCrit + perHit:0} per critical.", Dim),
+                new($"Out of a fight, moving builds it only to {ClassResource.MomentumRunningStart:0}: a running start.", Dim),
+                new($"Drains {ClassResource.MomentumDecayPerSecond:0} a second once you stand still out of a fight.", Dim),
+            ],
+            _ =>
             [
                 new(resource.Name, new SKColor(120, 170, 255), $"{resource.Current:0} / {resource.Max:0}", true),
                 new($"Regenerates {resource.RegenPerSecond:0.0} a second.", Dim),
                 new("Max 20 + 5 × level + 4 × key attribute.", Dim),
-            ], resource.Kind == ResourceKind.Fury ? new SKColor(255, 140, 50) : new SKColor(90, 150, 255));
+            ],
+        }, bright);
 
         var taintBar = SKRect.Create(res.X - orbRadius, res.Y - orbRadius - 18, orbRadius * 2, 6);
         using (var tb = new SKPaint { Color = new SKColor(20, 18, 16, 220) })
@@ -302,6 +328,15 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 .. (ward.Ability.BlockLockout > 0 ? [new TipLine($"Once it blocks, the ward breaks for {ward.Ability.BlockLockout:0} s.", Dim)] : Array.Empty<TipLine>()),
             ], Good));
         }
+        if (hero.IsHidden)
+        {
+            var hidden = hero.HiddenRemaining;
+            items.Add(("hidden", Good, null, $"{hidden:0.0}s", () =>
+            [
+                new("Hidden", Good, $"{hidden:0.0}s", true),
+                .. Wrap($"Monsters that haven't seen you notice you only once you're next to them. Your first blow finds its target off-guard{(c.AmbushCrit ? ", and a hit is a critical hit" : "")}. Attacking or being hit brings you out.", Dim),
+            ], Good));
+        }
         if (hero.AntidoteUntil > world.Time)
         {
             var left = hero.AntidoteUntil - world.Time;
@@ -347,7 +382,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
     private void DrawAbilityBar(SKCanvas canvas, SKSize size, GameWorld world, SKFont small)
     {
         const float slot = 54, gap = 6;
-        var width = Slots.Length * slot + (Slots.Length - 1) * gap;
+        var width = Slots.Count * slot + (Slots.Count - 1) * gap;
         var left = size.Width / 2 - width / 2;
         var top = size.Height - 98;
         using var frame = new SKPaint { IsAntialias = true, Color = Palette.Frame, Style = SKPaintStyle.Stroke, StrokeWidth = 2 };
@@ -361,9 +396,25 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         using var big = new SKFont(WorldOverlay.Serif, 17);
         var active = world.Hero.CurrentAbility?.Id;
 
-        for (var i = 0; i < Slots.Length; i++)
+        // Abilities the hero has that are on no slot: a reminder above the bar's left end.
+        var waiting = world.AbilitiesOffBar.Count();
+        if (waiting > 0 && Placing is null)
+        {
+            var hint = $"K: {waiting} {(waiting == 1 ? "ability" : "abilities")} off the bar";
+            canvas.DrawText(hint, left, top - 8, SKTextAlign.Left, small, stroke);
+            canvas.DrawText(hint, left, top - 8, SKTextAlign.Left, small, key);
+            Region(SKRect.Create(left, top - 22, small.MeasureText(hint), 16), () =>
+            [
+                new("Abilities", Gold, "K", true),
+                new($"{waiting} of your abilities {(waiting == 1 ? "is" : "are")} on no slot.", Dim),
+                new("Press K to choose what goes on the bar.", Dim),
+            ], Gold);
+        }
+
+        for (var i = 0; i < Slots.Count; i++)
         {
             var rect = SKRect.Create(left + i * (slot + gap), top, slot, slot);
+            _slotRects[Slots[i]] = rect;
             canvas.DrawRect(rect, back);
             var label = Slots[i] switch { "lmb" => "LMB", "rmb" => "RMB", var n => n };
             if (world.Bar.TryGetValue(Slots[i], out var ability))
@@ -396,6 +447,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 var a = ability;
                 Region(rect, () => AbilityTip(world, a, label), AbilityTint(a));
             }
+            if (Placing is not null)
+                frame.Color = Gold;
             canvas.DrawRect(rect, frame);
             frame.Color = Palette.Frame;
             canvas.DrawText(label, rect.Left + 4, rect.Top + 12, SKTextAlign.Left, small, stroke);
@@ -438,7 +491,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         }
     }
 
-    private static IReadOnlyList<TipLine> AbilityTip(GameWorld world, AbilityDefinition a, string key)
+    internal static IReadOnlyList<TipLine> AbilityTip(GameWorld world, AbilityDefinition a, string key)
     {
         var c = world.Hero.Character;
         var rank = AbilityDefinition.SpellRank(c.Level);
@@ -466,6 +519,15 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 break;
             case AbilityKind.Elixir:
                 break;
+            case AbilityKind.Tumble:
+                lines.Add(new($"Up to {a.Range:0.#} tiles, untouchable for {GameWorld.TumbleSeconds:0.##} s{(c.TumbleFeint ? "; enemies passed are left off-guard" : "")}.", Good));
+                break;
+            case AbilityKind.Hide:
+                lines.Add(new($"Now: Stealth {c.Skill("Stealth").Total:+0;-0;+0} against each hunter's Perception.", Good));
+                break;
+            case AbilityKind.Trap:
+                lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, radius {a.Radius:0.#}, class DC {c.ClassDc().Total}", Good));
+                break;
             case AbilityKind.SpellBolt:
                 lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, spell attack {c.SpellAttack().Total:+0}", Good));
                 break;
@@ -479,6 +541,10 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 lines.Add(new($"Now: {w.Definition.Name} {dice}d{w.Definition.DamageDie}{c.DamageBonus().Total:+0;-0;+0}, attack {c.AttackModifier().Total:+0}", Good));
                 if (a.SpendAll)
                     lines.Add(new($"Your {world.Hero.Resource.Current:0} {world.Hero.Resource.Name} buys {spent} extra {(spent == 1 ? "die" : "dice")}.", Dim));
+                if (a.UsesWeapon && c.SneakAttackDice > 0)
+                    lines.Add(new($"Sneak attack +{c.SneakAttackDice}d6 against an off-guard target.", Dim));
+                if (a.UsesWeapon && a.WeaponPersistentAt(c.Level) is { } wound)
+                    lines.Add(new($"On a hit: {wound} persistent {a.DamageType.ToString().ToLowerInvariant()}.", Dim));
                 break;
         }
         return lines;

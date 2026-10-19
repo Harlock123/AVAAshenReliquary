@@ -36,6 +36,22 @@ public enum AbilityKind
     /// A full burst needs no target (Thunderclap, Earthshaker, Challenge); a cone aims at one (Burning Hands).
     /// </summary>
     Burst,
+
+    /// <summary>A roll up to <see cref="AbilityDefinition.Range"/> tiles toward the pointer, untouchable on the way (the Rogue's Tumble).</summary>
+    Tumble,
+
+    /// <summary>
+    /// Into the shadows for <see cref="AbilityDefinition.BuffSeconds"/> or until the hero attacks (the Rogue's Hide in
+    /// Shadows): unaware monsters notice the hero only close by, hunting ones may lose them, and the first blow out of
+    /// hiding finds its target off-guard.
+    /// </summary>
+    Hide,
+
+    /// <summary>
+    /// A trap set at the hero's feet (the Trickster's Snare): it arms, and the first enemy to step close sets it off,
+    /// a burst of <see cref="AbilityDefinition.Radius"/> round it (basic save, damage, the condition on a failure).
+    /// </summary>
+    Trap,
 }
 
 /// <summary>
@@ -56,6 +72,9 @@ public enum AbilityKind
 /// <item>Bursts: <see cref="Radius"/> in tiles, the <see cref="Save"/> the enemies make (Reflex, Fortitude, Will),
 /// <see cref="WeaponDamage"/> (the weapon's dice and damage bonus instead of <see cref="Dice"/>); <see cref="OnHit"/>
 /// and <see cref="Knockback"/> land on a failed save. <see cref="NeedsTwoHanded"/>: only with a two-handed weapon.</item>
+/// <item>Rogue Strikes: <see cref="Feint"/> (the target is off-guard against it), <see cref="Twin"/> (two Strikes,
+/// the second a feint), <see cref="PersistentDice"/> of <see cref="DamageType"/> on a weapon hit (Gutting Strike; one more die
+/// at levels 5, 10 and 15). Traps: <see cref="BuffSeconds"/> is how long one lies set.</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -103,7 +122,9 @@ public sealed record AbilityDefinition(
     double Radius = 0,
     string? Save = null,
     bool WeaponDamage = false,
-    bool NeedsTwoHanded = false)
+    bool NeedsTwoHanded = false,
+    bool Feint = false,
+    bool Twin = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
@@ -113,8 +134,9 @@ public sealed record AbilityDefinition(
 
     public bool UsesWeapon => Kind is AbilityKind.WeaponStrike or AbilityKind.ChargeStrike || (Kind == AbilityKind.Burst && WeaponDamage);
 
-    /// <summary>Used on the hero, with no target: wards, elixirs and full bursts round the hero.</summary>
-    public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir || (Kind == AbilityKind.Burst && Arc >= 360);
+    /// <summary>Used on the hero, with no target: wards, elixirs, hiding, traps, tumbles and full bursts round the hero.</summary>
+    public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir or AbilityKind.Hide or AbilityKind.Trap or AbilityKind.Tumble
+        || (Kind == AbilityKind.Burst && Arc >= 360);
 
     /// <summary>A burst made with spell power (spell DC, cast speed) rather than a weapon or the class DC.</summary>
     public bool IsSpellBurst => Kind == AbilityKind.Burst && Has("Spell");
@@ -145,6 +167,15 @@ public sealed record AbilityDefinition(
 
     /// <summary>Weapon abilities' extra dice grow at levels 10 and 18, like Power Attack.</summary>
     public int ExtraDiceAt(int level) => ExtraDice == 0 ? 0 : ExtraDice + (level >= 10 ? 1 : 0) + (level >= 18 ? 1 : 0);
+
+    /// <summary>A weapon ability's persistent damage on a hit (Gutting Strike): its dice, one more at levels 5, 10 and 15.</summary>
+    public Dice? WeaponPersistentAt(int level)
+    {
+        if (PersistentDice is not { } text)
+            return null;
+        var dice = Rules.Dice.Parse(text);
+        return dice with { Count = dice.Count + (level >= 5 ? 1 : 0) + (level >= 10 ? 1 : 0) + (level >= 15 ? 1 : 0) };
+    }
 
     /// <summary>Force Bolt-style missile count: one more every two spell ranks.</summary>
     public int MissilesAt(int rank) => Missiles + (rank - 1) / 2;
