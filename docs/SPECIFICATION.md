@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1156,7 +1156,8 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   fighting within 7 tiles of the hero, and never wakes a sleeping pack on its own. Its bite is a creature Strike
   against the monster's AC; its kills are the hero's. Monsters fight whichever of the hero and their allies is nearer
   (the hero by a tile's preference, chosen again every second), turn on whatever bites them, and notice an ally
-  within 60% of their notice range. An ally recovers when the hero does (5% a second out of a fight); waking a shrine
+  within 60% of their notice range. A boss is not drawn by nearness but by **threat** (step 9): it fights whoever has
+  hurt it most lately, the hero's damage counting half again. An ally recovers when the hero does (5% a second out of a fight); waking a shrine
   and the hero's respawn restore it; when it falls it lies a moment and finds the hero again 20 s later at half
   health; left more than 16 tiles behind (or after a zone change) it is simply at the hero's side. Its health is
   saved (`CompanionHitPoints`). The HUD shows its health beside the potions, and in the world a green ring at its feet
@@ -1190,12 +1191,12 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
 | --- | --- | --- |
 | LMB | Strike | Basic attack; builds a little Devotion |
 | RMB | Smite | 10 Devotion, 1 action: one more weapon die (2 at 10, 3 at 18) |
-| 1 | Lay on Hands | 20 Devotion, 6 s cooldown: the hero and every ally within 3 tiles heal 6 HP a spell rank (Pathfinder's) |
-| 2 | Shield of Faith (aura) | 20 Devotion, 15 s, 3 tiles: +1 status bonus to AC and saves, every blow loses 2 (3 from rank 3); a shield in the off hand is raised for as long (its AC and Shield Block) |
+| 1 | Lay on Hands | 30 Devotion, 10 s cooldown: the hero and every ally within 3 tiles heal 6 HP a spell rank (Pathfinder's) |
+| 2 | Shield of Faith (aura) | 25 Devotion, 15 s, 3 tiles: +1 status bonus to AC and saves, every blow loses 1 (2 from rank 3); a shield in the off hand is raised for as long (its AC and Shield Block) |
 
 - **Lanternbearer** (light auras, healing, undead bane): Strikes that hit one of the undead deal 1 more vitality damage
   (2 at 9, 3 at 17), doubled on a critical hit and through the target's defences, so the Act 1 dead's weakness to
-  vitality adds 3; Lay on Hands heals half again; the hero's light reaches 1.5 tiles further. **Lantern's Radiance**
+  vitality adds 3; Lay on Hands heals a quarter more; the hero's light reaches 1.5 tiles further. **Lantern's Radiance**
   (aura): 25 Devotion, 12 s, 2.5 tiles, each pulse 1d4 against a basic Fortitude save, vitality to the undead and fire
   to the living, and 1 HP healed. Level-2 feat **Beacon**: a tile further, 5 Devotion cheaper. Creatures now say whether
   they are undead (`undead` in `creatures.json`: the zombies, the drowned dead, the grave knight, the bone archers, the
@@ -1355,6 +1356,34 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   Uniques and Set pieces are made as they are and can only be salvaged. The message says the roll, the DC and the
   result. The Crafting skill (and Quick Repair's +2) now matters.
 - **The bots** don't craft; they still sell their spare gear.
+
+### Balance and the exit test (M3 step 9)
+
+- **The exit test** (the plan's proposal): the bots' twelve campaign runs, one per subclass, kill Mother Sallow at level
+  5-6, and the user plays each new class's opening zone. The bots' half passes: over four seeds each, all 48 runs kill
+  her at level 5 (one Pyromancer met her at 4 and won), in 14-25 minutes; deaths over the four runs: none for the
+  Champions, Necromancers, Rangers, the Trickster and the Vanguard, one for the Bulwark and the Cutthroat, 13 and 7 for
+  the Pyromancer and Stormcaller (a bot that never kites). The user's play is still to come.
+- **The duels** (`BalanceReport.Mother_Sallow_at_levels_4_and_5`, now one row per subclass): alone against Mother
+  Sallow at level 5 in the starting kit every subclass wins at least 4 of 6 (the wizards 4, the rogues 5-6, the rest 6).
+  At level 4, a level under, the spread is wide: the Champions win 6 of 6, the Bulwark, Beastmaster and Necromancers 5,
+  the Marksman 4, the Cutthroat 3, the Vanguard and wizards 1, the Trickster 0 (her HP 9-49% left).
+- **What changed:**
+  - **A boss's threat** (`MonsterActor.Threat`, `GameWorld.VictimOf`): a boss fights whoever has hurt it most lately
+    (damage fading by half every 3 s), the hero's counting 1.5 times; with none yet, the hero. Before, Mother Sallow
+    shot whatever stood nearest, always a wolf or a skeleton at her side, so the ally classes won every duel at level 4;
+    now 5 of 6. (Making bosses ignore allies outright took the Necromancers to 0-1 of 6: too far.)
+  - **The fighter bot keeps its shield up** from 8 tiles out (Raise a Shield is free): it had raised it only with an
+    enemy within 3 tiles, which a ranged boss never is. The Bulwark at level 4 went from 2 to 5 of 6, which also
+    showed the Champion's lead (its shield always raised by Shield of Faith) was mostly the bot's.
+  - **The Champion** keeps its survival but pays more for it: Lay on Hands 30 Devotion and a 10 s cooldown (was 20 and
+    6), Shield of Faith 25 (was 20) and a soak of 1 (was 2), the Lanternbearer's Lay on Hands a quarter more (was
+    half). It still wins every level-4 duel, drinking 0-2 potions where others drink all 3: the tank that heals, as
+    the class is meant to be, and slower to kill.
+  - **The Trickster bot** rolls through a champion or boss it is fighting to leave it off-guard (its Tumble's feint),
+    as a player would; at level 5 it now wins every duel (was 5 of 6).
+- **Left for later:** the wizard bot still never kites (its rows remain a worst case); the bots take no dedications and
+  don't craft; Act 1 is the only act to tune against.
 
 ### The arsenal (M2, after step 10)
 

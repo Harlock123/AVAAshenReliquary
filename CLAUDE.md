@@ -85,7 +85,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   the act drop shares (`LootGenerator.RarityShares`), the Invested limit (10; more lie `Dormant`), the shoulders and
   cloak slots; `LootGenerator.Make` builds a hand-made item. Step 8 done: crafting at Garrow's forge (`Items/Crafting.cs`,
   `GameWorld.Crafting.cs`, the Crafting tab: salvage into Dust and Fragments, Raise / Add / Reroll / Brew on a Crafting
-  check against Pathfinder's level-based DC, `Item.Reforge`).
+  check against Pathfinder's level-based DC, `Item.Reforge`). Step 9, balance, done: bosses pick their victim by
+  threat (`MonsterActor.Threat`), the fighter bot keeps its shield up, the Trickster bot tumbles through bosses, the
+  Champion's Lay on Hands and Shield of Faith cost more; duels for all twelve subclasses; all 48 campaign runs pass.
+  The exit test's other half, the user playing each new class's opening zone, is still to come.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

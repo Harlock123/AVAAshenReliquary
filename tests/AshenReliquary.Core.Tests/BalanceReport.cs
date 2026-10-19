@@ -406,8 +406,10 @@ public class BalanceReport(ITestOutputHelper output)
     public sealed record BossResult(bool Won, double Seconds, int Potions, int Phase, double BossHpLeft);
 
     [Theory]
-    [InlineData("fighter")]
-    [InlineData("wizard")]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
     [InlineData("rogue cutthroat")]
     [InlineData("rogue trickster")]
     [InlineData("ranger marksman")]

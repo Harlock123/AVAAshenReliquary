@@ -157,6 +157,9 @@ more lie dormant.
 Step 8 is done: **crafting** at Garrow's forge (his Crafting tab). Salvage gear into **Ashen Dust** and **Rune
 Fragments**, then raise a common piece to uncommon, add or reroll an affix, or brew belt items, each on a **Crafting
 check** against a DC by item level: a critical success adds a bonus affix, a critical failure loses half the materials.
+Step 9, balance, is done: bosses now fight whoever hurts them most (not whatever stands nearest, which made a wolf or
+a skeleton a perfect shield), the Champion's healing costs more, and every subclass's bot kills Mother Sallow at level 5
+in all of its runs. M3 closes with your play of the new classes.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

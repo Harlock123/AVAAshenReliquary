@@ -9,8 +9,8 @@ namespace AshenReliquary.Core.World;
 /// results are a worst case. It finds abilities by id wherever they sit on the bar (the player can move them). The
 /// fighter raises a shield as enemies close, charges from afar, cleaves a crowd, spends a full head of Fury on Finishing
 /// Blow and otherwise Power Attacks; the wizard keeps a Shield up when something is close and casts Force Bolt whenever
-/// it can; the rogue hides before an unaware pack and opens from the shadows, rolls away and hides when badly hurt, tumbles in from afar, opens a wound or sets a
-/// snare, spends a full head of Momentum on Eviscerate and otherwise Sneak Strikes. All drink an antidote when poisoned
+/// it can; the rogue hides before an unaware pack and opens from the shadows, rolls away and hides when badly hurt, tumbles in from afar (a Trickster
+/// through a champion or boss, to leave it off-guard), opens a wound or sets a snare, spends a full head of Momentum on Eviscerate and otherwise Sneak Strikes. All drink an antidote when poisoned
 /// (<see cref="Upkeep"/>, between fights too) and throw a bomb at a champion. Subclass abilities go off against a crowd:
 /// a Vanguard's Earthshaker, a Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap. The ranger
 /// hunts its target, springs away from anything in melee (the only bot that keeps its distance), sends its wolf, and
@@ -57,7 +57,8 @@ public static class Tactics
         string slot;
         if (classId == "fighter")
         {
-            if (hero.Ward is null && distance < 3 && Ready("raise_shield", out slot) && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true })
+            // The shield goes up as a fight starts and stays up (it costs nothing): a ranged boss never comes close.
+            if (hero.Ward is null && distance < 8 && Ready("raise_shield", out slot) && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true })
                 world.UseSlot(slot, null);
             if (Ready("challenge", out slot) && Within(3) >= 2)
                 world.UseSlot(slot, null);
@@ -95,6 +96,10 @@ public static class Tactics
                 world.UseSlot(slot, null);
             if (!hero.IsHidden && distance > 3 && distance < 6 && Ready("tumble", out slot))
                 world.UseSlot(slot, target, (target.X, target.Y));
+            // A Trickster rolls clean through what it fights to leave it off-guard, then strikes its back.
+            else if (hero.Character.TumbleFeint && distance < 1.8 && distance > 0.01 && !world.IsOffGuardToHero(target) && Ready("tumble", out slot)
+                     && target.Creature.Stats.Rank >= CreatureRank.Champion)
+                world.UseSlot(slot, target, (target.X + (target.X - hero.X) / distance * 1.5, target.Y + (target.Y - hero.Y) / distance * 1.5));
             else if (Ready("eviscerate", out slot) && resource.Current >= 70 && distance < 1.6)
                 world.UseSlot(slot, target);
             else if (Ready("whirling_blades", out slot) && close >= 3 && distance < 1.6)

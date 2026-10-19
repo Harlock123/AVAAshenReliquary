@@ -73,28 +73,28 @@ public class ChampionTests
     }
 
     [Fact]
-    public void Lay_on_hands_heals_six_a_rank_and_the_lanternbearer_half_again()
+    public void Lay_on_hands_heals_six_a_rank_and_the_lanternbearer_a_quarter_more()
     {
         var world = World(TestCharacters.Champion());
         var c = world.Hero.Character;
-        world.Hero.Resource.OnCombat(taken: true);
-        world.Hero.Resource.OnCombat(taken: true);
+        for (var i = 0; i < 3; i++)
+            world.Hero.Resource.OnCombat(taken: true);                 // 30 Devotion
         c.TakeDamage(15);
         world.UseSlot(world.SlotOf("lay_on_hands")!, null);
         Assert.Equal(c.MaxHitPoints - 9, c.HitPoints);
         Assert.Equal(0, world.Hero.Resource.Current);
-        Assert.True(world.CooldownRemaining(world.Bar[world.SlotOf("lay_on_hands")!]) > 5);
+        Assert.True(world.CooldownRemaining(world.Bar[world.SlotOf("lay_on_hands")!]) > 9);
 
         var lantern = World(TestCharacters.Champion("lanternbearer"));
-        lantern.Hero.Resource.OnCombat(taken: true);
-        lantern.Hero.Resource.OnCombat(taken: true);
+        for (var i = 0; i < 3; i++)
+            lantern.Hero.Resource.OnCombat(taken: true);
         lantern.Hero.Character.TakeDamage(15);
         lantern.UseSlot(lantern.SlotOf("lay_on_hands")!, null);
-        Assert.Equal(lantern.Hero.Character.MaxHitPoints - 6, lantern.Hero.Character.HitPoints);
+        Assert.Equal(lantern.Hero.Character.MaxHitPoints - 7, lantern.Hero.Character.HitPoints);   // 6 × 1.25, rounded to 8
     }
 
     [Fact]
-    public void Shield_of_faith_raises_the_shield_lifts_ac_and_saves_and_takes_two_off_every_blow()
+    public void Shield_of_faith_raises_the_shield_lifts_ac_and_saves_and_takes_one_off_every_blow()
     {
         var world = World(TestCharacters.Champion());
         var c = world.Hero.Character;
@@ -102,8 +102,8 @@ public class ChampionTests
         world.UseSlot(world.SlotOf("shield_of_faith")!, null);
         Assert.Empty(world.Auras);                                     // no Devotion yet
         Assert.Contains("Not enough Devotion", world.LastMessage);
-        world.Hero.Resource.OnCombat(taken: true);
-        world.Hero.Resource.OnCombat(taken: true);
+        for (var i = 0; i < 3; i++)
+            world.Hero.Resource.OnCombat(taken: true);                 // 25 Devotion
         world.UseSlot(world.SlotOf("shield_of_faith")!, null);
         var aura = Assert.Single(world.Auras);
         Assert.Equal("shield_of_faith", aura.Ability.Id);
@@ -114,8 +114,8 @@ public class ChampionTests
         Run(world, 15.5);
         Assert.Empty(world.Auras);
         Assert.Equal(ac, c.ArmorClass().Total);
-        Assert.Equal(2, Content.Abilities["shield_of_faith"].AuraSoakAt(1));
-        Assert.Equal(3, Content.Abilities["shield_of_faith"].AuraSoakAt(3));
+        Assert.Equal(1, Content.Abilities["shield_of_faith"].AuraSoakAt(1));
+        Assert.Equal(2, Content.Abilities["shield_of_faith"].AuraSoakAt(3));
     }
 
     [Fact]
@@ -223,7 +223,7 @@ public class ChampionTests
         world.Hero.Resource.Restore(100);
         world.UseSlot(world.SlotOf("shield_of_faith")!, null);
         var soak = typeof(GameWorld).GetMethod("AuraSoak", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
-        Assert.Equal(5, (int)soak.Invoke(world, [7, world.Hero])!);
+        Assert.Equal(6, (int)soak.Invoke(world, [7, world.Hero])!);
         Assert.Equal(0, (int)soak.Invoke(world, [1, world.Hero])!);
     }
 }

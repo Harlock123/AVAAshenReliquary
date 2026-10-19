@@ -758,8 +758,8 @@
   "slot": "1",
   "kind": "Heal",
   "actions": 1,
-  "cost": 20,
-  "cooldown": 6,
+  "cost": 30,
+  "cooldown": 10,
   "heal": 6,
   "radius": 3,
   "traits": [
@@ -767,7 +767,7 @@
    "Healing",
    "Vitality"
   ],
-  "description": "Your hands mend wounds: you, and every ally within 3 tiles, heal 6 HP a spell rank. 20 Devotion, 6 s cooldown."
+  "description": "Your hands mend wounds: you, and every ally within 3 tiles, heal 6 HP a spell rank. 30 Devotion, 10 s cooldown."
  },
  {
   "id": "shield_of_faith",
@@ -776,17 +776,17 @@
   "slot": "2",
   "kind": "Aura",
   "actions": 1,
-  "cost": 20,
+  "cost": 25,
   "buffSeconds": 15,
   "radius": 3,
   "auraAc": 1,
-  "soak": 2,
+  "soak": 1,
   "raisesShield": true,
   "traits": [
    "Aura",
    "Champion"
   ],
-  "description": "An aura of faith for 15 s: +1 status bonus to AC and saves, and every blow at you or an ally within 3 tiles loses 2 damage (one more every two spell ranks). A shield in your off hand is raised for as long: its AC, and Shield Block. 20 Devotion."
+  "description": "An aura of faith for 15 s: +1 status bonus to AC and saves, and every blow at you or an ally within 3 tiles loses 1 damage (one more every two spell ranks). A shield in your off hand is raised for as long: its AC, and Shield Block. 25 Devotion."
  },
  {
   "id": "lanterns_radiance",

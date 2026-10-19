@@ -326,7 +326,9 @@ public sealed partial class GameWorld
             return;
         }
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
+        _dealer = ally;
         damage = DamageMonster(target, damage);
+        _dealer = null;
         Float(target, critical ? $"{damage}!" : damage.ToString(), critical ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
         target.HitFlinch = 0.15;
         Sound(critical ? SoundCue.Crit : SoundCue.Hit, target);
@@ -345,16 +347,45 @@ public sealed partial class GameWorld
         }
     }
 
+    /// <summary>Who is dealing the damage right now: an ally biting, or null for the hero (a boss's threat).</summary>
+    private Actor? _dealer;
+
+    /// <summary>How fast a boss forgets who hurt it: threat halves every this many seconds.</summary>
+    public const double ThreatHalfLife = 3.0;
+
+    /// <summary>The hero's weight in a boss's threat: it hunts the hero unless an ally hurts it half as much again.</summary>
+    public const double HeroThreatWeight = 1.5;
+
     /// <summary>
     /// Whom a monster fights: the nearer of the hero and the living allies, the hero by a tile's preference; chosen
-    /// again every second.
+    /// again every second. A boss is not drawn by nearness: it fights whoever has hurt it most lately (its threat,
+    /// fading by half every <see cref="ThreatHalfLife"/> s), the hero's damage counting <see cref="HeroThreatWeight"/>
+    /// times; with no threat yet, the hero.
     /// </summary>
     private Actor VictimOf(MonsterActor m, double dt)
     {
         m.VictimIn -= dt;
+        if (m.Definition.Boss is not null)
+        {
+            var fade = Math.Pow(0.5, dt / ThreatHalfLife);
+            foreach (var foe in m.Threat.Keys.ToList())
+                m.Threat[foe] *= fade;
+        }
         if (m.Victim is AllyActor { IsDead: true } || m.Victim is null || m.VictimIn <= 0)
         {
             m.VictimIn = 1.0;
+            if (m.Definition.Boss is not null)
+            {
+                Actor chosen = Hero;
+                var most = m.Threat.GetValueOrDefault(Hero) * HeroThreatWeight;
+                foreach (var ally in _allies.Where(a => !a.IsDead))
+                {
+                    if (m.Threat.GetValueOrDefault(ally) > most)
+                        (chosen, most) = (ally, m.Threat[ally]);
+                }
+                m.Victim = chosen;
+                return chosen;
+            }
             Actor best = Hero;
             var bestDistance = m.DistanceTo(Hero) - 1.0;
             foreach (var ally in _allies)

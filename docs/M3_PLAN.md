@@ -150,7 +150,11 @@ affix, add an affix to an Uncommon, raise a Common to Uncommon, craft a belt ite
 item level: a critical success adds a bonus affix, a critical failure loses half the materials. The Crafting skill
 finally matters.
 
-### 9. Balance and the exit test
+### 9. Balance and the exit test — balance done 2026-10-19; the user's play to come
+
+Done as below (spec section 16, "Balance and the exit test"): duels for all twelve subclasses, a boss's threat in place
+of nearness, the fighter bot's shield and the Trickster bot's tumble, the Champion's costs. All 48 campaign runs pass.
+What is left of the exit test is the user's: each new class's opening zone.
 
 - `CampaignReport` plays Act 1 with each class and subclass (twelve rows); each kills Mother Sallow at level 5-6.
 - `BalanceReport` gains the new classes' rows.

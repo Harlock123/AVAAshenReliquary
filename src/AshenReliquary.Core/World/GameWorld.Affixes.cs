@@ -46,6 +46,8 @@ public sealed partial class GameWorld
     /// <summary>Damage landing on a monster: its ward (Shielded) soaks what it can, the rest is taken. Returns the rest.</summary>
     private int DamageMonster(MonsterActor m, int damage)
     {
+        if (m.Definition.Boss is not null && damage > 0)
+            m.Threat[_dealer ?? Hero] = m.Threat.GetValueOrDefault(_dealer ?? Hero) + damage;
         if (m.Ward > 0 && damage > 0)
         {
             var soaked = Math.Min(m.Ward, damage);

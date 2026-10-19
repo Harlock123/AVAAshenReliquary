@@ -331,6 +331,9 @@ public sealed class MonsterActor : Actor
     internal Actor? Victim { get; set; }
     internal double VictimIn { get; set; }
 
+    /// <summary>A boss's threat: the damage each of its foes (the hero, an ally) has dealt it lately, fading.</summary>
+    internal Dictionary<Actor, double> Threat { get; } = [];
+
     public bool Has(MonsterAffix affix) => Affixes.Contains(affix);
 
     /// <summary>Where it was placed: a boss's arena centre, where it fuses in its last phase.</summary>

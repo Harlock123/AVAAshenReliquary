@@ -1349,14 +1349,14 @@
   "type": "Subclass",
   "level": 1,
   "class": "champion",
-  "description": "Light, healing and the bane of the dead. Lantern's Radiance: an aura of holy light that burns the enemies round you (vitality against the undead, fire against the living) and heals you and your allies. Your Strikes against the undead deal 1 more vitality damage (2 at level 9), Lay on Hands heals half as much again, and your lantern lights 1.5 tiles further.",
+  "description": "Light, healing and the bane of the dead. Lantern's Radiance: an aura of holy light that burns the enemies round you (vitality against the undead, fire against the living) and heals you and your allies. Your Strikes against the undead deal 1 more vitality damage (2 at level 9), Lay on Hands heals a quarter more, and your lantern lights 1.5 tiles further.",
   "effects": [
    {
     "ability": "lanterns_radiance"
    },
    {
     "undeadBane": 1,
-    "healShare": 0.5,
+    "healShare": 0.25,
     "light": 1.5
    }
   ]
