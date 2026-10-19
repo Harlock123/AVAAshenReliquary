@@ -44,6 +44,7 @@ public sealed class Character : IDefender
         Attributes = attributes;
         var taintRate = ancestry.Id == "ashborn" ? 0.75 : 1.0;
         Taint = new TaintMeter(TaintMeter.RateFor(taintRate, attributes[AttributeKind.Constitution]));
+        _baseTaintRate = Taint.RateMultiplier;
         if (heritage is { Will: > 0 })
             AddModifier(StatisticKind.Will, new Modifier(heritage.Name, heritage.Will));
         RefreshDefenses();
@@ -69,13 +70,18 @@ public sealed class Character : IDefender
     /// Replaces the gear bonuses: max HP, resistances and untyped save bonuses take effect at once. Hit points keep
     /// their damage taken when the maximum changes.
     /// </summary>
-    public void ApplyGear(GearBonuses gear)
+    public void ApplyGear(GearBonuses gear, IReadOnlyList<(string Source, IReadOnlyList<FeatEffect> Effects)>? worn = null)
     {
         var missing = MaxHitPoints - HitPoints;
         Gear = gear;
         RemoveModifiers(GearSource);
         foreach (var (save, value) in gear.Saves)
             AddModifier(save, new Modifier(GearSource, value));
+        if (worn is not null || _wornEffects.Count > 0)
+        {
+            _wornEffects = worn ?? [];
+            RebuildEffects();
+        }
         RefreshDefenses();
         if (!IsDead)
             HitPoints = Math.Clamp(MaxHitPoints - missing, 1, MaxHitPoints);
@@ -299,7 +305,6 @@ public sealed class Character : IDefender
     private AttributeSet? _creationAttributes;
     private Dictionary<string, ProficiencyRank>? _creationSkills;
     private List<FeatDefinition>? _creationFeats;
-    private double _creationTaintRate;
 
     /// <summary>Remembers the level-1 character (CharacterBuilder, at the end of creation) so a respec can go back to it.</summary>
     internal void MarkCreated()
@@ -307,7 +312,6 @@ public sealed class Character : IDefender
         _creationAttributes = Attributes.Clone();
         _creationSkills = new Dictionary<string, ProficiencyRank>(_skillRanks, StringComparer.OrdinalIgnoreCase);
         _creationFeats = [.. _feats];
-        _creationTaintRate = Taint.RateMultiplier;
     }
 
     /// <summary>
@@ -323,21 +327,9 @@ public sealed class Character : IDefender
         _skillRanks.Clear();
         foreach (var (skill, rank) in _creationSkills)
             _skillRanks[skill] = rank;
-        foreach (var feat in _feats)
-            RemoveModifiers(feat.Name);
         _feats.Clear();
-        _skillBonuses.Clear();
-        _featResistances.Clear();
-        _abilityMods.Clear();
-        _grantedAbilities.Clear();
-        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
-        UndeadBaneBonus = MinionBonus = MinionGrowth = GraveChargeBonus = ChargesPerCorpseBonus = 0;
-        Companion = null;
-        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = 0;
-        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = false;
-        Taint.ResetRate(_creationTaintRate);
-        foreach (var feat in _creationFeats)
-            Grant(feat);
+        _feats.AddRange(_creationFeats);
+        RebuildEffects();
         _levelChoices.Clear();
         _levelUpBoosts.Clear();
         RefreshDefenses();
@@ -494,8 +486,50 @@ public sealed class Character : IDefender
         if (_feats.Contains(feat))
             return;
         _feats.Add(feat);
-        var source = feat.Name;
-        foreach (var e in feat.Effects)
+        ApplyEffects(feat.Name, feat.Effects);
+        RefreshDefenses();
+    }
+
+    private readonly double _baseTaintRate;
+    private readonly HashSet<string> _effectSources = [];
+    private IReadOnlyList<(string Source, IReadOnlyList<FeatEffect> Effects)> _wornEffects = [];
+
+    /// <summary>
+    /// The effects worn items bring (a Unique's trait, a Set's bonuses), as feat effects with their sources; they last
+    /// while the items are worn (see <see cref="ApplyGear"/>).
+    /// </summary>
+    public IReadOnlyList<(string Source, IReadOnlyList<FeatEffect> Effects)> WornEffects => _wornEffects;
+
+    /// <summary>
+    /// Works every effect out afresh: everything feats and worn items gave is taken away, then every feat taken and
+    /// every worn effect is applied again (gear changed, or a respec).
+    /// </summary>
+    private void RebuildEffects()
+    {
+        foreach (var source in _effectSources)
+            RemoveModifiers(source);
+        _effectSources.Clear();
+        _skillBonuses.Clear();
+        _featResistances.Clear();
+        _abilityMods.Clear();
+        _grantedAbilities.Clear();
+        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
+        UndeadBaneBonus = MinionBonus = MinionGrowth = GraveChargeBonus = ChargesPerCorpseBonus = 0;
+        Companion = null;
+        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = 0;
+        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = false;
+        Taint.ResetRate(_baseTaintRate);
+        foreach (var feat in _feats)
+            ApplyEffects(feat.Name, feat.Effects);
+        foreach (var (source, effects) in _wornEffects)
+            ApplyEffects(source, effects);
+        RefreshDefenses();
+    }
+
+    private void ApplyEffects(string source, IEnumerable<FeatEffect> effects)
+    {
+        _effectSources.Add(source);
+        foreach (var e in effects)
         {
             if (e.Statistic is { } stat && Enum.TryParse<StatisticKind>(stat, out var kind))
                 AddModifier(kind, new Modifier(source, e.Value));
@@ -549,7 +583,6 @@ public sealed class Character : IDefender
             if (e.TaintRate > 0)
                 Taint.SlowBy(e.TaintRate);
         }
-        RefreshDefenses();
     }
 
     /// <summary>The boosts chosen at each boost level, so a save can replay the character's growth exactly.</summary>

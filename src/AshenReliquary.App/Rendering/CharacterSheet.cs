@@ -123,6 +123,29 @@ internal sealed class CharacterSheet
                 new($"Class {c.Class.PreyDiceAt(c.Level)}d8 (more at 11, 19){(c.PreyDiceBonus > 0 ? $" + feats {c.PreyDiceBonus}d8" : "")}.", Palette.Dim),
             ]);
         }
+        // What worn Uniques and Sets bring: each trait, and each set with the bonuses its pieces reach.
+        var gear = world.Hero.Equipment;
+        foreach (var item in gear.Active.Where(i => i.Definition.Trait is not null))
+        {
+            var special = item;
+            Line(special.Definition.Trait!, "trait", () =>
+            [
+                new(special.Definition.Trait!, Palette.Rarity(special.Rarity), special.Name, true),
+                .. Hud.Wrap(special.Definition.TraitText ?? "", Palette.Dim),
+            ]);
+        }
+        foreach (var setId in gear.Active.Select(i => i.Definition.Set).OfType<string>().Distinct())
+        {
+            if (!ContentDatabase.Embedded.Sets.TryGetValue(setId, out var set))
+                continue;
+            var worn = gear.SetPieces(setId);
+            var total = ContentDatabase.Embedded.Items.Values.Count(i => i.Set == setId);
+            Line(set.Name, $"{worn}/{total}", () =>
+            [
+                new(set.Name, Palette.Rarity(Core.Items.Rarity.Set), $"{worn} of {total} worn", true),
+                .. set.Bonuses.Select(b => new TipLine($"({b.Pieces}) {b.Description}", worn >= b.Pieces ? InventoryPanel.Better : Palette.Dim)),
+            ]);
+        }
         if (c.Dedication is { } dedication)
         {
             Line("Dedication", c.DedicationClass?.Name ?? dedication.Name, () =>

@@ -147,6 +147,7 @@ public sealed class AudioDirector
         SoundCue.Bomb => sound.Variant is "cold" or "electricity" or "acid" ? $"bomb-{sound.Variant}" : "bomb-fire",
         SoundCue.Ward => sound.Variant == "shield" ? "ward-shield" : "ward-spell",
         SoundCue.Block => "block",
+        SoundCue.RareDrop => "rare-drop",
         _ => "click",
     };
 

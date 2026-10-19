@@ -361,6 +361,7 @@
         "Icons/challenge.png",
         "Icons/champion_strike.png",
         "Icons/cleave.png",
+        "Icons/cloak.png",
         "Icons/companion.png",
         "Icons/corpse_explosion.png",
         "Icons/disengage.png",
@@ -384,6 +385,7 @@
         "Icons/lantern.png",
         "Icons/lanterns_radiance.png",
         "Icons/lay_on_hands.png",
+        "Icons/pauldrons.png",
         "Icons/persistent-Bleed.png",
         "Icons/persistent-Fire.png",
         "Icons/persistent-Poison.png",
@@ -605,6 +607,7 @@
         "Audio/sfx/crone-female_hit.ogg (from female_hit.ogg)",
         "Audio/sfx/cultist-death-male_die.ogg (from male_die.ogg)",
         "Audio/sfx/cultist-male_hit.ogg (from male_hit.ogg)",
+        "Audio/sfx/rare-drop-heal.ogg (from powers/heal.ogg)",
         "Audio/sfx/ward-shield-inventory_heavy.ogg (from inventory_heavy.ogg)",
         "Audio/sfx/ward-spell-shield.ogg (from shield.ogg)"
       ]

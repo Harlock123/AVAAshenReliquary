@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -768,10 +768,10 @@ Building the rules core and the vertical slice settled these. Where a number her
 ### Loot and inventory (M1)
 
 - **Drops by rank:** Minion 4% (1 roll), Normal 14% (1), Champion 100% + a 50% second roll, Elite 100% + two 50% rolls; spawners (cursed graves) always drop one item. Gold: Minion 15%, Normal 35%, Champion and Elite always, amount 2–6 × (1 + level) × the rank's multiplier. Healing draughts (+1 potion charge): 5% from non-minions.
-- **Rarity (Act 1):** 70% Common, 25% Uncommon, 5% Rare; champions and better lift half of Common drops to Uncommon. Uniques and Sets come in M3. Commons never roll jewellery.
+- **Rarity (Act 1):** 70% Common, 25% Uncommon, 4.5% Rare, 0.4% Unique, 0.1% Set (section 11's table; M3 step 7); champions and better lift half of Common drops to Uncommon. Commons never roll jewellery.
 - **Runes by item level:** weapon potency +1 from 2 (30%, 50% on Uncommon+), striking from 4 (20% / 40%); armour potency from 5, resilient from 8.
 - **Affixes:** Uncommon 1–2 (at most one prefix and one suffix), Rare 3–4 (at most two of each), never two of the same stat. 18 affixes in `affixes.json`: max HP, movement, attack and cast speed, weapon damage, Fury per hit, resource regeneration, resistances (fire, cold, void, poison, Taint) and +1 Fortitude, Reflex or Will.
-- **Slots built:** main hand, head, chest, hands, legs, feet, belt, amulet, two rings (off hand, shoulders and cloak are not in M1). Bag: 10×6.
+- **Slots built:** main hand, head, chest, hands, legs, feet, belt, amulet, two rings; the off hand came with shields (M2), the shoulders and cloak in M3 step 7. Bag: 10×6.
 - **Inventory panel (I):** worn slots above a divider, then the bag. Hovering shows the target slot in green and a tooltip outside the panel with an **equip preview**: every core stat before → after, green for better, red for worse, yellow for the same (resistances, regeneration and Fury per hit only when they change).
 - **Keeping the bag in order** (asked for after the arsenal): **Sort** (on the bag and the stash) orders items for the
   hero: upgrades, other usable gear, belt items, gear the class can't use well, keys; the most valuable first within
@@ -1282,6 +1282,55 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   paid from the dedication's pool when it is that class's (`GameWorld.ResourceFor`). Saved (`DedicationResource`).
   Drawn as a thin bar in the resource's colour above the Taint bar, named, with a tooltip.
 - **The bots** don't take dedications yet (their feat picks are unchanged).
+
+### Uniques, Sets and the drop table (M3 step 7)
+
+- **Drop shares by act** (`LootGenerator.RarityShares`, section 11): Act 1 70 / 25 / 4.5 / 0.4 / 0.1 (Common, Uncommon,
+  Rare, Unique, Set), Act 4 40 / 38 / 18 / 3 / 1, Acts 2 and 3 between. A Unique or Set roll gives one of the hand-made
+  items whose level the item level reaches (a rare when there is none yet); ordinary rolls never give one. Every zone
+  is Act 1 for now.
+- **Hand-made items** (`items.json`): a Unique (`unique`) or Set piece (`set`) has fixed runes (`potency`, `striking`,
+  `resilient`), its implicit bonuses, its own name, a line of lore (`description`) and, for a Unique, a **trait** (`trait`,
+  `traitText`) whose `effects` are feat effects (section 16, "Feats"), in force while it is worn: the character's
+  effects are now rebuilt from every feat taken and every worn effect whenever gear changes (`Character.RebuildEffects`;
+  this also stopped a respec applying the creation feats' slower Taint twice). The three story Uniques gained traits
+  and are `story`: they come only from their stories.
+
+| Unique | Level | Base | Trait |
+| --- | --- | --- | --- |
+| Hangman's Mercy | 1 | +1 longsword | Last Rites: +1 vitality against the undead (undead bane), +2 critical damage |
+| Rotgut Girdle | 1 | belt, +8 HP | Iron Stomach: resistance 4 poison, Taint 20% slower |
+| Whisperknife | 2 | +1 dagger | Whispers: +1 sneak attack die (a rogue's), +3 critical damage |
+| Cinderheart Staff | 2 | staff, +8% cast speed | Ember Well: resource a quarter faster, spells a tile further |
+| Mirewalker Boots | 2 | leather boots | Bog-born: +5 ft, resistance 3 poison |
+| Thornwood Bow | 3 | +1 longbow | Thorned Flights: arrows pierce one more enemy, +1 tile of range |
+| Gravewarden's Cowl | 3 | chain coif | Grave-sight: light 1.5 tiles further, +2 Perception |
+| Shroud of the Drowned | 3 | cloak | Drowned Pallor: resistance 3 cold and void, +1 Reflex |
+| The Lantern's Rebuke | 4 | steel shield | Rebuke: Shield Block +3, and a strike back |
+| The Prophet's Weight | 5 | pauldrons | Weight of Ash: +2 HP a level, +1 Will |
+| Ysolde's Phial (story) | 1 | amulet | Leftover Cure: recovery a quarter faster |
+| Ferryman's Knot (story) | 1 | ring | Boats Wait: +1 Reflex |
+| The Weeping Soul-gem (story) | 1 | ring | Sorrow: Taint 15% slower |
+
+- **Sets** (`sets.json`, `Items/Sets.cs`): each bonus comes once that many distinct pieces work (`Equipment.SetPieces`).
+  **Gallowsman's Garb** (level 1; hood, gloves, boots): 2 +5 ft; 3 +3 critical damage and +1 Reflex. **Lantern Warden's
+  Mail** (level 3; coif, gauntlets, greaves, pauldrons): 2 +1 AC; 3 Shield Block +2 and resistance 3 Taint; 4 +2 HP a
+  level. **Mire-Witch's Regalia** (level 4; hood, sleeves, shawl): 2 resource a fifth faster; 3 spells 2 tiles further
+  and resistance 5 poison. Each piece has a small implicit bonus of its own.
+- **The Invested limit** (section 9): worn magic items other than weapons and shields (anything not a plain common:
+  runes, affixes, implicit powers, a trait) are invested, and only 10 work at once; any more, counted in slot order,
+  lie **dormant** (marked on the paper doll and in the tooltip) until another comes off. The inventory's stats say
+  "Invested n / 10".
+- **Shoulders and cloak:** two new slots and bases (`pauldrons`, `cloak`), with game-icons glyphs on the paper doll and
+  nothing drawn on the hero (no Flare art); the armour affixes (HP, resistances, saves; movement and insight on cloaks)
+  fit them. The paper doll's left column runs head, shoulders, chest, cloak, hands, legs, feet.
+- **On screen:** loot beams in the tier's colour, a Unique's or Set piece's taller, wider and breathing; a minimap ping
+  (a spreading ring) on them; Flare's heal shimmer (`rare-drop`) and "A unique falls: …!" when one drops. The tooltip
+  shows the trait in purple, the lore, and for a set piece the set, how many are worn and each bonus, lit once
+  reached; the character sheet lists worn traits and sets. Tooltips over the inventory in a window too narrow for
+  either side of the panel now stay inside the window (they had been drawn off its right edge).
+- **The bots** wear what is worth more, so they wear Uniques and Sets; the campaign rogue now keeps to finesse blades
+  (an agile hatchet had cost one run its Dexterity damage and Mother Sallow).
 
 ### The arsenal (M2, after step 10)
 

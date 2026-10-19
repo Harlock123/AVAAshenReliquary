@@ -170,6 +170,9 @@
   ],
   "crone-death": [
    "sfx/crone-death-female_die.ogg"
+  ],
+  "rare-drop": [
+   "sfx/rare-drop-heal.ogg"
   ]
  },
  "music": {

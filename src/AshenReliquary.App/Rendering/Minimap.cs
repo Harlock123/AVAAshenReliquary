@@ -99,7 +99,15 @@ internal sealed class Minimap
             if (g.Drop.Item is not { Rarity: >= Rarity.Uncommon } item)
                 continue;
             paint.Color = Palette.Rarity(item.Rarity);
-            canvas.DrawCircle(At(g.X, g.Y), 1.8f, paint);
+            canvas.DrawCircle(At(g.X, g.Y), item.Rarity >= Rarity.Unique ? 2.6f : 1.8f, paint);
+            // A Unique or Set piece pings: a ring that keeps spreading from it.
+            if (item.Rarity >= Rarity.Unique)
+            {
+                var spread = (float)(world.Time % 1.5 / 1.5);
+                using var ping = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f,
+                    Color = paint.Color.WithAlpha((byte)(230 * (1 - spread))) };
+                canvas.DrawCircle(At(g.X, g.Y), 3 + 9 * spread, ping);
+            }
         }
         foreach (var m in world.Monsters)
         {

@@ -149,6 +149,11 @@ Step 6 is done: **multiclass dedications**. From level 2 a class feat can be ano
 character), granting that class's ability: Power Attack, Force Bolt, Tumble, Hunt Prey, Lay on Hands or Raise Bones.
 When the ability spends a resource your class doesn't, you get a small pool of it (a fighter's Mana, half a wizard's),
 shown as a thin bar above the Taint bar; Fury, Momentum and Devotion build from the same blows as your own.
+Step 7 is done: **Uniques and Sets**. Drops follow the spec's shares (Act 1: 0.4% Unique, 0.1% Set): ten Uniques with a
+trait of their own (Hangman's Mercy burns the dead, the Thornwood Bow's arrows pierce, the Shroud of the Drowned...)
+and three Sets whose bonuses grow with the pieces worn. They drop in a tall beam of their colour, with a chime and a
+ping on the minimap. Two new slots, **shoulders** and **cloak**. Only **10 invested** (magic, worn) items work at once;
+more lie dormant.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

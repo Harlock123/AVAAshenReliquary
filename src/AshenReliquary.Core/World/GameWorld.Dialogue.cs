@@ -264,7 +264,7 @@ public sealed partial class GameWorld
         }
         if (effect.Item is { } itemId && _loot?.Items.GetValueOrDefault(itemId) is { } definition)
         {
-            var item = new Item(definition, definition.Unique ? Rarity.Unique : Rarity.Common, Math.Max(1, Hero.Character.Level));
+            var item = LootGenerator.Make(definition, Hero.Character.Level);
             if (!Hero.Equipment.TryAdd(item))
                 _ground.Add(new GroundItem(Hero.X, Hero.Y, new LootDrop(item), Time));
             Float(Hero, item.Name, FloatingTextKind.Info, 1.2);

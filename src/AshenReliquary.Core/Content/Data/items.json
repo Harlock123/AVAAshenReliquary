@@ -456,6 +456,26 @@
   "gfx": "mage_boots"
  },
  {
+  "id": "pauldrons",
+  "name": "Pauldrons",
+  "category": "Armor",
+  "slot": "Shoulders",
+  "icon": 0,
+  "loot": "steel_armor",
+  "glyph": "pauldrons",
+  "weight": 8
+ },
+ {
+  "id": "cloak",
+  "name": "Cloak",
+  "category": "Armor",
+  "slot": "Cloak",
+  "icon": 0,
+  "loot": "clothes",
+  "glyph": "cloak",
+  "weight": 8
+ },
+ {
   "id": "wooden_buckler",
   "name": "Wooden buckler",
   "category": "Armor",
@@ -659,7 +679,15 @@
    "maxHitPoints": 10,
    "resourceRegen": 0.1
   },
-  "description": "A stoppered phial of the cure, on a cord. What is left over keeps you."
+  "description": "A stoppered phial of the cure, on a cord. What is left over keeps you.",
+  "story": true,
+  "trait": "Leftover Cure",
+  "traitText": "You recover a quarter faster out of a fight.",
+  "effects": [
+   {
+    "recovery": 0.25
+   }
+  ]
  },
  {
   "id": "ferrymans_knot",
@@ -674,7 +702,16 @@
    "maxHitPoints": 6,
    "moveSpeed": 0.08
   },
-  "description": "A ring of tarred rope, the Brothers' sign. Boats wait for whoever wears it."
+  "description": "A ring of tarred rope, the Brothers' sign. Boats wait for whoever wears it.",
+  "story": true,
+  "trait": "Boats Wait",
+  "traitText": "+1 to Reflex saves.",
+  "effects": [
+   {
+    "statistic": "Reflex",
+    "value": 1
+   }
+  ]
  },
  {
   "id": "weeping_soulgem",
@@ -689,6 +726,437 @@
    "castSpeed": 0.08,
    "resourceRegen": 0.15
   },
-  "description": "A pale stone that is always wet. Something in it is still sorry."
+  "description": "A pale stone that is always wet. Something in it is still sorry.",
+  "story": true,
+  "trait": "Sorrow",
+  "traitText": "Taint builds 15% more slowly in you.",
+  "effects": [
+   {
+    "taintRate": 0.15
+   }
+  ]
+ },
+ {
+  "id": "hangmans_mercy",
+  "name": "Hangman's Mercy",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 98,
+  "loot": "longsword",
+  "gfx": "longsword",
+  "damageDie": 8,
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.2,
+  "traits": [
+   "Versatile"
+  ],
+  "versatile": "Piercing",
+  "minLevel": 1,
+  "unique": true,
+  "potency": 1,
+  "trait": "Last Rites",
+  "traitText": "Your Strikes deal 1 more vitality damage to the undead (2 at level 9), and 2 more on a critical hit.",
+  "effects": [
+   {
+    "undeadBane": 1
+   },
+   {
+    "critDamage": 2
+   }
+  ],
+  "description": "The blade that cut the Ashbound down from the gallows, they say, and has been looking for the hangman since."
+ },
+ {
+  "id": "rotgut_girdle",
+  "name": "Rotgut Girdle",
+  "category": "Accessory",
+  "slot": "Belt",
+  "icon": 208,
+  "loot": "belt",
+  "implicit": {
+   "maxHitPoints": 8
+  },
+  "minLevel": 1,
+  "unique": true,
+  "trait": "Iron Stomach",
+  "traitText": "Resistance 4 poison, and Taint builds 20% more slowly.",
+  "effects": [
+   {
+    "resist": "Poison",
+    "value": 4
+   },
+   {
+    "taintRate": 0.2
+   }
+  ],
+  "description": "Cured in bog water. Nothing it holds goes bad."
+ },
+ {
+  "id": "whisperknife",
+  "name": "Whisperknife",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 96,
+  "loot": "dagger",
+  "gfx": "dagger",
+  "damageDie": 4,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.6,
+  "traits": [
+   "Agile",
+   "Finesse",
+   "Versatile"
+  ],
+  "versatile": "Slashing",
+  "minLevel": 2,
+  "unique": true,
+  "potency": 1,
+  "trait": "Whispers",
+  "traitText": "1 more sneak attack die (a rogue's), and 3 more damage on a critical hit.",
+  "effects": [
+   {
+    "sneakDice": 1
+   },
+   {
+    "critDamage": 3
+   }
+  ],
+  "description": "Thin enough to slide between two words."
+ },
+ {
+  "id": "cinderheart_staff",
+  "name": "Cinderheart Staff",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 106,
+  "loot": "staff",
+  "gfx": "staff",
+  "damageDie": 4,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.0,
+  "traits": [
+   "TwoHand"
+  ],
+  "casterFocus": true,
+  "minLevel": 2,
+  "unique": true,
+  "implicit": {
+   "castSpeed": 0.08
+  },
+  "trait": "Ember Well",
+  "traitText": "Your resource returns a quarter faster, and your spells reach a tile further.",
+  "effects": [
+   {
+    "resourceRegen": 0.25
+   },
+   {
+    "spellRange": 1
+   }
+  ],
+  "description": "A knot of ember sleeps in the wood. It wakes when you speak."
+ },
+ {
+  "id": "mirewalker_boots",
+  "name": "Mirewalker Boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 148,
+  "loot": "boots",
+  "gfx": "leather_boots",
+  "minLevel": 2,
+  "unique": true,
+  "trait": "Bog-born",
+  "traitText": "+5 ft speed and resistance 3 poison.",
+  "effects": [
+   {
+    "speedFeet": 5
+   },
+   {
+    "resist": "Poison",
+    "value": 3
+   }
+  ],
+  "description": "Stitched by a fen-runner who never once sank."
+ },
+ {
+  "id": "thornwood_bow",
+  "name": "Thornwood Bow",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 114,
+  "loot": "longbow",
+  "gfx": "longbow",
+  "minLevel": 3,
+  "damageDie": 8,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.0,
+  "ranged": true,
+  "range": 10,
+  "deadlyDie": 10,
+  "traits": [
+   "TwoHand",
+   "Deadly"
+  ],
+  "unique": true,
+  "potency": 1,
+  "trait": "Thorned Flights",
+  "traitText": "Every arrow flies on through one more enemy, and the bow reaches a tile further.",
+  "effects": [
+   {
+    "pierce": 1
+   },
+   {
+    "weaponRange": 1
+   }
+  ],
+  "description": "Grown, not carved, from a thorn that drank at a gallows."
+ },
+ {
+  "id": "gravewardens_cowl",
+  "name": "Gravewarden's Cowl",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 152,
+  "loot": "steel_armor",
+  "gfx": "chain_coif",
+  "minLevel": 3,
+  "unique": true,
+  "trait": "Grave-sight",
+  "traitText": "Your light reaches 1.5 tiles further, and +2 Perception.",
+  "effects": [
+   {
+    "light": 1.5
+   },
+   {
+    "statistic": "Perception",
+    "value": 2
+   }
+  ],
+  "description": "Worn by the men who watched the barrows. They saw everything coming."
+ },
+ {
+  "id": "shroud_of_the_drowned",
+  "name": "Shroud of the Drowned",
+  "category": "Armor",
+  "slot": "Cloak",
+  "icon": 0,
+  "loot": "clothes",
+  "glyph": "cloak",
+  "minLevel": 3,
+  "unique": true,
+  "trait": "Drowned Pallor",
+  "traitText": "Resistance 3 cold and 3 void, and +1 to Reflex saves.",
+  "effects": [
+   {
+    "resist": "Cold",
+    "value": 3
+   },
+   {
+    "resist": "Void",
+    "value": 3
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   }
+  ],
+  "description": "Lifted from a chapel bier, still cold, still damp."
+ },
+ {
+  "id": "lanterns_rebuke",
+  "name": "The Lantern's Rebuke",
+  "category": "Armor",
+  "slot": "OffHand",
+  "icon": 123,
+  "loot": "shield",
+  "gfx": "shield",
+  "minLevel": 4,
+  "acBonus": 2,
+  "hardness": 5,
+  "unique": true,
+  "trait": "Rebuke",
+  "traitText": "Shield Block takes 3 more off a blow, and you strike back at the attacker in reach.",
+  "effects": [
+   {
+    "blockHardness": 3
+   },
+   {
+    "blockCounter": true
+   }
+  ],
+  "description": "The Order's sigil, half burned away. The half left still blazes."
+ },
+ {
+  "id": "prophets_weight",
+  "name": "The Prophet's Weight",
+  "category": "Armor",
+  "slot": "Shoulders",
+  "icon": 0,
+  "loot": "steel_armor",
+  "glyph": "pauldrons",
+  "minLevel": 5,
+  "unique": true,
+  "trait": "Weight of Ash",
+  "traitText": "+2 HP a level, and +1 to Will saves.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 2
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "description": "Malachar Vane's own, left behind when he broke the seals. Heavier than iron."
+ },
+ {
+  "id": "gallowsmen_hood",
+  "name": "Gallowsman's Hood",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 144,
+  "loot": "leather_armor",
+  "gfx": "leather_hood",
+  "minLevel": 1,
+  "set": "gallowsmen",
+  "implicit": {
+   "maxHitPoints": 3
+  },
+  "description": "Black leather, oiled for the rain on Gallows Hill."
+ },
+ {
+  "id": "gallowsmen_gloves",
+  "name": "Gallowsman's Gloves",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 146,
+  "loot": "leather_armor",
+  "gfx": "leather_gloves",
+  "minLevel": 1,
+  "set": "gallowsmen",
+  "implicit": {
+   "attackSpeed": 0.04
+  },
+  "description": "Black leather, oiled for the rain on Gallows Hill."
+ },
+ {
+  "id": "gallowsmen_boots",
+  "name": "Gallowsman's Boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 148,
+  "loot": "boots",
+  "gfx": "leather_boots",
+  "minLevel": 1,
+  "set": "gallowsmen",
+  "implicit": {
+   "moveSpeed": 0.04
+  },
+  "description": "Black leather, oiled for the rain on Gallows Hill."
+ },
+ {
+  "id": "warden_coif",
+  "name": "Lantern Warden's Coif",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 152,
+  "loot": "steel_armor",
+  "gfx": "chain_coif",
+  "minLevel": 3,
+  "set": "lantern_warden",
+  "implicit": {
+   "maxHitPoints": 4
+  },
+  "description": "Mail of the Order's wardens, a lantern etched on every plate."
+ },
+ {
+  "id": "warden_gauntlets",
+  "name": "Lantern Warden's Gauntlets",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 154,
+  "loot": "steel_armor",
+  "gfx": "chain_gloves",
+  "minLevel": 3,
+  "set": "lantern_warden",
+  "implicit": {
+   "maxHitPoints": 4
+  },
+  "description": "Mail of the Order's wardens, a lantern etched on every plate."
+ },
+ {
+  "id": "warden_greaves",
+  "name": "Lantern Warden's Greaves",
+  "category": "Armor",
+  "slot": "Legs",
+  "icon": 155,
+  "loot": "steel_armor",
+  "gfx": "chain_greaves",
+  "minLevel": 3,
+  "set": "lantern_warden",
+  "implicit": {
+   "maxHitPoints": 4
+  },
+  "description": "Mail of the Order's wardens, a lantern etched on every plate."
+ },
+ {
+  "id": "warden_pauldrons",
+  "name": "Lantern Warden's Pauldrons",
+  "category": "Armor",
+  "slot": "Shoulders",
+  "icon": 0,
+  "loot": "steel_armor",
+  "glyph": "pauldrons",
+  "minLevel": 3,
+  "set": "lantern_warden",
+  "implicit": {
+   "maxHitPoints": 4
+  },
+  "description": "Mail of the Order's wardens, a lantern etched on every plate."
+ },
+ {
+  "id": "mirewitch_hood",
+  "name": "Mire-Witch's Hood",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 136,
+  "loot": "clothes",
+  "gfx": "mage_hood",
+  "minLevel": 4,
+  "set": "mirewitch",
+  "implicit": {
+   "castSpeed": 0.05
+  },
+  "description": "Sallow's sisters wore these, before the Taint took them."
+ },
+ {
+  "id": "mirewitch_sleeves",
+  "name": "Mire-Witch's Sleeves",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 138,
+  "loot": "clothes",
+  "gfx": "mage_sleeves",
+  "minLevel": 4,
+  "set": "mirewitch",
+  "implicit": {
+   "resourceRegen": 0.08
+  },
+  "description": "Sallow's sisters wore these, before the Taint took them."
+ },
+ {
+  "id": "mirewitch_shawl",
+  "name": "Mire-Witch's Shawl",
+  "category": "Armor",
+  "slot": "Cloak",
+  "icon": 0,
+  "loot": "clothes",
+  "glyph": "cloak",
+  "minLevel": 4,
+  "set": "mirewitch",
+  "implicit": {
+   "maxHitPoints": 4
+  },
+  "description": "Sallow's sisters wore these, before the Taint took them."
  }
 ]

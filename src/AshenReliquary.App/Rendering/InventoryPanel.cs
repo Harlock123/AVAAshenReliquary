@@ -25,14 +25,14 @@ internal sealed class InventoryPanel
 
     private static readonly (EquipSlot Slot, string Label, int Column, int Row)[] Slots =
     [
-        (EquipSlot.Head, "Head", 0, 0), (EquipSlot.Chest, "Chest", 0, 1), (EquipSlot.Hands, "Hands", 0, 2),
-        (EquipSlot.Legs, "Legs", 0, 3), (EquipSlot.Feet, "Feet", 0, 4),
+        (EquipSlot.Head, "Head", 0, 0), (EquipSlot.Shoulders, "Shoulders", 0, 1), (EquipSlot.Chest, "Chest", 0, 2),
+        (EquipSlot.Cloak, "Cloak", 0, 3), (EquipSlot.Hands, "Hands", 0, 4), (EquipSlot.Legs, "Legs", 0, 5), (EquipSlot.Feet, "Feet", 0, 6),
         (EquipSlot.Amulet, "Amulet", 1, 0), (EquipSlot.Ring1, "Ring", 1, 1), (EquipSlot.Ring2, "Ring", 1, 2),
         (EquipSlot.Belt, "Belt", 1, 3), (EquipSlot.MainHand, "Weapon", 1, 4), (EquipSlot.OffHand, "Off hand", 1, 5),
     ];
 
-    /// <summary>Rows of worn slots: the off hand sits under the weapon.</summary>
-    private const int WornRows = 6;
+    /// <summary>Rows of worn slots: the body down the left (head to feet, with the shoulders and cloak), the rest beside it.</summary>
+    private const int WornRows = 7;
 
     private readonly Action<SKCanvas, Core.Items.ItemDefinition, SKRect> _drawIcon;
     private float _slotSize = 44, _cell = 46, _bagTop;
@@ -238,6 +238,8 @@ internal sealed class InventoryPanel
             }
             if (gear.In(slot) is { } worn && Benched?.Contains(worn) == true)
                 Highlight(canvas, rect, Palette.Frame, "bench");
+            if (gear.In(slot) is { } sleeping && gear.Dormant.Contains(sleeping))
+                Highlight(canvas, rect, Worse, "dormant");
             if (slot == targetSlot)
                 Highlight(canvas, rect, new SKColor(110, 220, 110), "replaces");
             if (slot == hoverSlot)
@@ -301,11 +303,11 @@ internal sealed class InventoryPanel
             {
                 var worn = targetSlot is { } t ? gear.In(t) : null;
                 var where = trading && Bench is null ? $"In your bag · sells for {Pricing.SellPrice(bagItem)} gold" : "In your bag";
-                Tooltip(canvas, size, p, bagItem, worn, where, gear.PreviewEquip(bagItem), "If you wear it:", Bounds);
+                Tooltip(canvas, size, p, bagItem, worn, where, gear.PreviewEquip(bagItem), "If you wear it:", Bounds, gear);
             }
             else if (hoverSlot is { } s && gear.In(s) is { } wornItem)
             {
-                Tooltip(canvas, size, p, wornItem, null, $"Worn · {s}", gear.PreviewUnequip(s), "If you take it off:", Bounds);
+                Tooltip(canvas, size, p, wornItem, null, $"Worn · {s}", gear.PreviewUnequip(s), "If you take it off:", Bounds, gear);
             }
         }
     }
@@ -414,6 +416,8 @@ internal sealed class InventoryPanel
             yield return $"Spell {c.SpellAttack().Total:+0}  DC {c.SpellDc().Total}";
         yield return "Movement:";
         yield return $"Speed {c.SpeedFeet} ft{(c.Gear.MoveSpeed > 0 ? $" +{c.Gear.MoveSpeed * 100:0}%" : "")}";
+        yield return "Magic:";
+        yield return $"Invested {world.Hero.Equipment.Invested.Count()} / {Equipment.InvestedLimit}";
     }
 
     private static void RarityFrame(SKCanvas canvas, SKRect rect, Rarity rarity)
@@ -434,7 +438,7 @@ internal sealed class InventoryPanel
     /// Inside the panel the tooltip goes to the panel's left, so it never hides the slots being compared.
     /// </summary>
     public static void Tooltip(SKCanvas canvas, SKSize size, SKPoint at, Item item, Item? compare, string? where = null,
-        IReadOnlyList<StatChange>? preview = null, string previewTitle = "If you wear it:", SKRect? avoid = null)
+        IReadOnlyList<StatChange>? preview = null, string previewTitle = "If you wear it:", SKRect? avoid = null, Equipment? gear = null)
     {
         using var nameFont = new SKFont(WorldOverlay.Serif, 15);
         using var font = new SKFont(WorldOverlay.Serif, 12);
@@ -442,7 +446,24 @@ internal sealed class InventoryPanel
         var lines = new List<(string Left, string? Right, SKColor Color, SKFont Font)> { (item.Name, null, Palette.Rarity(item.Rarity), nameFont) };
         if (where is not null)
             lines.Add((where, null, new SKColor(150, 190, 230), font));
-        lines.AddRange(item.Describe().Select(l => (l, (string?)null, Palette.Dim, font)));
+        var trait = item.Definition.Trait is { } t ? t + ":" : null;
+        lines.AddRange(item.Describe().Select(l => (l, (string?)null,
+            trait is not null && l.StartsWith(trait, StringComparison.Ordinal) ? Palette.Rarity(Rarity.Unique)
+            : l.StartsWith('“') ? new SKColor(150, 140, 120) : Palette.Dim, font)));
+        // A set piece: the set, how much of it is worn, and each bonus, lit once reached.
+        if (item.Definition.Set is { } setId && Core.Content.ContentDatabase.Embedded.Sets.TryGetValue(setId, out var set))
+        {
+            var total = Core.Content.ContentDatabase.Embedded.Items.Values.Count(i => i.Set == setId);
+            var worn = gear?.SetPieces(setId) ?? 0;
+            lines.Add(("", null, Palette.Dim, font));
+            lines.Add(($"{set.Name}: {worn} of {total} worn", null, Palette.Rarity(Rarity.Set), bold));
+            foreach (var bonus in set.Bonuses)
+                lines.Add(($"  ({bonus.Pieces}) {bonus.Description}", null, worn >= bonus.Pieces ? Better : Palette.Dim, font));
+        }
+        if (gear?.Dormant.Contains(item) == true)
+            lines.Add(($"Dormant: you are invested in {Equipment.InvestedLimit} items already.", null, Worse, font));
+        else if (gear is not null && item.IsMagical && item.Definition.Slot is { } invest and not (EquipSlot.MainHand or EquipSlot.OffHand) && !gear.Worn.Values.Contains(item))
+            lines.Add(($"Invested when worn ({gear.Invested.Count()} of {Equipment.InvestedLimit}).", null, Palette.Dim, font));
         if (compare is not null)
         {
             lines.Add(("", null, Palette.Dim, font));
@@ -468,8 +489,11 @@ internal sealed class InventoryPanel
         float x, y;
         if (avoid is { } panel && panel.Contains(at))
         {
-            // Beside the panel: to its left, or to its right when there is no room (a panel on the left edge).
-            x = panel.Left - width - 10 >= 8 ? panel.Left - width - 10 : panel.Right + 10;
+            // Beside the panel: to its left, or to its right when there is no room (a panel on the left edge); in a
+            // window too narrow for either (the panel fills it), over the panel beside the pointer, inside the window.
+            x = panel.Left - width - 10 >= 8 ? panel.Left - width - 10
+                : panel.Right + 10 + width <= size.Width - 8 ? panel.Right + 10
+                : Math.Clamp(at.X + 18, 8, size.Width - width - 8);
             y = Math.Clamp(at.Y - 24, 8, size.Height - height - 8);
         }
         else

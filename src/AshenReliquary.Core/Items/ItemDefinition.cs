@@ -17,6 +17,10 @@ public enum EquipSlot
     Amulet,
     Ring1,
     Ring2,
+
+    // M3: the shoulders and the cloak (no Flare art: an icon on the paper doll, nothing drawn on the hero).
+    Shoulders,
+    Cloak,
 }
 
 public enum ItemCategory
@@ -47,6 +51,11 @@ public enum Rarity
 /// names the <see cref="Ability"/> it is used as, stacks up to <see cref="Stack"/> in one bag cell and is worth
 /// <see cref="Price"/> gold apiece. A weapon with the Versatile trait names its second damage type in
 /// <see cref="Versatile"/>; a ranged weapon (a bow) shoots <see cref="Range"/> tiles.
+/// <para>A <see cref="Unique"/> or a <see cref="Set"/> piece is hand-made: fixed runes (<see cref="Potency"/>,
+/// <see cref="Striking"/>, <see cref="Resilient"/>), its implicit bonuses, and a <see cref="Trait"/> of its own (what it
+/// does in <see cref="TraitText"/>) whose <see cref="Effects"/> are feat effects, in force while it is worn; its
+/// <see cref="Description"/> is a line of lore. A <see cref="Story"/> item comes only from its
+/// story, never as a drop.</para>
 /// </summary>
 public sealed record ItemDefinition(
     string Id,
@@ -82,7 +91,15 @@ public sealed record ItemDefinition(
     int Stack = 1,
     int Price = 0,
     DamageType? Versatile = null,
-    double Range = 0)
+    double Range = 0,
+    string? Trait = null,
+    string? TraitText = null,
+    IReadOnlyList<Characters.FeatEffect>? Effects = null,
+    string? Set = null,
+    int Potency = 0,
+    int Striking = 0,
+    int Resilient = 0,
+    bool Story = false)
 {
     [JsonIgnore]
     public bool IsWeapon => Category == ItemCategory.Weapon;
@@ -92,6 +109,10 @@ public sealed record ItemDefinition(
 
     [JsonIgnore]
     public bool IsJewelry => Slot is EquipSlot.Amulet or EquipSlot.Ring1 or EquipSlot.Ring2;
+
+    /// <summary>A Unique or a Set piece: hand-made, never rolled as an ordinary drop.</summary>
+    [JsonIgnore]
+    public bool IsSpecial => Unique || Set is not null;
 
     [JsonIgnore]
     public bool IsShield => Slot == EquipSlot.OffHand;

@@ -31,8 +31,10 @@ public sealed class ContentDatabase
         IEnumerable<ItemDefinition>? items = null,
         IEnumerable<AffixDefinition>? affixes = null,
         IEnumerable<DialogueDefinition>? dialogues = null,
-        IEnumerable<Characters.FeatDefinition>? feats = null)
+        IEnumerable<Characters.FeatDefinition>? feats = null,
+        IEnumerable<SetDefinition>? sets = null)
     {
+        Sets = (sets ?? []).ToDictionary(s => s.Id);
         Feats = (feats ?? []).ToDictionary(f => f.Id);
         Dialogues = (dialogues ?? []).ToDictionary(d => d.Id);
         Items = (items ?? []).ToDictionary(i => i.Id);
@@ -58,6 +60,7 @@ public sealed class ContentDatabase
     public IReadOnlyList<AffixDefinition> Affixes { get; }
     public IReadOnlyDictionary<string, DialogueDefinition> Dialogues { get; }
     public IReadOnlyDictionary<string, Characters.FeatDefinition> Feats { get; }
+    public IReadOnlyDictionary<string, SetDefinition> Sets { get; }
 
     public ItemDefinition Item(string id) => Find(Items, id, "item");
 
@@ -86,7 +89,8 @@ public sealed class ContentDatabase
         Read<List<ItemDefinition>>("items.json"),
         Read<List<AffixDefinition>>("affixes.json"),
         Read<List<DialogueDefinition>>("dialogues.json"),
-        Read<List<Characters.FeatDefinition>>("feats.json"));
+        Read<List<Characters.FeatDefinition>>("feats.json"),
+        Read<List<SetDefinition>>("sets.json"));
 
     /// <summary>Every embedded zone file (zones/*.json in the source tree).</summary>
     private static IEnumerable<string> ZoneFiles => Assembly.GetExecutingAssembly().GetManifestResourceNames()
@@ -98,7 +102,7 @@ public sealed class ContentDatabase
         && !KnownTables.Contains(resourceName["AshenReliquary.Content.".Length..]);
 
     private static readonly HashSet<string> KnownTables =
-        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json"];
+        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json", "sets.json"];
 
     private static T Read<T>(string fileName)
     {

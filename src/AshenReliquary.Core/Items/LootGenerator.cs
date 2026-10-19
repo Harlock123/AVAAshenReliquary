@@ -7,8 +7,9 @@ namespace AshenReliquary.Core.Items;
 public sealed record LootDrop(Item? Item, int Gold = 0, bool Draught = false);
 
 /// <summary>
-/// Rolls drops from the spec's Act 1 tables. Rarity: 70% common, 25% uncommon, 5% rare (uniques and sets come
-/// later). Item level is the monster's effective level; runes are gated by item level (weapon potency from 2,
+/// Rolls drops from the spec's tables. Rarity by act (<see cref="RarityShares"/>; Act 1: 70% common, 25% uncommon,
+/// 4.5% rare, 0.4% unique, 0.1% set). A Unique or Set roll picks one of the hand-made items whose level the item
+/// level reaches (story items never drop), or a rare when there is none yet. Item level is the monster's effective level; runes are gated by item level (weapon potency from 2,
 /// striking from 4, armour potency from 5, resilient from 8). Uncommon items get 1 to 2 affixes, rares 3 to 4. Belt
 /// items (bombs, elixirs) drop on their own roll: 6% from a normal monster, 30% from a champion or better, 35% from a
 /// chest, one or two at a time.
@@ -88,10 +89,32 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         return drops;
     }
 
-    public static Rarity RollRarity(CreatureRank rank, IRandomSource random)
+    /// <summary>
+    /// The spec's drop shares in tenths of a percent (common, uncommon, rare, unique, set), Act 1 to Act 4; Acts 2
+    /// and 3 lie between.
+    /// </summary>
+    public static readonly int[][] RarityShares =
+    [
+        [700, 250, 45, 4, 1],
+        [600, 293, 90, 13, 4],
+        [500, 337, 135, 21, 7],
+        [400, 380, 180, 30, 10],
+    ];
+
+    public static Rarity RollRarity(CreatureRank rank, IRandomSource random, int act = 1)
     {
+        var shares = RarityShares[Math.Clamp(act, 1, RarityShares.Length) - 1];
         var roll = random.Roll(1, 1000);
-        var rarity = roll <= 700 ? Rarity.Common : roll <= 950 ? Rarity.Uncommon : Rarity.Rare;
+        var rarity = Rarity.Set;
+        for (var i = 0; i < shares.Length; i++)
+        {
+            roll -= shares[i];
+            if (roll <= 0)
+            {
+                rarity = (Rarity)i;
+                break;
+            }
+        }
         // Champions and better have a coin-flip chance to lift a common drop to uncommon.
         if (rarity == Rarity.Common && rank >= CreatureRank.Champion && random.Roll(1, 2) == 2)
             rarity = Rarity.Uncommon;
@@ -101,7 +124,9 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
     /// <param name="only">Narrows the pool (a smith's stock); null allows any equippable item.</param>
     public Item Generate(int itemLevel, Rarity rarity, IRandomSource random, Func<ItemDefinition, bool>? only = null)
     {
-        var pool = Items.Values.Where(i => i.Slot is not null && !i.Unique && i.MinLevel <= itemLevel && (!i.IsJewelry || rarity != Rarity.Common)
+        if (rarity is Rarity.Unique or Rarity.Set)
+            return Special(itemLevel, rarity, random) ?? Generate(itemLevel, Rarity.Rare, random, only);
+        var pool = Items.Values.Where(i => i.Slot is not null && !i.IsSpecial && i.MinLevel <= itemLevel && (!i.IsJewelry || rarity != Rarity.Common)
             && (only is null || only(i))).ToList();
         var definition = Pick(pool, random);
 
@@ -148,6 +173,26 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         var name = rarity == Rarity.Rare ? RareName(definition, random) : null;
         return new Item(definition, rarity, itemLevel, rolled, potency, striking, resilient, name);
     }
+
+    /// <summary>
+    /// A hand-made Unique or Set piece the item level reaches (not a story item), with its fixed runes; null when
+    /// there is none.
+    /// </summary>
+    public Item? Special(int itemLevel, Rarity rarity, IRandomSource random)
+    {
+        var pool = Items.Values.Where(i => i.Slot is not null && !i.Story && i.MinLevel <= itemLevel
+            && (rarity == Rarity.Unique ? i.Unique : i.Set is not null)).ToList();
+        if (pool.Count == 0)
+            return null;
+        var definition = Pick(pool, random);
+        return Make(definition, Math.Max(itemLevel, definition.MinLevel));
+    }
+
+    /// <summary>A hand-made item as it always is: its rarity, its fixed runes, its own name.</summary>
+    public static Item Make(ItemDefinition definition, int itemLevel) =>
+        new(definition, definition.Set is not null ? Rarity.Set : definition.Unique ? Rarity.Unique : Rarity.Common, Math.Max(1, itemLevel),
+            potency: definition.Potency, striking: definition.Striking, resilient: definition.Resilient,
+            name: definition.IsSpecial ? definition.Name : null);
 
     private static ItemDefinition Pick(List<ItemDefinition> pool, IRandomSource random)
     {

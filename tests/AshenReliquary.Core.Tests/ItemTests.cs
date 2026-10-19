@@ -160,7 +160,10 @@ public class ItemTests
         var rolls = Enumerable.Range(0, 20000).Select(_ => LootGenerator.RollRarity(CreatureRank.Normal, random)).ToList();
         Assert.InRange(rolls.Count(r => r == Rarity.Common) / 20000.0, 0.67, 0.73);
         Assert.InRange(rolls.Count(r => r == Rarity.Uncommon) / 20000.0, 0.22, 0.28);
-        Assert.InRange(rolls.Count(r => r == Rarity.Rare) / 20000.0, 0.035, 0.065);
+        Assert.InRange(rolls.Count(r => r == Rarity.Rare) / 20000.0, 0.035, 0.055);
+        // The spec's 0.4% Uniques and 0.1% Sets.
+        Assert.InRange(rolls.Count(r => r == Rarity.Unique) / 20000.0, 0.002, 0.007);
+        Assert.InRange(rolls.Count(r => r == Rarity.Set) / 20000.0, 0.0002, 0.003);
     }
 
     [Fact]

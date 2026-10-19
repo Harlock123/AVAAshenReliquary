@@ -80,7 +80,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (Corpse Explosion, `AbilityKind.Blast`; two charges a corpse); `--necromancer`, `--bonelord`, `--plaguebringer`.
   All six classes are playable. Step 6 done: multiclass dedications (`feats.json` `dedication`, one per character
   from level 2, granting that class's signature ability; `HeroActor.Dedication` is a small pool of the other class's
-  resource, fed through `ClassResource.Partner`; `GameWorld.ResourceFor` picks the pool an ability is paid from).
+  resource, fed through `ClassResource.Partner`; `GameWorld.ResourceFor` picks the pool an ability is paid from). Step 7 done: Uniques (traits are feat `effects`
+  on the item; `Character.RebuildEffects` reapplies feats and worn effects whenever gear changes), Sets (`sets.json`),
+  the act drop shares (`LootGenerator.RarityShares`), the Invested limit (10; more lie `Dormant`), the shoulders and
+  cloak slots; `LootGenerator.Make` builds a hand-made item.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

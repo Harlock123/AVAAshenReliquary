@@ -251,8 +251,8 @@ public class CampaignReport(ITestOutputHelper output)
                     continue; // a ranger keeps to bows
                 if (d.IsShield && classId is not ("fighter" or "champion") || d.IsShield && Subclass == "vanguard")
                     continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands; a rogue never raises one
-                if (d.IsWeapon && classId == "rogue" && d.Traits?.Any(t => t is WeaponTrait.Agile or WeaponTrait.Finesse) != true)
-                    continue; // sneak attack needs an agile or finesse blade
+                if (d.IsWeapon && classId == "rogue" && d.Traits?.Contains(WeaponTrait.Finesse) != true)
+                    continue; // a finesse blade: sneak attack, and Dexterity to damage (an agile hatchet hits for its Strength)
                 if (d.IsWeapon && classId == "champion" && d.IsTwoHanded)
                     continue; // a champion keeps sword and shield
                 if (d.IsWeapon && classId == "fighter" && d.IsTwoHanded != (Subclass == "vanguard"))

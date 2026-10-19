@@ -110,7 +110,7 @@ internal sealed class StashPanel
         {
             var gear = world.Hero.Equipment;
             var worn = gear.SlotFor(hovered) is { } slot ? gear.In(slot) : null;
-            InventoryPanel.Tooltip(canvas, size, p, hovered, worn, "In the stash", gear.PreviewEquip(hovered), "If you wear it:", Bounds);
+            InventoryPanel.Tooltip(canvas, size, p, hovered, worn, "In the stash", gear.PreviewEquip(hovered), "If you wear it:", Bounds, gear);
         }
     }
 }

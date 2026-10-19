@@ -31,6 +31,8 @@ public enum SoundCue
     Ward,
     /// <summary>Shield Block taking a blow.</summary>
     Block,
+    /// <summary>A Unique or a Set piece dropping.</summary>
+    RareDrop,
 }
 
 /// <summary>

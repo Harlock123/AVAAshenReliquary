@@ -48,6 +48,7 @@ ICONS = {
     "hidden": "lorc/hood", "companion": "lorc/wolf-head",
     # Item glyphs (items.json "glyph"), for things Flare's icon sheet lacks
     "lantern": "delapouite/old-lantern", "ember": "lorc/burning-embers",
+    "pauldrons": "skoll/pauldrons", "cloak": "delapouite/cape",
 }
 
 AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll"}

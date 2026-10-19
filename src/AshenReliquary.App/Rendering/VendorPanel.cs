@@ -271,7 +271,7 @@ internal sealed class VendorPanel
             if (hovered is not null)
             {
                 var worn = gear.SlotFor(hovered) is { } slot ? gear.In(slot) : null;
-                InventoryPanel.Tooltip(canvas, size, p, hovered, worn, where, gear.PreviewEquip(hovered), "If you wear it:", Bounds);
+                InventoryPanel.Tooltip(canvas, size, p, hovered, worn, where, gear.PreviewEquip(hovered), "If you wear it:", Bounds, gear);
             }
         }
     }

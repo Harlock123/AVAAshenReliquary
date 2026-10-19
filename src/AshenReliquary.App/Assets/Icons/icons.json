@@ -537,5 +537,19 @@
   "source": "https://game-icons.net/1x1/lorc/burning-embers.html",
   "author": "Lorc",
   "licence": "CC BY 3.0"
+ },
+ {
+  "id": "pauldrons",
+  "file": "pauldrons.png",
+  "source": "https://game-icons.net/1x1/skoll/pauldrons.html",
+  "author": "Skoll",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "cloak",
+  "file": "cloak.png",
+  "source": "https://game-icons.net/1x1/delapouite/cape.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
  }
 ]

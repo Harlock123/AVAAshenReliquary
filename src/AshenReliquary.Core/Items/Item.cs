@@ -74,6 +74,10 @@ public sealed class Item
 
     public Combat.DamageType? DamageType => Definition.IsWeapon ? Definition.DamageType : null;
 
+    /// <summary>Magic: anything but a plain common item (runes, affixes, implicit powers, a trait).</summary>
+    public bool IsMagical => Rarity != Rarity.Common || Potency > 0 || Striking > 0 || Resilient > 0
+        || Definition.Implicit is not null || Definition.Effects is { Count: > 0 };
+
     public Weapon ToWeapon() => new(Definition.AsWeapon(), Potency, Striking);
 
     public Armor ToArmor() => new(Definition.AsArmor(), Potency, Resilient);
@@ -117,7 +121,13 @@ public sealed class Item
                 yield return "Goes on the belt: keys 7 to 0.";
             yield break;
         }
-        yield return Rarity == Rarity.Rare ? $"{d.Name} · rare · item level {ItemLevel}" : $"{Rarity} {d.Category.ToString().ToLowerInvariant()} · item level {ItemLevel}";
+        yield return Rarity switch
+        {
+            Rarity.Rare => $"{d.Name} · rare · item level {ItemLevel}",
+            Rarity.Unique => $"{d.Name} · unique · item level {ItemLevel}",
+            Rarity.Set => $"{d.Name} · set piece · item level {ItemLevel}",
+            _ => $"{Rarity} {d.Category.ToString().ToLowerInvariant()} · item level {ItemLevel}",
+        };
         if (d.IsShield)
         {
             yield return $"Shield · +{d.AcBonus} AC while raised · hardness {d.Hardness}";
@@ -151,6 +161,10 @@ public sealed class Item
         }
         foreach (var affix in Affixes)
             yield return affix.Describe();
+        if (d.Trait is { } trait)
+            yield return $"{trait}: {d.TraitText}";
+        if (d.IsSpecial && d.Description is { } lore)
+            yield return $"“{lore}”";
     }
 }
 

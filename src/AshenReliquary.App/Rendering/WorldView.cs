@@ -207,7 +207,7 @@ public sealed class WorldView : Control
     /// <summary>The inventory and character panel (I).</summary>
     public bool InventoryOpen { get; set; }
 
-    private InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawItemIcon);
+    internal InventoryPanel Inventory => _inventory ??= new InventoryPanel(DrawItemIcon);
 
     /// <summary>Where the inventory's buttons and worn slots and the stash's cells are on screen (tests click them).</summary>
     public Point SortButtonAt => Inventory.SortCentre is var c ? new Point(c.X, c.Y) : default;
@@ -1842,14 +1842,18 @@ public sealed class WorldView : Control
                 continue;
             var at = ToScreen(g.X, g.Y);
             var color = Palette.Rarity(g.Rarity);
-            var height = (g.Rarity >= Rarity.Rare ? 260 : 170) * z;
+            // A Unique or Set piece stands out: a taller, wider beam that breathes.
+            var special = g.Rarity >= Rarity.Unique;
+            var breath = special ? (float)(0.75 + 0.25 * Math.Sin(world.Time * 3)) : 1f;
+            var height = (special ? 420 : g.Rarity >= Rarity.Rare ? 260 : 170) * z * breath;
+            var half = (special ? 9 : 5) * z;
             using var beam = new SKPaint
             {
                 BlendMode = SKBlendMode.Plus,
                 Shader = SKShader.CreateLinearGradient(new SKPoint(at.X, at.Y), new SKPoint(at.X, at.Y - height),
-                    [color.WithAlpha(150), color.WithAlpha(0)], SKShaderTileMode.Clamp),
+                    [color.WithAlpha((byte)(special ? 200 : 150)), color.WithAlpha(0)], SKShaderTileMode.Clamp),
             };
-            canvas.DrawRect(SKRect.Create(at.X - 5 * z, at.Y - height, 10 * z, height), beam);
+            canvas.DrawRect(SKRect.Create(at.X - half, at.Y - height, half * 2, height), beam);
         }
     }
 
@@ -1894,7 +1898,7 @@ public sealed class WorldView : Control
             var gear = world.Hero.Equipment;
             var worn = gear.SlotFor(hoveredItem) is { } slot ? gear.In(slot) : null;
             InventoryPanel.Tooltip(canvas, _viewport.Size, new SKPoint((float)pointer.X, (float)pointer.Y), hoveredItem, worn,
-                "On the ground", gear.PreviewEquip(hoveredItem));
+                "On the ground", gear.PreviewEquip(hoveredItem), gear: gear);
         }
     }
 

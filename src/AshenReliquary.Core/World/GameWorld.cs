@@ -1265,6 +1265,12 @@ public sealed partial class GameWorld
                 }
             }
             _ground.Add(new GroundItem(x, y, drop, Time));
+            // A Unique or a Set piece rings out, and says what it is.
+            if (drop.Item is { Rarity: Rarity.Unique or Rarity.Set } special)
+            {
+                Sound(SoundCue.RareDrop, x, y);
+                Say($"{(special.Rarity == Rarity.Unique ? "A unique" : "A set piece")} falls: {special.Name}!");
+            }
         }
     }
 

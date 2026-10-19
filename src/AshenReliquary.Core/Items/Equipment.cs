@@ -6,13 +6,17 @@ namespace AshenReliquary.Core.Items;
 
 /// <summary>
 /// The worn items and the 10x6 bag. Equipping updates the character at once: the main hand becomes the weapon,
-/// the chest piece the armour, and every item's affixes and implicit bonuses are summed into its gear bonuses.
+/// the chest piece the armour, and every item's affixes and implicit bonuses are summed into its gear bonuses; a
+/// Unique's trait and a Set's bonuses are handed to the character as worn effects.
+/// <para>The Invested limit (spec, section 9): magic worn items other than weapons and shields are invested, and only
+/// <see cref="InvestedLimit"/> of them work at once; any more (counted in slot order) lie <see cref="Dormant"/>.</para>
 /// </summary>
 public sealed class Equipment
 {
     public const int BagColumns = 10;
     public const int BagRows = 6;
     public const int BagSize = BagColumns * BagRows;
+    public const int InvestedLimit = 10;
 
     private readonly Character _character;
     private readonly Dictionary<EquipSlot, Item> _worn = [];
@@ -271,7 +275,56 @@ public sealed class Equipment
     {
         _character.Weapon = _worn.TryGetValue(EquipSlot.MainHand, out var weapon) ? weapon.ToWeapon() : new Weapon(Character.Fist);
         _character.Armor = _worn.TryGetValue(EquipSlot.Chest, out var armor) ? armor.ToArmor() : Armor.None;
-        _character.ApplyGear(Sum(_worn.Values));
+        var active = Active.ToList();
+        _character.ApplyGear(Sum(active), WornEffects(active));
+    }
+
+    /// <summary>Whether an item worn in a slot counts against the Invested limit: magic, and neither weapon nor shield.</summary>
+    public static bool IsInvested(Item item, EquipSlot slot) => slot is not (EquipSlot.MainHand or EquipSlot.OffHand) && item.IsMagical;
+
+    /// <summary>The invested items worn, in slot order.</summary>
+    public IEnumerable<Item> Invested => _worn.OrderBy(kv => kv.Key).Where(kv => IsInvested(kv.Value, kv.Key)).Select(kv => kv.Value);
+
+    /// <summary>Worn invested items past the limit: they do nothing until another comes off.</summary>
+    public IReadOnlyCollection<Item> Dormant => Invested.Skip(InvestedLimit).ToList();
+
+    /// <summary>The worn items that work: all of them but the dormant.</summary>
+    public IEnumerable<Item> Active
+    {
+        get
+        {
+            var dormant = Dormant;
+            return _worn.OrderBy(kv => kv.Key).Select(kv => kv.Value).Where(i => !dormant.Contains(i));
+        }
+    }
+
+    /// <summary>How many pieces of a set work now.</summary>
+    public int SetPieces(string setId) => Active.Where(i => i.Definition.Set == setId).Select(i => i.Definition.Id).Distinct().Count();
+
+    /// <summary>
+    /// The feat effects worn items bring: each Unique's or Set piece's trait (named for its trait or item), and each
+    /// set's bonuses for the pieces worn (named "set (n)").
+    /// </summary>
+    private IReadOnlyList<(string Source, IReadOnlyList<FeatEffect> Effects)> WornEffects(IReadOnlyList<Item> items)
+    {
+        var effects = new List<(string, IReadOnlyList<FeatEffect>)>();
+        foreach (var item in items)
+        {
+            if (item.Definition.Effects is { Count: > 0 } own)
+                effects.Add((item.Definition.Trait ?? item.Definition.Name, own));
+        }
+        if (_character.Content?.Sets is { Count: > 0 } sets)
+        {
+            foreach (var group in items.Where(i => i.Definition.Set is not null).GroupBy(i => i.Definition.Set!))
+            {
+                if (!sets.TryGetValue(group.Key, out var set))
+                    continue;
+                var pieces = group.Select(i => i.Definition.Id).Distinct().Count();
+                foreach (var bonus in set.Bonuses.Where(b => b.Pieces <= pieces))
+                    effects.Add(($"{set.Name} ({bonus.Pieces})", bonus.Effects));
+            }
+        }
+        return effects;
     }
 
     /// <summary>The gear bonuses a set of items adds up to.</summary>

@@ -125,7 +125,12 @@ From level 2 a class feat slot can take another class's dedication, which grants
 its resource when the hero's own class has none of that kind: a Fighter with Wizard Dedication gets a small mana
 pool). One dedication per character in M3.
 
-### 7. Loot: Uniques, Sets and the drop table
+### 7. Loot: Uniques, Sets and the drop table — done 2026-10-19
+
+Built as below (spec section 16, "Uniques, Sets and the drop table"): the act drop shares, ten droppable Uniques plus the
+three story ones (all with traits), three Sets, the Invested limit (items past 10 lie dormant rather than being
+refused), the shoulders and cloak. Learned on the way: traits are feat effects, so the character's effects are now
+rebuilt from feats and worn items whenever gear changes.
 
 - Rarity shares by act as the spec's table (Act 1: 70 / 25 / 4.5 / 0.4 / 0.1).
 - Uniques: hand-designed, with a trait of their own (a dozen for levels 1-10, among them the three story items).
