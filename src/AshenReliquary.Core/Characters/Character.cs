@@ -323,7 +323,7 @@ public sealed class Character : IDefender
         _abilityMods.Clear();
         _grantedAbilities.Clear();
         FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
-        UndeadBaneBonus = 0;
+        UndeadBaneBonus = MinionBonus = MinionGrowth = GraveChargeBonus = ChargesPerCorpseBonus = 0;
         Companion = null;
         RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = 0;
         IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = false;
@@ -416,6 +416,16 @@ public sealed class Character : IDefender
     public int CompanionGrowth { get; private set; }
 
     private int UndeadBaneBonus { get; set; }
+
+    /// <summary>More skeletons the Necromancer can hold at once (the Bonelord's, Legion).</summary>
+    public int MinionBonus { get; private set; }
+
+    /// <summary>How far feats have made the Necromancer's skeletons sturdier.</summary>
+    public int MinionGrowth { get; private set; }
+
+    /// <summary>More Grave Charges held, and more from each corpse (feats).</summary>
+    public int GraveChargeBonus { get; private set; }
+    public int ChargesPerCorpseBonus { get; private set; }
 
     /// <summary>
     /// The Lanternbearer's undead bane: vitality damage added to every Strike that hits an undead monster (doubled on
@@ -515,6 +525,10 @@ public sealed class Character : IDefender
             HealShare += e.HealShare;
             LightBonus += e.Light;
             TaintFuel |= e.TaintFuel;
+            MinionBonus += e.Minions;
+            MinionGrowth += e.MinionGrowth;
+            GraveChargeBonus += e.GraveCharges;
+            ChargesPerCorpseBonus += e.ChargesPerCorpse;
             FeatHitPointsPerLevel += e.HitPointsPerLevel;
             FeatSpeedFeet += e.SpeedFeet;
             RecoveryBonus += e.Recovery;

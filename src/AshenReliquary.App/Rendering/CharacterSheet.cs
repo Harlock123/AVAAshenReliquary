@@ -133,6 +133,16 @@ internal sealed class CharacterSheet
                 new("1 (2 at level 9, 3 at 17).", Palette.Dim),
             ]);
         }
+        if (c.Class.GraveCharges)
+        {
+            Line("Skeletons", $"{world.MinionCap}", () =>
+            [
+                new("Skeletons", Palette.Ink, $"{world.MinionCap} at once", true),
+                new($"Raise Bones holds {GameWorld.BaseMinions}, a third from level 5{(c.MinionBonus > 0 ? $", +{c.MinionBonus} from your feats" : "")}.", Palette.Dim),
+                new($"Each has {(6 + 5 * c.Level) * (1 + 0.5 * c.MinionGrowth):0} HP and bites as you grow.", Palette.Dim),
+                new($"Grave Charges: up to {world.MaxGraveCharges}, one from each corpse near you.", Palette.Dim),
+            ]);
+        }
         if (c.TaintFuel)
         {
             var drain = (int)(c.Taint.Value / GameWorld.TaintPerDrain);

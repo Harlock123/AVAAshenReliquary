@@ -37,12 +37,22 @@ public sealed partial class GameWorld
     /// <summary>The auras round the hero right now (the renderer draws them, the HUD lists them).</summary>
     public IReadOnlyList<ActiveAura> Auras => _auras;
 
-    /// <summary>Whether the hero can pay for an ability now: its resource, or the Taint meter for the Oathbreaker's.</summary>
+    /// <summary>
+    /// Whether the hero can pay for an ability now: its resource (the Taint meter for the Oathbreaker's), and the
+    /// Grave Charges it takes; one that a charge can pay for instead (Raise Bones) needs only that.
+    /// </summary>
     public bool CanAfford(AbilityDefinition ability) =>
-        ability.CostsTaint ? Hero.Character.Taint.Value + 1e-9 >= ability.Cost : Hero.Resource.CanSpend(ability.Cost);
+        ability.ChargeInstead && GraveCharges > 0
+        || HasCharges(ability) && (ability.CostsTaint ? Hero.Character.Taint.Value + 1e-9 >= ability.Cost : Hero.Resource.CanSpend(ability.Cost));
 
     private void Pay(AbilityDefinition ability)
     {
+        if (ability.ChargeInstead && GraveCharges > 0)
+        {
+            GraveCharges--;
+            return;
+        }
+        SpendCharges(ability);
         if (ability.CostsTaint)
             Hero.Character.Taint.Cleanse(ability.Cost);
         else

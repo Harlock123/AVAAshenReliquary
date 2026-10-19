@@ -31,6 +31,9 @@ ICONS = {
     # The Champion (M3): class abilities, the Lanternbearer's and the Oathbreaker's auras
     "champion_strike": "delapouite/sword-brandish", "smite": "lorc/shining-sword", "lay_on_hands": "delapouite/healing",
     "shield_of_faith": "lorc/checked-shield", "lanterns_radiance": "lorc/lantern-flame", "aura_of_dread": "lorc/death-zone",
+    # The Necromancer (M3): class abilities, the Bonelord's and the Plaguebringer's
+    "grave_bolt": "lorc/skull-bolt", "raise_bones": "skoll/raise-skeleton", "siphon_life": "lorc/life-tap",
+    "bone_rush": "delapouite/skeletal-hand", "bone_armor": "lorc/ribcage", "corpse_explosion": "lorc/skull-crack",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",

@@ -1484,5 +1484,136 @@
     "critDamage": 4
    }
   ]
+ },
+ {
+  "id": "bonelord",
+  "name": "Bonelord",
+  "type": "Subclass",
+  "level": 1,
+  "class": "necromancer",
+  "description": "A skeleton army and armour of bone. Bone Armor: bones knit round you for 15 s, a ward that takes 4 off a blow. You hold one more skeleton.",
+  "effects": [
+   {
+    "ability": "bone_armor"
+   },
+   {
+    "minions": 1
+   }
+  ]
+ },
+ {
+  "id": "plaguebringer",
+  "name": "Plaguebringer",
+  "type": "Subclass",
+  "level": 1,
+  "class": "necromancer",
+  "description": "Curses, rot and corpse explosions. Corpse Explosion: the grave's rot bursts round a monster, void against a basic Fortitude save, sickening those who fail. Each corpse gives you one more Grave Charge, and Grave Bolt splashes 1 void on the enemies round its target (2 from rank 3).",
+  "effects": [
+   {
+    "ability": "corpse_explosion"
+   },
+   {
+    "chargesPerCorpse": 1
+   },
+   {
+    "ability": "grave_bolt",
+    "splash": 1
+   }
+  ]
+ },
+ {
+  "id": "grave_reach",
+  "name": "Grave Reach",
+  "type": "Class",
+  "level": 2,
+  "class": "necromancer",
+  "description": "Your spells reach 2 tiles further.",
+  "effects": [
+   {
+    "spellRange": 2
+   }
+  ]
+ },
+ {
+  "id": "soul_siphon",
+  "name": "Soul Siphon",
+  "type": "Class",
+  "level": 2,
+  "class": "necromancer",
+  "description": "Your Mana returns a quarter faster.",
+  "effects": [
+   {
+    "resourceRegen": 0.25
+   }
+  ]
+ },
+ {
+  "id": "legion",
+  "name": "Legion",
+  "type": "Class",
+  "level": 2,
+  "class": "necromancer",
+  "subclass": "bonelord",
+  "description": "Bonelord: your skeletons are sturdier: half as many hit points again, +1 AC and attack, and a die more.",
+  "effects": [
+   {
+    "minionGrowth": 1
+   }
+  ]
+ },
+ {
+  "id": "virulent_blast",
+  "name": "Virulent Blast",
+  "type": "Class",
+  "level": 2,
+  "class": "necromancer",
+  "subclass": "plaguebringer",
+  "description": "Plaguebringer: Corpse Explosion reaches a tile further.",
+  "effects": [
+   {
+    "ability": "corpse_explosion",
+    "radius": 1
+   }
+  ]
+ },
+ {
+  "id": "grave_hoarder",
+  "name": "Grave Hoarder",
+  "type": "Class",
+  "level": 4,
+  "class": "necromancer",
+  "description": "You hold 2 more Grave Charges.",
+  "effects": [
+   {
+    "graveCharges": 2
+   }
+  ]
+ },
+ {
+  "id": "hardened_bones",
+  "name": "Hardened Bones",
+  "type": "Class",
+  "level": 4,
+  "class": "necromancer",
+  "description": "Your skeletons are sturdier: half as many hit points again, +1 AC and attack, and a die more.",
+  "effects": [
+   {
+    "minionGrowth": 1
+   }
+  ]
+ },
+ {
+  "id": "deathless_will",
+  "name": "Deathless Will",
+  "type": "Class",
+  "level": 4,
+  "class": "necromancer",
+  "description": "The grave's whispers have hardened you: +2 to Will saves.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 2
+   }
+  ]
  }
 ]

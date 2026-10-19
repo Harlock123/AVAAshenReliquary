@@ -108,6 +108,9 @@ public sealed record SaveGame
 
     /// <summary>The animal companion's health (the Beastmaster's wolf); null without one, or in older saves (full health).</summary>
     public int? CompanionHitPoints { get; init; }
+
+    /// <summary>The Necromancer's Grave Charges (its skeletons are not kept: they crumble when the game is left).</summary>
+    public int GraveCharges { get; init; }
     public List<string> BarOffered { get; init; } = [];
 
     /// <summary>The explored map cells (base64 bitset); missing in older saves, which start unexplored.</summary>
@@ -188,6 +191,7 @@ public sealed record SaveGame
             Bar = world.BarLayout.ToDictionary(kv => kv.Key, kv => kv.Value),
             BarOffered = world.BarOffered.ToList(),
             CompanionHitPoints = world.Companion?.Creature.HitPoints,
+            GraveCharges = world.GraveCharges,
             PlaySeconds = playSeconds,
         };
     }
@@ -259,6 +263,7 @@ public sealed record SaveGame
         world.Hero.Resource.Restore(Resource);
         if (CompanionHitPoints is { } companion)
             world.RestoreCompanion(companion);
+        world.RestoreGraveCharges(GraveCharges);
 
         if (ZoneRevision != zone.Revision)
         {

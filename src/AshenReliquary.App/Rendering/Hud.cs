@@ -186,6 +186,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         using (var tf = new SKPaint { Color = c.Taint.Value >= TaintMeter.PenaltyThreshold ? new SKColor(180, 230, 80) : new SKColor(140, 200, 70) })
             canvas.DrawRect(SKRect.Create(taintBar.Left, taintBar.Top, taintBar.Width * (float)(c.Taint.Value / TaintMeter.Max), taintBar.Height), tf);
         canvas.DrawText($"Taint {c.Taint.Value:0}%", res.X, taintBar.Top - 4, SKTextAlign.Center, small, dim);
+        if (world.MaxGraveCharges > 0)
+            DrawGraveCharges(canvas, world, new SKPoint(res.X, taintBar.Top - 30));
         Region(SKRect.Create(taintBar.Left, taintBar.Top - 18, taintBar.Width, 26), () =>
         [
             new("Taint", new SKColor(160, 220, 90), $"{c.Taint.Value:0}%", true),
@@ -409,6 +411,11 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
     /// <summary>The companion's health beside the potions: its icon and a bar, or the seconds until it is back.</summary>
     private void DrawCompanion(SKCanvas canvas, GameWorld world, SKPoint at, SKFont small)
     {
+        if (world.Companion is null && world.Hero.Character.Class.GraveCharges)
+        {
+            DrawMinions(canvas, world, at, small);
+            return;
+        }
         if (world.Companion is not { } ally)
             return;
         var icon = SKRect.Create(at.X, at.Y, 26, 26);
@@ -429,6 +436,51 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             new($"AC {c.ArmorClass().Total}, bite {c.AttackModifier().Total:+0} for {c.StrikeDamage} {c.StrikeDamageType.ToString().ToLowerInvariant()}.", Dim),
             new("It follows you and falls on what you fight. It recovers", Dim),
             new($"when you do; if it falls it finds you {GameWorld.AllyReturnSeconds:0} s later.", Dim),
+        ], Good);
+    }
+
+    /// <summary>The Necromancer's Grave Charges: a row of small bone-white diamonds, lit for each held.</summary>
+    private void DrawGraveCharges(SKCanvas canvas, GameWorld world, SKPoint centre)
+    {
+        const float size = 9, gap = 5;
+        var count = world.MaxGraveCharges;
+        var left = centre.X - (count * size * 2 + (count - 1) * gap) / 2;
+        using var lit = new SKPaint { IsAntialias = true, Color = new SKColor(196, 220, 255) };
+        using var unlit = new SKPaint { IsAntialias = true, Color = new SKColor(60, 64, 80, 200) };
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.2f, Color = new SKColor(20, 20, 28) };
+        for (var i = 0; i < count; i++)
+        {
+            var x = left + i * (size * 2 + gap) + size;
+            using var path = new SKPath();
+            path.MoveTo(x, centre.Y - size);
+            path.LineTo(x + size * 0.7f, centre.Y);
+            path.LineTo(x, centre.Y + size);
+            path.LineTo(x - size * 0.7f, centre.Y);
+            path.Close();
+            canvas.DrawPath(path, i < world.GraveCharges ? lit : unlit);
+            canvas.DrawPath(path, edge);
+        }
+        Region(SKRect.Create(left, centre.Y - size, count * (size * 2 + gap), size * 2), () =>
+        [
+            new("Grave Charges", new SKColor(196, 220, 255), $"{world.GraveCharges} / {world.MaxGraveCharges}", true),
+            .. Wrap($"Every monster that dies within {GameWorld.GraveReach:0} tiles of you leaves one{(world.Hero.Character.ChargesPerCorpseBonus > 0 ? $" ({1 + world.Hero.Character.ChargesPerCorpseBonus} for you)" : "")}. Raise Bones takes one in place of its Mana; Bone Rush, Bone Armor and Corpse Explosion need them. Lost if you fall.", Dim),
+        ], new SKColor(150, 170, 220));
+    }
+
+    /// <summary>The Necromancer's skeletons: an icon and how many stand of how many it can hold.</summary>
+    private void DrawMinions(SKCanvas canvas, GameWorld world, SKPoint at, SKFont small)
+    {
+        var standing = world.Minions.Where(m => !m.IsDead).ToList();
+        var icon = SKRect.Create(at.X, at.Y, 26, 26);
+        icons.Draw(canvas, "raise_bones", icon, standing.Count > 0 ? Good : Dim.WithAlpha(110));
+        using var ink = new SKPaint { IsAntialias = true, Color = standing.Count > 0 ? Ink : Dim };
+        var text = $"{standing.Count} / {world.MinionCap}";
+        canvas.DrawText(text, icon.Right + 6, icon.MidY + 5, SKTextAlign.Left, small, ink);
+        Region(SKRect.Create(icon.Left, icon.Top, 80, icon.Height), () =>
+        [
+            new("Your skeletons", Good, text, true),
+            .. standing.Select(m => new TipLine($"{m.Name}: {m.Creature.HitPoints} / {m.Creature.Stats.HitPoints} HP", Dim)),
+            .. Wrap($"Raise Bones calls one; you hold {world.MinionCap} at once (the oldest crumbles to make room). One that falls is gone, and all crumble if you fall.", Dim),
         ], Good);
     }
 
@@ -552,7 +604,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         var rank = AbilityDefinition.SpellRank(c.Level);
         var lines = new List<TipLine> { new(a.Name, Gold, key, true) };
         var facts = new List<string> { $"{a.Actions} action{(a.Actions == 1 ? "" : "s")}" };
-        if (a.Cost > 0) facts.Add($"{a.Cost:0} {(a.CostsTaint ? "Taint" : world.Hero.Resource.Name)}");
+        if (a.Charges > 0) facts.Add(a.Charges == 1 ? "a Grave Charge" : $"{a.Charges} Grave Charges");
+        if (a.Cost > 0) facts.Add($"{(a.ChargeInstead ? "a Grave Charge or " : "")}{a.Cost:0} {(a.CostsTaint ? "Taint" : world.Hero.Resource.Name)}");
         if (a.Cooldown > 0) facts.Add($"{a.Cooldown:0} s cooldown");
         if (a.Range > 0) facts.Add($"range {a.Range:0}");
         lines.Add(new(string.Join(" · ", facts), Ink));
@@ -590,6 +643,12 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 break;
             case AbilityKind.Trap:
                 lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, radius {a.Radius:0.#}, class DC {c.ClassDc().Total}", Good));
+                break;
+            case AbilityKind.Summon:
+                lines.Add(new($"Now: {world.Minions.Count(m => !m.IsDead)} of {world.MinionCap} skeletons standing, {(6 + 5 * c.Level) * (1 + 0.5 * c.MinionGrowth):0} HP each.", Good));
+                break;
+            case AbilityKind.Blast:
+                lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, radius {a.Radius:0.#}, spell DC {c.SpellDc().Total}", Good));
                 break;
             case AbilityKind.Heal:
                 lines.Add(new($"Now (rank {rank}): heals {(int)Math.Round(a.HealAt(rank) * (1 + c.HealShare))} HP{(world.Allies.Count > 0 ? $", allies within {a.Radius:0.#} tiles too" : "")}", Good));

@@ -27,6 +27,7 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("rogue")]
     [InlineData("ranger")]
     [InlineData("champion")]
+    [InlineData("necromancer")]
     public void Gallows_Road_packs_at_level_1(string classId)
     {
         var results = Run(classId);
@@ -66,6 +67,10 @@ public class BalanceReport(ITestOutputHelper output)
         ["champion"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         ["champion lanternbearer"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         ["champion oathbreaker"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
+        // The Necromancer (M3 step 5): the wizard's staff and robes.
+        ["necromancer"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
+        ["necromancer bonelord"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
+        ["necromancer plaguebringer"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
     };
 
     [Theory]
@@ -78,6 +83,8 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
     public void The_whole_road_at_level_1(string kit)
     {
         var classId = kit.Split(' ')[0];
@@ -388,7 +395,7 @@ public class BalanceReport(ITestOutputHelper output)
             world.ChooseLevel(at, new LevelChoice(
                 Boosts: boosts,
                 ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class,
-                    c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", "ranger" => "far_shot", "champion" => "fervor", _ => "lunge" }),
+                    c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", "ranger" => "far_shot", "champion" => "fervor", "necromancer" => "soul_siphon", _ => "lunge" }),
                 SkillFeat: Feat(Progression.LevelGain.SkillFeat, FeatType.Skill),
                 GeneralFeat: Feat(Progression.LevelGain.GeneralFeat, FeatType.General, "toughness"),
                 AncestryFeat: Feat(Progression.LevelGain.AncestryFeat, FeatType.Ancestry),
@@ -407,6 +414,8 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
     public void Mother_Sallow_at_levels_4_and_5(string kit)
     {
         foreach (var (level, runed) in new[] { (4, false), (5, false), (5, true) })

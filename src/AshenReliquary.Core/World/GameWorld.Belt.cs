@@ -98,6 +98,9 @@ public sealed partial class GameWorld
             case AbilityKind.Heal:
                 LayOnHands(ability);
                 return;
+            case AbilityKind.Summon:
+                RaiseMinion(ability);
+                return;
         }
         if (ability.Kind == AbilityKind.Ward)
         {

@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1214,6 +1214,48 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   (the Bulwark 16-18). Alone against her both win every fight even at level 4 (the fighter 2 of 6): survival is the
   class's strength (its shield always raised, 2 off every blow, healing on demand); for step 9's balance pass to look at
   with the Beastmaster.
+
+### The Necromancer, minions and Grave Charges (M3 step 5)
+
+- **The class** (section 7): INT, 6 HP a level, no armour, trained in Occultism, Will at expert. Starts with the wizard's
+  staff and robes; the quick-start background is the Gravedigger; quick start `--necromancer` (a Bonelord),
+  `--bonelord`, `--plaguebringer`. With it all six classes are playable.
+- **Mana** as the wizard's. **Grave Charges** (`World/GameWorld.Necromancer.cs`): every monster that dies within 8 tiles
+  of the hero (by any hand) leaves one, up to 5; a fall loses them all; they are saved. Drawn as a row of pale diamonds
+  above the Taint bar. An ability's `charges` are spent as well as its Mana; Raise Bones (`chargeInstead`) takes a
+  charge in place of its Mana when there is one.
+- **Minions** on the ally framework (`AllyActor.IsMinion`): a raised skeleton (`raised_skeleton`: Flare's weak skeleton,
+  tinted bone-blue) climbs out of the ground beside the hero and fights as the wolf does (follows, falls on what the
+  hero fights, draws blows). Its numbers follow the hero's level: AC 13 + level, attack +5 + level, (6 + 5 × level)
+  HP, 1d6 + half the level; a step of growth adds half its HP again, 1 to AC and attack, and a die. The hero holds 2
+  (3 from level 5, more with feats); raising one more makes the oldest crumble. One that falls is gone after a moment,
+  and all crumble when the hero falls; they are not saved (a loaded game starts without them). The HUD shows how many
+  stand of how many beside the potions.
+- **Void damage** harms the dead here: Act 1's dead are raised by the Taint, not by void, so they are not healed by it
+  (the bog witches and Mother Sallow resist it).
+
+| Slot | Ability | Numbers |
+| --- | --- | --- |
+| LMB | Grave Bolt | Cantrip, 2 actions, range 7: spell attack, 2d6 void (+1d6 a rank) |
+| RMB | Raise Bones | A Grave Charge or 12 Mana, 2 actions: a skeleton (above) |
+| 1 | Siphon Life | 10 Mana, 2 actions, range 7: spell attack, 1d8 void (+1d8 a rank); half the damage heals the hero |
+| 4 | Bone Rush (level 2) | A Grave Charge, 6 s cooldown: every skeleton bounds at a monster within 10 tiles, its next blow a die more |
+
+- **Bonelord** (a skeleton army, bone armour): holds one skeleton more. **Bone Armor**: a Grave Charge, a ward for 15 s,
+  +1 circumstance bonus to AC and Shield Block taking 4 off a blow (+2 every two ranks). Level-2 feat **Legion**:
+  sturdier skeletons (a step of growth).
+- **Plaguebringer** (curses, rot, corpse explosions): two Grave Charges a corpse, and Grave Bolt splashes 1 void (2 from
+  rank 3). **Corpse Explosion** (`AbilityKind.Blast`, a burst centred on a monster up to 8 tiles off): a Grave Charge,
+  2d6 void (+1d6 a rank) to every enemy within 2 tiles of it against a basic Fortitude save (spell DC), sickened 1 for
+  4 s on a failure. Level-2 feat **Virulent Blast**: a tile wider.
+- **Class feats:** level 2 Grave Reach (+2 tiles of spell range) or Soul Siphon (Mana a quarter faster); level 4 Grave
+  Hoarder (+2 Grave Charges held), Hardened Bones (sturdier skeletons) or Deathless Will (+2 Will).
+- **Bone Rush and Sic 'Em** are one rule (`AbilityKind.Command`): every standing ally is sent.
+- **The bots** keep their skeletons raised, put on Bone Armor with something close, Corpse Explode a crowd of two or
+  more, rush a champion with their bones and siphon below 70% health. Over four seeds each both kill Mother Sallow at
+  level 5 without a death, the Bonelord in 17-18 minutes, the Plaguebringer in 15-16. Alone against her the Bonelord
+  wins every fight from level 4, the Plaguebringer 5 of 6 at 4 and all at 5: the skeletons take her blows, as the wolf
+  does, so the minion classes are strong in the bots' hands; for step 9.
 
 ### The arsenal (M2, after step 10)
 

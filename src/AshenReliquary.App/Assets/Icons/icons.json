@@ -294,6 +294,48 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "grave_bolt",
+  "file": "grave_bolt.png",
+  "source": "https://game-icons.net/1x1/lorc/skull-bolt.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "raise_bones",
+  "file": "raise_bones.png",
+  "source": "https://game-icons.net/1x1/skoll/raise-skeleton.html",
+  "author": "Skoll",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "siphon_life",
+  "file": "siphon_life.png",
+  "source": "https://game-icons.net/1x1/lorc/life-tap.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "bone_rush",
+  "file": "bone_rush.png",
+  "source": "https://game-icons.net/1x1/delapouite/skeletal-hand.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "bone_armor",
+  "file": "bone_armor.png",
+  "source": "https://game-icons.net/1x1/lorc/ribcage.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "corpse_explosion",
+  "file": "corpse_explosion.png",
+  "source": "https://game-icons.net/1x1/lorc/skull-crack.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",

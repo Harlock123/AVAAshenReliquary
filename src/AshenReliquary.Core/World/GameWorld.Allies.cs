@@ -31,7 +31,13 @@ public sealed partial class GameWorld
     public IReadOnlyList<AllyActor> Allies => _allies;
 
     /// <summary>The Beastmaster's companion, or null.</summary>
-    public AllyActor? Companion => _allies.FirstOrDefault();
+    public AllyActor? Companion => _allies.FirstOrDefault(a => !a.IsMinion);
+
+    /// <summary>The Necromancer's skeletons, standing or crumbling.</summary>
+    public IEnumerable<AllyActor> Minions => _allies.Where(a => a.IsMinion);
+
+    /// <summary>Seconds a fallen skeleton lies before it is gone.</summary>
+    public const double MinionCrumbleSeconds = 1.5;
 
     /// <summary>
     /// A companion's creature at a hero level: AC 14 + level, attack 6 + level, save DC 15 + level, (10 + 8 × level)
@@ -60,13 +66,13 @@ public sealed partial class GameWorld
         var c = Hero.Character;
         if (c.Companion is not { } id || !_creatures.TryGetValue(id, out var definition))
         {
-            _allies.Clear();
+            _allies.RemoveAll(a => !a.IsMinion);
             return;
         }
         if (Companion is not { } ally || ally.Definition.Id != id)
         {
-            _allies.Clear();
-            _allies.Add(new AllyActor(definition, CompanionStats(definition, c.Level, c.CompanionGrowth), c.Level, c.CompanionGrowth));
+            _allies.RemoveAll(a => !a.IsMinion);
+            _allies.Insert(0, new AllyActor(definition, CompanionStats(definition, c.Level, c.CompanionGrowth), c.Level, c.CompanionGrowth));
             PlaceAllies();
             return;
         }
@@ -118,7 +124,7 @@ public sealed partial class GameWorld
     /// <summary>Shrines and the hero's respawn: allies at full health, fallen ones back at once.</summary>
     private void RestAllies()
     {
-        foreach (var ally in _allies)
+        foreach (var ally in _allies.Where(a => !(a.IsMinion && a.IsDead)))
         {
             ally.Creature.Restore();
             ally.ReturnIn = 0;
@@ -127,32 +133,37 @@ public sealed partial class GameWorld
     }
 
     /// <summary>
-    /// Sic 'Em: the companion bounds at the target (faster than it runs) and its next bite is the ability's. Its cost
-    /// and cooldown are spent only if there is a companion standing to send.
+    /// Sic 'Em and Bone Rush: every standing ally bounds at the target (faster than it runs) and its next bite is the
+    /// ability's. Its cost and cooldown are spent only if there is an ally standing to send.
     /// </summary>
     private void SendCompanion(AbilityDefinition ability, MonsterActor target)
     {
-        if (Companion is not { IsDead: false } ally)
+        var sent = _allies.Where(a => !a.IsDead).ToList();
+        if (sent.Count == 0)
         {
-            Say(Companion is null ? "You have no companion to send." : $"Your {Companion.Name.ToLowerInvariant()} is down.");
+            Say(_allies.Count == 0 ? "You have no ally to send." : Companion is { } down ? $"Your {down.Name.ToLowerInvariant()} is down." : "Your allies are down.");
             return;
         }
         if (Hero.DistanceTo(target) > ability.Range + target.Radius || !IsLit(target.X, target.Y))
         {
-            Say($"{target.Name} is too far to send your {ally.Name.ToLowerInvariant()} at.");
+            Say($"{target.Name} is too far to send your {(sent.Count == 1 ? sent[0].Name.ToLowerInvariant() : "allies")} at.");
             return;
         }
         if (!BeginSelf(ability))
             return;
-        ally.Target = target;
-        ally.Command = ability;
-        ally.Path.Clear();
-        Float(ally, "sic!", FloatingTextKind.Info, 0.3);
+        foreach (var ally in sent)
+        {
+            ally.Target = target;
+            ally.Command = ability;
+            ally.Path.Clear();
+        }
+        Float(sent[0], ability.Charges > 0 ? "rush!" : "sic!", FloatingTextKind.Info, 0.3);
     }
 
     private void UpdateAllies(double dt)
     {
         RefreshCompanion();
+        _allies.RemoveAll(a => a.IsMinion && a.IsDead && a.ReturnIn <= 0);
         foreach (var ally in _allies)
             UpdateAlly(ally, dt);
     }
@@ -164,6 +175,11 @@ public sealed partial class GameWorld
             ally.HitFlinch -= dt;
         if (ally.IsDead)
         {
+            if (ally.IsMinion)
+            {
+                ally.ReturnIn -= dt;
+                return;
+            }
             if (Hero.IsDead)
                 return;
             ally.ReturnIn -= dt;
@@ -372,14 +388,15 @@ public sealed partial class GameWorld
         Float(ally, dealt.ToString(), FloatingTextKind.AllyHurt);
         if (!ally.IsDead)
             return;
-        ally.ReturnIn = AllyReturnSeconds;
+        ally.ReturnIn = ally.IsMinion ? MinionCrumbleSeconds : AllyReturnSeconds;
         ally.Target = null;
         ally.Command = null;
         ally.AttackElapsed = -1;
         ally.Path.Clear();
         ally.Play("die", restart: true);
         Sound(SoundCue.MonsterDeath, ally, ally.Definition.Voice);
-        Say($"Your {ally.Name.ToLowerInvariant()} falls; it will find you again in {AllyReturnSeconds:0} s.");
+        if (!ally.IsMinion)
+            Say($"Your {ally.Name.ToLowerInvariant()} falls; it will find you again in {AllyReturnSeconds:0} s.");
         foreach (var other in _monsters.Where(o => o.Victim == ally))
             other.Victim = null;
     }

@@ -74,6 +74,11 @@ implementation decisions made so far). `README.md` has the run commands and cont
   round the hero with a status bonus, a soak on blows, damage and healing; Shield of Faith raises the shield), the
   Lanternbearer (undead bane, `undead` creatures, Lantern's Radiance) and the Oathbreaker (hits fill its own Taint meter,
   Strikes drain by it, Aura of Dread is paid in Taint: `costsTaint`); `--champion`, `--lanternbearer`, `--oathbreaker`.
+  Step 5 done: the Necromancer (`World/GameWorld.Necromancer.cs`: Grave Charges from corpses within 8 tiles, saved;
+  Raise Bones raises skeleton minions, `AllyActor.IsMinion`, that crumble when it falls and aren't saved; Siphon Life
+  drains; Bone Rush is Sic 'Em for every ally), the Bonelord (Bone Armor, a skeleton more) and the Plaguebringer
+  (Corpse Explosion, `AbilityKind.Blast`; two charges a corpse); `--necromancer`, `--bonelord`, `--plaguebringer`.
+  All six classes are playable.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -106,7 +111,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
 
 - They drive step by step ("commit it and move on to X", "run it"). **Commit only when asked**, on `main`.
 - "Run it" means: build Release, then start `dotnet src/AshenReliquary.App/bin/Release/net10.0/AVAAshenReliquary.dll`
-  in the background (`--fighter`, `--wizard`, `--rogue`, `--ranger`, `--champion` or a subclass flag skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
+  in the background (`--fighter`, `--wizard`, `--rogue`, `--ranger`, `--champion`, `--necromancer` or a subclass flag skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
   itself, `Services/BattleDemo.cs`, saving to a temp folder: use it to watch or record fights, or measure fps in combat).
   To record: make the game fullscreen with `hyprctl dispatch 'hl.dsp.window.fullscreen({ window = "class:AVAAshenReliquary" })'`,
   then `gpu-screen-recorder -w region -region 1500x1000+0+0 -s 1920x1280 -f 60 -k h264 -cursor no -a default_output -o <file>`

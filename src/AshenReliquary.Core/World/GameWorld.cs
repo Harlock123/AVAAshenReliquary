@@ -1104,7 +1104,7 @@ public sealed partial class GameWorld
             var ability = order.Ability;
             var reach = ReachFor(ability, target);
             var startDistance = ability.Kind == AbilityKind.ChargeStrike ? reach + ability.Range : reach;
-            var losOk = !(ability.IsSpell || ability.Kind == AbilityKind.Bomb || (ability.UsesWeapon && Shoots))
+            var losOk = !(ability.IsSpell || ability.Kind is AbilityKind.Bomb or AbilityKind.Blast || (ability.UsesWeapon && Shoots))
                 || Map.HasLineOfSight(hero.X, hero.Y, target.X, target.Y);
             if (hero.DistanceTo(target) > startDistance || !losOk)
             {
@@ -1272,6 +1272,7 @@ public sealed partial class GameWorld
     private double ReachFor(AbilityDefinition ability, MonsterActor target) =>
         ability.IsSpell ? ability.Range + Hero.Character.SpellRangeBonus
         : ability.Kind == AbilityKind.Bomb ? ability.Range
+        : ability.Kind == AbilityKind.Blast ? ability.Range + Hero.Character.SpellRangeBonus
         : ability.Kind == AbilityKind.Burst ? ability.Radius * 0.8 + target.Radius
         : Shoots ? Hero.Character.Weapon.Definition.Range + Hero.Character.WeaponRangeBonus + target.Radius
         : MeleeReach + Hero.Character.ReachBonus + target.Radius;
@@ -1287,6 +1288,8 @@ public sealed partial class GameWorld
             return ability.IsFlourish && Hero.FlourishReadyAt > Time && Hero.ReadyAt.GetValueOrDefault(ability.Id) <= Time
                 ? $"{ability.Name}: another Flourish was used ({cooldown:0.0} s)."
                 : $"{ability.Name} is not ready ({cooldown:0.0} s).";
+        if (!HasCharges(ability))
+            return $"{ability.Name} needs {(ability.Charges == 1 ? "a Grave Charge" : $"{ability.Charges} Grave Charges")}.";
         if (!CanAfford(ability))
             return $"Not enough {(ability.CostsTaint ? "Taint" : Hero.Resource.Name)} for {ability.Name} ({ability.Cost:0}).";
         if (ability.NeedsTwoHanded && !WieldsTwoHanded)
@@ -1311,7 +1314,7 @@ public sealed partial class GameWorld
         if (ability.SpendAll)
             extraDice = ability.DiceForSpent(hero.Resource.SpendAll());
         else
-            hero.Resource.TrySpend(ability.Cost);
+            Pay(ability);
         if (ability.Cooldown > 0)
             hero.ReadyAt[ability.Id] = Time + ability.Cooldown;
         if (ability.IsFlourish)
@@ -1425,6 +1428,10 @@ public sealed partial class GameWorld
             case AbilityKind.Burst:
                 Burst(ability, target, (Hero.X, Hero.Y));
                 break;
+            case AbilityKind.Blast:
+                if (!target.IsDead)
+                    Burst(ability, null, (target.X, target.Y));
+                break;
             case AbilityKind.Missiles:
                 var count = ability.MissilesAt(rank);
                 for (var i = 0; i < count; i++)
@@ -1523,6 +1530,12 @@ public sealed partial class GameWorld
         }
         damage = DamageMonster(target, damage);
         Float(target, critical ? $"{damage}!" : damage.ToString(), critical ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
+        // Siphon Life: a share of what it dealt comes back to the hero.
+        if (ability.Drain > 0 && (int)Math.Round(damage * ability.Drain) is > 0 and var drained && Hero.Character.HitPoints < Hero.Character.MaxHitPoints)
+        {
+            Hero.Character.Heal(drained);
+            Float(Hero, $"+{drained}", FloatingTextKind.Heal, 0.3);
+        }
         target.HitFlinch = 0.15;
         Aggro(target);
         AddImpact(target.X, target.Y, ability.DamageType);
@@ -1656,6 +1669,7 @@ public sealed partial class GameWorld
         if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
             DropLoot(monster);
         Avenge(monster);
+        GatherGraveCharge(monster);
         if (monster.Has(MonsterAffix.Tainted))
             LeaveTaint(monster);
         if (monster.Definition.Boss is not null)
@@ -2119,6 +2133,7 @@ public sealed partial class GameWorld
     {
         ClearRogueState();
         EndAuras();
+        ClearNecromancerState();
         Hero.Play("die", restart: true);
         Hero.RespawnIn = RespawnSeconds;
         Sound(SoundCue.Death, Hero);

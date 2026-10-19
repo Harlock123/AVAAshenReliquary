@@ -445,6 +445,11 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
             Preview.Add($"Undead bane: +{character.UndeadBane} vitality");
         if (character.TaintFuel)
             Preview.Add("Taint drain: your hits fill your Taint");
+        if (character.Class.GraveCharges)
+        {
+            Preview.Add($"Grave Charges: up to {Core.World.GameWorld.BaseGraveCharges + character.GraveChargeBonus}");
+            Preview.Add($"Skeletons: {Core.World.GameWorld.BaseMinions + character.MinionBonus} at once");
+        }
         if (character.Companion is { } companion && _content.Creatures.TryGetValue(companion, out var beast))
             Preview.Add($"Companion: a {beast.Name.ToLowerInvariant()}");
         foreach (var (slot, ability) in _content.AbilityBar(choices.ClassId).OrderBy(kv => kv.Key switch { "lmb" => 0, "rmb" => 1, _ => 2 }))

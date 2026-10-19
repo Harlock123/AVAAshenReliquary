@@ -68,7 +68,7 @@
   },
   {
     "id": "necromancer", "trainedSkills": ["Occultism"], "skillPicks": 2, "armorCategories": [], "name": "Necromancer", "hitPointsPerLevel": 6, "keyAttributes": ["Intelligence"],
-    "resource": "Mana + Grave Charges", "subclasses": ["Bonelord", "Plaguebringer"],
+    "resource": "Mana + Grave Charges", "subclasses": ["Bonelord", "Plaguebringer"], "graveCharges": true,
     "proficiencies": {
       "Attack": { "1": "Trained", "11": "Expert" },
       "Spell": { "1": "Trained", "7": "Expert", "15": "Master", "19": "Legendary" },

@@ -46,6 +46,8 @@ public enum FeatType
 /// <item>The Champion's: <see cref="UndeadBane"/> vitality damage on Strikes against the undead; <see cref="HealShare"/>:
 /// Lay on Hands heals that share more; <see cref="Light"/> tiles of light round the hero; <see cref="TaintFuel"/>: the
 /// Oathbreaker's hits fill the Taint meter, and its Strikes drain life by how full it is.</item>
+/// <item>The Necromancer's: <see cref="Minions"/> more skeletons at once, <see cref="MinionGrowth"/> makes them sturdier,
+/// <see cref="GraveCharges"/> more Grave Charges held, <see cref="ChargesPerCorpse"/> more from each corpse.</item>
 /// </list>
 /// </summary>
 public sealed record FeatEffect(
@@ -89,7 +91,11 @@ public sealed record FeatEffect(
     int UndeadBane = 0,
     double HealShare = 0,
     double Light = 0,
-    bool TaintFuel = false)
+    bool TaintFuel = false,
+    int Minions = 0,
+    int MinionGrowth = 0,
+    int GraveCharges = 0,
+    int ChargesPerCorpse = 0)
 {
     /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
     public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0

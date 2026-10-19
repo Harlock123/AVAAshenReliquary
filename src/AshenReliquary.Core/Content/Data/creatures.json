@@ -318,5 +318,22 @@
   "damage": "1d8",
   "voice": "crawler",
   "scale": 2.2
+ },
+ {
+  "id": "raised_skeleton",
+  "name": "Raised skeleton",
+  "sprite": "skeleton_weak",
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.0,
+  "moveSpeed": 2.8,
+  "aggroRadius": 8,
+  "attackRange": 1.2,
+  "damage": "1d6",
+  "tint": "#c8e4ff",
+  "voice": "skeleton",
+  "undead": true,
+  "immunities": [
+   "Poison"
+  ]
  }
 ]

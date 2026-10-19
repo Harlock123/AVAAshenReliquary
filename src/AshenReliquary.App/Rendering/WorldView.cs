@@ -1551,6 +1551,9 @@ public sealed class WorldView : Control
     /// An ally (the Beastmaster's wolf): its creature sprite, flashing when bitten, a green health bar while hurt, and a
     /// faint green ring at its feet so it reads as the hero's.
     /// </summary>
+    /// <summary>How long a raised skeleton takes to climb out of the ground.</summary>
+    private const double RiseSeconds = 0.6;
+
     private void DrawAlly(SKCanvas canvas, AllyActor ally)
     {
         var foot = ToScreen(ally.X, ally.Y);
@@ -1561,10 +1564,27 @@ public sealed class WorldView : Control
             canvas.DrawOval(SKRect.Create(foot.X - 34 * z, foot.Y - 15 * z, 68 * z, 30 * z), ring);
         }
         using var paint = new SKPaint();
+        SKColorFilter? filter = null;
         if (ally.HitFlinch > 0)
-            paint.ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(90, 30, 30));
+            filter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(90, 30, 30));
+        // A raised skeleton's own pale tint, as a monster's.
+        if (ally.Definition.Tint is { } tint && SKColor.TryParse(tint, out var colour))
+        {
+            var own = SKColorFilter.CreateLighting(colour, SKColors.Black);
+            filter = filter is null ? own : SKColorFilter.CreateCompose(filter, own);
+        }
+        paint.ColorFilter = filter;
         if (ally.IsDead)
-            paint.Color = SKColors.White.WithAlpha((byte)(255 * Math.Clamp((ally.ReturnIn - (GameWorld.AllyReturnSeconds - 2)) / 1.0, 0, 1)));
+            paint.Color = SKColors.White.WithAlpha((byte)(255 * Math.Clamp(ally.IsMinion
+                ? ally.ReturnIn / GameWorld.MinionCrumbleSeconds
+                : (ally.ReturnIn - (GameWorld.AllyReturnSeconds - 2)) / 1.0, 0, 1)));
+        else if (World is { } world && world.Time - ally.RaisedAt < RiseSeconds)
+        {
+            // Climbing out of the ground: it fades in as it rises.
+            var risen = (float)((world.Time - ally.RaisedAt) / RiseSeconds);
+            paint.Color = SKColors.White.WithAlpha((byte)(255 * risen));
+            foot = new SKPoint(foot.X, foot.Y + (1 - risen) * 40 * z);
+        }
         var set = _assets.Enemy(ally.Definition.Sprite);
         if (Pick(set, ally.Animation) is { } anim)
             DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(ally.AnimationTime), ally.Direction), foot, (float)ally.Definition.Scale, paint);

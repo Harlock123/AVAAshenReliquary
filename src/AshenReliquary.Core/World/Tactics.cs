@@ -16,7 +16,9 @@ namespace AshenReliquary.Core.World;
 /// hunts its target, springs away from anything in melee (the only bot that keeps its distance), sends its wolf, and
 /// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot. The champion keeps Shield of Faith up in a fight,
 /// lays on hands when hurt, raises its subclass's aura with enemies close (the Oathbreaker's too when its Taint runs
-/// high, to spend it before the whispers), and Smites with what Devotion is left over.
+/// high, to spend it before the whispers), and Smites with what Devotion is left over. The necromancer keeps its
+/// skeletons raised, puts on Bone Armor with something close, blasts a crowd with Corpse Explosion, rushes its bones at
+/// a champion, siphons life when hurt and otherwise casts Grave Bolt.
 /// </summary>
 public static class Tactics
 {
@@ -123,6 +125,23 @@ public static class Tactics
                 world.UseSlot(slot, null);
             // Devotion is kept for Lay on Hands and the auras; what is over goes on Smite.
             else if (Ready("smite", out slot) && distance < 1.6 && resource.Current >= 50)
+                world.UseSlot(slot, target);
+            else if (hero.CurrentTarget != target)
+                world.Attack(target);
+        }
+        else if (classId == "necromancer")
+        {
+            var standing = world.Minions.Count(m => !m.IsDead);
+            var c = hero.Character;
+            if (standing < world.MinionCap && Ready("raise_bones", out slot))
+                world.UseSlot(slot, null);
+            else if (hero.Ward is null && Ready("bone_armor", out slot) && world.Monsters.Any(m => !m.IsDead && m.DistanceTo(hero) < 3))
+                world.UseSlot(slot, null);
+            else if (Ready("corpse_explosion", out slot) && world.Monsters.Count(m => !m.IsDead && m.DistanceTo(target) < 2.2) >= 2)
+                world.UseSlot(slot, target);
+            else if (Ready("bone_rush", out slot) && standing >= 2 && target.Creature.Stats.Rank >= CreatureRank.Champion)
+                world.UseSlot(slot, target);
+            else if (Ready("siphon_life", out slot) && c.HitPoints < c.MaxHitPoints * 0.7)
                 world.UseSlot(slot, target);
             else if (hero.CurrentTarget != target)
                 world.Attack(target);

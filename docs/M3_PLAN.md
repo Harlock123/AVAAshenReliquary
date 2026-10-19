@@ -102,7 +102,12 @@ ticking on enemies or on the hero and allies. **Lanternbearer** (light auras, he
 **Oathbreaker** (Taint-fuelled: life drain, fear; the Taint meter as a resource as well as a danger). Starting
 abilities: Lay on Hands, Shield of Faith.
 
-### 5. The Necromancer
+### 5. The Necromancer — done 2026-10-19
+
+Built as below (spec section 16, "The Necromancer, minions and Grave Charges"). Learned on the way: the ally framework
+needed a minion kind (no return after falling, crumbling with the hero, not saved), and Sic 'Em became a rule for every
+ally (Bone Rush). Void damage harms Act 1's dead (they are the Taint's, not void's). With it every class is playable.
+The minion classes play strong in the bots' hands, like the Beastmaster; step 9 looks at allies as a whole.
 
 Mana and Grave Charges (gained from corpses near the hero). Minions on the ally framework from step 3: Raise Bones
 calls skeletons (Flare's skeleton, skeleton archer and mage art, already converted for Act 1's dead, tinted to read as

@@ -322,13 +322,14 @@ public class CreationTests
     }
 
     [AvaloniaFact]
-    public void Unplayable_classes_and_missing_boosts_block_begin()
+    public void Every_class_is_playable_and_missing_boosts_block_begin()
     {
         var (_, vm, kit) = Open();
+        Assert.All(vm.Classes, c => Assert.True(GameSession.IsPlayable(c.Definition.Id), c.Definition.Id));
         vm.SelectedClass = vm.Classes.First(c => c.Definition.Id == "necromancer");
         kit.Pump();
-        Assert.False(vm.CanBegin);
-        Assert.Contains("M3", vm.Problem);
+        vm.RecommendCommand.Execute(null);
+        Assert.True(vm.CanBegin, vm.Problem);
 
         vm.SelectedClass = vm.Classes.First(c => c.Definition.Id == "fighter");
         vm.ToggleFree(vm.Rows.First(r => r.Free.IsSelected).Kind);

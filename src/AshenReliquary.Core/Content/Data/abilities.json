@@ -836,5 +836,130 @@
    "Mental"
   ],
   "description": "Your broken oath spills out for 12 s: every 2 s each enemy within 3 tiles takes 1d6 Taint (a die more every two spell ranks) against a basic Will save, frightened 1 on a failure (2 on a critical failure), and half of what it deals heals you. Paid with 20 of your Taint meter, not Devotion."
+ },
+ {
+  "id": "grave_bolt",
+  "name": "Grave Bolt",
+  "class": "necromancer",
+  "slot": "lmb",
+  "kind": "SpellBolt",
+  "actions": 2,
+  "repeat": true,
+  "range": 7,
+  "damageType": "Void",
+  "dice": "2d6",
+  "heightenDice": "1d6",
+  "traits": [
+   "Attack",
+   "Cantrip",
+   "Void",
+   "Concentrate",
+   "Manipulate"
+  ],
+  "description": "A cantrip bolt of grave-cold: a spell attack for 2d6 void (+1d6 per rank above 1)."
+ },
+ {
+  "id": "raise_bones",
+  "name": "Raise Bones",
+  "class": "necromancer",
+  "slot": "rmb",
+  "kind": "Summon",
+  "actions": 2,
+  "cost": 12,
+  "cooldown": 1,
+  "chargeInstead": true,
+  "creature": "raised_skeleton",
+  "traits": [
+   "Necromancer",
+   "Void",
+   "Concentrate",
+   "Manipulate"
+  ],
+  "description": "A skeleton claws its way out of the ground beside you and fights for you until it falls. You hold two (three from level 5); raising another makes the oldest crumble. Takes a Grave Charge if you have one, else 12 Mana."
+ },
+ {
+  "id": "siphon_life",
+  "name": "Siphon Life",
+  "class": "necromancer",
+  "slot": "1",
+  "kind": "SpellBolt",
+  "actions": 2,
+  "range": 7,
+  "cost": 10,
+  "damageType": "Void",
+  "dice": "1d8",
+  "heightenDice": "1d8",
+  "drain": 0.5,
+  "traits": [
+   "Attack",
+   "Void",
+   "Concentrate",
+   "Manipulate"
+  ],
+  "description": "Draw the life out of an enemy: a spell attack for 1d8 void (+1d8 per rank above 1), and half the damage heals you. 10 Mana."
+ },
+ {
+  "id": "bone_rush",
+  "name": "Bone Rush",
+  "class": "necromancer",
+  "slot": "4",
+  "level": 2,
+  "kind": "Command",
+  "actions": 1,
+  "range": 10,
+  "charges": 1,
+  "cooldown": 6,
+  "extraDice": 1,
+  "traits": [
+   "Necromancer",
+   "Concentrate"
+  ],
+  "description": "Every skeleton you hold rushes a monster within 10 tiles, and its next blow deals one more die. A Grave Charge, 6 s cooldown. Joins the bar at level 2."
+ },
+ {
+  "id": "bone_armor",
+  "name": "Bone Armor",
+  "class": "necromancer",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Ward",
+  "actions": 1,
+  "charges": 1,
+  "wardAc": 1,
+  "wardHardness": 4,
+  "hardnessPerTwoRanks": 2,
+  "wardSeconds": 15,
+  "traits": [
+   "Necromancer",
+   "Void",
+   "Concentrate"
+  ],
+  "description": "Bones knit round you for 15 s: +1 circumstance bonus to AC, and Shield Block takes 4 off a blow (+2 every two spell ranks) once every 6 s. A Grave Charge."
+ },
+ {
+  "id": "corpse_explosion",
+  "name": "Corpse Explosion",
+  "class": "necromancer",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Blast",
+  "actions": 2,
+  "charges": 1,
+  "range": 8,
+  "radius": 2,
+  "dice": "2d6",
+  "heightenDice": "1d6",
+  "save": "Fortitude",
+  "damageType": "Void",
+  "onHit": "Sickened",
+  "onHitValue": 1,
+  "onHitSeconds": 4,
+  "traits": [
+   "Spell",
+   "Void",
+   "Concentrate",
+   "Manipulate"
+  ],
+  "description": "The grave's rot bursts round a monster within 8 tiles: 2d6 void (+1d6 a rank above 1) to every enemy within 2 tiles of it against a basic Fortitude save (your spell DC), sickened 1 for 4 s on a failure. A Grave Charge."
  }
 ]

@@ -72,6 +72,18 @@ public enum AbilityKind
     /// </summary>
     Aura,
 
+    /// <summary>
+    /// Raises an ally beside the hero (the Necromancer's Raise Bones): a <see cref="AbilityDefinition.Creature"/> that
+    /// fights for them until it falls. At the most the hero can hold, the oldest crumbles to make room.
+    /// </summary>
+    Summon,
+
+    /// <summary>
+    /// A burst centred on the target, from up to <see cref="AbilityDefinition.Range"/> tiles (the Plaguebringer's Corpse
+    /// Explosion): every enemy within <see cref="AbilityDefinition.Radius"/> of it saves, as for <see cref="Burst"/>.
+    /// </summary>
+    Blast,
+
     /// <summary>Heals the hero, and the allies within <see cref="AbilityDefinition.Radius"/>, by <see cref="AbilityDefinition.Heal"/> a spell rank (Lay on Hands).</summary>
     Heal,
 }
@@ -106,6 +118,10 @@ public enum AbilityKind
 /// <see cref="Drain"/> (the share of an aura's damage that heals the hero), <see cref="Holy"/> (vitality against the
 /// undead, fire against the living), <see cref="RaisesShield"/> (a shield in hand is raised for as long) and
 /// <see cref="CostsTaint"/> (its cost comes out of the Taint meter, not Devotion: the Oathbreaker's).</item>
+/// <item>The Necromancer's: <see cref="Charges"/> Grave Charges spent as well as any <see cref="Cost"/>;
+/// <see cref="ChargeInstead"/>: a Grave Charge pays for it when there is one, else its Mana (Raise Bones);
+/// <see cref="Creature"/>: what a summon raises. A spell bolt with <see cref="Drain"/> heals the hero that share of its
+/// damage (Siphon Life).</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -166,7 +182,10 @@ public sealed record AbilityDefinition(
     double Drain = 0,
     bool Holy = false,
     bool RaisesShield = false,
-    bool CostsTaint = false)
+    bool CostsTaint = false,
+    int Charges = 0,
+    bool ChargeInstead = false,
+    string? Creature = null)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
@@ -184,11 +203,11 @@ public sealed record AbilityDefinition(
 
     /// <summary>Used on the hero, with no target: wards, elixirs, hiding, traps, tumbles and full bursts round the hero.</summary>
     public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir or AbilityKind.Hide or AbilityKind.Trap or AbilityKind.Tumble
-        or AbilityKind.Aura or AbilityKind.Heal
+        or AbilityKind.Aura or AbilityKind.Heal or AbilityKind.Summon
         || (Kind == AbilityKind.Burst && Arc >= 360);
 
     /// <summary>A burst made with spell power (spell DC, cast speed) rather than a weapon or the class DC.</summary>
-    public bool IsSpellBurst => Kind == AbilityKind.Burst && Has("Spell");
+    public bool IsSpellBurst => Kind is AbilityKind.Burst or AbilityKind.Blast && Has("Spell");
 
     /// <summary>Thrown or drunk from the belt, using up one of the item.</summary>
     public bool IsConsumable => Kind is AbilityKind.Bomb or AbilityKind.Elixir;

@@ -69,8 +69,11 @@ public sealed record ClassDefinition(
     int SkillPicks = 0,
     bool SneakAttack = false,
     bool FinesseDamage = false,
-    bool HuntsPrey = false)
+    bool HuntsPrey = false,
+    bool GraveCharges = false)
 {
+    // GraveCharges (the Necromancer): monsters dying near the hero leave Grave Charges, spent on its grave magic.
+
     /// <summary>Hunt Prey's precision dice at a level (the Ranger, <see cref="HuntsPrey"/>): 1d8, 2d8 at 11, 3d8 at 19, as Pathfinder's precision edge.</summary>
     public int PreyDiceAt(int level) => HuntsPrey ? 1 + (level >= 11 ? 1 : 0) + (level >= 19 ? 1 : 0) : 0;
 

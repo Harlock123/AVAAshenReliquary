@@ -213,6 +213,12 @@ public sealed class AllyActor : Actor
     public CreatureDefinition Definition { get; }
     public Creature Creature { get; internal set; }
 
+    /// <summary>A Necromancer's skeleton: it doesn't come back once it falls, and it crumbles when the hero does.</summary>
+    public bool IsMinion { get; init; }
+
+    /// <summary>When it was raised (game time): it climbs out of the ground.</summary>
+    public double RaisedAt { get; init; } = double.NegativeInfinity;
+
     /// <summary>The hero level and feat growth its numbers were built for (rebuilt when either changes).</summary>
     public int Level { get; internal set; }
     public int Growth { get; internal set; }
