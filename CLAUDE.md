@@ -4,7 +4,7 @@ An isometric action RPG in Grim Dawn's style with Pathfinder 2e Remaster rules, 
 SkiaSharp. The design is `docs/SPECIFICATION.md` (the working copy; section 15 has the milestones, section 16 the
 implementation decisions made so far). `README.md` has the run commands and controls.
 
-## Where things stand (2026-10-17)
+## Where things stand (2026-10-19)
 
 - **M0 (rules core):** done.
 - **M1 (vertical slice):** done (2026-10-17). Built: renderer, Gallows Road, six monsters, abilities, loot and
@@ -16,7 +16,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `tools/gallows_road_mapgen.py` whenever the layout changes), rocky pond banks (`TileMap.ShapeShores`), chests
   (`caches` in the zone file, `World/Cache.cs`, `LootGenerator.RollCache`: eight on the road, a reliquary in the
   Champion's barrow) and shrines waking from 5 tiles. A fighter clears the road with every chest in about 10 minutes.
-- **M2 (Act 1 complete):** in progress, following `docs/M2_PLAN.md`. Steps 1–2 done: zone travel with per-zone
+- **M2 (Act 1 complete):** done (2026-10-19), following `docs/M2_PLAN.md`. Steps 1–2: zone travel with per-zone
   memory (`ZoneMemory`, `OtherZones` in the save), Hero Point per new zone, Rift Shrines (`RiftPanel`), Fort
   Gallowmere as a stub zone (`tools/fort_gallowmere_mapgen.py`), world flags, `dialogues.json` with checks and
   effects (`GameWorld.Dialogue.cs`, `DialoguePanel`), NPCs and interactables in zone files, the journal (J,
@@ -48,12 +48,14 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (`Items/ItemJudge.cs`, `GameWorld.Bag.cs`, cached by `VerdictCache`), junk and lock marks (saved), Drop/Sell junk,
   drag and drop (`WorldView`'s `DragState`), Shift-click to the stash or trader, belt items picked up like gold, and the
   loot filter (a setting; Alt shows all). Then the camera: five zoom steps that glide and are kept in the settings, and
-  the target ring under the hero's target (`WorldView.DrawTargetMarks`). Left for M2:
-  the user's own play-through of Act 1 (they asked to do it once more of the game exists), then whatever it shows.
+  the target ring under the hero's target (`WorldView.DrawTargetMarks`). The exit test was the user's own
+  play-through: a dwarf fighter (Elirk) killed Mother Sallow at level 5 after about 74 minutes of play; its fixes (the
+  level-up screen fitting a narrow window, shrines clicked anywhere on their art) went in before closing.
   `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
   of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
   weeps after the chapel, the full skill list.
+- **M3 (all classes and loot):** in progress, following `docs/M3_PLAN.md`.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

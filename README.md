@@ -51,7 +51,7 @@ fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the dr
 through the refugee camp, to the gate of
 Fort Gallowmere, where Sergeant Brask asks your business.
 
-## Status: M1 done; M2 (Act 1) in progress
+## Status: M1 and M2 done (Act 1 complete); M3 (all classes and loot) in progress
 
 Done so far: the Avalonia app; a SkiaSharp isometric renderer for the Flare art (192x96 tiles, 8-direction
 sprites, the layered hero paper doll, depth sorting, see-through occluders, Act 1 colour grade, darkness with
@@ -96,7 +96,9 @@ Shield for +1 or +2 AC, and Shield Block takes the shield's hardness off a blow 
 wizard has the **Shield** cantrip. The **belt** (keys 7 to 0) holds alchemical bombs (alchemist's fire, frost vial,
 bottled lightning, acid flask: thrown, splashing even on a miss) and antidotes; every hero starts with a few, they drop
 from monsters and chests, and Wenna sells them in the fort at prices that grow with your level.
-The exit test (gallows to gate in one sitting) passed on 2026-10-17. Next is M2: the rest of Act 1.
+The exit test (gallows to gate in one sitting) passed on 2026-10-17. M2, the rest of Act 1, closed on 2026-10-19 with a
+play-through that killed Mother Sallow at level 5. Next is M3 (`docs/M3_PLAN.md`): the other four classes, subclasses,
+the rest of the loot tiers, crafting and multiclassing.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

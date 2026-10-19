@@ -1,5 +1,8 @@
 # M2 plan: Act 1 complete
 
+**Closed 2026-10-19.** Every step below is done, and the user's play-through (a dwarf fighter, Mother Sallow slain at
+level 5 after about 74 minutes of play) was the exit test. M3 follows in `docs/M3_PLAN.md`.
+
 Written 2026-10-17, after M1 closed. The milestone as the spec states it (section 15):
 
 > **M2 — Act 1 complete.** 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries,
