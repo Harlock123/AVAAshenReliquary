@@ -28,6 +28,8 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("wizard stormcaller")]
     [InlineData("rogue cutthroat")]
     [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
     public void Act_1_from_the_gallows_to_Mother_Sallow(string kit)
     {
         for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
@@ -241,8 +243,8 @@ public class CampaignReport(ITestOutputHelper output)
                 if (gear.Bag[i] is not { Definition.Slot: not null } item || item.Definition.Category == ItemCategory.Key)
                     continue;
                 var d = item.Definition;
-                if (d.IsWeapon && (classId == "wizard" ? !d.CasterFocus : d.CasterFocus || d.Ranged))
-                    continue;
+                if (d.IsWeapon && (classId == "wizard" ? !d.CasterFocus : classId == "ranger" ? !d.Ranged : d.CasterFocus || d.Ranged))
+                    continue; // a ranger keeps to bows
                 if (d.IsShield && classId != "fighter" || d.IsShield && Subclass == "vanguard")
                     continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands; a rogue never raises one
                 if (d.IsWeapon && classId == "rogue" && d.Traits?.Any(t => t is WeaponTrait.Agile or WeaponTrait.Finesse) != true)

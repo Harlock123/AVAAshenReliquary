@@ -40,6 +40,15 @@ public enum AbilityKind
     /// <summary>A roll up to <see cref="AbilityDefinition.Range"/> tiles toward the pointer, untouchable on the way (the Rogue's Tumble).</summary>
     Tumble,
 
+    /// <summary>Marks the target, at once and from up to <see cref="AbilityDefinition.Range"/> tiles (the Ranger's Hunt Prey).</summary>
+    Mark,
+
+    /// <summary>
+    /// Sends the hero's companion at the target (the Beastmaster's Sic 'Em): it bounds there and its next bite has
+    /// <see cref="AbilityDefinition.ExtraDice"/> more dice and the ability's <see cref="AbilityDefinition.OnHit"/>.
+    /// </summary>
+    Command,
+
     /// <summary>
     /// Into the shadows for <see cref="AbilityDefinition.BuffSeconds"/> or until the hero attacks (the Rogue's Hide in
     /// Shadows): unaware monsters notice the hero only close by, hunting ones may lose them, and the first blow out of
@@ -75,6 +84,9 @@ public enum AbilityKind
 /// <item>Rogue Strikes: <see cref="Feint"/> (the target is off-guard against it), <see cref="Twin"/> (two Strikes,
 /// the second a feint), <see cref="PersistentDice"/> of <see cref="DamageType"/> on a weapon hit (Gutting Strike; one more die
 /// at levels 5, 10 and 15). Traps: <see cref="BuffSeconds"/> is how long one lies set.</item>
+/// <item>Weapon Strikes with a bow loose arrows: <see cref="Strikes"/> of them (Twin Shot), each passing through
+/// <see cref="Pierce"/> more enemies behind its target (Piercing Shot); <see cref="NeedsRanged"/>: only with a bow.
+/// A sweep (more than one target) needs a melee weapon.</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -124,13 +136,22 @@ public sealed record AbilityDefinition(
     bool WeaponDamage = false,
     bool NeedsTwoHanded = false,
     bool Feint = false,
-    bool Twin = false)
+    bool Twin = false,
+    int Strikes = 1,
+    int Pierce = 0,
+    bool NeedsRanged = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
     public bool IsFlourish => Has("Flourish");
 
     public bool IsSpell => Kind is AbilityKind.SpellBolt or AbilityKind.Missiles;
+
+    /// <summary>How many Strikes it makes at its target: two for a twin (Twin Feint, whose second is a feint), else <see cref="Strikes"/>.</summary>
+    public int StrikeCount => Twin ? Math.Max(2, Strikes) : Math.Max(1, Strikes);
+
+    /// <summary>A sweep: a Strike at more than one enemy (Cleave, Swipe), which needs a melee weapon.</summary>
+    public bool IsSweep => Kind == AbilityKind.WeaponStrike && Targets > 1;
 
     public bool UsesWeapon => Kind is AbilityKind.WeaponStrike or AbilityKind.ChargeStrike || (Kind == AbilityKind.Burst && WeaponDamage);
 

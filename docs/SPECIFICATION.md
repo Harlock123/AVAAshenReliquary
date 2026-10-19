@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1115,6 +1115,59 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   19-28 minutes, the Trickster without a death and the Cutthroat with 0-4 a run (the fighters 0, the Pyromancer 0, the
   Stormcaller 6, unchanged). Alone against Mother Sallow at level 5 in the starting kit the Cutthroat wins 4 of 6 and
   the Trickster 5 of 6 (fighter 6, wizard 3); with a +1 striking weapon and +1 armour both win every fight.
+
+### Bows, the Ranger and allies (M3 step 3)
+
+- **Bows** (`items.json`: shortbow d6, range 8; longbow d8, range 10, from level 2; greatbow d10, range 11, from level
+  4; all deadly, piercing, held in both hands and drawn in the off hand as Flare does): a weapon Strike with a bow is an
+  arrow. The hero shoots from where they stand once the target is in range and in sight, plays the avatar's "shoot",
+  and the Strike is rolled when the arrow arrives (Flare's arrow sprite, turned to its flight). A bow adds no Strength
+  to damage. Any class can use one; a sweep (Cleave, Swipe, Whirling Blades) says it needs a melee weapon, and a bow
+  is no Earthshaker weapon. Sneak attack works with a bow.
+- **The class** (section 7): DEX, 10 HP a level, light and medium armour, trained in Nature and Survival. Starts with
+  a shortbow and leathers; quick start `--ranger` (a Marksman), `--marksman`, `--beastmaster`.
+- **Focus** works as Mana: starts full, 20 + 5 × level + 4 × DEX, regenerates.
+- **Hunt Prey** (class feature and ability): mark one monster within 12 tiles, at once (1 s cooldown); every Strike
+  against it, melee or arrow, deals 1d8 more precision damage (2d8 at 11, 3d8 at 19, as Pathfinder's precision edge),
+  doubled on a critical hit. Drawn as four green arrowheads round its feet; the mark lasts until it dies or another is
+  hunted, and is lost on a new zone or a fall.
+
+| Slot | Ability | Numbers |
+| --- | --- | --- |
+| LMB | Strike | Basic attack (arrows with a bow) |
+| RMB | Twin Shot | 10 Focus, 2 actions: two arrows at the target, each a Strike; needs a bow |
+| 1 | Hunt Prey | Mark a monster (above) |
+| 2 | Disengage | Spring up to 3 tiles toward the pointer, untouchable; 6 s cooldown |
+| 4 | Aimed Shot (level 2) | 15 Focus, 2 actions: one more weapon die (2 at 10, 3 at 18) |
+
+- **Marksman** (bows, piercing shots, crit chains): every arrow passes through one enemy behind its target (the next
+  living enemy within 4 tiles past it and 0.9 of its line, a Strike of its own that builds nothing), and a critical
+  hit with a bow gives back 5 Focus. **Piercing Shot**: 15 Focus, 4 s cooldown, one more weapon die, passes through 3
+  more. Level-2 feat **Deadly Aim**: +4 damage on a critical hit, Aimed Shot 5 Focus cheaper.
+- **Beastmaster** (an animal companion): a **wolf** fights beside the hero. Its numbers follow the hero's level: AC
+  14 + level, bite +6 + level for 1d8 + half the level (piercing), (10 + 8 × level) HP; the level-2 feat **Pack Hunter**
+  adds half its HP again, 1 to AC and attack and a die. **Sic 'Em**: 10 Focus, 8 s cooldown, send it at a monster
+  within 10 tiles; it bounds there at twice its speed and its next bite has one more die and knocks the target prone
+  for 1.5 s. Art: Danimal's "Wolf monsters animated" (OpenGameArt, CC-BY-SA 4.0/3.0, credits Micket, Poss, Danimal), a
+  Flare-format creature in Flare's older grid layout (`render_size`, `position`; `FlareAnimationSet` reads both) drawn
+  at 2.2× to match Flare's fantasycore creatures (its `.blend` sources could be re-rendered sharper).
+- **Allies** (`World/GameWorld.Allies.cs`, `AllyActor`; the Necromancer's minions will use it too): an ally follows
+  the hero (within 2.5 tiles), falls on the hero's target (if it is fighting near the hero) or else the nearest monster
+  fighting within 7 tiles of the hero, and never wakes a sleeping pack on its own. Its bite is a creature Strike
+  against the monster's AC; its kills are the hero's. Monsters fight whichever of the hero and their allies is nearer
+  (the hero by a tile's preference, chosen again every second), turn on whatever bites them, and notice an ally
+  within 60% of their notice range. An ally recovers when the hero does (5% a second out of a fight); waking a shrine
+  and the hero's respawn restore it; when it falls it lies a moment and finds the hero again 20 s later at half
+  health; left more than 16 tiles behind (or after a zone change) it is simply at the hero's side. Its health is
+  saved (`CompanionHitPoints`). The HUD shows its health beside the potions, and in the world a green ring at its feet
+  and a green health bar while hurt.
+- **Class feats:** level 2 Far Shot (+2 tiles of bow range) or Swift Tracker (+5 ft); level 4 Relentless Hunt (+1d8
+  Hunt Prey), Focused Mind (Focus a quarter faster) or Hunter's Eye (+2 Perception, +1 tile of range).
+- **The bots** hunt their target, spring away from anything in melee (the first bot that keeps its distance), send the
+  wolf, and spend Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot. Over four seeds each, every run killed
+  Mother Sallow at level 5, the Marksman in 23-24 minutes without a death, the Beastmaster in 20-21 with at most one.
+  Alone against her the Marksman wins 4 of 6 at level 4 and every fight at 5; the Beastmaster wins every fight even
+  at 4 (its wolf takes her blows while the bot shoots): strong, for step 9's balance pass to look at.
 
 ### The arsenal (M2, after step 10)
 

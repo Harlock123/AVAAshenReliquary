@@ -46,7 +46,7 @@ public enum Rarity
 /// off-hand) gives <see cref="AcBonus"/> only while raised, and blocks <see cref="Hardness"/> of a blow. A consumable
 /// names the <see cref="Ability"/> it is used as, stacks up to <see cref="Stack"/> in one bag cell and is worth
 /// <see cref="Price"/> gold apiece. A weapon with the Versatile trait names its second damage type in
-/// <see cref="Versatile"/>.
+/// <see cref="Versatile"/>; a ranged weapon (a bow) shoots <see cref="Range"/> tiles.
 /// </summary>
 public sealed record ItemDefinition(
     string Id,
@@ -81,7 +81,8 @@ public sealed record ItemDefinition(
     string? Ability = null,
     int Stack = 1,
     int Price = 0,
-    DamageType? Versatile = null)
+    DamageType? Versatile = null,
+    double Range = 0)
 {
     [JsonIgnore]
     public bool IsWeapon => Category == ItemCategory.Weapon;
@@ -107,7 +108,7 @@ public sealed record ItemDefinition(
     private ArmorDefinition? _armor;
 
     public WeaponDefinition AsWeapon() => _weapon ??= new WeaponDefinition(Id, Name, DamageDie, DamageType, AttacksPerSecond, Ranged,
-        new HashSet<WeaponTrait>(Traits ?? []), DeadlyDie, FatalDie) { VersatileType = Versatile };
+        new HashSet<WeaponTrait>(Traits ?? []), DeadlyDie, FatalDie) { VersatileType = Versatile, Range = Range };
 
     public ArmorDefinition AsArmor() => _armor ??= new ArmorDefinition(Id, Name, ArmorCategory, AcBonus, DexCap, CheckPenalty, SpeedPenalty, Strength);
 }

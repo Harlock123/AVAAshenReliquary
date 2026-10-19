@@ -105,8 +105,10 @@ public sealed class GameSession
             {
                 if (item.Definition.Gfx is not { } gfx)
                     continue;
+                // A bow is held in the off hand, as Flare draws it.
                 var layer = slot switch
                 {
+                    EquipSlot.MainHand when item.Definition.Ranged => "off",
                     EquipSlot.MainHand => "main", EquipSlot.OffHand => "off", EquipSlot.Head => "head", EquipSlot.Chest => "chest",
                     EquipSlot.Hands => "hands", EquipSlot.Legs => "legs", EquipSlot.Feet => "feet", _ => null,
                 };
@@ -118,37 +120,38 @@ public sealed class GameSession
     }
 
     /// <summary>The classes the vertical slice can start as: the ones with abilities and a starting kit.</summary>
-    public static bool IsPlayable(string classId) => classId is "fighter" or "wizard" or "rogue";
+    public static bool IsPlayable(string classId) => classId is "fighter" or "wizard" or "rogue" or "ranger";
 
     /// <summary>
     /// Each playable class's starting gear, all common item level 1: the fighter's sword and shield (a Vanguard's
-    /// greatsword instead), the wizard's staff and robes, the rogue's shortsword and leathers.
+    /// greatsword instead), the wizard's staff and robes, the rogue's shortsword and the ranger's shortbow, in leathers.
     /// </summary>
     public static IReadOnlyList<string> StartingKit(string classId, string? subclass = null) => classId switch
     {
         "wizard" => ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
         "rogue" => ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        "ranger" => ["shortbow", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
         _ when subclass == "vanguard" => ["greatsword", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         _ => ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
     };
 
     /// <summary>The subclass a quick start takes when none is named: the one that suits the class's starting kit.</summary>
-    public static string DefaultSubclass(string classId) => classId switch { "wizard" => "pyromancer", "rogue" => "cutthroat", _ => "bulwark" };
+    public static string DefaultSubclass(string classId) => classId switch { "wizard" => "pyromancer", "rogue" => "cutthroat", "ranger" => "marksman", _ => "bulwark" };
 
     /// <summary>
     /// The class and subclass a quick start's flags ask for: a subclass flag ("--vanguard", "--bulwark",
-    /// "--pyromancer", "--stormcaller", "--cutthroat", "--trickster") names both; "--wizard", "--rogue" or
-    /// "--fighter" the class with its default subclass.
+    /// "--pyromancer", "--stormcaller", "--cutthroat", "--trickster", "--marksman", "--beastmaster") names both;
+    /// "--wizard", "--rogue", "--ranger" or "--fighter" the class with its default subclass.
     /// </summary>
     public static (string ClassId, string Subclass) QuickStart(IReadOnlyCollection<string> args)
     {
         foreach (var (flag, classId) in new[] { ("vanguard", "fighter"), ("bulwark", "fighter"), ("pyromancer", "wizard"), ("stormcaller", "wizard"),
-                     ("cutthroat", "rogue"), ("trickster", "rogue") })
+                     ("cutthroat", "rogue"), ("trickster", "rogue"), ("marksman", "ranger"), ("beastmaster", "ranger") })
         {
             if (args.Contains($"--{flag}"))
                 return (classId, flag);
         }
-        var chosen = args.Contains("--wizard") ? "wizard" : args.Contains("--rogue") ? "rogue" : "fighter";
+        var chosen = args.Contains("--wizard") ? "wizard" : args.Contains("--rogue") ? "rogue" : args.Contains("--ranger") ? "ranger" : "fighter";
         return (chosen, DefaultSubclass(chosen));
     }
 
@@ -186,7 +189,7 @@ public sealed class GameSession
     public static GameSession NewGame(string classId, int seed, string zoneId = "gallows_road", string? subclass = null)
     {
         var choices = CharacterBuilder.Recommend(ContentDatabase.Embedded, "The Ashbound", "human",
-            classId switch { "wizard" => "hedge-scholar", "rogue" => "street-urchin", _ => "deserter" }, classId)
+            classId switch { "wizard" => "hedge-scholar", "rogue" => "street-urchin", "ranger" => "hunter", _ => "deserter" }, classId)
             with { Subclass = subclass ?? DefaultSubclass(classId) };
         var session = NewGame(choices, seed, zoneId);
         session.PortraitId = Services.Portraits.For("human").FirstOrDefault()?.Id;

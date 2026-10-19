@@ -49,7 +49,12 @@ public sealed class FlareAnimation(string name, int frameCount, int durationMs, 
     }
 }
 
-/// <summary>A Flare <c>animations/*.txt</c> file: the sprite sheet plus every animation's frames.</summary>
+/// <summary>
+/// A Flare <c>animations/*.txt</c> file: the sprite sheet plus every animation's frames. Two layouts are read: the
+/// packed one (a <c>frame=</c> line per frame and direction, as Flare's own art) and the older grid (a top-level
+/// <c>render_size</c> and <c>render_offset</c>, and each animation's <c>position</c>: the sheet's column of its first
+/// frame, one row per direction), which community creatures such as Danimal's wolves use.
+/// </summary>
 public sealed class FlareAnimationSet
 {
     private FlareAnimationSet(string image, Dictionary<string, FlareAnimation> animations)
@@ -66,8 +71,9 @@ public sealed class FlareAnimationSet
     public static FlareAnimationSet Parse(string text)
     {
         string? image = null;
+        int[]? renderSize = null, renderOffset = null;
         var animations = new Dictionary<string, FlareAnimation>();
-        var pending = new Dictionary<string, (int Frames, int Duration, FlareLoop Loop, int? Active, List<int[]> Lines)>();
+        var pending = new Dictionary<string, (int Frames, int Duration, FlareLoop Loop, int? Active, List<int[]> Lines, int? Position)>();
 
         foreach (var (section, key, value) in FlareText.Entries(text))
         {
@@ -75,9 +81,13 @@ public sealed class FlareAnimationSet
             {
                 if (key == "image")
                     image = value;
+                else if (key == "render_size")
+                    renderSize = FlareText.Ints(value);
+                else if (key == "render_offset")
+                    renderOffset = FlareText.Ints(value);
                 continue;
             }
-            var a = pending.TryGetValue(section, out var existing) ? existing : (0, 0, FlareLoop.Looped, null, new List<int[]>());
+            var a = pending.TryGetValue(section, out var existing) ? existing : (0, 0, FlareLoop.Looped, null, new List<int[]>(), null);
             switch (key)
             {
                 case "frames": a.Frames = int.Parse(value, System.Globalization.CultureInfo.InvariantCulture); break;
@@ -85,8 +95,10 @@ public sealed class FlareAnimationSet
                 case "type":
                     a.Loop = value switch { "play_once" => FlareLoop.PlayOnce, "back_forth" => FlareLoop.BackForth, _ => FlareLoop.Looped };
                     break;
-                case "active_frame": a.Active = FlareText.Ints(value).FirstOrDefault(); break;
+                // A number, or "all" (a projectile's every frame is active), which has no frame of its own.
+                case "active_frame": a.Active = int.TryParse(value.Split(',')[0], out var active) ? active : null; break;
                 case "frame": a.Lines.Add(FlareText.Ints(value)); break;
+                case "position": a.Position = FlareText.Ints(value).FirstOrDefault(); break;
             }
             pending[section] = a;
         }
@@ -98,6 +110,13 @@ public sealed class FlareAnimationSet
             {
                 if (v[0] < frames.GetLength(0) && v[1] is >= 0 and < 8)
                     frames[v[0], v[1]] = new FlareFrame(v[2], v[3], v[4], v[5], v[6], v[7]);
+            }
+            if (a.Lines.Count == 0 && a.Position is { } column && renderSize is [var w, var h, ..])
+            {
+                var (ox, oy) = renderOffset is [var x, var y, ..] ? (x, y) : (w / 2, h);
+                for (var f = 0; f < frames.GetLength(0); f++)
+                for (var d = 0; d < 8; d++)
+                    frames[f, d] = new FlareFrame((column + f) * w, d * h, w, h, ox, oy);
             }
             animations[name] = new FlareAnimation(name, Math.Max(1, a.Frames), a.Duration, a.Loop, a.Active, frames);
         }

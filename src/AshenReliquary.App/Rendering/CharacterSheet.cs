@@ -113,6 +113,16 @@ internal sealed class CharacterSheet
             .. (c.Armor.SpeedPenaltyFeet(c.Attributes[AttributeKind.Strength]) is > 0 and var pen ? [new TipLine($"− armour {pen} ft", Palette.Dim)] : Array.Empty<TipLine>()),
             .. (c.Gear.MoveSpeed > 0 ? [new TipLine($"+ gear {c.Gear.MoveSpeed * 100:0}% (cap 40%)", Palette.Dim)] : Array.Empty<TipLine>()),
         ]);
+        if (c.PreyDice > 0)
+        {
+            Line("Hunt Prey", $"{c.PreyDice}d8", () =>
+            [
+                new("Hunt Prey", Palette.Ink, $"{c.PreyDice}d8", true),
+                new("Precision damage on every Strike against your prey,", Palette.Dim),
+                new("the monster you mark with Hunt Prey.", Palette.Dim),
+                new($"Class {c.Class.PreyDiceAt(c.Level)}d8 (more at 11, 19){(c.PreyDiceBonus > 0 ? $" + feats {c.PreyDiceBonus}d8" : "")}.", Palette.Dim),
+            ]);
+        }
         if (c.SneakAttackDice > 0)
         {
             Line("Sneak attack", $"{c.SneakAttackDice}d6", () =>

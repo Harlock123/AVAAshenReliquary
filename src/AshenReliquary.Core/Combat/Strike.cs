@@ -54,9 +54,11 @@ public static class Strike
     /// <param name="targetAc">Adjusts the target's AC for this Strike (−2 for one off-guard to it that has no condition saying so).</param>
     /// <param name="precisionDice">Sneak attack's d6s, added to the weapon's dice (so doubled on a critical hit).</param>
     /// <param name="hitIsCritical">A hit is a critical hit (the Cutthroat's Strike out of hiding).</param>
+    /// <param name="preyDice">Hunt Prey's d8s against the hunted monster, precision like sneak attack.</param>
     public static StrikeResult Resolve(Character attacker, IDefender target, AttackCadence cadence, double now,
         IRandomSource random, GrazeEffect graze = GrazeEffect.None, double attackSpeedBonus = 0,
-        int extraDice = 0, int cadenceAttacks = 1, int targetAc = 0, int precisionDice = 0, bool hitIsCritical = false)
+        int extraDice = 0, int cadenceAttacks = 1, int targetAc = 0, int precisionDice = 0, bool hitIsCritical = false,
+        int preyDice = 0)
     {
         var weapon = attacker.Weapon;
         var swing = ActionTiming.AttackInterval(weapon.Definition.AttacksPerSecond, attackSpeedBonus,
@@ -79,7 +81,8 @@ public static class Strike
             var definition = weapon.Definition;
             var die = critical && definition.FatalDie is { } fatal ? fatal : definition.DamageDie;
             var diceTotal = new Dice(weapon.DiceCount + Math.Max(0, extraDice), die).Roll(random)
-                + (precisionDice > 0 ? new Dice(precisionDice, 6).Roll(random) : 0);
+                + (precisionDice > 0 ? new Dice(precisionDice, 6).Roll(random) : 0)
+                + (preyDice > 0 ? new Dice(preyDice, 8).Roll(random) : 0);
             var extra = critical ? CriticalExtraDice(weapon).Roll(random) : 0;
             damage = DamageCalculator.Compute(diceTotal, attacker.DamageBonus().Total, check.Degree,
                 definition.TypeAgainst(target.Defenses), target.Defenses, graze, extra);

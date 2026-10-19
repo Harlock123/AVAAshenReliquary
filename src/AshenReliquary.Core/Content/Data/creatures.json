@@ -299,5 +299,18 @@
     }
    ]
   }
+ },
+ {
+  "id": "wolf",
+  "name": "Wolf",
+  "sprite": "wolf",
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.1,
+  "moveSpeed": 3.4,
+  "aggroRadius": 8,
+  "attackRange": 1.1,
+  "damage": "1d8",
+  "voice": "crawler",
+  "scale": 2.2
  }
 ]

@@ -76,7 +76,13 @@ noticed the hero). Stealth: a stance that lets the hero slip past packs until th
 attack, poison, stealth) and **Trickster** (traps, decoys, shadow-step). Starting abilities per the spec: Sneak
 Strike, Tumble.
 
-### 3. The Ranger, and allies
+### 3. The Ranger, and allies — done 2026-10-19
+
+Built as below (spec section 16, "Bows, the Ranger and allies"). Decision 3's survey found Danimal's "Wolf monsters
+animated" (OpenGameArt, CC-BY-SA 4.0/3.0), a Flare-format wolf with every animation the game uses, so the companion is
+a wolf (other candidates: Reiner Prokein's wolves, whose licence forbids passing the files on through a resource site;
+umask007's .blend with no sprites; a paid hand-drawn pack). It needed Flare's older grid animation format read, and
+drawing at 2.2×. The Beastmaster plays strong in the bots' hands; step 9 looks at it.
 
 Focus (regenerates; Hunt Prey marks one target). The hero's ranged Strike: a bow in the main hand shoots arrows
 (projectiles already exist for monsters and spells), Flare's shortbow, longbow and greatbow layers with the avatar's
@@ -135,7 +141,7 @@ Taken provisionally on 2026-10-19 with the suggestions (the user said to get sta
    level 8, and grow them with each act in M4.
 2. **Saves from before subclasses.** Options: ask for the subclass on loading (through the level-up screen), or give a
    default from the gear (a shield makes a Bulwark). My suggestion: ask, through the level-up screen, free of charge.
-3. **The Beastmaster's companion art.** Flare's core set has no wolf or hound. Options: survey OpenGameArt for an
+3. **The Beastmaster's companion art.** *Taken: Danimal's Flare wolf (see step 3).* Flare's core set has no wolf or hound. Options: survey OpenGameArt for an
    isometric animal under a free licence, recolour a Flare creature (the antlion as a giant beetle companion), or a
    paid pack. My suggestion: survey first and report, as M2 did.
 4. **The order of the classes.** My suggestion: Rogue, Ranger, Champion, Necromancer: the Rogue needs the least new

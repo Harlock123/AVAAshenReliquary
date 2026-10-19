@@ -78,6 +78,9 @@ public sealed class FlareAssets
     /// <summary>A dropped item's sprite: Flare plays its "power" animation once (tumbling to the ground) and holds the last frame.</summary>
     public FlareAnimationSet Loot(string loot) => Animation($"animations/loot/{loot}.txt");
 
+    /// <summary>A power's flying sprite (the hero's arrows).</summary>
+    public FlareAnimationSet Power(string name) => Animation($"animations/powers/{name}.txt");
+
     public const string IconSheet = "images/icons/icons.png";
     public const int IconSize = 64;
     public const int IconsPerRow = 8;

@@ -322,8 +322,9 @@ public sealed class Character : IDefender
         _featResistances.Clear();
         _abilityMods.Clear();
         _grantedAbilities.Clear();
-        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = 0;
-        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = 0;
+        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
+        Companion = null;
+        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = 0;
         IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = false;
         Taint.ResetRate(_creationTaintRate);
         foreach (var feat in _creationFeats)
@@ -396,6 +397,26 @@ public sealed class Character : IDefender
     /// <summary>Enemies next to a Tumble's path are left off-guard (the Trickster).</summary>
     public bool TumbleFeint { get; private set; }
 
+    /// <summary>How many more enemies every arrow passes through (the Marksman).</summary>
+    public int ArrowPierce { get; private set; }
+
+    /// <summary>The resource a critical hit with a bow gives back (the Marksman).</summary>
+    public double CritResourceBonus { get; private set; }
+
+    /// <summary>Extra tiles of bow range (Far Shot).</summary>
+    public double WeaponRangeBonus { get; private set; }
+
+    public int PreyDiceBonus { get; private set; }
+
+    /// <summary>The animal companion's creature id (the Beastmaster's wolf), or null.</summary>
+    public string? Companion { get; private set; }
+
+    /// <summary>How far feats have grown the companion (Pack Hunter).</summary>
+    public int CompanionGrowth { get; private set; }
+
+    /// <summary>Hunt Prey's precision d8s against the hunted monster: the class's, plus feats'. None for most classes.</summary>
+    public int PreyDice => Class.PreyDiceAt(Level) is var dice and > 0 ? dice + PreyDiceBonus : 0;
+
     public int ExtraMissiles(string abilityId) => _abilityMods.GetValueOrDefault(abilityId)?.Sum(m => m.ExtraMissiles) ?? 0;
 
     /// <summary>
@@ -419,6 +440,7 @@ public sealed class Character : IDefender
                 Radius = ability.Radius + m.Radius,
                 OnHitSeconds = ability.OnHitSeconds + m.OnHitSeconds,
                 WardSeconds = ability.WardSeconds + m.WardSeconds,
+                Pierce = ability.Pierce + m.Pierce,
                 PersistentDice = m.PersistentDice != 0 && ability.PersistentDice is { } text
                     ? (Rules.Dice.Parse(text) is var d ? (d with { Count = d.Count + m.PersistentDice }).ToString() : text)
                     : ability.PersistentDice,
@@ -461,6 +483,13 @@ public sealed class Character : IDefender
             AmbushCrit |= e.AmbushCrit;
             SwiftSneak |= e.SwiftSneak;
             TumbleFeint |= e.TumbleFeint;
+            if (e.Ability is null)
+                ArrowPierce += e.Pierce;
+            CritResourceBonus += e.CritResource;
+            WeaponRangeBonus += e.WeaponRange;
+            PreyDiceBonus += e.PreyDice;
+            Companion = e.Companion ?? Companion;
+            CompanionGrowth += e.CompanionGrowth;
             FeatHitPointsPerLevel += e.HitPointsPerLevel;
             FeatSpeedFeet += e.SpeedFeet;
             RecoveryBonus += e.Recovery;

@@ -123,6 +123,12 @@ public sealed class Creature(
 
     public void TakeDamage(int amount) => HitPoints = Math.Max(0, HitPoints - Math.Max(0, amount));
 
+    /// <summary>Heals up to its maximum (an ally recovering).</summary>
+    public void Heal(int amount) => HitPoints = Math.Min(Stats.HitPoints, HitPoints + Math.Max(0, amount));
+
+    /// <summary>Sets its hit points outright, within 0 and its maximum (an ally restored from a save or rebuilt for a new level).</summary>
+    public void SetHitPoints(int value) => HitPoints = Math.Clamp(value, 0, Stats.HitPoints);
+
     /// <summary>Back to full health, conditions and persistent damage gone (a boss resetting when the hero falls).</summary>
     public void Restore()
     {

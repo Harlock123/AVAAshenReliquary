@@ -203,6 +203,55 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "ranger_strike",
+  "file": "ranger_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/arrow-flights.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "twin_shot",
+  "file": "twin_shot.png",
+  "source": "https://game-icons.net/1x1/lorc/double-shot.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hunt_prey",
+  "file": "hunt_prey.png",
+  "source": "https://game-icons.net/1x1/lorc/archery-target.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "disengage",
+  "file": "disengage.png",
+  "source": "https://game-icons.net/1x1/delapouite/jump-across.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "aimed_shot",
+  "file": "aimed_shot.png",
+  "source": "https://game-icons.net/1x1/lorc/supersonic-arrow.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "piercing_shot",
+  "file": "piercing_shot.png",
+  "source": "https://game-icons.net/1x1/lorc/arrow-cluster.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "sic",
+  "file": "sic.png",
+  "source": "https://game-icons.net/1x1/lorc/wolf-howl.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",
@@ -381,6 +430,13 @@
   "id": "hidden",
   "file": "hidden.png",
   "source": "https://game-icons.net/1x1/lorc/hood.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "companion",
+  "file": "companion.png",
+  "source": "https://game-icons.net/1x1/lorc/wolf-head.html",
   "author": "Lorc",
   "licence": "CC BY 3.0"
  },

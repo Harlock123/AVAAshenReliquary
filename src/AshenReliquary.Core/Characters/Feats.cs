@@ -39,6 +39,10 @@ public enum FeatType
 /// that hits is a critical hit; <see cref="SwiftSneak"/>: no slower while hidden; <see cref="TumbleFeint"/>: enemies
 /// next to a Tumble's path are left off-guard. <see cref="PersistentDice"/> on an <see cref="Ability"/>: its wound or poison
 /// deals more dice.</item>
+/// <item>The Ranger's: <see cref="Pierce"/> (on its own: every arrow passes through that many more enemies; on an
+/// <see cref="Ability"/>: that ability's arrows do), <see cref="CritResource"/> back on a critical hit with a bow,
+/// <see cref="WeaponRange"/> more tiles for a bow, <see cref="PreyDice"/> more Hunt Prey dice. <see cref="Companion"/>:
+/// an animal companion (a creature id) fights beside the hero; <see cref="CompanionGrowth"/> makes it stronger.</item>
 /// </list>
 /// </summary>
 public sealed record FeatEffect(
@@ -72,11 +76,17 @@ public sealed record FeatEffect(
     bool AmbushCrit = false,
     bool SwiftSneak = false,
     bool TumbleFeint = false,
-    int PersistentDice = 0)
+    int PersistentDice = 0,
+    int Pierce = 0,
+    double CritResource = 0,
+    double WeaponRange = 0,
+    int PreyDice = 0,
+    string? Companion = null,
+    int CompanionGrowth = 0)
 {
     /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
     public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0
-        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0 || PersistentDice != 0);
+        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0 || PersistentDice != 0 || Pierce != 0);
 }
 
 /// <summary>

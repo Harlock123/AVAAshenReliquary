@@ -12,7 +12,9 @@ namespace AshenReliquary.Core.World;
 /// it can; the rogue hides before an unaware pack and opens from the shadows, rolls away and hides when badly hurt, tumbles in from afar, opens a wound or sets a
 /// snare, spends a full head of Momentum on Eviscerate and otherwise Sneak Strikes. All drink an antidote when poisoned
 /// (<see cref="Upkeep"/>, between fights too) and throw a bomb at a champion. Subclass abilities go off against a crowd:
-/// a Vanguard's Earthshaker, a Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap.
+/// a Vanguard's Earthshaker, a Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap. The ranger
+/// hunts its target, springs away from anything in melee (the only bot that keeps its distance), sends its wolf, and
+/// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot.
 /// </summary>
 public static class Tactics
 {
@@ -101,6 +103,29 @@ public static class Tactics
                 world.UseSlot(slot, target);
             else if (Ready("sneak_strike", out slot) && distance < 1.6 && (resource.Current < 60 || world.SlotOf("eviscerate") is null)
                      && !world.IsOffGuardToHero(target))
+                world.UseSlot(slot, target);
+            else if (hero.CurrentTarget != target)
+                world.Attack(target);
+        }
+        else if (classId == "ranger")
+        {
+            // Keep the bow's distance: spring away from anything in melee, toward open ground behind.
+            var pressing = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(hero) < 1.8).MinBy(m => m.DistanceTo(hero));
+            if (pressing is not null && world.Shoots && Ready("disengage", out slot))
+            {
+                var d = Math.Max(0.01, pressing.DistanceTo(hero));
+                world.UseSlot(slot, null, (hero.X + (hero.X - pressing.X) / d * 4, hero.Y + (hero.Y - pressing.Y) / d * 4));
+                return;
+            }
+            if (hero.Prey != target && Ready("hunt_prey", out slot) && target.Creature.Stats.Rank >= CreatureRank.Normal)
+                world.UseSlot(slot, target);
+            if (Ready("sic", out slot) && world.Companion is { IsDead: false } && distance < 9)
+                world.UseSlot(slot, target);
+            if (Ready("piercing_shot", out slot) && world.Monsters.Count(m => !m.IsDead && m.DistanceTo(target) < 3) >= 2)
+                world.UseSlot(slot, target);
+            else if (Ready("aimed_shot", out slot) && resource.Current >= 30)
+                world.UseSlot(slot, target);
+            else if (Ready("twin_shot", out slot))
                 world.UseSlot(slot, target);
             else if (hero.CurrentTarget != target)
                 world.Attack(target);

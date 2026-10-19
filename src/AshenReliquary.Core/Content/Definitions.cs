@@ -68,8 +68,12 @@ public sealed record ClassDefinition(
     IReadOnlyList<string>? TrainedSkills = null,
     int SkillPicks = 0,
     bool SneakAttack = false,
-    bool FinesseDamage = false)
+    bool FinesseDamage = false,
+    bool HuntsPrey = false)
 {
+    /// <summary>Hunt Prey's precision dice at a level (the Ranger, <see cref="HuntsPrey"/>): 1d8, 2d8 at 11, 3d8 at 19, as Pathfinder's precision edge.</summary>
+    public int PreyDiceAt(int level) => HuntsPrey ? 1 + (level >= 11 ? 1 : 0) + (level >= 19 ? 1 : 0) : 0;
+
     // FinesseDamage (the Rogue): DEX instead of STR to damage with a finesse weapon, as Pathfinder's thief.
 
     /// <summary>

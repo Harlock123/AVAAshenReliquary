@@ -133,6 +133,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         }
 
         DrawBuffs(canvas, world, new SKPoint(24, hp.Y - orbRadius - 44));
+        DrawCompanion(canvas, world, new SKPoint(hp.X + orbRadius + 22, size.Height - 136), small);
 
         // Resource orb and the Taint bar.
         var res = new SKPoint(size.Width - 28 - orbRadius, size.Height - 28 - orbRadius);
@@ -141,6 +142,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         {
             ResourceKind.Fury => (new SKColor(120, 40, 10), new SKColor(255, 140, 50)),
             ResourceKind.Momentum => (new SKColor(14, 80, 64), new SKColor(90, 230, 170)),
+            ResourceKind.Focus => (new SKColor(60, 80, 20), new SKColor(190, 225, 90)),
             _ => (new SKColor(20, 40, 130), new SKColor(90, 150, 255)),
         };
         Orb(canvas, res, orbRadius, (float)(resource.Current / resource.Max), deep, bright);
@@ -164,7 +166,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             ],
             _ =>
             [
-                new(resource.Name, new SKColor(120, 170, 255), $"{resource.Current:0} / {resource.Max:0}", true),
+                new(resource.Name, bright, $"{resource.Current:0} / {resource.Max:0}", true),
                 new($"Regenerates {resource.RegenPerSecond:0.0} a second.", Dim),
                 new("Max 20 + 5 × level + 4 × key attribute.", Dim),
             ],
@@ -377,6 +379,32 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         }
     }
 
+    /// <summary>The companion's health beside the potions: its icon and a bar, or the seconds until it is back.</summary>
+    private void DrawCompanion(SKCanvas canvas, GameWorld world, SKPoint at, SKFont small)
+    {
+        if (world.Companion is not { } ally)
+            return;
+        var icon = SKRect.Create(at.X, at.Y, 26, 26);
+        var c = ally.Creature;
+        icons.Draw(canvas, "companion", icon, ally.IsDead ? Dim.WithAlpha(110) : Good);
+        var bar = SKRect.Create(icon.Right + 6, icon.MidY - 4, 74, 8);
+        using var back = new SKPaint { Color = new SKColor(0, 0, 0, 180) };
+        using var fill = new SKPaint { Color = new SKColor(90, 190, 80) };
+        using var ink = new SKPaint { IsAntialias = true, Color = Dim };
+        canvas.DrawRect(SKRect.Inflate(bar, 1, 1), back);
+        if (ally.IsDead)
+            canvas.DrawText($"back in {ally.ReturnIn:0} s", bar.Left, bar.Bottom + 1, SKTextAlign.Left, small, ink);
+        else
+            canvas.DrawRect(SKRect.Create(bar.Left, bar.Top, bar.Width * c.HitPoints / Math.Max(1, c.Stats.HitPoints), bar.Height), fill);
+        Region(SKRect.Create(icon.Left, icon.Top, bar.Right - icon.Left, icon.Height), () =>
+        [
+            new($"Your {ally.Name.ToLowerInvariant()}", Good, ally.IsDead ? $"back in {ally.ReturnIn:0} s" : $"{c.HitPoints} / {c.Stats.HitPoints}", true),
+            new($"AC {c.ArmorClass().Total}, bite {c.AttackModifier().Total:+0} for {c.StrikeDamage} {c.StrikeDamageType.ToString().ToLowerInvariant()}.", Dim),
+            new("It follows you and falls on what you fight. It recovers", Dim),
+            new($"when you do; if it falls it finds you {GameWorld.AllyReturnSeconds:0} s later.", Dim),
+        ], Good);
+    }
+
     // ----- Ability bar -------------------------------------------------------------------------
 
     private void DrawAbilityBar(SKCanvas canvas, SKSize size, GameWorld world, SKFont small)
@@ -522,6 +550,14 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             case AbilityKind.Tumble:
                 lines.Add(new($"Up to {a.Range:0.#} tiles, untouchable for {GameWorld.TumbleSeconds:0.##} s{(c.TumbleFeint ? "; enemies passed are left off-guard" : "")}.", Good));
                 break;
+            case AbilityKind.Mark:
+                lines.Add(new(world.Hero.Prey is { IsDead: false } prey ? $"Now hunting: {prey.Name}; +{c.PreyDice}d8 against it." : $"+{c.PreyDice}d8 against your prey.", Good));
+                break;
+            case AbilityKind.Command:
+                lines.Add(world.Companion is { } wolf
+                    ? new($"Your {wolf.Name.ToLowerInvariant()}: {(wolf.IsDead ? $"down, back in {wolf.ReturnIn:0} s" : $"{wolf.Creature.HitPoints} / {wolf.Creature.Stats.HitPoints} HP")}, bite {wolf.Creature.StrikeDamage}+{a.ExtraDice}d{wolf.Creature.StrikeDamage.Sides}", wolf.IsDead ? Bad : Good)
+                    : new("You have no companion.", Bad));
+                break;
             case AbilityKind.Hide:
                 lines.Add(new($"Now: Stealth {c.Skill("Stealth").Total:+0;-0;+0} against each hunter's Perception.", Good));
                 break;
@@ -538,7 +574,12 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 var w = c.Weapon;
                 var spent = a.SpendAll ? a.DiceForSpent(world.Hero.Resource.Current) : 0;
                 var dice = w.DiceCount + a.ExtraDiceAt(c.Level) + spent;
-                lines.Add(new($"Now: {w.Definition.Name} {dice}d{w.Definition.DamageDie}{c.DamageBonus().Total:+0;-0;+0}, attack {c.AttackModifier().Total:+0}", Good));
+                lines.Add(new($"Now: {w.Definition.Name} {dice}d{w.Definition.DamageDie}{c.DamageBonus().Total:+0;-0;+0}, attack {c.AttackModifier().Total:+0}"
+                    + (w.Definition.IsRanged ? $", range {w.Definition.Range + c.WeaponRangeBonus:0}" : ""), Good));
+                if (a.UsesWeapon && c.PreyDice > 0)
+                    lines.Add(new($"Hunt Prey +{c.PreyDice}d8 against your prey.", Dim));
+                if (a.UsesWeapon && w.Definition.IsRanged && a.Pierce + c.ArrowPierce > 0)
+                    lines.Add(new($"Each arrow flies on through {a.Pierce + c.ArrowPierce} more {(a.Pierce + c.ArrowPierce == 1 ? "enemy" : "enemies")}.", Dim));
                 if (a.SpendAll)
                     lines.Add(new($"Your {world.Hero.Resource.Current:0} {world.Hero.Resource.Name} buys {spent} extra {(spent == 1 ? "die" : "dice")}.", Dim));
                 if (a.UsesWeapon && c.SneakAttackDice > 0)

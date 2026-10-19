@@ -59,6 +59,32 @@ public class FlareFormatTests
     }
 
     [Fact]
+    public void The_older_grid_layout_gives_each_frame_a_cell_one_row_per_direction()
+    {
+        var set = FlareAnimationSet.Parse("""
+            image=images/enemies/wolf.png
+
+            render_size=128,128
+            render_offset=64,96
+
+            [stance]
+            position=0
+            frames=4
+            duration=800ms
+            type=back_forth
+
+            [run]
+            position=4
+            frames=8
+            duration=533ms
+            type=looped
+            """);
+        Assert.Equal(new FlareFrame(0, 0, 128, 128, 64, 96), set["stance"]!.Frame(0, 0));
+        Assert.Equal(new FlareFrame((4 + 2) * 128, 3 * 128, 128, 128, 64, 96), set["run"]!.Frame(2, 3));
+        Assert.Equal(FlareLoop.BackForth, set["stance"]!.Loop);
+    }
+
+    [Fact]
     public void Frame_timing_follows_the_loop_type()
     {
         var swing = FlareAnimationSet.Parse(Animation)["swing"]!; // 4 frames over 0.4 s, once
@@ -74,6 +100,10 @@ public class FlareFormatTests
         var zombie = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, "animations/enemies/zombie.txt")));
         Assert.Contains("critdie", zombie.Animations.Keys);
         Assert.All(Enumerable.Range(0, 8), d => Assert.True(zombie["run"]!.Frame(0, d).Width > 0));
+        var wolf = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, "animations/enemies/wolf.txt")));
+        Assert.Equal(["stance", "run", "swing", "hit", "die"], new[] { "stance", "run", "swing", "hit", "die" }.Where(wolf.Animations.ContainsKey));
+        var arrows = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, "animations/powers/arrows.txt")));
+        Assert.All(Enumerable.Range(0, 8), d => Assert.True(arrows.Animations.Values.First().Frame(0, d).Width > 0));
         var grass = FlareTileset.Parse(File.ReadAllText(Path.Combine(root, "tilesetdefs/tileset_grassland.txt")));
         Assert.True(grass.Tiles.Count > 200);
         Assert.Contains(265, grass.Tiles.Keys);

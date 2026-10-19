@@ -28,7 +28,9 @@ dotnet run --project src/AshenReliquary.App               # character creation, 
 dotnet run --project src/AshenReliquary.App -- --fighter  # skip creation: a recommended Human Fighter
 dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a recommended Human Wizard
 dotnet run --project src/AshenReliquary.App -- --rogue    # skip creation: a recommended Human Rogue
-dotnet run --project src/AshenReliquary.App -- --vanguard # or --bulwark, --pyromancer, --stormcaller, --cutthroat, --trickster
+dotnet run --project src/AshenReliquary.App -- --ranger   # skip creation: a recommended Human Ranger
+dotnet run --project src/AshenReliquary.App -- --vanguard # or any subclass: --bulwark, --pyromancer, --stormcaller,
+                                                          # --cutthroat, --trickster, --marksman, --beastmaster
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id, or --wizard)
 ```
@@ -36,7 +38,8 @@ dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays i
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor
 (the fighter's Cleave on 2, Raise a Shield on 3 and, from level 2, Finishing Blow on 4; the wizard's Shield cantrip on
-2; the rogue's Tumble on 1, which rolls toward the cursor, and Hide in Shadows on 2), **K** opens the Abilities panel,
+2; the rogue's Tumble on 1, which rolls toward the cursor, and Hide in Shadows on 2; the ranger's Hunt Prey on 1 and
+Disengage on 2, which springs toward the cursor), **K** opens the Abilities panel,
 where you choose what goes on the bar (click an ability, then a slot on the bar, or drag it there, or hover it and press
 1 to 6; right-click a slot to empty it; abilities on no slot wait in the list), **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
@@ -117,6 +120,12 @@ pours all its Momentum into one blow. The **Cutthroat** opens bleeding wounds (*
 of hiding is a critical hit; the **Trickster** sets **Snares** that spring on the first enemy to step close, and its
 Tumble leaves the enemies it passes off-guard. Versatile weapons (the dagger and shortsword: piercing or slashing)
 strike with whichever type the target resists less.
+Step 3 is done: **bows** (shortbow, longbow, greatbow: any class can shoot, from where it stands) and the **Ranger**.
+The ranger spends **Focus**, marks a monster with **Hunt Prey** (+1d8 on every Strike against it), looses **Twin
+Shot**, springs clear with **Disengage** and, from level 2, takes an **Aimed Shot**. The **Marksman**'s arrows fly on
+through the enemy behind, and **Piercing Shot** through three; a critical hit gives back Focus. The **Beastmaster**
+fights beside a **wolf** (Danimal's, from OpenGameArt) that follows, bites what you fight, draws the monsters' blows,
+grows with your level and comes back 20 s after it falls; **Sic 'Em** sends it to knock a monster down.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

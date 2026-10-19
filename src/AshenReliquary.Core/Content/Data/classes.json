@@ -41,7 +41,7 @@
   },
   {
     "id": "ranger", "trainedSkills": ["Nature", "Survival"], "skillPicks": 4, "armorCategories": ["Light", "Medium"], "name": "Ranger", "hitPointsPerLevel": 10, "keyAttributes": ["Dexterity"],
-    "resource": "Focus", "subclasses": ["Marksman", "Beastmaster"],
+    "resource": "Focus", "subclasses": ["Marksman", "Beastmaster"], "huntsPrey": true,
     "proficiencies": {
       "Attack": { "1": "Trained", "5": "Expert", "13": "Master" },
       "Armor": { "1": "Trained", "11": "Expert", "19": "Master" },

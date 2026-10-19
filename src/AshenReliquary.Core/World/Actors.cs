@@ -105,6 +105,9 @@ public sealed class HeroActor : Actor
     public double HiddenRemaining { get; internal set; }
 
     public bool IsHidden => HiddenRemaining > 0;
+
+    /// <summary>The monster the Ranger hunts (Hunt Prey): their Strikes against it deal precision dice. Null when none.</summary>
+    public MonsterActor? Prey { get; internal set; }
     internal double InvulnerableUntil { get; set; }
 
     /// <summary>True during a Step dodge: monsters' blows pass through.</summary>
@@ -178,6 +181,62 @@ public sealed class Projectile(AbilityDefinition ability, MonsterActor target, i
 
     /// <summary>How many more enemies this spell leaps to after it strikes (Electric Arc).</summary>
     public int ChainLeft { get; init; }
+
+    /// <summary>An arrow from the hero's bow: on arrival it is a weapon Strike (<see cref="Shot"/> says how).</summary>
+    public bool IsArrow => Shot is not null;
+
+    public ArrowShot? Shot { get; init; }
+}
+
+/// <summary>
+/// What an arrow carries to its target: the Strike's extra dice and cadence, whether it builds the resource (only a
+/// volley's first does), whether it was loosed from hiding or is a feint, and how many more enemies it passes through.
+/// </summary>
+public sealed record ArrowShot(int ExtraDice, int CadenceAttacks, bool Builds, bool FromHiding, bool Feint, int PierceLeft);
+
+/// <summary>
+/// An ally fighting beside the hero (the Beastmaster's wolf; the Necromancer's minions to come): a creature with its
+/// own health and bite, following the hero and falling on what they fight (<see cref="GameWorld"/>'s allies).
+/// </summary>
+public sealed class AllyActor : Actor
+{
+    public AllyActor(CreatureDefinition definition, Creature creature, int level, int growth)
+    {
+        Definition = definition;
+        Creature = creature;
+        Level = level;
+        Growth = growth;
+        // Its body, not its picture: the wolf's sheet is drawn larger (Scale) to match Flare's own creatures.
+        Radius = 0.4;
+    }
+
+    public CreatureDefinition Definition { get; }
+    public Creature Creature { get; internal set; }
+
+    /// <summary>The hero level and feat growth its numbers were built for (rebuilt when either changes).</summary>
+    public int Level { get; internal set; }
+    public int Growth { get; internal set; }
+
+    public override string Name => Creature.Name;
+    public override bool IsDead => Creature.IsDead;
+
+    /// <summary>Seconds until a fallen ally comes back to the hero.</summary>
+    public double ReturnIn { get; internal set; }
+
+    public double HitFlinch { get; internal set; }
+
+    /// <summary>The monster it is fighting, or null while it follows the hero.</summary>
+    public MonsterActor? Target { get; internal set; }
+
+    /// <summary>Sent by Sic 'Em: its next bite is this ability's (extra dice, a condition), and it runs there faster.</summary>
+    internal AbilityDefinition? Command { get; set; }
+
+    internal AttackCadence Cadence { get; } = new();
+    internal double AttackElapsed { get; set; } = -1;
+    internal bool AttackLanded { get; set; }
+    internal double AttackCooldown { get; set; }
+    internal double RepathIn { get; set; }
+    internal double RegenCarry { get; set; }
 }
 
 /// <summary>Loot lying on the ground: an item, a pile of gold or a healing draught.</summary>
@@ -259,6 +318,10 @@ public sealed class MonsterActor : Actor
     /// <summary>Seconds spent circling for a flank before it gives up and strikes from where it is.</summary>
     internal double FlankTime { get; set; }
 
+    /// <summary>Who it is fighting: the hero, or an ally that is nearer (chosen again every second).</summary>
+    internal Actor? Victim { get; set; }
+    internal double VictimIn { get; set; }
+
     public bool Has(MonsterAffix affix) => Affixes.Contains(affix);
 
     /// <summary>Where it was placed: a boss's arena centre, where it fuses in its last phase.</summary>
@@ -308,6 +371,8 @@ public enum FloatingTextKind
     Xp,
     /// <summary>A near miss's half damage.</summary>
     Graze,
+    /// <summary>Damage to one of the hero's allies.</summary>
+    AllyHurt,
 }
 
 /// <summary>A floating combat number or word, in map space, rising and fading over <see cref="Lifetime"/>.</summary>

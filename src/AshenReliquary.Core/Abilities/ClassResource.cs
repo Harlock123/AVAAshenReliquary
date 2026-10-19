@@ -101,6 +101,9 @@ public sealed class ClassResource
         Current = Math.Min(cap, Current + tiles * MomentumPerTile);
     }
 
+    /// <summary>Gives some back, up to the maximum (the Marksman's critical hits).</summary>
+    public void Gain(double amount) => Current = Math.Min(Max, Current + Math.Max(0, amount));
+
     /// <summary>Spends everything there is (Finishing Blow); returns how much that was.</summary>
     public double SpendAll()
     {

@@ -25,6 +25,7 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("fighter")]
     [InlineData("wizard")]
     [InlineData("rogue")]
+    [InlineData("ranger")]
     public void Gallows_Road_packs_at_level_1(string classId)
     {
         var results = Run(classId);
@@ -56,6 +57,10 @@ public class BalanceReport(ITestOutputHelper output)
         ["rogue"] = ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
         ["rogue cutthroat"] = ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
         ["rogue trickster"] = ["shortsword", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        // The Ranger (M3 step 3): a shortbow and leathers.
+        ["ranger"] = ["shortbow", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        ["ranger marksman"] = ["shortbow", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        ["ranger beastmaster"] = ["shortbow", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
     };
 
     [Theory]
@@ -64,6 +69,8 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("wizard")]
     [InlineData("rogue cutthroat")]
     [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
     public void The_whole_road_at_level_1(string kit)
     {
         var classId = kit.Split(' ')[0];
@@ -374,7 +381,7 @@ public class BalanceReport(ITestOutputHelper output)
             world.ChooseLevel(at, new LevelChoice(
                 Boosts: boosts,
                 ClassFeat: Feat(Progression.LevelGain.ClassFeat, FeatType.Class,
-                    c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", _ => "lunge" }),
+                    c.Class.Id switch { "wizard" => "reach_spell", "rogue" => "nimble_dodge", "ranger" => "far_shot", _ => "lunge" }),
                 SkillFeat: Feat(Progression.LevelGain.SkillFeat, FeatType.Skill),
                 GeneralFeat: Feat(Progression.LevelGain.GeneralFeat, FeatType.General, "toughness"),
                 AncestryFeat: Feat(Progression.LevelGain.AncestryFeat, FeatType.Ancestry),
@@ -389,6 +396,8 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("wizard")]
     [InlineData("rogue cutthroat")]
     [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
     public void Mother_Sallow_at_levels_4_and_5(string kit)
     {
         foreach (var (level, runed) in new[] { (4, false), (5, false), (5, true) })

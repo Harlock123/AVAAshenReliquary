@@ -175,6 +175,7 @@ public sealed partial class GameWorld
         _startZone = zone.Id;
         RefreshBar();
         Populate(zone, null);
+        RefreshCompanion();
         RespawnPoint = (Hero.X, Hero.Y);
         hero.HeroPoints.GainForZone();
     }
@@ -283,6 +284,7 @@ public sealed partial class GameWorld
         Populate(zone, memory);
         Hero.X = x;
         Hero.Y = y;
+        PlaceAllies();
         Hero.Order = null;
         Hero.Action = null;
         Hero.Goal = null;
@@ -550,6 +552,16 @@ public sealed partial class GameWorld
         if (target is null || target.IsDead)
         {
             Say($"{ability.Name} needs a target.");
+            return;
+        }
+        if (ability.Kind == AbilityKind.Mark)
+        {
+            Mark(ability, target);
+            return;
+        }
+        if (ability.Kind == AbilityKind.Command)
+        {
+            SendCompanion(ability, target);
             return;
         }
         Hero.Order = new HeroOrder(ability, target);
@@ -961,6 +973,7 @@ public sealed partial class GameWorld
             Hero.Resource.OnMoved(moved);
         UpdateHidden(dt);
         UpdateTraps();
+        UpdateAllies(dt);
         Reveal();
         UpdateProjectiles(dt);
         UpdateHazards(dt);
@@ -1090,7 +1103,8 @@ public sealed partial class GameWorld
             var ability = order.Ability;
             var reach = ReachFor(ability, target);
             var startDistance = ability.Kind == AbilityKind.ChargeStrike ? reach + ability.Range : reach;
-            var losOk = !(ability.IsSpell || ability.Kind == AbilityKind.Bomb) || Map.HasLineOfSight(hero.X, hero.Y, target.X, target.Y);
+            var losOk = !(ability.IsSpell || ability.Kind == AbilityKind.Bomb || (ability.UsesWeapon && Shoots))
+                || Map.HasLineOfSight(hero.X, hero.Y, target.X, target.Y);
             if (hero.DistanceTo(target) > startDistance || !losOk)
             {
                 hero.RepathIn -= dt;
@@ -1258,7 +1272,11 @@ public sealed partial class GameWorld
         ability.IsSpell ? ability.Range + Hero.Character.SpellRangeBonus
         : ability.Kind == AbilityKind.Bomb ? ability.Range
         : ability.Kind == AbilityKind.Burst ? ability.Radius * 0.8 + target.Radius
+        : Shoots ? Hero.Character.Weapon.Definition.Range + Hero.Character.WeaponRangeBonus + target.Radius
         : MeleeReach + Hero.Character.ReachBonus + target.Radius;
+
+    /// <summary>Whether the hero's weapon Strikes are arrows (a bow in hand).</summary>
+    public bool Shoots => Hero.Character.Weapon.Definition.IsRanged;
 
     /// <summary>Why an ability can't start right now, or null if it can.</summary>
     private string? WhyNot(AbilityDefinition ability)
@@ -1272,6 +1290,10 @@ public sealed partial class GameWorld
             return $"Not enough {Hero.Resource.Name} for {ability.Name} ({ability.Cost:0}).";
         if (ability.NeedsTwoHanded && !WieldsTwoHanded)
             return $"{ability.Name} needs a two-handed weapon.";
+        if (ability.NeedsRanged && !Shoots)
+            return $"{ability.Name} needs a bow.";
+        if (ability.IsSweep && Shoots)
+            return $"{ability.Name} needs a melee weapon.";
         return null;
     }
 
@@ -1309,8 +1331,8 @@ public sealed partial class GameWorld
         if (dashing)
             hero.Play("run", 2.0, restart: true);
         else
-            hero.Play(ability.IsSpell || ability.IsSpellBurst ? "cast" : "swing", AnimationRate(ability, duration), restart: true);
-        if (!ability.IsSpell && ability.Kind != AbilityKind.Burst && !dashing)
+            hero.Play(ability.IsSpell || ability.IsSpellBurst ? "cast" : ability.UsesWeapon && Shoots ? "shoot" : "swing", AnimationRate(ability, duration), restart: true);
+        if (!ability.IsSpell && ability.Kind != AbilityKind.Burst && !dashing && !(ability.UsesWeapon && Shoots))
             Sound(SoundCue.Swing, hero);
     }
 
@@ -1363,12 +1385,27 @@ public sealed partial class GameWorld
         {
             case AbilityKind.WeaponStrike or AbilityKind.ChargeStrike:
                 var dice = ability.ExtraDiceAt(Hero.Character.Level) + spentDice;
+                if (Shoots)
+                {
+                    // A bow looses its arrows (Twin Shot two), a beat apart; each is a Strike when it lands.
+                    if (!target.IsDead)
+                    {
+                        for (var i = 0; i < ability.StrikeCount; i++)
+                            _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, i)
+                            {
+                                Shot = new ArrowShot(dice, ability.CadenceAttacks, i == 0, fromHiding && i == 0, ability.Feint || (i > 0 && ability.Twin),
+                                    ability.Pierce + Hero.Character.ArrowPierce),
+                            });
+                        Sound(SoundCue.Bow, Hero);
+                    }
+                    break;
+                }
                 if (!target.IsDead && Hero.DistanceTo(target) <= ReachFor(ability, target) + 0.3)
                 {
                     HeroStrike(target, ability, dice, ability.CadenceAttacks, fromHiding: fromHiding, feint: ability.Feint);
                     // Twin Feint: a second Strike on the heels of the first, against a target now off-guard to it.
-                    if (ability.Twin && !target.IsDead)
-                        HeroStrike(target, ability, dice, ability.CadenceAttacks, feint: true);
+                    for (var i = 1; i < ability.StrikeCount && !target.IsDead; i++)
+                        HeroStrike(target, ability, dice, ability.CadenceAttacks, feint: ability.Feint || ability.Twin);
                 }
                 // A sweep strikes more enemies within reach and its arc, nearest first; only the main target builds Fury.
                 foreach (var other in _monsters.Where(m => !m.IsDead && m != target && Hero.DistanceTo(m) <= ReachFor(ability, m) + 0.3
@@ -1442,6 +1479,12 @@ public sealed partial class GameWorld
         if (ability.Kind == AbilityKind.Bomb)
         {
             BombLands(p);
+            return;
+        }
+        if (p.Shot is { } shot)
+        {
+            HeroStrike(target, ability, shot.ExtraDice, shot.CadenceAttacks, buildsFury: shot.Builds, fromHiding: shot.FromHiding, feint: shot.Feint);
+            PierceOn(p, shot);
             return;
         }
         var dice = ability.DamageAt(p.Rank);
@@ -1548,8 +1591,11 @@ public sealed partial class GameWorld
         var (offGuard, sneak) = SneakAttack(target, fromHiding || feint);
         var result = Strike.Resolve(c, target.Creature, Hero.Cadence, Time, Random, graze: GrazeEffect.Near,
             attackSpeedBonus: c.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks,
-            targetAc: offGuard, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit);
+            targetAc: offGuard, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit,
+            preyDice: target == Hero.Prey ? c.PreyDice : 0);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
+        if (critical && Shoots && c.CritResourceBonus > 0)
+            Hero.Resource.Gain(c.CritResourceBonus);
         if (sneak > 0 && result.Damage > 0 && !result.Grazed)
             Float(target, "sneak attack", FloatingTextKind.Info, 0.6);
         Sound(result.Damage > 0 ? (critical ? SoundCue.Crit : SoundCue.Hit) : SoundCue.Miss, target);
@@ -1589,6 +1635,8 @@ public sealed partial class GameWorld
 
     private void Kill(MonsterActor monster, bool critical)
     {
+        if (Hero.Prey == monster)
+            Hero.Prey = null;
         if (monster.SpawnIndex >= 0)
             _slain.Add(monster.SpawnIndex);
         monster.State = MonsterState.Dead;
@@ -1740,6 +1788,14 @@ public sealed partial class GameWorld
 
         if (m.State == MonsterState.Idle)
         {
+            // An ally close by is noticed too, and the pack turns on it.
+            if (!hero.IsDead && _allies.FirstOrDefault(a => !a.IsDead && m.DistanceTo(a) <= def.AggroRadius * 0.6
+                    && Map.HasLineOfSight(m.X, m.Y, a.X, a.Y)) is { } seen)
+            {
+                Aggro(m);
+                m.Victim = seen;
+                m.VictimIn = 1.0;
+            }
             // A hidden hero is noticed only close by (and is then hidden no longer).
             if (!hero.IsDead && distance <= (hero.IsHidden ? HiddenNoticeTiles : def.AggroRadius) && Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y))
             {
@@ -1781,6 +1837,9 @@ public sealed partial class GameWorld
         if (m.AttackCooldown > 0)
             m.AttackCooldown -= dt;
 
+        // Whom it fights: the hero, or an ally nearer to it.
+        var victim = _allies.Count == 0 ? hero : VictimOf(m, dt);
+        var victimDistance = m.DistanceTo(victim);
         if (m.AttackElapsed >= 0)
         {
             var interval = 1.0 / m.Creature.AttacksPerSecond;
@@ -1789,8 +1848,13 @@ public sealed partial class GameWorld
             if (!m.AttackLanded && m.AttackElapsed >= windup * 0.6)
             {
                 m.AttackLanded = true;
-                if (distance <= def.AttackRange + hero.Radius + 0.4)
-                    MonsterStrike(m);
+                if (victimDistance <= def.AttackRange + victim.Radius + 0.4)
+                {
+                    if (victim is AllyActor { IsDead: false } ally)
+                        MonsterBitesAlly(m, ally);
+                    else if (victim == hero)
+                        MonsterStrike(m);
+                }
             }
             if (m.AttackElapsed >= windup)
             {
@@ -1800,10 +1864,10 @@ public sealed partial class GameWorld
             return;
         }
 
-        var inRange = distance <= def.AttackRange + hero.Radius
-            && (!def.Ranged || Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y));
+        var inRange = victimDistance <= def.AttackRange + victim.Radius
+            && (!def.Ranged || Map.HasLineOfSight(m.X, m.Y, victim.X, victim.Y));
         // A flanker in reach but not yet flanking circles round for up to 3 s while an ally holds the hero's attention.
-        if (inRange && def.Flanks && m.AttackCooldown <= 0 && !IsFlanking(m) && m.FlankTime < 3 && !def.Stationary
+        if (inRange && victim == hero && def.Flanks && m.AttackCooldown <= 0 && !IsFlanking(m) && m.FlankTime < 3 && !def.Stationary
             && m.Creature.Conditions.CanMove && FlankSpot(m) is { } spot)
         {
             m.FlankTime += dt;
@@ -1822,7 +1886,7 @@ public sealed partial class GameWorld
         {
             m.FlankTime = 0;
             m.Path.Clear();
-            m.Face(hero.X, hero.Y);
+            m.Face(victim.X, victim.Y);
             if (m.AttackCooldown <= 0)
             {
                 m.State = MonsterState.Attack;
@@ -1847,7 +1911,7 @@ public sealed partial class GameWorld
         m.RepathIn -= dt;
         if (m.Path.Count == 0 || m.RepathIn <= 0)
         {
-            PlanPath(m, hero.X, hero.Y);
+            PlanPath(m, victim.X, victim.Y);
             m.RepathIn = 0.5 + Random.Roll(0, 20) / 100.0;
         }
         if (!m.Creature.Conditions.CanMove)
@@ -2127,6 +2191,8 @@ public sealed partial class GameWorld
         EndWard();
         Hero.AntidoteUntil = 0;
         Hero.Play("stance", restart: true);
+        RestAllies();
+        PlaceAllies();
         foreach (var m in _monsters.Where(m => !m.IsDead))
         {
             m.State = MonsterState.Idle;
@@ -2149,6 +2215,7 @@ public sealed partial class GameWorld
         if (first)
         {
             c.Heal(c.MaxHitPoints);
+            RestAllies();
             Say($"{shrine.Name} awakens. Potions refilled.");
             Sound(SoundCue.Shrine, Hero);
             Float(Hero, "SHRINE", FloatingTextKind.Info, 1.0);
@@ -2215,6 +2282,7 @@ public sealed partial class GameWorld
         ZoneComplete = complete;
         Experience.Restore(level, xp);
         RefreshBar();
+        PlaceAllies();
     }
 
     // ----- Movement ------------------------------------------------------------------
@@ -2320,6 +2388,11 @@ public sealed partial class GameWorld
         {
             var a = living[i];
             Push(a, Hero, onlyFirst: true);
+            foreach (var ally in _allies)
+            {
+                if (!ally.IsDead)
+                    Push(a, ally, onlyFirst: true);
+            }
             for (var j = i + 1; j < living.Count; j++)
                 Push(a, living[j], onlyFirst: false);
         }

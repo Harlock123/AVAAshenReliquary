@@ -203,10 +203,11 @@ public sealed partial class GameWorld
         }
     }
 
-    /// <summary>A new zone or a fall: no traps carry over, and nobody stays hidden.</summary>
+    /// <summary>A new zone or a fall: no traps carry over, nobody stays hidden, and the hunt is off.</summary>
     private void ClearRogueState()
     {
         _traps.Clear();
+        Hero.Prey = null;
         Hero.HiddenRemaining = 0;
         Hero.DodgeFeinted = null;
     }

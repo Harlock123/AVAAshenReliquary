@@ -27,6 +27,7 @@ internal static class WorldOverlay
                 FloatingTextKind.Xp => (new SKColor(190, 160, 255), 18f),
                 FloatingTextKind.Info => (new SKColor(240, 210, 120), 22f),
                 FloatingTextKind.Graze => (new SKColor(205, 165, 125), 18f),
+                FloatingTextKind.AllyHurt => (new SKColor(225, 140, 110), 17f),
                 _ => (new SKColor(245, 240, 225), 22f),
             };
             var alpha = (byte)(255 * Math.Clamp(1 - age * age, 0, 1));
@@ -40,12 +41,14 @@ internal static class WorldOverlay
         }
     }
 
-    public static void DrawHealthBar(SKCanvas canvas, SKPoint foot, float zoom, float fraction, bool champion)
+    /// <param name="lift">How far above the feet the bar sits, at zoom 1 (lower for a wolf than a man).</param>
+    /// <param name="colour">The bar's colour, instead of a monster's red (an ally's green).</param>
+    public static void DrawHealthBar(SKCanvas canvas, SKPoint foot, float zoom, float fraction, bool champion, float lift = 165, SKColor? colour = null)
     {
         var width = 70 * zoom;
-        var rect = SKRect.Create(foot.X - width / 2, foot.Y - 165 * zoom, width, 6);
+        var rect = SKRect.Create(foot.X - width / 2, foot.Y - lift * zoom, width, 6);
         using var back = new SKPaint { Color = new SKColor(0, 0, 0, 180) };
-        using var bar = new SKPaint { Color = champion ? new SKColor(220, 120, 40) : new SKColor(170, 30, 25) };
+        using var bar = new SKPaint { Color = colour ?? (champion ? new SKColor(220, 120, 40) : new SKColor(170, 30, 25)) };
         canvas.DrawRect(SKRect.Inflate(rect, 1, 1), back);
         canvas.DrawRect(SKRect.Create(rect.Left, rect.Top, rect.Width * Math.Clamp(fraction, 0, 1), rect.Height), bar);
     }

@@ -1223,6 +1223,34 @@ public sealed class WorldView : Control
             DrawGroundRing(canvas, hovered, time, targeted: false);
         if (target is not null)
             DrawGroundRing(canvas, target, time, targeted: true);
+        if (world.Hero.Prey is { IsDead: false } prey && world.IsLit(prey.X, prey.Y))
+            DrawPreyMark(canvas, prey, time);
+    }
+
+    /// <summary>The Ranger's prey: a green hunter's mark, four arrowheads pointing in at its feet.</summary>
+    private void DrawPreyMark(SKCanvas canvas, MonsterActor m, double time)
+    {
+        var z = (float)Zoom;
+        var foot = ToScreen(m.X, m.Y);
+        var r = TargetRingRadius * 1.25f * z * (float)m.Definition.Scale;
+        var saved = canvas.Save();
+        canvas.Translate(foot.X, foot.Y);
+        canvas.Scale(1, 0.5f);
+        var pulse = (float)(0.5 + 0.5 * Math.Sin(time * 3));
+        using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(140, 230, 110, (byte)(170 + 60 * pulse)) };
+        for (var i = 0; i < 4; i++)
+        {
+            canvas.Save();
+            canvas.RotateDegrees(45 + 90 * i);
+            using var head = new SKPath();
+            head.MoveTo(r - 2 * z, 0);
+            head.LineTo(r + 16 * z, -10 * z);
+            head.LineTo(r + 16 * z, 10 * z);
+            head.Close();
+            canvas.DrawPath(head, fill);
+            canvas.Restore();
+        }
+        canvas.RestoreToCount(saved);
     }
 
     /// <summary>The target ring's radius on screen at zoom 1, for a creature of scale 1 (about two-thirds of a tile).</summary>
@@ -1397,6 +1425,13 @@ public sealed class WorldView : Control
             items.Add((m.IsDead ? m.X + m.Y - 0.6 : m.X + m.Y, m.X, () => DrawMonster(canvas, monster, world)));
         }
         items.Add((world.Hero.X + world.Hero.Y, world.Hero.X, () => DrawHero(canvas, world)));
+        foreach (var a in world.Allies)
+        {
+            var ally = a;
+            // A fallen ally lies for a moment, then is gone until it comes back.
+            if (!a.IsDead || a.ReturnIn > GameWorld.AllyReturnSeconds - 2)
+                items.Add((a.IsDead ? a.X + a.Y - 0.6 : a.X + a.Y, a.X, () => DrawAlly(canvas, ally)));
+        }
         foreach (var v in world.Vendors)
         {
             var vendor = v;
@@ -1509,6 +1544,32 @@ public sealed class WorldView : Control
         if (!m.IsDead && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints && world.IsLit(m.X, m.Y))
             WorldOverlay.DrawHealthBar(canvas, foot, (float)Zoom, m.Creature.HitPoints / (float)m.Creature.Stats.HitPoints,
                 m.Creature.Stats.Rank == CreatureRank.Champion);
+    }
+
+    /// <summary>
+    /// An ally (the Beastmaster's wolf): its creature sprite, flashing when bitten, a green health bar while hurt, and a
+    /// faint green ring at its feet so it reads as the hero's.
+    /// </summary>
+    private void DrawAlly(SKCanvas canvas, AllyActor ally)
+    {
+        var foot = ToScreen(ally.X, ally.Y);
+        var z = (float)Zoom;
+        if (!ally.IsDead)
+        {
+            using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2 * z, Color = new SKColor(120, 210, 120, 120) };
+            canvas.DrawOval(SKRect.Create(foot.X - 34 * z, foot.Y - 15 * z, 68 * z, 30 * z), ring);
+        }
+        using var paint = new SKPaint();
+        if (ally.HitFlinch > 0)
+            paint.ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(90, 30, 30));
+        if (ally.IsDead)
+            paint.Color = SKColors.White.WithAlpha((byte)(255 * Math.Clamp((ally.ReturnIn - (GameWorld.AllyReturnSeconds - 2)) / 1.0, 0, 1)));
+        var set = _assets.Enemy(ally.Definition.Sprite);
+        if (Pick(set, ally.Animation) is { } anim)
+            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(ally.AnimationTime), ally.Direction), foot, (float)ally.Definition.Scale, paint);
+        if (!ally.IsDead && ally.Creature.HitPoints < ally.Creature.Stats.HitPoints)
+            WorldOverlay.DrawHealthBar(canvas, foot, z, ally.Creature.HitPoints / (float)ally.Creature.Stats.HitPoints, false, 95,
+                new SKColor(90, 190, 80));
     }
 
     private void DrawHero(SKCanvas canvas, GameWorld world)
@@ -1827,6 +1888,17 @@ public sealed class WorldView : Control
         }
     }
 
+    /// <summary>The hero's arrow: Flare's arrow sprite, turned to its line of flight.</summary>
+    private void DrawArrow(SKCanvas canvas, Projectile p, SKPoint at, double time)
+    {
+        var set = _assets.Power("arrows");
+        if (set.Animations.Values.FirstOrDefault() is not { } anim)
+            return;
+        var direction = Actor.DirectionOf(p.Target.X - p.X, p.Target.Y - p.Y);
+        // Flare draws a power's sprite from its anchor at the ground, so lift the anchor to the flying height.
+        DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(time), direction), new SKPoint(at.X, at.Y + 95 * (float)Zoom), 1f, null);
+    }
+
     /// <summary>Projectiles fly at chest height with a short glowing trail; impacts are a quick expanding burst.</summary>
     private void DrawSpells(SKCanvas canvas, GameWorld world)
     {
@@ -1839,6 +1911,11 @@ public sealed class WorldView : Control
                 continue;
             var at = ToScreen(p.X, p.Y);
             at.Y -= lift;
+            if (p.IsArrow)
+            {
+                DrawArrow(canvas, p, at, world.Time);
+                continue;
+            }
             var color = SpellColor(p.Ability.DamageType);
             var target = ToScreen(p.Target.X, p.Target.Y);
             target.Y -= lift;

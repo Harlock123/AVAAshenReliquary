@@ -105,6 +105,9 @@ public sealed record SaveGame
     /// whose bar is laid out as new.
     /// </summary>
     public Dictionary<string, string>? Bar { get; init; }
+
+    /// <summary>The animal companion's health (the Beastmaster's wolf); null without one, or in older saves (full health).</summary>
+    public int? CompanionHitPoints { get; init; }
     public List<string> BarOffered { get; init; } = [];
 
     /// <summary>The explored map cells (base64 bitset); missing in older saves, which start unexplored.</summary>
@@ -184,6 +187,7 @@ public sealed record SaveGame
             Explored = world.ExploredBits(),
             Bar = world.BarLayout.ToDictionary(kv => kv.Key, kv => kv.Value),
             BarOffered = world.BarOffered.ToList(),
+            CompanionHitPoints = world.Companion?.Creature.HitPoints,
             PlaySeconds = playSeconds,
         };
     }
@@ -253,6 +257,8 @@ public sealed record SaveGame
         character.HeroPoints.Restore(HeroPoints);
         character.Potion.Restore(PotionCharges);
         world.Hero.Resource.Restore(Resource);
+        if (CompanionHitPoints is { } companion)
+            world.RestoreCompanion(companion);
 
         if (ZoneRevision != zone.Revision)
         {

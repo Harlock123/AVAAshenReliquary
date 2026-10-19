@@ -40,6 +40,9 @@ public sealed record WeaponDefinition(
 
     public bool Has(WeaponTrait trait) => Traits.Contains(trait);
 
+    /// <summary>How far a ranged weapon shoots, in tiles (0 for melee weapons).</summary>
+    public double Range { get; init; }
+
     /// <summary>A versatile weapon's second damage type (a shortsword's slashing beside its piercing), or null.</summary>
     public DamageType? VersatileType { get; init; }
 

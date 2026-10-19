@@ -101,6 +101,65 @@
   ]
  },
  {
+  "id": "shortbow",
+  "name": "Shortbow",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 113,
+  "loot": "shortbow",
+  "gfx": "shortbow",
+  "damageDie": 6,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.25,
+  "ranged": true,
+  "range": 8,
+  "deadlyDie": 10,
+  "traits": [
+   "TwoHand",
+   "Deadly"
+  ]
+ },
+ {
+  "id": "longbow",
+  "name": "Longbow",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 114,
+  "loot": "longbow",
+  "gfx": "longbow",
+  "minLevel": 2,
+  "damageDie": 8,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.0,
+  "ranged": true,
+  "range": 10,
+  "deadlyDie": 10,
+  "traits": [
+   "TwoHand",
+   "Deadly"
+  ]
+ },
+ {
+  "id": "greatbow",
+  "name": "Greatbow",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 115,
+  "loot": "greatbow",
+  "gfx": "greatbow",
+  "minLevel": 4,
+  "damageDie": 10,
+  "damageType": "Piercing",
+  "attacksPerSecond": 0.85,
+  "ranged": true,
+  "range": 11,
+  "deadlyDie": 12,
+  "traits": [
+   "TwoHand",
+   "Deadly"
+  ]
+ },
+ {
   "id": "hand_axe",
   "name": "Hatchet",
   "category": "Weapon",

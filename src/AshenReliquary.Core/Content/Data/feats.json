@@ -1208,5 +1208,139 @@
     "sneakDice": 1
    }
   ]
+ },
+ {
+  "id": "marksman",
+  "name": "Marksman",
+  "type": "Subclass",
+  "level": 1,
+  "class": "ranger",
+  "description": "Bows, piercing shots and chains of critical hits. Piercing Shot: an arrow with one more weapon die that flies on through up to 3 enemies behind its target. Every arrow you loose passes through one enemy behind its target, and a critical hit with a bow gives back 5 Focus.",
+  "effects": [
+   {
+    "ability": "piercing_shot"
+   },
+   {
+    "pierce": 1,
+    "critResource": 5
+   }
+  ]
+ },
+ {
+  "id": "beastmaster",
+  "name": "Beastmaster",
+  "type": "Subclass",
+  "level": 1,
+  "class": "ranger",
+  "description": "An animal companion and its own feats. A wolf fights at your side: it follows you, falls on what you attack and on whatever attacks you, grows with your level, and if it falls it comes back to you after 20 s. Sic 'Em: send it at a monster to bite and knock it prone.",
+  "effects": [
+   {
+    "ability": "sic"
+   },
+   {
+    "companion": "wolf"
+   }
+  ]
+ },
+ {
+  "id": "far_shot",
+  "name": "Far Shot",
+  "type": "Class",
+  "level": 2,
+  "class": "ranger",
+  "description": "Your arrows carry further: +2 tiles of bow range.",
+  "effects": [
+   {
+    "weaponRange": 2
+   }
+  ]
+ },
+ {
+  "id": "swift_tracker",
+  "name": "Swift Tracker",
+  "type": "Class",
+  "level": 2,
+  "class": "ranger",
+  "description": "You move quickly on the trail: +5 ft speed.",
+  "effects": [
+   {
+    "speedFeet": 5
+   }
+  ]
+ },
+ {
+  "id": "deadly_aim",
+  "name": "Deadly Aim",
+  "type": "Class",
+  "level": 2,
+  "class": "ranger",
+  "subclass": "marksman",
+  "description": "Marksman: +4 damage on a critical hit, and Aimed Shot costs 5 less Focus.",
+  "effects": [
+   {
+    "critDamage": 4
+   },
+   {
+    "ability": "aimed_shot",
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "pack_hunter",
+  "name": "Pack Hunter",
+  "type": "Class",
+  "level": 2,
+  "class": "ranger",
+  "subclass": "beastmaster",
+  "description": "Beastmaster: your wolf grows: half as many hit points again, and its bite deals one more die.",
+  "effects": [
+   {
+    "companionGrowth": 1
+   }
+  ]
+ },
+ {
+  "id": "relentless_hunt",
+  "name": "Relentless Hunt",
+  "type": "Class",
+  "level": 4,
+  "class": "ranger",
+  "description": "Your prey has nowhere to hide: Hunt Prey deals one more d8.",
+  "effects": [
+   {
+    "preyDice": 1
+   }
+  ]
+ },
+ {
+  "id": "focused_mind",
+  "name": "Focused Mind",
+  "type": "Class",
+  "level": 4,
+  "class": "ranger",
+  "description": "Your Focus returns a quarter faster.",
+  "effects": [
+   {
+    "resourceRegen": 0.25
+   }
+  ]
+ },
+ {
+  "id": "hunters_eye",
+  "name": "Hunter's Eye",
+  "type": "Class",
+  "level": 4,
+  "class": "ranger",
+  "description": "Nothing escapes your notice: +2 to Perception and +1 tile of bow range.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 2
+   },
+   {
+    "weaponRange": 1
+   }
+  ]
  }
 ]

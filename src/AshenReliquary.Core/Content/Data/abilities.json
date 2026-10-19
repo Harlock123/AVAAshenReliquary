@@ -614,5 +614,113 @@
    "Flourish"
   ],
   "description": "Spin through the press: one Strike at every enemy within reach, all round you. Only the first hit builds Momentum. 25 Momentum."
+ },
+ {
+  "id": "ranger_strike",
+  "name": "Strike",
+  "class": "ranger",
+  "slot": "lmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "repeat": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Attack with your weapon: with a bow, an arrow at anything in range and in sight. Against your prey, Hunt Prey's precision die is added."
+ },
+ {
+  "id": "twin_shot",
+  "name": "Twin Shot",
+  "class": "ranger",
+  "slot": "rmb",
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 10,
+  "strikes": 2,
+  "needsRanged": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Loose two arrows at once at your target, each a Strike. 10 Focus. Needs a bow."
+ },
+ {
+  "id": "hunt_prey",
+  "name": "Hunt Prey",
+  "class": "ranger",
+  "slot": "1",
+  "kind": "Mark",
+  "actions": 1,
+  "range": 12,
+  "cooldown": 1,
+  "traits": [
+   "Concentrate"
+  ],
+  "description": "Mark a monster you can see within 12 tiles as your prey: your Strikes against it deal 1d8 more precision damage (2d8 at level 11). It stays your prey until it dies or you hunt another."
+ },
+ {
+  "id": "disengage",
+  "name": "Disengage",
+  "class": "ranger",
+  "slot": "2",
+  "kind": "Tumble",
+  "actions": 1,
+  "range": 3,
+  "cooldown": 6,
+  "traits": [
+   "Move"
+  ],
+  "description": "Spring up to 3 tiles toward the pointer, untouchable on the way: out of a melee and back into bow range. 6 s cooldown."
+ },
+ {
+  "id": "aimed_shot",
+  "name": "Aimed Shot",
+  "class": "ranger",
+  "slot": "4",
+  "level": 2,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 15,
+  "extraDice": 1,
+  "traits": [
+   "Attack"
+  ],
+  "description": "A careful Strike: one more weapon damage die (2 at level 10, 3 at 18). 15 Focus. Joins the bar at level 2."
+ },
+ {
+  "id": "piercing_shot",
+  "name": "Piercing Shot",
+  "class": "ranger",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 15,
+  "cooldown": 4,
+  "extraDice": 1,
+  "pierce": 3,
+  "needsRanged": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "An arrow driven clean through: one more weapon damage die, and it flies on through up to 3 enemies behind its target, a Strike at each. 15 Focus, 4 s cooldown. Needs a bow."
+ },
+ {
+  "id": "sic",
+  "name": "Sic 'Em",
+  "class": "ranger",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Command",
+  "actions": 1,
+  "range": 10,
+  "cost": 10,
+  "cooldown": 8,
+  "extraDice": 1,
+  "onHit": "Prone",
+  "onHitSeconds": 1.5,
+  "traits": [
+   "Auditory"
+  ],
+  "description": "Send your wolf at a monster within 10 tiles: it bounds there and bites with one more damage die, knocking its target prone for 1.5 s on a hit. 10 Focus, 8 s cooldown."
  }
 ]

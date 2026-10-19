@@ -24,8 +24,8 @@ public sealed partial class GameWorld
     /// <summary>Bursts still spreading (the renderer draws them).</summary>
     public IReadOnlyList<BurstEffect> Bursts => _bursts;
 
-    /// <summary>Whether the hero holds a two-handed weapon (Vanguard abilities need one).</summary>
-    public bool WieldsTwoHanded => Hero.Equipment.In(EquipSlot.MainHand) is { Definition.IsTwoHanded: true };
+    /// <summary>Whether the hero holds a two-handed melee weapon (Vanguard abilities need one; a bow will not do).</summary>
+    public bool WieldsTwoHanded => Hero.Equipment.In(EquipSlot.MainHand) is { Definition.IsTwoHanded: true, Definition.Ranged: false };
 
     /// <summary>A full burst round the hero: it goes off at once (its cost and cooldown as any ability).</summary>
     private void SelfBurst(AbilityDefinition ability)
