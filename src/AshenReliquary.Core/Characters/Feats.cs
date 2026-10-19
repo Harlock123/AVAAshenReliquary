@@ -106,8 +106,12 @@ public sealed record FeatEffect(
 /// A feat: its type and the level it becomes available at, who may take it (an ancestry, a class, a subclass, training
 /// in a skill) and its effects. A background's skill feat is granted at level 1 by name.
 /// </summary>
+/// <summary>
+/// A feat, read from <c>feats.json</c>. A <see cref="Dedication"/> (a class id) is a multiclass dedication: a class feat
+/// open to every other class, one per character, granting that class's ability (spec, section 7).
+/// </summary>
 public sealed record FeatDefinition(string Id, string Name, FeatType Type, int Level, string Description, IReadOnlyList<FeatEffect> Effects,
-    string? Ancestry = null, string? Class = null, string? Skill = null, string? Subclass = null);
+    string? Ancestry = null, string? Class = null, string? Skill = null, string? Subclass = null, string? Dedication = null);
 
 /// <summary>
 /// What a character picked on reaching a level: the feats and skill increase the level grants (see

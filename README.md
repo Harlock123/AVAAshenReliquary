@@ -145,6 +145,10 @@ one; **Siphon Life** drains an enemy to heal it, and from level 2 **Bone Rush** 
 The **Bonelord** holds a skeleton more and armours itself in bone (**Bone Armor**); the **Plaguebringer** gathers two
 charges a corpse, splashes its Grave Bolts, and spends a charge on **Corpse Explosion**, rot bursting round a monster
 and sickening those near it.
+Step 6 is done: **multiclass dedications**. From level 2 a class feat can be another class's dedication (one per
+character), granting that class's ability: Power Attack, Force Bolt, Tumble, Hunt Prey, Lay on Hands or Raise Bones.
+When the ability spends a resource your class doesn't, you get a small pool of it (a fighter's Mana, half a wizard's),
+shown as a thin bar above the Taint bar; Fury, Momentum and Devotion build from the same blows as your own.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

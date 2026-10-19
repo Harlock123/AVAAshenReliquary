@@ -95,7 +95,7 @@ internal sealed class AbilitiesPanel(IconStore icons)
         if (a.Charges > 0)
             facts.Add(a.Charges == 1 ? "a Grave Charge" : $"{a.Charges} Grave Charges");
         if (a.Cost > 0)
-            facts.Add($"{(a.ChargeInstead ? "a Grave Charge or " : "")}{a.Cost:0} {(a.CostsTaint ? "Taint" : world.Hero.Resource.Name)}{(a.SpendAll ? " or more" : "")}");
+            facts.Add($"{(a.ChargeInstead ? "a Grave Charge or " : "")}{a.Cost:0} {(a.CostsTaint ? "Taint" : world.ResourceFor(a).Name)}{(a.SpendAll ? " or more" : "")}");
         if (a.Cooldown > 0)
             facts.Add($"{a.Cooldown:0} s cooldown");
         if (a.Repeat)

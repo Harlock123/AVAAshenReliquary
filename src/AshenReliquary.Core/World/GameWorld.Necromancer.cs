@@ -27,10 +27,13 @@ public sealed partial class GameWorld
     public int GraveCharges { get; private set; }
 
     /// <summary>The most Grave Charges the hero can hold (none for a class without them).</summary>
-    public int MaxGraveCharges => Hero.Character.Class.GraveCharges ? BaseGraveCharges + Hero.Character.GraveChargeBonus : 0;
+    public int MaxGraveCharges => GathersGraveCharges ? BaseGraveCharges + Hero.Character.GraveChargeBonus : 0;
 
-    /// <summary>How many skeletons the hero can hold at once: 2, a third at level 5, and feats' more.</summary>
-    public int MinionCap => BaseMinions + (Hero.Character.Level >= 5 ? 1 : 0) + Hero.Character.MinionBonus;
+    /// <summary>
+    /// How many skeletons the hero can hold at once: 2, a third at level 5, and feats' more; one for a hero dedicated to
+    /// the Necromancer.
+    /// </summary>
+    public int MinionCap => !Hero.Character.Class.GraveCharges ? 1 : BaseMinions + (Hero.Character.Level >= 5 ? 1 : 0) + Hero.Character.MinionBonus;
 
     /// <summary>
     /// A skeleton's creature at a hero level: AC 13 + level, attack 5 + level, (6 + 5 × level) HP, its dice + half the

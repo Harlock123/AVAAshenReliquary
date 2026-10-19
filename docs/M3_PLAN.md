@@ -114,7 +114,12 @@ calls skeletons (Flare's skeleton, skeleton archer and mage art, already convert
 the hero's). **Bonelord** (a skeleton army, bone armour) and **Plaguebringer** (curses, rot clouds, corpse
 explosions). Starting abilities: Raise Bones, Grave Bolt.
 
-### 6. Multiclass dedications
+### 6. Multiclass dedications — done 2026-10-19
+
+Built as below (spec section 16, "Multiclass dedications"): six dedications, each granting its class's signature
+level-1 ability (Power Attack, Force Bolt, Tumble, Hunt Prey, Lay on Hands, Raise Bones), with a small pool of the
+class's resource when the hero's own differs. Learned on the way: the level-up screen needed dedications listed by
+name only to fit the narrow window.
 
 From level 2 a class feat slot can take another class's dedication, which grants that class's level-1 ability (and
 its resource when the hero's own class has none of that kind: a Fighter with Wizard Dedication gets a small mana

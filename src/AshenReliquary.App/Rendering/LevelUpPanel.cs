@@ -110,10 +110,25 @@ internal sealed class LevelUpPanel
             var y = top;
             canvas.DrawText(title.ToUpperInvariant(), x, y, SKTextAlign.Left, head, dim);
             y += 10;
-            foreach (var feat in c.FeatOptions(type, level))
+            var options = c.FeatOptions(type, level);
+            foreach (var feat in options.Where(f => f.Dedication is null))
             {
                 var f = feat;
                 Option(x, ref y, feat.Name, _feats.GetValueOrDefault(type) == feat.Id, () => _feats[type] = f.Id, feat.Name, feat.Description);
+            }
+            // Multiclass dedications, by name only (hover for what each grants) unless picked: six descriptions would
+            // run off a short window.
+            if (options.Any(f => f.Dedication is not null))
+            {
+                y += 6;
+                canvas.DrawText("OR A DEDICATION (ONE ONLY)", x, y + 4, SKTextAlign.Left, head, dim);
+                y += 12;
+                foreach (var feat in options.Where(f => f.Dedication is not null))
+                {
+                    var f = feat;
+                    var chosen = _feats.GetValueOrDefault(type) == feat.Id;
+                    Option(x, ref y, feat.Name, chosen, () => _feats[type] = f.Id, feat.Name, feat.Description, describe: chosen);
+                }
             }
         }
 

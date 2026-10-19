@@ -43,7 +43,7 @@ public sealed partial class GameWorld
     /// </summary>
     public bool CanAfford(AbilityDefinition ability) =>
         ability.ChargeInstead && GraveCharges > 0
-        || HasCharges(ability) && (ability.CostsTaint ? Hero.Character.Taint.Value + 1e-9 >= ability.Cost : Hero.Resource.CanSpend(ability.Cost));
+        || HasCharges(ability) && (ability.CostsTaint ? Hero.Character.Taint.Value + 1e-9 >= ability.Cost : ResourceFor(ability).CanSpend(ability.Cost));
 
     private void Pay(AbilityDefinition ability)
     {
@@ -56,7 +56,7 @@ public sealed partial class GameWorld
         if (ability.CostsTaint)
             Hero.Character.Taint.Cleanse(ability.Cost);
         else
-            Hero.Resource.TrySpend(ability.Cost);
+            ResourceFor(ability).TrySpend(ability.Cost);
     }
 
     /// <summary>Lay on Hands: the hero, and every living ally within its radius, heal its amount at once.</summary>

@@ -186,8 +186,10 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         using (var tf = new SKPaint { Color = c.Taint.Value >= TaintMeter.PenaltyThreshold ? new SKColor(180, 230, 80) : new SKColor(140, 200, 70) })
             canvas.DrawRect(SKRect.Create(taintBar.Left, taintBar.Top, taintBar.Width * (float)(c.Taint.Value / TaintMeter.Max), taintBar.Height), tf);
         canvas.DrawText($"Taint {c.Taint.Value:0}%", res.X, taintBar.Top - 4, SKTextAlign.Center, small, dim);
+        if (hero.Dedication is { } pool)
+            DrawDedicationPool(canvas, pool, SKRect.Create(taintBar.Left, taintBar.Top - 24, taintBar.Width, 5), small);
         if (world.MaxGraveCharges > 0)
-            DrawGraveCharges(canvas, world, new SKPoint(res.X, taintBar.Top - 30));
+            DrawGraveCharges(canvas, world, new SKPoint(res.X, taintBar.Top - (hero.Dedication is null ? 30 : 54)));
         Region(SKRect.Create(taintBar.Left, taintBar.Top - 18, taintBar.Width, 26), () =>
         [
             new("Taint", new SKColor(160, 220, 90), $"{c.Taint.Value:0}%", true),
@@ -439,6 +441,31 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         ], Good);
     }
 
+    /// <summary>A multiclass dedication's small pool (a Fighter's Mana): a thin bar in its resource's colour, named above.</summary>
+    private void DrawDedicationPool(SKCanvas canvas, ClassResource pool, SKRect bar, SKFont small)
+    {
+        var colour = pool.Kind switch
+        {
+            ResourceKind.Fury => new SKColor(255, 140, 50),
+            ResourceKind.Momentum => new SKColor(90, 230, 170),
+            ResourceKind.Focus => new SKColor(190, 225, 90),
+            ResourceKind.Devotion => new SKColor(205, 160, 52),
+            _ => new SKColor(90, 150, 255),
+        };
+        using var back = new SKPaint { Color = new SKColor(20, 18, 16, 220) };
+        using var fill = new SKPaint { Color = colour };
+        using var ink = new SKPaint { IsAntialias = true, Color = Dim };
+        canvas.DrawRect(SKRect.Inflate(bar, 1, 1), back);
+        canvas.DrawRect(SKRect.Create(bar.Left, bar.Top, bar.Width * (float)(pool.Current / pool.Max), bar.Height), fill);
+        canvas.DrawText($"{pool.Name} {pool.Current:0} / {pool.Max:0}", bar.MidX, bar.Top - 3, SKTextAlign.Center, small, ink);
+        Region(SKRect.Create(bar.Left, bar.Top - 16, bar.Width, 22), () =>
+        [
+            new(pool.Name, colour, $"{pool.Current:0} / {pool.Max:0}", true),
+            .. Wrap($"Your {pool.Source.Name} Dedication's {pool.Name.ToLowerInvariant()}, for the {pool.Source.Name.ToLowerInvariant()}'s ability it grants. "
+                + (pool.StartsEmpty ? "It builds as a " + pool.Source.Name.ToLowerInvariant() + "'s does." : $"Half a {pool.Source.Name.ToLowerInvariant()}'s pool; regenerates {pool.RegenPerSecond:0.0} a second."), Dim),
+        ], colour);
+    }
+
     /// <summary>The Necromancer's Grave Charges: a row of small bone-white diamonds, lit for each held.</summary>
     private void DrawGraveCharges(SKCanvas canvas, GameWorld world, SKPoint centre)
     {
@@ -605,7 +632,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         var lines = new List<TipLine> { new(a.Name, Gold, key, true) };
         var facts = new List<string> { $"{a.Actions} action{(a.Actions == 1 ? "" : "s")}" };
         if (a.Charges > 0) facts.Add(a.Charges == 1 ? "a Grave Charge" : $"{a.Charges} Grave Charges");
-        if (a.Cost > 0) facts.Add($"{(a.ChargeInstead ? "a Grave Charge or " : "")}{a.Cost:0} {(a.CostsTaint ? "Taint" : world.Hero.Resource.Name)}");
+        if (a.Cost > 0) facts.Add($"{(a.ChargeInstead ? "a Grave Charge or " : "")}{a.Cost:0} {(a.CostsTaint ? "Taint" : world.ResourceFor(a).Name)}");
         if (a.Cooldown > 0) facts.Add($"{a.Cooldown:0} s cooldown");
         if (a.Range > 0) facts.Add($"range {a.Range:0}");
         lines.Add(new(string.Join(" · ", facts), Ink));

@@ -1615,5 +1615,86 @@
     "value": 2
    }
   ]
+ },
+ {
+  "id": "fighter_dedication",
+  "name": "Fighter Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "fighter",
+  "description": "You trained in arms: Power Attack, a ponderous blow with an extra weapon die. It spends Fury, which you now build as a fighter does: from the blows you land and take.",
+  "effects": [
+   {
+    "ability": "power_attack"
+   }
+  ]
+ },
+ {
+  "id": "wizard_dedication",
+  "name": "Wizard Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "wizard",
+  "description": "You learned a little magic: Force Bolt, two bolts of force that never miss. It spends Mana, from a small pool of your own (half a wizard's, from your Intelligence).",
+  "effects": [
+   {
+    "ability": "force_bolt"
+   }
+  ]
+ },
+ {
+  "id": "rogue_dedication",
+  "name": "Rogue Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "rogue",
+  "description": "You learned to move like a thief: Tumble, a roll up to 3.5 tiles toward the pointer, through enemies and untouched.",
+  "effects": [
+   {
+    "ability": "tumble"
+   }
+  ]
+ },
+ {
+  "id": "ranger_dedication",
+  "name": "Ranger Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "ranger",
+  "description": "You learned to hunt: Hunt Prey marks a monster, and your Strikes against it deal 1d8 more precision damage.",
+  "effects": [
+   {
+    "ability": "hunt_prey"
+   },
+   {
+    "preyDice": 1
+   }
+  ]
+ },
+ {
+  "id": "champion_dedication",
+  "name": "Champion Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "champion",
+  "description": "You swore an oath: Lay on Hands, healing 6 HP a spell rank. It spends Devotion, which you build from the blows you take.",
+  "effects": [
+   {
+    "ability": "lay_on_hands"
+   }
+  ]
+ },
+ {
+  "id": "necromancer_dedication",
+  "name": "Necromancer Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "necromancer",
+  "description": "You learned the grave's art: Raise Bones calls a skeleton to fight for you (one at a time), paid with a Grave Charge from the dead around you or from a small pool of Mana.",
+  "effects": [
+   {
+    "ability": "raise_bones"
+   }
+  ]
  }
 ]

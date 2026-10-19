@@ -123,6 +123,9 @@ public sealed class HeroActor : Actor
     /// <summary>A raised shield or the Shield cantrip, while it lasts; null otherwise.</summary>
     public HeroWard? Ward { get; internal set; }
 
+    /// <summary>A multiclass dedication's small pool of another class's resource, or null.</summary>
+    public ClassResource? Dedication { get; internal set; }
+
     /// <summary>Until when an antidote's bonus against poison lasts (game time).</summary>
     public double AntidoteUntil { get; internal set; }
 

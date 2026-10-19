@@ -78,7 +78,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   Raise Bones raises skeleton minions, `AllyActor.IsMinion`, that crumble when it falls and aren't saved; Siphon Life
   drains; Bone Rush is Sic 'Em for every ally), the Bonelord (Bone Armor, a skeleton more) and the Plaguebringer
   (Corpse Explosion, `AbilityKind.Blast`; two charges a corpse); `--necromancer`, `--bonelord`, `--plaguebringer`.
-  All six classes are playable.
+  All six classes are playable. Step 6 done: multiclass dedications (`feats.json` `dedication`, one per character
+  from level 2, granting that class's signature ability; `HeroActor.Dedication` is a small pool of the other class's
+  resource, fed through `ClassResource.Partner`; `GameWorld.ResourceFor` picks the pool an ability is paid from).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

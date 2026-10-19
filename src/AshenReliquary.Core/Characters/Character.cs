@@ -237,12 +237,20 @@ public sealed class Character : IDefender
         && (feat.Ancestry is null || feat.Ancestry == Ancestry.Id)
         && (feat.Class is null || feat.Class == Class.Id)
         && (feat.Subclass is null || feat.Subclass == Subclass?.Id)
+        && (feat.Dedication is null || feat.Dedication != Class.Id && Dedication is null)
         && (feat.Skill is null || SkillRank(feat.Skill) >= ProficiencyRank.Trained);
 
     // ----- Subclass --------------------------------------------------------------
 
     /// <summary>The subclass chosen at level 1 (its feat), or null for a class without them or a save from before them.</summary>
     public FeatDefinition? Subclass => _feats.FirstOrDefault(f => f.Type == FeatType.Subclass);
+
+    /// <summary>The multiclass dedication taken (its feat), or null: one per character.</summary>
+    public FeatDefinition? Dedication => _feats.FirstOrDefault(f => f.Dedication is not null);
+
+    /// <summary>The class the dedication opens, or null.</summary>
+    public ClassDefinition? DedicationClass =>
+        Dedication?.Dedication is { } id && Content?.Classes.GetValueOrDefault(id) is { } c ? c : null;
 
     /// <summary>The subclasses this character's class offers, in the file's order.</summary>
     public IReadOnlyList<FeatDefinition> SubclassOptions =>
@@ -446,7 +454,7 @@ public sealed class Character : IDefender
     public bool TaintFuel { get; private set; }
 
     /// <summary>Hunt Prey's precision d8s against the hunted monster: the class's, plus feats'. None for most classes.</summary>
-    public int PreyDice => Class.PreyDiceAt(Level) is var dice and > 0 ? dice + PreyDiceBonus : 0;
+    public int PreyDice => Class.PreyDiceAt(Level) + PreyDiceBonus;
 
     public int ExtraMissiles(string abilityId) => _abilityMods.GetValueOrDefault(abilityId)?.Sum(m => m.ExtraMissiles) ?? 0;
 

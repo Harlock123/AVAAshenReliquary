@@ -1291,7 +1291,7 @@ public sealed partial class GameWorld
         if (!HasCharges(ability))
             return $"{ability.Name} needs {(ability.Charges == 1 ? "a Grave Charge" : $"{ability.Charges} Grave Charges")}.";
         if (!CanAfford(ability))
-            return $"Not enough {(ability.CostsTaint ? "Taint" : Hero.Resource.Name)} for {ability.Name} ({ability.Cost:0}).";
+            return $"Not enough {(ability.CostsTaint ? "Taint" : ResourceFor(ability).Name)} for {ability.Name} ({ability.Cost:0}).";
         if (ability.NeedsTwoHanded && !WieldsTwoHanded)
             return $"{ability.Name} needs a two-handed weapon.";
         if (ability.NeedsRanged && !Shoots)

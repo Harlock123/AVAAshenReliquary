@@ -1,4 +1,5 @@
 using AshenReliquary.Core.Characters;
+using AshenReliquary.Core.Content;
 using AshenReliquary.Core.Rules;
 
 namespace AshenReliquary.Core.Abilities;
@@ -35,19 +36,47 @@ public sealed class ClassResource
     public const double CombatSeconds = 5;
 
     private readonly Character _character;
+    private readonly AttributeKind _key;
     private double _sinceCombat = double.PositiveInfinity;
     private double _sinceMoved = double.PositiveInfinity;
 
-    public ClassResource(Character character)
+    public ClassResource(Character character) : this(character, character.Class, dedication: false)
+    {
+    }
+
+    /// <summary>
+    /// The resource of <paramref name="source"/>'s class. A <paramref name="dedication"/>'s pool (multiclassing: a
+    /// Fighter with Wizard Dedication) is small: a Mana or Focus pool half the size, regenerating half as fast, from that
+    /// class's key attribute; Fury, Momentum and Devotion build as ever.
+    /// </summary>
+    public ClassResource(Character character, ClassDefinition source, bool dedication)
     {
         _character = character;
-        Kind = character.Class.Resource.StartsWith("Fury", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Fury
-            : character.Class.Resource.StartsWith("Mana", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Mana
-            : character.Class.Resource.StartsWith("Momentum", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Momentum
-            : character.Class.Resource.StartsWith("Devotion", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Devotion
-            : ResourceKind.Focus;
+        Source = source;
+        IsDedication = dedication;
+        _key = dedication ? source.KeyAttributes[0] : character.KeyAttribute;
+        Kind = KindOf(source);
         Current = StartsEmpty ? 0 : Max;
     }
+
+    /// <summary>The kind of resource a class spends.</summary>
+    public static ResourceKind KindOf(ClassDefinition c) =>
+        c.Resource.StartsWith("Fury", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Fury
+        : c.Resource.StartsWith("Mana", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Mana
+        : c.Resource.StartsWith("Momentum", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Momentum
+        : c.Resource.StartsWith("Devotion", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Devotion
+        : ResourceKind.Focus;
+
+    /// <summary>The class whose resource this is.</summary>
+    public ClassDefinition Source { get; }
+
+    /// <summary>A multiclass dedication's small pool, beside the class's own.</summary>
+    public bool IsDedication { get; }
+
+    /// <summary>
+    /// A dedication's pool that rides along with this one: the blows, steps and seconds that feed this feed it too.
+    /// </summary>
+    internal ClassResource? Partner { get; set; }
 
     public ResourceKind Kind { get; }
     public string Name => Kind.ToString();
@@ -62,12 +91,13 @@ public sealed class ClassResource
     public double Max => Kind switch
     {
         ResourceKind.Fury or ResourceKind.Momentum or ResourceKind.Devotion => 100,
-        _ => 20 + 5 * _character.Level + 4 * Math.Max(0, _character.Attributes[_character.KeyAttribute]),
+        _ => (20 + 5 * _character.Level + 4 * Math.Max(0, _character.Attributes[_key])) * (IsDedication ? 0.5 : 1),
     };
 
     /// <summary>Mana or Focus per second: 1 + a quarter per point of the key attribute + a tenth per level.</summary>
     public double RegenPerSecond => StartsEmpty ? 0
-        : (1 + 0.25 * Math.Max(0, _character.Attributes[_character.KeyAttribute]) + 0.1 * _character.Level) * (1 + _character.Gear.ResourceRegen + _character.ResourceRegenBonus);
+        : (1 + 0.25 * Math.Max(0, _character.Attributes[_key]) + 0.1 * _character.Level) * (1 + _character.Gear.ResourceRegen + _character.ResourceRegenBonus)
+          * (IsDedication ? 0.5 : 1);
 
     public bool CanSpend(double amount) => Current + 1e-9 >= amount;
 
@@ -87,6 +117,7 @@ public sealed class ClassResource
     /// </summary>
     public void OnCombat(bool critical = false, bool taken = false, bool graze = false, bool builds = true)
     {
+        Partner?.OnCombat(critical, taken, graze, builds);
         _sinceCombat = 0;
         if (!builds || Kind is not (ResourceKind.Fury or ResourceKind.Momentum or ResourceKind.Devotion) || (taken && Kind == ResourceKind.Momentum))
             return;
@@ -106,6 +137,7 @@ public sealed class ClassResource
     /// </summary>
     public void OnMoved(double tiles)
     {
+        Partner?.OnMoved(tiles);
         if (Kind != ResourceKind.Momentum || tiles <= 0)
             return;
         _sinceMoved = 0;
@@ -126,6 +158,7 @@ public sealed class ClassResource
 
     public void Update(double dt)
     {
+        Partner?.Update(dt);
         _sinceCombat += dt;
         _sinceMoved += dt;
         if (Kind == ResourceKind.Fury)
@@ -152,7 +185,11 @@ public sealed class ClassResource
     internal void Restore(double value) => Current = Math.Clamp(value, 0, Max);
 
     /// <summary>Back to the starting value: empty Fury, Momentum and Devotion, full Mana (respawning at a shrine).</summary>
-    public void Reset() => Current = StartsEmpty ? 0 : Max;
+    public void Reset()
+    {
+        Partner?.Reset();
+        Current = StartsEmpty ? 0 : Max;
+    }
 }
 
 public enum ResourceKind

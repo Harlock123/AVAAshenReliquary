@@ -111,6 +111,9 @@ public sealed record SaveGame
 
     /// <summary>The Necromancer's Grave Charges (its skeletons are not kept: they crumble when the game is left).</summary>
     public int GraveCharges { get; init; }
+
+    /// <summary>A multiclass dedication's pool (a Fighter's Mana), or null without one.</summary>
+    public double? DedicationResource { get; init; }
     public List<string> BarOffered { get; init; } = [];
 
     /// <summary>The explored map cells (base64 bitset); missing in older saves, which start unexplored.</summary>
@@ -192,6 +195,7 @@ public sealed record SaveGame
             BarOffered = world.BarOffered.ToList(),
             CompanionHitPoints = world.Companion?.Creature.HitPoints,
             GraveCharges = world.GraveCharges,
+            DedicationResource = world.Hero.Dedication?.Current,
             PlaySeconds = playSeconds,
         };
     }
@@ -264,6 +268,8 @@ public sealed record SaveGame
         if (CompanionHitPoints is { } companion)
             world.RestoreCompanion(companion);
         world.RestoreGraveCharges(GraveCharges);
+        if (DedicationResource is { } pool)
+            world.RestoreDedication(pool);
 
         if (ZoneRevision != zone.Revision)
         {

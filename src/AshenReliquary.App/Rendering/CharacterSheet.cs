@@ -123,6 +123,15 @@ internal sealed class CharacterSheet
                 new($"Class {c.Class.PreyDiceAt(c.Level)}d8 (more at 11, 19){(c.PreyDiceBonus > 0 ? $" + feats {c.PreyDiceBonus}d8" : "")}.", Palette.Dim),
             ]);
         }
+        if (c.Dedication is { } dedication)
+        {
+            Line("Dedication", c.DedicationClass?.Name ?? dedication.Name, () =>
+            [
+                new(dedication.Name, Palette.Ink, null, true),
+                .. Hud.Wrap(dedication.Description, Palette.Dim),
+                new("One dedication per character; a respec at the Lantern altar frees it.", Palette.Dim),
+            ]);
+        }
         if (c.UndeadBane > 0)
         {
             Line("Undead bane", $"+{c.UndeadBane}", () =>

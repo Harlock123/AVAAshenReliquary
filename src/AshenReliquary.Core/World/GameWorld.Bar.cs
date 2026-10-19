@@ -63,6 +63,7 @@ public sealed partial class GameWorld
     /// </summary>
     private void RefreshBar()
     {
+        RefreshDedication();
         var c = Hero.Character;
         var known = new List<(AbilityDefinition Ability, string? Home)>();
         foreach (var (slot, ability) in _classBar)
