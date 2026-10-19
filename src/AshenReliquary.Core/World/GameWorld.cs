@@ -965,6 +965,7 @@ public sealed partial class GameWorld
         if (Hero.Equipment.BagVersion != _beltBagVersion)
             RefreshBelt();
         UpdateWard();
+        UpdateAuras();
         var (wasX, wasY) = (Hero.X, Hero.Y);
         UpdateHero(dt);
         // Movement builds Momentum (not a jump to a shrine or another zone).
@@ -1286,8 +1287,8 @@ public sealed partial class GameWorld
             return ability.IsFlourish && Hero.FlourishReadyAt > Time && Hero.ReadyAt.GetValueOrDefault(ability.Id) <= Time
                 ? $"{ability.Name}: another Flourish was used ({cooldown:0.0} s)."
                 : $"{ability.Name} is not ready ({cooldown:0.0} s).";
-        if (!Hero.Resource.CanSpend(ability.Cost))
-            return $"Not enough {Hero.Resource.Name} for {ability.Name} ({ability.Cost:0}).";
+        if (!CanAfford(ability))
+            return $"Not enough {(ability.CostsTaint ? "Taint" : Hero.Resource.Name)} for {ability.Name} ({ability.Cost:0}).";
         if (ability.NeedsTwoHanded && !WieldsTwoHanded)
             return $"{ability.Name} needs a two-handed weapon.";
         if (ability.NeedsRanged && !Shoots)
@@ -1612,7 +1613,7 @@ public sealed partial class GameWorld
         }
         if (result.Damage > 0)
         {
-            var damage = DamageMonster(target, result.Damage + (critical ? Hero.Character.CritDamageBonus : 0));
+            var damage = DamageMonster(target, result.Damage + (critical ? Hero.Character.CritDamageBonus : 0) + ChampionStrikeExtra(target, critical));
             Hero.Resource.OnCombat(critical, builds: buildsFury);
             if (critical)
                 HeroCrits++;
@@ -1976,9 +1977,13 @@ public sealed partial class GameWorld
         {
             if (result.Degree == DegreeOfSuccess.CriticalSuccess)
                 HeroCritsTaken++;
-            var dealt = ShieldBlock(result.Damage, m);
+            // Devotion builds on every blow taken, blocked or not.
+            var dealt = AuraSoak(ShieldBlock(result.Damage, m), Hero);
             if (dealt <= 0)
+            {
+                Hero.Resource.OnCombat(taken: true);
                 return;
+            }
             Sound(SoundCue.HeroHurt, Hero);
             if (!HurtHero(dealt))
                 return;
@@ -2000,7 +2005,7 @@ public sealed partial class GameWorld
     /// carried (the pilgrim's lantern adds 2.5).
     /// </summary>
     public double HeroLightRadius =>
-        Zone.HeroLight + Hero.Equipment.Bag.OfType<Item>().Concat(Hero.Equipment.Worn.Values).Select(i => i.Definition.LightRadius).DefaultIfEmpty(0).Max();
+        Zone.HeroLight + Hero.Character.LightBonus + Hero.Equipment.Bag.OfType<Item>().Concat(Hero.Equipment.Worn.Values).Select(i => i.Definition.LightRadius).DefaultIfEmpty(0).Max();
 
     /// <summary>
     /// Whether a point can be seen: within the hero's light or a fixed light of the zone (torches, braziers, shrines are
@@ -2113,6 +2118,7 @@ public sealed partial class GameWorld
     private void HeroDied()
     {
         ClearRogueState();
+        EndAuras();
         Hero.Play("die", restart: true);
         Hero.RespawnIn = RespawnSeconds;
         Sound(SoundCue.Death, Hero);

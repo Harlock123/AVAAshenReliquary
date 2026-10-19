@@ -364,9 +364,12 @@ public sealed partial class GameWorld
             Float(ally, "miss", FloatingTextKind.Miss);
             return;
         }
-        ally.Creature.TakeDamage(result.Damage);
+        var dealt = AuraSoak(result.Damage, ally);
+        if (dealt <= 0)
+            return;
+        ally.Creature.TakeDamage(dealt);
         ally.HitFlinch = 0.15;
-        Float(ally, result.Damage.ToString(), FloatingTextKind.AllyHurt);
+        Float(ally, dealt.ToString(), FloatingTextKind.AllyHurt);
         if (!ally.IsDead)
             return;
         ally.ReturnIn = AllyReturnSeconds;

@@ -90,7 +90,12 @@ shoot animation. **Marksman** (piercing shots, crit chains) and **Beastmaster**:
 line, which needs the ally framework: an ally actor with AI (follow, attack the hero's target, its own health),
 saved with the hero, healed at shrines, brought back after it falls. Starting abilities: Hunt Prey, Twin Shot.
 
-### 4. The Champion
+### 4. The Champion — done 2026-10-19
+
+Built as below (spec section 16, "The Champion and auras"). Learned on the way: in Pathfinder vitality harms only the
+undead, so creatures now say whether they are undead, and the Lanternbearer's light burns the living with fire instead;
+the class's shield needed raising to count, so Shield of Faith raises it. The Champion plays strong in the bots' hands
+(every duel with Mother Sallow won at level 4); step 9 looks at it with the Beastmaster.
 
 Devotion (builds while hit, spent on auras). All armour and shields. Auras: an effect in a radius round the hero,
 ticking on enemies or on the hero and allies. **Lanternbearer** (light auras, healing, undead bane) and

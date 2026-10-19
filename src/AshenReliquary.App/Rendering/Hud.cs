@@ -143,6 +143,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             ResourceKind.Fury => (new SKColor(120, 40, 10), new SKColor(255, 140, 50)),
             ResourceKind.Momentum => (new SKColor(14, 80, 64), new SKColor(90, 230, 170)),
             ResourceKind.Focus => (new SKColor(60, 80, 20), new SKColor(190, 225, 90)),
+            ResourceKind.Devotion => (new SKColor(84, 60, 12), new SKColor(205, 160, 52)),
             _ => (new SKColor(20, 40, 130), new SKColor(90, 150, 255)),
         };
         Orb(canvas, res, orbRadius, (float)(resource.Current / resource.Max), deep, bright);
@@ -163,6 +164,13 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 new($"+{ClassResource.MomentumPerTile:0} a tile you move, +{ClassResource.MomentumPerHit + perHit:0} per hit, +{ClassResource.MomentumPerCrit + perHit:0} per critical.", Dim),
                 new($"Out of a fight, moving builds it only to {ClassResource.MomentumRunningStart:0}: a running start.", Dim),
                 new($"Drains {ClassResource.MomentumDecayPerSecond:0} a second once you stand still out of a fight.", Dim),
+            ],
+            ResourceKind.Devotion =>
+            [
+                new("Devotion", bright, $"{resource.Current:0} / {resource.Max:0}", true),
+                new($"+{ClassResource.DevotionWhenHit:0} for every blow you take (blocked or not), +{ClassResource.DevotionPerHit + perHit:0} per hit, +{ClassResource.DevotionPerCrit + perHit:0} per critical.", Dim),
+                new("Spent on Lay on Hands, Smite and your auras.", Dim),
+                new($"Drains {ClassResource.DevotionDecayPerSecond:0} a second after {ClassResource.DevotionDecayDelay:0} s out of a fight.", Dim),
             ],
             _ =>
             [
@@ -185,6 +193,13 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             new("At 50%: −1 to all saves. At 100%: the whispers turn you", Dim),
             new("around for 2 s. Shrines cleanse it.", Dim),
             new($"Your rate: ×{c.Taint.RateMultiplier:0.00} (ancestry and CON).", Dim),
+            .. (c.TaintFuel
+                ? new TipLine[]
+                {
+                    new($"Oathbreaker: each hit adds {GameWorld.OathTaintPerHit:0}; your Strikes drain {(int)(c.Taint.Value / GameWorld.TaintPerDrain)} (1 per {GameWorld.TaintPerDrain:0}).", new SKColor(180, 230, 80)),
+                    new("Aura of Dread is paid for out of it.", Dim),
+                }
+                : []),
         ], new SKColor(140, 200, 70));
 
         DrawAbilityBar(canvas, size, world, tiny);
@@ -322,12 +337,24 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         {
             var wardLeft = ward.EndsAt - world.Time;
             var blockIn = world.ShieldBlockReadyIn;
-            items.Add((ward.Ability.Id, Good, $"+{ward.AcBonus}", $"{wardLeft:0.0}s", () =>
+            // A shield raised by Shield of Faith shows as a raised shield, beside the aura's own badge.
+            var raised = ward.Ability.NeedsShield || ward.Ability.RaisesShield;
+            items.Add((ward.Ability.RaisesShield ? "raise_shield" : ward.Ability.Id, Good, $"+{ward.AcBonus}", $"{wardLeft:0.0}s", () =>
             [
-                new(ward.Ability.NeedsShield ? "Shield raised" : "Shield", Good, $"{wardLeft:0.0}s", true),
+                new(raised ? "Shield raised" : "Shield", Good, $"{wardLeft:0.0}s", true),
                 new($"+{ward.AcBonus} circumstance bonus to AC.", Dim),
                 new(blockIn > 0 ? $"Shield Block recovers in {blockIn:0.0} s." : $"Shield Block ready: the next blow loses {ward.Hardness}.", blockIn > 0 ? Dim : Good),
                 .. (ward.Ability.BlockLockout > 0 ? [new TipLine($"Once it blocks, the ward breaks for {ward.Ability.BlockLockout:0} s.", Dim)] : Array.Empty<TipLine>()),
+            ], Good));
+        }
+        foreach (var aura in world.Auras)
+        {
+            var (ability, auraLeft) = (aura.Ability, aura.EndsAt - world.Time);
+            var rank = AbilityDefinition.SpellRank(c.Level);
+            items.Add((ability.Id, Good, null, $"{auraLeft:0}s", () =>
+            [
+                new(ability.Name, Good, $"{auraLeft:0} s", true),
+                .. AuraLines(ability, rank, c),
             ], Good));
         }
         if (hero.IsHidden)
@@ -461,7 +488,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                     canvas.DrawText($"{remaining:0.0}", rect.MidX, rect.MidY + 6, SKTextAlign.Center, big, stroke);
                     canvas.DrawText($"{remaining:0.0}", rect.MidX, rect.MidY + 6, SKTextAlign.Center, big, ink);
                 }
-                else if (!world.Hero.Resource.CanSpend(ability.Cost))
+                else if (!world.CanAfford(ability))
                 {
                     canvas.DrawRect(rect, shade);
                 }
@@ -525,7 +552,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         var rank = AbilityDefinition.SpellRank(c.Level);
         var lines = new List<TipLine> { new(a.Name, Gold, key, true) };
         var facts = new List<string> { $"{a.Actions} action{(a.Actions == 1 ? "" : "s")}" };
-        if (a.Cost > 0) facts.Add($"{a.Cost:0} {world.Hero.Resource.Name}");
+        if (a.Cost > 0) facts.Add($"{a.Cost:0} {(a.CostsTaint ? "Taint" : world.Hero.Resource.Name)}");
         if (a.Cooldown > 0) facts.Add($"{a.Cooldown:0} s cooldown");
         if (a.Range > 0) facts.Add($"range {a.Range:0}");
         lines.Add(new(string.Join(" · ", facts), Ink));
@@ -564,6 +591,13 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             case AbilityKind.Trap:
                 lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, radius {a.Radius:0.#}, class DC {c.ClassDc().Total}", Good));
                 break;
+            case AbilityKind.Heal:
+                lines.Add(new($"Now (rank {rank}): heals {(int)Math.Round(a.HealAt(rank) * (1 + c.HealShare))} HP{(world.Allies.Count > 0 ? $", allies within {a.Radius:0.#} tiles too" : "")}", Good));
+                break;
+            case AbilityKind.Aura:
+                lines.Add(new($"Now (rank {rank}), {a.BuffSeconds:0} s, radius {a.Radius:0.#}:", Good));
+                lines.AddRange(AuraLines(a, rank, c));
+                break;
             case AbilityKind.SpellBolt:
                 lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, spell attack {c.SpellAttack().Total:+0}", Good));
                 break;
@@ -584,11 +618,32 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                     lines.Add(new($"Your {world.Hero.Resource.Current:0} {world.Hero.Resource.Name} buys {spent} extra {(spent == 1 ? "die" : "dice")}.", Dim));
                 if (a.UsesWeapon && c.SneakAttackDice > 0)
                     lines.Add(new($"Sneak attack +{c.SneakAttackDice}d6 against an off-guard target.", Dim));
+                if (a.UsesWeapon && c.UndeadBane > 0)
+                    lines.Add(new($"Undead bane: +{c.UndeadBane} vitality against the undead.", Dim));
+                if (a.UsesWeapon && c.TaintFuel)
+                    lines.Add(new($"Taint drain: +{(int)(c.Taint.Value / GameWorld.TaintPerDrain)} Taint, healing you as much.", Dim));
                 if (a.UsesWeapon && a.WeaponPersistentAt(c.Level) is { } wound)
                     lines.Add(new($"On a hit: {wound} persistent {a.DamageType.ToString().ToLowerInvariant()}.", Dim));
                 break;
         }
         return lines;
+    }
+
+    /// <summary>What an aura does now, line by line (its tooltip and the buff's).</summary>
+    private static IEnumerable<TipLine> AuraLines(AbilityDefinition a, int rank, Core.Characters.Character c)
+    {
+        if (a.AuraAc > 0)
+            yield return new($"+{a.AuraAc} status bonus to AC and saves.", Dim);
+        if (a.AuraSoakAt(rank) is > 0 and var soak)
+            yield return new($"Every blow at you or an ally within loses {soak}.", Dim);
+        if (a.RaisesShield)
+            yield return new("Your shield is raised for as long.", Dim);
+        if (a.Dice is not null)
+            yield return new($"Every {GameWorld.AuraTickSeconds:0} s: {a.AuraDiceAt(rank)} {(a.Holy ? "vitality to the undead, fire to the living" : a.DamageType.ToString().ToLowerInvariant())}, basic {a.Save} save (class DC {c.ClassDc().Total}).", Dim);
+        if (a.Drain > 0)
+            yield return new($"{a.Drain:0%} of what it deals heals you.", Dim);
+        if (a.AuraHealAt(rank) is > 0 and var heal)
+            yield return new($"Every {GameWorld.AuraTickSeconds:0} s: you and your allies within heal {heal}.", Dim);
     }
 
     private static SKColor AbilityTint(AbilityDefinition a) => a.DamageType switch

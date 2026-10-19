@@ -14,7 +14,9 @@ namespace AshenReliquary.Core.World;
 /// (<see cref="Upkeep"/>, between fights too) and throw a bomb at a champion. Subclass abilities go off against a crowd:
 /// a Vanguard's Earthshaker, a Bulwark's Challenge, a Pyromancer's Burning Hands, a Stormcaller's Thunderclap. The ranger
 /// hunts its target, springs away from anything in melee (the only bot that keeps its distance), sends its wolf, and
-/// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot.
+/// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot. The champion keeps Shield of Faith up in a fight,
+/// lays on hands when hurt, raises its subclass's aura with enemies close (the Oathbreaker's too when its Taint runs
+/// high, to spend it before the whispers), and Smites with what Devotion is left over.
 /// </summary>
 public static class Tactics
 {
@@ -32,7 +34,7 @@ public static class Tactics
         bool Ready(string id, out string slot)
         {
             slot = world.SlotOf(id)!;
-            return slot is not null && world.Bar.TryGetValue(slot, out var a) && resource.CanSpend(a.Cost) && world.CooldownRemaining(a) <= 0;
+            return slot is not null && world.Bar.TryGetValue(slot, out var a) && world.CanAfford(a) && world.CooldownRemaining(a) <= 0;
         }
         int Within(double tiles) => world.Monsters.Count(m => !m.IsDead && m.DistanceTo(hero) <= tiles + m.Radius);
         var distance = target.DistanceTo(hero);
@@ -103,6 +105,24 @@ public static class Tactics
                 world.UseSlot(slot, target);
             else if (Ready("sneak_strike", out slot) && distance < 1.6 && (resource.Current < 60 || world.SlotOf("eviscerate") is null)
                      && !world.IsOffGuardToHero(target))
+                world.UseSlot(slot, target);
+            else if (hero.CurrentTarget != target)
+                world.Attack(target);
+        }
+        else if (classId == "champion")
+        {
+            bool Up(string id) => world.Auras.Any(a => a.Ability.Id == id && a.EndsAt - world.Time > 1);
+            var c = hero.Character;
+            if (c.HitPoints < c.MaxHitPoints * 0.55 && Ready("lay_on_hands", out slot))
+                world.UseSlot(slot, null);
+            else if (!Up("shield_of_faith") && distance < 4 && Ready("shield_of_faith", out slot))
+                world.UseSlot(slot, null);
+            else if (!Up("lanterns_radiance") && Within(2.4) >= 1 && Ready("lanterns_radiance", out slot))
+                world.UseSlot(slot, null);
+            else if ((!Up("aura_of_dread") && Within(2.8) >= 1 || c.Taint.Value >= 80) && Ready("aura_of_dread", out slot))
+                world.UseSlot(slot, null);
+            // Devotion is kept for Lay on Hands and the auras; what is over goes on Smite.
+            else if (Ready("smite", out slot) && distance < 1.6 && resource.Current >= 50)
                 world.UseSlot(slot, target);
             else if (hero.CurrentTarget != target)
                 world.Attack(target);

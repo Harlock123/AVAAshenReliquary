@@ -43,6 +43,9 @@ public enum FeatType
 /// <see cref="Ability"/>: that ability's arrows do), <see cref="CritResource"/> back on a critical hit with a bow,
 /// <see cref="WeaponRange"/> more tiles for a bow, <see cref="PreyDice"/> more Hunt Prey dice. <see cref="Companion"/>:
 /// an animal companion (a creature id) fights beside the hero; <see cref="CompanionGrowth"/> makes it stronger.</item>
+/// <item>The Champion's: <see cref="UndeadBane"/> vitality damage on Strikes against the undead; <see cref="HealShare"/>:
+/// Lay on Hands heals that share more; <see cref="Light"/> tiles of light round the hero; <see cref="TaintFuel"/>: the
+/// Oathbreaker's hits fill the Taint meter, and its Strikes drain life by how full it is.</item>
 /// </list>
 /// </summary>
 public sealed record FeatEffect(
@@ -82,7 +85,11 @@ public sealed record FeatEffect(
     double WeaponRange = 0,
     int PreyDice = 0,
     string? Companion = null,
-    int CompanionGrowth = 0)
+    int CompanionGrowth = 0,
+    int UndeadBane = 0,
+    double HealShare = 0,
+    double Light = 0,
+    bool TaintFuel = false)
 {
     /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
     public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0

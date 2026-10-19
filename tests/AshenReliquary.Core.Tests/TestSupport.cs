@@ -78,14 +78,29 @@ internal static class TestCharacters
         return hero;
     }
 
+    /// <summary>Human Lantern Acolyte Champion: STR +4, DEX +1, CON +2, INT +0, WIS +1, CHA +1.</summary>
+    public static Character Champion(string? subclass = null)
+    {
+        var hero = CharacterBuilder.Create(Content, new CharacterChoices(
+            "Ashbound", "human", "lantern-acolyte", "champion", AttributeKind.Strength,
+            AncestryFreeBoosts: [AttributeKind.Strength, AttributeKind.Constitution],
+            BackgroundBoost: AttributeKind.Charisma,
+            BackgroundFreeBoost: AttributeKind.Strength,
+            FreeBoosts: [AttributeKind.Strength, AttributeKind.Constitution, AttributeKind.Dexterity, AttributeKind.Wisdom],
+            AncestryFeat: "cooperative_nature"));
+        if (subclass is not null)
+            hero.ChooseSubclass(subclass);
+        return hero;
+    }
+
     /// <summary>
-    /// The hero for a report's kit: "fighter", "wizard", "rogue", "ranger", or a class and a subclass ("fighter vanguard"), which
+    /// The hero for a report's kit: "fighter", "wizard", "rogue", "ranger", "champion", or a class and a subclass ("fighter vanguard"), which
     /// is then taken as a new character would at creation.
     /// </summary>
     public static Character ForKit(string kit)
     {
         var words = kit.Split(' ');
-        var hero = words[0] switch { "wizard" => Wizard(), "rogue" => Rogue(), "ranger" => Ranger(), _ => Fighter() };
+        var hero = words[0] switch { "wizard" => Wizard(), "rogue" => Rogue(), "ranger" => Ranger(), "champion" => Champion(), _ => Fighter() };
         if (words.Length > 1 && hero.SubclassOptions.Any(s => s.Id == words[1]))
             hero.ChooseSubclass(words[1]);
         return hero;

@@ -118,8 +118,11 @@ public sealed record CreatureDefinition(
     BossDefinition? Boss = null,
     double HitPointsScale = 1.0,
     bool Named = false,
-    bool RareDrop = false)
+    bool RareDrop = false,
+    bool Undead = false)
 {
+    // Undead: the walking dead (the Lanternbearer's undead bane and holy light burn them with vitality).
+
     [JsonIgnore]
     public bool IsSpawner => Summons is not null;
 

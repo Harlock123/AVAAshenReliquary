@@ -722,5 +722,119 @@
    "Auditory"
   ],
   "description": "Send your wolf at a monster within 10 tiles: it bounds there and bites with one more damage die, knocking its target prone for 1.5 s on a hit. 10 Focus, 8 s cooldown."
+ },
+ {
+  "id": "champion_strike",
+  "name": "Strike",
+  "class": "champion",
+  "slot": "lmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "repeat": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Attack with your weapon. Builds a little Devotion on a hit; the blows you take build more."
+ },
+ {
+  "id": "smite",
+  "name": "Smite",
+  "class": "champion",
+  "slot": "rmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cost": 10,
+  "extraDice": 1,
+  "traits": [
+   "Attack",
+   "Divine"
+  ],
+  "description": "A blow driven by your oath: one more weapon damage die (2 at level 10, 3 at 18). 10 Devotion."
+ },
+ {
+  "id": "lay_on_hands",
+  "name": "Lay on Hands",
+  "class": "champion",
+  "slot": "1",
+  "kind": "Heal",
+  "actions": 1,
+  "cost": 20,
+  "cooldown": 6,
+  "heal": 6,
+  "radius": 3,
+  "traits": [
+   "Champion",
+   "Healing",
+   "Vitality"
+  ],
+  "description": "Your hands mend wounds: you, and every ally within 3 tiles, heal 6 HP a spell rank. 20 Devotion, 6 s cooldown."
+ },
+ {
+  "id": "shield_of_faith",
+  "name": "Shield of Faith",
+  "class": "champion",
+  "slot": "2",
+  "kind": "Aura",
+  "actions": 1,
+  "cost": 20,
+  "buffSeconds": 15,
+  "radius": 3,
+  "auraAc": 1,
+  "soak": 2,
+  "raisesShield": true,
+  "traits": [
+   "Aura",
+   "Champion"
+  ],
+  "description": "An aura of faith for 15 s: +1 status bonus to AC and saves, and every blow at you or an ally within 3 tiles loses 2 damage (one more every two spell ranks). A shield in your off hand is raised for as long: its AC, and Shield Block. 20 Devotion."
+ },
+ {
+  "id": "lanterns_radiance",
+  "name": "Lantern's Radiance",
+  "class": "champion",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Aura",
+  "actions": 1,
+  "cost": 25,
+  "buffSeconds": 12,
+  "radius": 2.5,
+  "dice": "1d4",
+  "save": "Fortitude",
+  "holy": true,
+  "auraHeal": 1,
+  "traits": [
+   "Aura",
+   "Champion",
+   "Light"
+  ],
+  "description": "Holy light for 12 s: every 2 s each enemy within 2.5 tiles takes 1d4 (a die more every two spell ranks) against a basic Fortitude save, vitality to the undead and fire to the living, and you and your allies within heal 1 (one more every two ranks). 25 Devotion."
+ },
+ {
+  "id": "aura_of_dread",
+  "name": "Aura of Dread",
+  "class": "champion",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Aura",
+  "actions": 1,
+  "cost": 20,
+  "costsTaint": true,
+  "buffSeconds": 12,
+  "radius": 3,
+  "dice": "1d6",
+  "save": "Will",
+  "damageType": "Taint",
+  "drain": 0.5,
+  "onHit": "Frightened",
+  "onHitValue": 1,
+  "traits": [
+   "Aura",
+   "Champion",
+   "Fear",
+   "Emotion",
+   "Mental"
+  ],
+  "description": "Your broken oath spills out for 12 s: every 2 s each enemy within 3 tiles takes 1d6 Taint (a die more every two spell ranks) against a basic Will save, frightened 1 on a failure (2 on a critical failure), and half of what it deals heals you. Paid with 20 of your Taint meter, not Devotion."
  }
 ]

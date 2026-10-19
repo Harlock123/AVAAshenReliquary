@@ -30,6 +30,8 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("rogue trickster")]
     [InlineData("ranger marksman")]
     [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
     public void Act_1_from_the_gallows_to_Mother_Sallow(string kit)
     {
         for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
@@ -245,10 +247,12 @@ public class CampaignReport(ITestOutputHelper output)
                 var d = item.Definition;
                 if (d.IsWeapon && (classId == "wizard" ? !d.CasterFocus : classId == "ranger" ? !d.Ranged : d.CasterFocus || d.Ranged))
                     continue; // a ranger keeps to bows
-                if (d.IsShield && classId != "fighter" || d.IsShield && Subclass == "vanguard")
+                if (d.IsShield && classId is not ("fighter" or "champion") || d.IsShield && Subclass == "vanguard")
                     continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands; a rogue never raises one
                 if (d.IsWeapon && classId == "rogue" && d.Traits?.Any(t => t is WeaponTrait.Agile or WeaponTrait.Finesse) != true)
                     continue; // sneak attack needs an agile or finesse blade
+                if (d.IsWeapon && classId == "champion" && d.IsTwoHanded)
+                    continue; // a champion keeps sword and shield
                 if (d.IsWeapon && classId == "fighter" && d.IsTwoHanded != (Subclass == "vanguard"))
                     continue; // a Vanguard fights two-handed, a Bulwark with sword and shield
                 if (d.IsBodyArmor && gear.In(EquipSlot.Chest) is { } chest && chest.Definition.ArmorCategory != d.ArmorCategory)

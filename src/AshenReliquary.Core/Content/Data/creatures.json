@@ -15,7 +15,8 @@
   "immunities": [
    "Poison"
   ],
-  "voice": "zombie"
+  "voice": "zombie",
+  "undead": true
  },
  {
   "id": "drowned_dead",
@@ -36,7 +37,8 @@
   "immunities": [
    "Poison"
   ],
-  "voice": "skeleton"
+  "voice": "skeleton",
+  "undead": true
  },
  {
   "id": "grave_knight",
@@ -57,7 +59,8 @@
   "immunities": [
    "Poison"
   ],
-  "voice": "skeleton"
+  "voice": "skeleton",
+  "undead": true
  },
  {
   "id": "bone_archer",
@@ -79,7 +82,8 @@
   "immunities": [
    "Poison"
   ],
-  "voice": "skeleton"
+  "voice": "skeleton",
+  "undead": true
  },
  {
   "id": "bog_witch",
@@ -100,7 +104,8 @@
   "immunities": [
    "Poison"
   ],
-  "voice": "skeleton"
+  "voice": "skeleton",
+  "undead": true
  },
  {
   "id": "cursed_grave",
@@ -222,7 +227,8 @@
   "voice": "skeleton",
   "named": true,
   "rareDrop": true,
-  "hitPointsScale": 0.7
+  "hitPointsScale": 0.7,
+  "undead": true
  },
  {
   "id": "mother_sallow",

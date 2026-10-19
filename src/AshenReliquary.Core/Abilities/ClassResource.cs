@@ -7,7 +7,8 @@ namespace AshenReliquary.Core.Abilities;
 /// The class resource abilities spend. Fury (Fighter) starts empty, builds when you hit or are hit and drains
 /// after a few seconds out of combat. Mana (casters) starts full and regenerates with INT and level. Momentum (Rogue)
 /// starts empty and builds as the hero moves (only up to a running start out of a fight) and on hits, crits most; it
-/// drains once the hero stands still out of a fight.
+/// drains once the hero stands still out of a fight. Devotion (Champion) starts empty and builds most from the blows the
+/// hero takes (blocked or not) and a little from their own hits; it drains slowly once a fight is over.
 /// </summary>
 public sealed class ClassResource
 {
@@ -24,6 +25,11 @@ public sealed class ClassResource
     public const double MomentumRunningStart = 30;
     public const double MomentumDecayDelay = 3;
     public const double MomentumDecayPerSecond = 10;
+    public const double DevotionWhenHit = 10;
+    public const double DevotionPerHit = 4;
+    public const double DevotionPerCrit = 8;
+    public const double DevotionDecayDelay = 6;
+    public const double DevotionDecayPerSecond = 5;
 
     /// <summary>Seconds after the last blow struck or taken that the hero still counts as in a fight.</summary>
     public const double CombatSeconds = 5;
@@ -38,6 +44,7 @@ public sealed class ClassResource
         Kind = character.Class.Resource.StartsWith("Fury", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Fury
             : character.Class.Resource.StartsWith("Mana", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Mana
             : character.Class.Resource.StartsWith("Momentum", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Momentum
+            : character.Class.Resource.StartsWith("Devotion", StringComparison.OrdinalIgnoreCase) ? ResourceKind.Devotion
             : ResourceKind.Focus;
         Current = StartsEmpty ? 0 : Max;
     }
@@ -46,15 +53,15 @@ public sealed class ClassResource
     public string Name => Kind.ToString();
     public double Current { get; private set; }
 
-    /// <summary>Fury and Momentum start empty and are built in a fight; Mana and Focus start full and regenerate.</summary>
-    public bool StartsEmpty => Kind is ResourceKind.Fury or ResourceKind.Momentum;
+    /// <summary>Fury, Momentum and Devotion start empty and are built in a fight; Mana and Focus start full and regenerate.</summary>
+    public bool StartsEmpty => Kind is ResourceKind.Fury or ResourceKind.Momentum or ResourceKind.Devotion;
 
     /// <summary>Whether a blow was struck or taken in the last <see cref="CombatSeconds"/>.</summary>
     public bool InCombat => _sinceCombat < CombatSeconds;
 
     public double Max => Kind switch
     {
-        ResourceKind.Fury or ResourceKind.Momentum => 100,
+        ResourceKind.Fury or ResourceKind.Momentum or ResourceKind.Devotion => 100,
         _ => 20 + 5 * _character.Level + 4 * Math.Max(0, _character.Attributes[_character.KeyAttribute]),
     };
 
@@ -73,18 +80,23 @@ public sealed class ClassResource
     }
 
     /// <summary>
-    /// A hit landed (or, with <paramref name="taken"/>, a hit received): Fury builds, and Momentum on the hero's own
-    /// hits (most on a critical). A graze builds half as much; with <paramref name="builds"/> false (a sweep's other
-    /// targets) the fight is only kept going. Gear's and feats' "per hit" adds to either.
+    /// A hit landed (or, with <paramref name="taken"/>, a hit received): Fury builds, Momentum on the hero's own
+    /// hits (most on a critical), and Devotion most from blows taken. A graze builds half as much; with
+    /// <paramref name="builds"/> false (a sweep's other targets) the fight is only kept going. Gear's and feats' "per
+    /// hit" adds to the hero's own hits.
     /// </summary>
     public void OnCombat(bool critical = false, bool taken = false, bool graze = false, bool builds = true)
     {
         _sinceCombat = 0;
-        if (!builds || Kind is not (ResourceKind.Fury or ResourceKind.Momentum) || (taken && Kind == ResourceKind.Momentum))
+        if (!builds || Kind is not (ResourceKind.Fury or ResourceKind.Momentum or ResourceKind.Devotion) || (taken && Kind == ResourceKind.Momentum))
             return;
         var perHit = _character.Gear.FuryPerHit + _character.FuryPerHitBonus;
-        var gain = Kind == ResourceKind.Momentum ? (critical ? MomentumPerCrit : MomentumPerHit) + perHit
-            : taken ? FuryWhenHit : (critical ? FuryPerCrit : FuryPerHit) + perHit;
+        var gain = Kind switch
+        {
+            ResourceKind.Momentum => (critical ? MomentumPerCrit : MomentumPerHit) + perHit,
+            ResourceKind.Devotion => taken ? DevotionWhenHit : (critical ? DevotionPerCrit : DevotionPerHit) + perHit,
+            _ => taken ? FuryWhenHit : (critical ? FuryPerCrit : FuryPerHit) + perHit,
+        };
         Current = Math.Min(Max, Current + (graze ? gain / 2 : gain));
     }
 
@@ -121,6 +133,11 @@ public sealed class ClassResource
             if (_sinceCombat > FuryDecayDelay)
                 Current = Math.Max(0, Current - FuryDecayPerSecond * dt);
         }
+        else if (Kind == ResourceKind.Devotion)
+        {
+            if (_sinceCombat > DevotionDecayDelay)
+                Current = Math.Max(0, Current - DevotionDecayPerSecond * dt);
+        }
         else if (Kind == ResourceKind.Momentum)
         {
             if (_sinceCombat > MomentumDecayDelay && _sinceMoved > MomentumDecayDelay)
@@ -134,7 +151,7 @@ public sealed class ClassResource
 
     internal void Restore(double value) => Current = Math.Clamp(value, 0, Max);
 
-    /// <summary>Back to the starting value: empty Fury and Momentum, full Mana (respawning at a shrine).</summary>
+    /// <summary>Back to the starting value: empty Fury, Momentum and Devotion, full Mana (respawning at a shrine).</summary>
     public void Reset() => Current = StartsEmpty ? 0 : Max;
 }
 
@@ -144,4 +161,5 @@ public enum ResourceKind
     Mana,
     Focus,
     Momentum,
+    Devotion,
 }

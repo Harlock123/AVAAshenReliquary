@@ -252,6 +252,48 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "champion_strike",
+  "file": "champion_strike.png",
+  "source": "https://game-icons.net/1x1/delapouite/sword-brandish.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "smite",
+  "file": "smite.png",
+  "source": "https://game-icons.net/1x1/lorc/shining-sword.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "lay_on_hands",
+  "file": "lay_on_hands.png",
+  "source": "https://game-icons.net/1x1/delapouite/healing.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "shield_of_faith",
+  "file": "shield_of_faith.png",
+  "source": "https://game-icons.net/1x1/lorc/checked-shield.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "lanterns_radiance",
+  "file": "lanterns_radiance.png",
+  "source": "https://game-icons.net/1x1/lorc/lantern-flame.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "aura_of_dread",
+  "file": "aura_of_dread.png",
+  "source": "https://game-icons.net/1x1/lorc/death-zone.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",

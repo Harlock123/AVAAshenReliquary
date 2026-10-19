@@ -123,6 +123,27 @@ internal sealed class CharacterSheet
                 new($"Class {c.Class.PreyDiceAt(c.Level)}d8 (more at 11, 19){(c.PreyDiceBonus > 0 ? $" + feats {c.PreyDiceBonus}d8" : "")}.", Palette.Dim),
             ]);
         }
+        if (c.UndeadBane > 0)
+        {
+            Line("Undead bane", $"+{c.UndeadBane}", () =>
+            [
+                new("Undead bane", Palette.Ink, $"+{c.UndeadBane} vitality", true),
+                new("Added to every Strike that hits one of the undead,", Palette.Dim),
+                new("doubled on a critical hit; their weakness to vitality adds to it.", Palette.Dim),
+                new("1 (2 at level 9, 3 at 17).", Palette.Dim),
+            ]);
+        }
+        if (c.TaintFuel)
+        {
+            var drain = (int)(c.Taint.Value / GameWorld.TaintPerDrain);
+            Line("Taint drain", $"+{drain}", () =>
+            [
+                new("Taint drain", Palette.Ink, $"+{drain} Taint", true),
+                new($"Each hit adds {GameWorld.OathTaintPerHit:0} to your Taint meter; your Strikes deal", Palette.Dim),
+                new($"1 Taint for every {GameWorld.TaintPerDrain:0} in it and heal you as much.", Palette.Dim),
+                new("Aura of Dread is paid for out of the meter.", Palette.Dim),
+            ]);
+        }
         if (c.SneakAttackDice > 0)
         {
             Line("Sneak attack", $"{c.SneakAttackDice}d6", () =>

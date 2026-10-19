@@ -28,6 +28,9 @@ ICONS = {
     "ranger_strike": "lorc/arrow-flights", "twin_shot": "lorc/double-shot", "hunt_prey": "lorc/archery-target",
     "disengage": "delapouite/jump-across", "aimed_shot": "lorc/supersonic-arrow", "piercing_shot": "lorc/arrow-cluster",
     "sic": "lorc/wolf-howl",
+    # The Champion (M3): class abilities, the Lanternbearer's and the Oathbreaker's auras
+    "champion_strike": "delapouite/sword-brandish", "smite": "lorc/shining-sword", "lay_on_hands": "delapouite/healing",
+    "shield_of_faith": "lorc/checked-shield", "lanterns_radiance": "lorc/lantern-flame", "aura_of_dread": "lorc/death-zone",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",

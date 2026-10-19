@@ -441,6 +441,10 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
             Preview.Add($"Sneak attack: {character.SneakAttackDice}d6");
         if (character.PreyDice > 0)
             Preview.Add($"Hunt Prey: {character.PreyDice}d8");
+        if (character.UndeadBane > 0)
+            Preview.Add($"Undead bane: +{character.UndeadBane} vitality");
+        if (character.TaintFuel)
+            Preview.Add("Taint drain: your hits fill your Taint");
         if (character.Companion is { } companion && _content.Creatures.TryGetValue(companion, out var beast))
             Preview.Add($"Companion: a {beast.Name.ToLowerInvariant()}");
         foreach (var (slot, ability) in _content.AbilityBar(choices.ClassId).OrderBy(kv => kv.Key switch { "lmb" => 0, "rmb" => 1, _ => 2 }))

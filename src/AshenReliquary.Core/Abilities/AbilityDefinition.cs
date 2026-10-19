@@ -61,6 +61,19 @@ public enum AbilityKind
     /// a burst of <see cref="AbilityDefinition.Radius"/> round it (basic save, damage, the condition on a failure).
     /// </summary>
     Trap,
+
+    /// <summary>
+    /// An aura round the hero for <see cref="AbilityDefinition.BuffSeconds"/> (the Champion's): every
+    /// <see cref="GameWorld.AuraTickSeconds"/> the enemies within <see cref="AbilityDefinition.Radius"/> take its
+    /// <see cref="AbilityDefinition.Dice"/> (a basic save, with its <see cref="AbilityDefinition.OnHit"/> on a failure)
+    /// and the hero and allies within it heal <see cref="AbilityDefinition.AuraHeal"/>; while it lasts the hero has
+    /// <see cref="AbilityDefinition.AuraAc"/> to AC and saves and every blow on someone within it loses
+    /// <see cref="AbilityDefinition.Soak"/>. Using it again renews it.
+    /// </summary>
+    Aura,
+
+    /// <summary>Heals the hero, and the allies within <see cref="AbilityDefinition.Radius"/>, by <see cref="AbilityDefinition.Heal"/> a spell rank (Lay on Hands).</summary>
+    Heal,
 }
 
 /// <summary>
@@ -87,6 +100,12 @@ public enum AbilityKind
 /// <item>Weapon Strikes with a bow loose arrows: <see cref="Strikes"/> of them (Twin Shot), each passing through
 /// <see cref="Pierce"/> more enemies behind its target (Piercing Shot); <see cref="NeedsRanged"/>: only with a bow.
 /// A sweep (more than one target) needs a melee weapon.</item>
+/// <item>The Champion's: <see cref="Heal"/> HP a spell rank (Lay on Hands); auras (<see cref="AbilityKind.Aura"/>) with
+/// <see cref="AuraAc"/> (a status bonus to AC and saves), <see cref="Soak"/> (off every blow, one more every two ranks),
+/// <see cref="AuraHeal"/> a tick (one more every two ranks), <see cref="Dice"/> a tick (a die more every two ranks),
+/// <see cref="Drain"/> (the share of an aura's damage that heals the hero), <see cref="Holy"/> (vitality against the
+/// undead, fire against the living), <see cref="RaisesShield"/> (a shield in hand is raised for as long) and
+/// <see cref="CostsTaint"/> (its cost comes out of the Taint meter, not Devotion: the Oathbreaker's).</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -139,7 +158,15 @@ public sealed record AbilityDefinition(
     bool Twin = false,
     int Strikes = 1,
     int Pierce = 0,
-    bool NeedsRanged = false)
+    bool NeedsRanged = false,
+    int Heal = 0,
+    int AuraAc = 0,
+    int Soak = 0,
+    int AuraHeal = 0,
+    double Drain = 0,
+    bool Holy = false,
+    bool RaisesShield = false,
+    bool CostsTaint = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
@@ -157,6 +184,7 @@ public sealed record AbilityDefinition(
 
     /// <summary>Used on the hero, with no target: wards, elixirs, hiding, traps, tumbles and full bursts round the hero.</summary>
     public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir or AbilityKind.Hide or AbilityKind.Trap or AbilityKind.Tumble
+        or AbilityKind.Aura or AbilityKind.Heal
         || (Kind == AbilityKind.Burst && Arc >= 360);
 
     /// <summary>A burst made with spell power (spell DC, cast speed) rather than a weapon or the class DC.</summary>
@@ -197,6 +225,20 @@ public sealed record AbilityDefinition(
         var dice = Rules.Dice.Parse(text);
         return dice with { Count = dice.Count + (level >= 5 ? 1 : 0) + (level >= 10 ? 1 : 0) + (level >= 15 ? 1 : 0) };
     }
+
+    /// <summary>Lay on Hands' healing at a spell rank: <see cref="Heal"/> a rank, as Pathfinder's 6 a rank.</summary>
+    public int HealAt(int rank) => Heal * Math.Max(1, rank);
+
+    /// <summary>An aura's dice a tick at a spell rank: one more die every two ranks above 1.</summary>
+    public Dice AuraDiceAt(int rank)
+    {
+        var dice = Dice is { } text ? Rules.Dice.Parse(text) : new Rules.Dice(0, 1);
+        return dice with { Count = dice.Count + (rank - 1) / 2 };
+    }
+
+    /// <summary>An aura's soak and healing at a spell rank: one more every two ranks above 1 (none without a base).</summary>
+    public int AuraSoakAt(int rank) => Soak > 0 ? Soak + (rank - 1) / 2 : 0;
+    public int AuraHealAt(int rank) => AuraHeal > 0 ? AuraHeal + (rank - 1) / 2 : 0;
 
     /// <summary>Force Bolt-style missile count: one more every two spell ranks.</summary>
     public int MissilesAt(int rank) => Missiles + (rank - 1) / 2;

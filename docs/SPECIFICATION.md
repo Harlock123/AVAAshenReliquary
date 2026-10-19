@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1168,6 +1168,52 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   Mother Sallow at level 5, the Marksman in 23-24 minutes without a death, the Beastmaster in 20-21 with at most one.
   Alone against her the Marksman wins 4 of 6 at level 4 and every fight at 5; the Beastmaster wins every fight even
   at 4 (its wolf takes her blows while the bot shoots): strong, for step 9's balance pass to look at.
+
+### The Champion and auras (M3 step 4)
+
+- **The class** (section 7): STR, 10 HP a level, all armour and shields, trained in Religion, Fortitude and Will at
+  expert. Starts with the fighter's longsword, wooden shield and chain mail; the quick-start background is the Lantern
+  Acolyte; quick start `--champion` (a Lanternbearer), `--lanternbearer`, `--oathbreaker`.
+- **Devotion** (0-100, starts empty): +10 for every blow the hero takes, blocked or soaked to nothing included, +4 a hit
+  they land, +8 a critical hit (feats' and gear's "per hit" add to their own hits); it drains 5 a second once 6 s have
+  passed without a blow. Drawn as a gold orb.
+- **Auras** (`AbilityKind.Aura`, `World/GameWorld.Champion.cs`): an aura lasts its duration round the hero and pulses
+  every 2 s, at once when raised. A pulse deals its dice to every visible enemy within its radius (a basic save against
+  the class DC; its condition on a failure; a share drained back to the hero) and heals the hero and the allies within.
+  Its status bonus to AC and saves is the hero's, and its soak comes off every monster's blow at the hero or at an ally
+  within it. Raising it again renews it; several can be up at once; a fall ends them all. Drawn as a faint disc on the
+  ground as wide as the aura, edged by a slowly turning dashed ring that flares as it pulses (gold for Shield of Faith,
+  lantern light for the Radiance, the Taint's green for Dread), and listed among the buffs with the time left. An aura's
+  dice, soak and healing grow by one every two spell ranks.
+
+| Slot | Ability | Numbers |
+| --- | --- | --- |
+| LMB | Strike | Basic attack; builds a little Devotion |
+| RMB | Smite | 10 Devotion, 1 action: one more weapon die (2 at 10, 3 at 18) |
+| 1 | Lay on Hands | 20 Devotion, 6 s cooldown: the hero and every ally within 3 tiles heal 6 HP a spell rank (Pathfinder's) |
+| 2 | Shield of Faith (aura) | 20 Devotion, 15 s, 3 tiles: +1 status bonus to AC and saves, every blow loses 2 (3 from rank 3); a shield in the off hand is raised for as long (its AC and Shield Block) |
+
+- **Lanternbearer** (light auras, healing, undead bane): Strikes that hit one of the undead deal 1 more vitality damage
+  (2 at 9, 3 at 17), doubled on a critical hit and through the target's defences, so the Act 1 dead's weakness to
+  vitality adds 3; Lay on Hands heals half again; the hero's light reaches 1.5 tiles further. **Lantern's Radiance**
+  (aura): 25 Devotion, 12 s, 2.5 tiles, each pulse 1d4 against a basic Fortitude save, vitality to the undead and fire
+  to the living, and 1 HP healed. Level-2 feat **Beacon**: a tile further, 5 Devotion cheaper. Creatures now say whether
+  they are undead (`undead` in `creatures.json`: the zombies, the drowned dead, the grave knight, the bone archers, the
+  bog witches and Prior Aldous).
+- **Oathbreaker** (the Taint as a weapon: life drain, fear): each hit fills the hero's own Taint meter by 3 (slowed as
+  any Taint is), and their Strikes deal 1 Taint damage for every 25 in it (doubled on a critical hit), healing them as
+  much. **Aura of Dread** (aura): paid with 20 of the Taint meter, not Devotion; 12 s, 3 tiles, each pulse 1d6 Taint
+  against a basic Will save, frightened 1 on a failure (2 on a critical failure), half of the damage healing the hero.
+  The meter stays a danger: −1 to saves from 50, the whispers at 100. Level-2 feat **Spreading Dread**: a tile further,
+  5 Taint cheaper.
+- **Class feats:** level 2 Fervor (+4 Devotion a hit) or Resolute Faith (+1 to every save); level 4 Healing Hands (Lay
+  on Hands 5 cheaper), Iron Devotion (+1 AC) or Righteous Wrath (+4 damage on a critical hit).
+- **The bots** lay on hands below 55% health, keep Shield of Faith up from 4 tiles out, raise their subclass's aura with
+  an enemy close (the Oathbreaker also whenever its Taint reaches 80, to spend it before the whispers) and Smite only
+  with 50 Devotion in hand. Over four seeds each both kill Mother Sallow at level 5 without a death, in 14-16 minutes
+  (the Bulwark 16-18). Alone against her both win every fight even at level 4 (the fighter 2 of 6): survival is the
+  class's strength (its shield always raised, 2 off every blow, healing on demand); for step 9's balance pass to look at
+  with the Beastmaster.
 
 ### The arsenal (M2, after step 10)
 

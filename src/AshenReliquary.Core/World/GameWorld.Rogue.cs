@@ -67,7 +67,7 @@ public sealed partial class GameWorld
             Say(problem);
             return false;
         }
-        Hero.Resource.TrySpend(ability.Cost);
+        Pay(ability);
         if (ability.Cooldown > 0)
             Hero.ReadyAt[ability.Id] = Time + ability.Cooldown;
         if (ability.IsFlourish)

@@ -1110,6 +1110,7 @@ public sealed class WorldView : Control
         // The act's colour grade is baked into every cached sprite (SpriteCache), so no full-screen filter pass.
         DrawGround(canvas, size, world, time);
         DrawHazards(canvas, world);
+        DrawAuras(canvas, world, time);
         DrawTargetMarks(canvas, world, time);
         DrawBursts(canvas, world);
         DrawTraps(canvas, world);
@@ -1606,6 +1607,46 @@ public sealed class WorldView : Control
     /// The Trickster's snares on the ground: a ring of iron teeth, dull while it arms and glinting once armed, with
     /// its burst's reach faintly marked.
     /// </summary>
+    /// <summary>
+    /// The Champion's auras: a faint disc on the ground round the hero, as wide as the aura reaches, edged by a dashed
+    /// ring turning slowly; it flares as the aura pulses. Gold for Shield of Faith, lantern light for the Radiance,
+    /// the Taint's green for Aura of Dread.
+    /// </summary>
+    private void DrawAuras(SKCanvas canvas, GameWorld world, double time)
+    {
+        if (world.Hero.IsDead)
+            return;
+        var z = (float)Zoom;
+        var centre = ToScreen(world.Hero.X, world.Hero.Y);
+        foreach (var aura in world.Auras)
+        {
+            var a = aura.Ability;
+            var color = a.CostsTaint ? new SKColor(150, 210, 80) : a.Holy ? new SKColor(255, 214, 130) : new SKColor(240, 226, 180);
+            // A pulse: bright when the aura ticks, fading over half a second.
+            var sinceTick = (float)((world.Time - (aura.NextTick - GameWorld.AuraTickSeconds)) / 0.5);
+            var flare = a.Dice is not null || a.AuraHeal > 0 ? Math.Max(0, 1 - sinceTick) : 0;
+            var rx = (float)a.Radius * HalfTileWidth * z * 1.414f;
+            var ry = (float)a.Radius * HalfTileHeight * z * 1.414f;
+            var oval = SKRect.Create(centre.X - rx, centre.Y - ry, rx * 2, ry * 2);
+            using var fill = new SKPaint
+            {
+                IsAntialias = true,
+                BlendMode = SKBlendMode.Plus,
+                Shader = SKShader.CreateRadialGradient(new SKPoint(centre.X, centre.Y), rx,
+                    [color.WithAlpha(0), color.WithAlpha((byte)(18 + 40 * flare)), color.WithAlpha((byte)(40 + 70 * flare))], [0, 0.75f, 1f],
+                    SKShaderTileMode.Clamp, SKMatrix.CreateScale(1, ry / rx, centre.X, centre.Y)),
+            };
+            canvas.DrawOval(oval, fill);
+            using var ring = new SKPaint
+            {
+                IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2.5f * z, BlendMode = SKBlendMode.Plus,
+                Color = color.WithAlpha((byte)(120 + 100 * flare)),
+                PathEffect = SKPathEffect.CreateDash([18 * z, 12 * z], (float)(time * 30 * z)),
+            };
+            canvas.DrawOval(oval, ring);
+        }
+    }
+
     private void DrawTraps(SKCanvas canvas, GameWorld world)
     {
         var z = (float)Zoom;

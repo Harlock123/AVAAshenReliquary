@@ -70,9 +70,7 @@ public sealed partial class GameWorld
     /// <summary>Taint damage taken fills the meter; at 100 the whispers turn the hero's feet for 2 s.</summary>
     private void Corrupt(int dealt)
     {
-        if (dealt <= 0 || !Hero.Character.Taint.Add(dealt * TaintPerDamage))
-            return;
-        Say("The whispers take hold: your feet are not your own.");
-        Float(Hero, "WHISPERS", FloatingTextKind.Critical, 1.0);
+        if (dealt > 0)
+            AddTaint(dealt * TaintPerDamage);
     }
 }

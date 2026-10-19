@@ -1342,5 +1342,147 @@
     "weaponRange": 1
    }
   ]
+ },
+ {
+  "id": "lanternbearer",
+  "name": "Lanternbearer",
+  "type": "Subclass",
+  "level": 1,
+  "class": "champion",
+  "description": "Light, healing and the bane of the dead. Lantern's Radiance: an aura of holy light that burns the enemies round you (vitality against the undead, fire against the living) and heals you and your allies. Your Strikes against the undead deal 1 more vitality damage (2 at level 9), Lay on Hands heals half as much again, and your lantern lights 1.5 tiles further.",
+  "effects": [
+   {
+    "ability": "lanterns_radiance"
+   },
+   {
+    "undeadBane": 1,
+    "healShare": 0.5,
+    "light": 1.5
+   }
+  ]
+ },
+ {
+  "id": "oathbreaker",
+  "name": "Oathbreaker",
+  "type": "Subclass",
+  "level": 1,
+  "class": "champion",
+  "description": "The Taint as a weapon: life drain and fear. Aura of Dread: an aura that frightens and drains the enemies round you, paid for out of your Taint meter. Each of your hits fills your Taint meter by 3, and your Strikes deal 1 Taint damage for every 25 in the meter, healing you as much. Mind the whispers at 100.",
+  "effects": [
+   {
+    "ability": "aura_of_dread"
+   },
+   {
+    "taintFuel": true
+   }
+  ]
+ },
+ {
+  "id": "fervor",
+  "name": "Fervor",
+  "type": "Class",
+  "level": 2,
+  "class": "champion",
+  "description": "Every hit you land builds 4 more Devotion.",
+  "effects": [
+   {
+    "furyPerHit": 4
+   }
+  ]
+ },
+ {
+  "id": "resolute_faith",
+  "name": "Resolute Faith",
+  "type": "Class",
+  "level": 2,
+  "class": "champion",
+  "description": "Your faith steadies you: +1 to Fortitude, Reflex and Will saves.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "beacon",
+  "name": "Beacon",
+  "type": "Class",
+  "level": 2,
+  "class": "champion",
+  "subclass": "lanternbearer",
+  "description": "Lanternbearer: Lantern's Radiance reaches a tile further and costs 5 less Devotion.",
+  "effects": [
+   {
+    "ability": "lanterns_radiance",
+    "radius": 1,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "spreading_dread",
+  "name": "Spreading Dread",
+  "type": "Class",
+  "level": 2,
+  "class": "champion",
+  "subclass": "oathbreaker",
+  "description": "Oathbreaker: Aura of Dread reaches a tile further and costs 5 less Taint.",
+  "effects": [
+   {
+    "ability": "aura_of_dread",
+    "radius": 1,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "healing_hands",
+  "name": "Healing Hands",
+  "type": "Class",
+  "level": 4,
+  "class": "champion",
+  "description": "Lay on Hands costs 5 less Devotion.",
+  "effects": [
+   {
+    "ability": "lay_on_hands",
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "iron_devotion",
+  "name": "Iron Devotion",
+  "type": "Class",
+  "level": 4,
+  "class": "champion",
+  "description": "Clad in your oath: +1 AC.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "righteous_wrath",
+  "name": "Righteous Wrath",
+  "type": "Class",
+  "level": 4,
+  "class": "champion",
+  "description": "Your critical hits deal 4 more damage.",
+  "effects": [
+   {
+    "critDamage": 4
+   }
+  ]
  }
 ]

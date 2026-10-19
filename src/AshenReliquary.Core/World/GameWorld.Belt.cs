@@ -92,6 +92,12 @@ public sealed partial class GameWorld
             case AbilityKind.Tumble:
                 Tumble(ability, toward);
                 return;
+            case AbilityKind.Aura:
+                RaiseAura(ability);
+                return;
+            case AbilityKind.Heal:
+                LayOnHands(ability);
+                return;
         }
         if (ability.Kind == AbilityKind.Ward)
         {

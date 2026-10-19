@@ -323,9 +323,10 @@ public sealed class Character : IDefender
         _abilityMods.Clear();
         _grantedAbilities.Clear();
         FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
+        UndeadBaneBonus = 0;
         Companion = null;
-        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = 0;
-        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = false;
+        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = 0;
+        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = false;
         Taint.ResetRate(_creationTaintRate);
         foreach (var feat in _creationFeats)
             Grant(feat);
@@ -414,6 +415,26 @@ public sealed class Character : IDefender
     /// <summary>How far feats have grown the companion (Pack Hunter).</summary>
     public int CompanionGrowth { get; private set; }
 
+    private int UndeadBaneBonus { get; set; }
+
+    /// <summary>
+    /// The Lanternbearer's undead bane: vitality damage added to every Strike that hits an undead monster (doubled on
+    /// a critical hit), 1, one more at levels 9 and 17. None without the feature.
+    /// </summary>
+    public int UndeadBane => UndeadBaneBonus > 0 ? UndeadBaneBonus + (Level >= 9 ? 1 : 0) + (Level >= 17 ? 1 : 0) : 0;
+
+    /// <summary>How much more Lay on Hands heals, as a share (the Lanternbearer's half again).</summary>
+    public double HealShare { get; private set; }
+
+    /// <summary>Tiles of light the hero gives off (the Lanternbearer's lantern), on top of what they carry.</summary>
+    public double LightBonus { get; private set; }
+
+    /// <summary>
+    /// The Oathbreaker's Taint: their hits fill their own Taint meter, and their Strikes deal Taint damage by how full
+    /// it is, healing them as much.
+    /// </summary>
+    public bool TaintFuel { get; private set; }
+
     /// <summary>Hunt Prey's precision d8s against the hunted monster: the class's, plus feats'. None for most classes.</summary>
     public int PreyDice => Class.PreyDiceAt(Level) is var dice and > 0 ? dice + PreyDiceBonus : 0;
 
@@ -490,6 +511,10 @@ public sealed class Character : IDefender
             PreyDiceBonus += e.PreyDice;
             Companion = e.Companion ?? Companion;
             CompanionGrowth += e.CompanionGrowth;
+            UndeadBaneBonus += e.UndeadBane;
+            HealShare += e.HealShare;
+            LightBonus += e.Light;
+            TaintFuel |= e.TaintFuel;
             FeatHitPointsPerLevel += e.HitPointsPerLevel;
             FeatSpeedFeet += e.SpeedFeet;
             RecoveryBonus += e.Recovery;

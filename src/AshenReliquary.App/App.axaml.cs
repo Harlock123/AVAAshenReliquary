@@ -13,10 +13,10 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // The title screen (or character creation, with no saves) comes first; "--fighter", "--wizard", "--rogue" or
-            // "--ranger" skips both (or a subclass: "--vanguard", "--bulwark", "--pyromancer", "--stormcaller",
-            // "--cutthroat", "--trickster", "--marksman", "--beastmaster"), and "--battle [zone]" (the Fens by default)
-            // starts a fight that plays itself.
+            // The title screen (or character creation, with no saves) comes first; "--fighter", "--wizard", "--rogue",
+            // "--ranger" or "--champion" skips both (or a subclass: "--vanguard", "--bulwark", "--pyromancer",
+            // "--stormcaller", "--cutthroat", "--trickster", "--marksman", "--beastmaster", "--lanternbearer",
+            // "--oathbreaker"), and "--battle [zone]" (the Fens by default) starts a fight that plays itself.
             var args = desktop.Args ?? [];
             var window = new MainWindow();
             // Sound: OpenAL with a mixing period big enough for a virtual machine's sound card; "--mute" stays silent.
@@ -35,7 +35,7 @@ public partial class App : Application
                 window.Demo = new Services.BattleDemo(window.Session.World, classId);
             }
             else if (new[] { "--wizard", "--fighter", "--rogue", "--ranger", "--vanguard", "--bulwark", "--pyromancer", "--stormcaller",
-                             "--cutthroat", "--trickster", "--marksman", "--beastmaster" }
+                             "--cutthroat", "--trickster", "--marksman", "--beastmaster", "--champion", "--lanternbearer", "--oathbreaker" }
                          .Any(args.Contains))
             {
                 var (classId, subclass) = GameSession.QuickStart(args);
