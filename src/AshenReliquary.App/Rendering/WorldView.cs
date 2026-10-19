@@ -309,6 +309,48 @@ public sealed class WorldView : Control
     private SKRect _viewport;
     private Point? _pointer;
     private bool _holding;
+
+    /// <summary>
+    /// Ctrl held (asked for after M3: clicks too easily walked the hero into a pack): a left click attacks the monster
+    /// nearest the pointer and never walks, the right mouse button aims the same way, holding the button keeps
+    /// attacking (the next nearest once one dies), and the hover ring marks the monster a click would hit.
+    /// </summary>
+    public bool AttackOnly { get; set; }
+
+    /// <summary>How far from the pointer a Ctrl-click looks for a monster, in tiles.</summary>
+    public const double AttackPickTiles = 5.0;
+
+    /// <summary>The left button is held down with Ctrl: attack, and attack again when the target falls.</summary>
+    private bool _attackHolding;
+
+    /// <summary>
+    /// What a Ctrl-click attacks: the monster under the pointer, or else the living, visible monster nearest the
+    /// pointer within <see cref="AttackPickTiles"/>; null when none is near.
+    /// </summary>
+    public MonsterActor? AttackTarget(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        if (MonsterUnder(p) is { } under)
+            return under;
+        var (x, y) = ToMap(p);
+        return world.Monsters.Where(m => !m.IsDead && world.IsLit(m.X, m.Y) && m.DistanceTo(x, y) <= AttackPickTiles)
+            .MinBy(m => m.DistanceTo(x, y));
+    }
+
+    /// <summary>Each frame: with Ctrl and the left button held, a fallen target gives way to the next nearest the pointer.</summary>
+    public void HoldAttack()
+    {
+        if (!_attackHolding || World is not { } world || _pointer is not { } p)
+            return;
+        if (!AttackOnly)
+        {
+            _attackHolding = false;
+            return;
+        }
+        if (world.Hero.CurrentTarget is null && AttackTarget(p) is { } next)
+            world.Attack(next);
+    }
     private double _lastHoldMove;
 
     static WorldView()
@@ -489,6 +531,16 @@ public sealed class WorldView : Control
         }
         if (!props.IsLeftButtonPressed)
             return;
+        if (ctrl || AttackOnly)
+        {
+            // Attack only: the monster nearest the pointer, never a walk into the pack.
+            if (AttackTarget(p) is { } nearest)
+                world.Attack(nearest);
+            _holding = false;
+            _attackHolding = true;
+            e.Handled = true;
+            return;
+        }
         if (MonsterUnder(p) is { } monster)
         {
             world.Attack(monster);
@@ -534,6 +586,8 @@ public sealed class WorldView : Control
     {
         base.OnPointerMoved(e);
         _pointer = e.GetPosition(this);
+        // Kept true to the keyboard: a Ctrl let go while the window was in the background never sent its key-up.
+        AttackOnly = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         if (_drag is { Moving: false } pending && Math.Abs(_pointer.Value.X - pending.Start.X) + Math.Abs(_pointer.Value.Y - pending.Start.Y) > DragThreshold)
             pending.Moving = true;
         if (_holding && World is { } world && world.Time - _lastHoldMove > 0.12)
@@ -554,6 +608,7 @@ public sealed class WorldView : Control
     {
         base.OnPointerReleased(e);
         _holding = false;
+        _attackHolding = false;
         // An ability dragged from the panel (or from a slot) and let go over a slot goes there.
         if (AbilitiesOpen && _abilityPressedAt is { } pressed && AbilitiesView.Held is { } dragged && World is { } w)
         {
@@ -722,7 +777,7 @@ public sealed class WorldView : Control
         if (World is not { } world)
             return;
         var point = at ?? _pointer;
-        var target = point is { } p ? MonsterUnder(p) ?? NearestTo(p) : null;
+        var target = point is { } p ? (AttackOnly ? AttackTarget(p) : MonsterUnder(p) ?? NearestTo(p)) : null;
         world.UseSlot(slot, target, point is { } aim ? ToMap(aim) : null);
     }
 
@@ -1219,7 +1274,7 @@ public sealed class WorldView : Control
     private void DrawTargetMarks(SKCanvas canvas, GameWorld world, double time)
     {
         var target = Targeted;
-        var hovered = _pointer is { } p && !Dragging ? MonsterUnder(p) : null;
+        var hovered = _pointer is { } p && !Dragging ? (AttackOnly ? AttackTarget(p) : MonsterUnder(p)) : null;
         if (hovered is not null && hovered != target)
             DrawGroundRing(canvas, hovered, time, targeted: false);
         if (target is not null)

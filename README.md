@@ -39,7 +39,8 @@ dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays i
 ```
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
-monster for your right-mouse ability, **1** to **6** use the other bar slots on the monster under the cursor
+monster for your right-mouse ability; hold **Ctrl** and a click attacks the monster nearest the cursor and never walks
+(hold the button to keep at it, the ring shows who it will hit), **1** to **6** use the other bar slots on the monster under the cursor
 (the fighter's Cleave on 2, Raise a Shield on 3 and, from level 2, Finishing Blow on 4; the wizard's Shield cantrip on
 2; the rogue's Tumble on 1, which rolls toward the cursor, and Hide in Shadows on 2; the ranger's Hunt Prey on 1 and
 Disengage on 2, which springs toward the cursor; the champion's Lay on Hands on 1, Shield of Faith on 2 and its

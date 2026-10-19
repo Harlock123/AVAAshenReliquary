@@ -80,11 +80,13 @@ public partial class MainWindow : Window
         settings.Save();
     }
 
-    /// <summary>Alt held shows every loot label, filtered or not.</summary>
+    /// <summary>Alt held shows every loot label, filtered or not; Ctrl held turns clicks into attacks on the nearest monster.</summary>
     private void OnKeyUp(object? sender, KeyEventArgs e)
     {
         if (e.Key is Key.LeftAlt or Key.RightAlt)
             World.ShowAllLoot = false;
+        if (e.Key is Key.LeftCtrl or Key.RightCtrl)
+            World.AttackOnly = false;
     }
 
     public WorldView View => World;
@@ -245,6 +247,7 @@ public partial class MainWindow : Window
                 elapsed = TimeSpan.Zero;
             }
             var started = System.Diagnostics.Stopwatch.GetTimestamp();
+            World.HoldAttack();
             _session.World.Update(elapsed.TotalSeconds);
             World.Stats.Add("update", System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
             Demo?.Update(elapsed.TotalSeconds);
@@ -303,6 +306,9 @@ public partial class MainWindow : Window
         {
             case Key.LeftAlt or Key.RightAlt:
                 World.ShowAllLoot = true;
+                break;
+            case Key.LeftCtrl or Key.RightCtrl:
+                World.AttackOnly = true;
                 break;
             case Key.Q or Key.H:
                 world.DrinkPotion();
