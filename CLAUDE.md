@@ -47,7 +47,8 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `--battle` share `World/Tactics.cs`. Then the bag: Sort and the upgrade/downgrade arrows and poor-fit tint
   (`Items/ItemJudge.cs`, `GameWorld.Bag.cs`, cached by `VerdictCache`), junk and lock marks (saved), Drop/Sell junk,
   drag and drop (`WorldView`'s `DragState`), Shift-click to the stash or trader, belt items picked up like gold, and the
-  loot filter (a setting; Alt shows all). Left for M2:
+  loot filter (a setting; Alt shows all). Then the camera: five zoom steps that glide and are kept in the settings, and
+  the target ring under the hero's target (`WorldView.DrawTargetMarks`). Left for M2:
   the user's own play-through of Act 1 (they asked to do it once more of the game exists), then whatever it shows.
   `BalanceReport`'s whole-zone runs do one run each unless `ASHEN_BALANCE_RUNS` is set.
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones

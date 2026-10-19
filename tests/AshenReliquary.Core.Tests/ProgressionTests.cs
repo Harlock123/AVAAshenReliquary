@@ -16,6 +16,18 @@ public class ProgressionTests
             Assert.Equal(LevelGain.ClassFeat | LevelGain.SkillFeat, LevelProgression.GainsAt(level));
     }
 
+    [Theory]
+    [InlineData(2, 3)]
+    [InlineData(4, 5)]
+    [InlineData(5, 7)]
+    [InlineData(18, 19)]
+    public void The_next_skill_increase_is_the_next_odd_level(int level, int next) =>
+        Assert.Equal(next, LevelProgression.NextSkillIncrease(level));
+
+    [Fact]
+    public void No_skill_increase_comes_after_level_nineteen() =>
+        Assert.Null(LevelProgression.NextSkillIncrease(19));
+
     [Fact]
     public void Level_five_matches_the_spec_table() =>
         Assert.Equal(LevelGain.AttributeBoosts | LevelGain.AncestryFeat | LevelGain.SkillIncrease | LevelGain.ClassFeature,

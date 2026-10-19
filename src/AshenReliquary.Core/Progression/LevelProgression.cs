@@ -17,6 +17,17 @@ public enum LevelGain
 /// <summary>The spec's level table: what every class gains at each level, 1 to 20.</summary>
 public static class LevelProgression
 {
+    /// <summary>The first level after <paramref name="level"/> that brings a skill increase; null past 20.</summary>
+    public static int? NextSkillIncrease(int level)
+    {
+        for (var next = Math.Max(1, level + 1); next <= 20; next++)
+        {
+            if ((GainsAt(next) & LevelGain.SkillIncrease) != 0)
+                return next;
+        }
+        return null;
+    }
+
     public static LevelGain GainsAt(int level)
     {
         if (level is < 1 or > 20)

@@ -9,7 +9,7 @@ namespace AshenReliquary.App.Rendering;
 /// <summary>
 /// The level-up screen (L): the lowest level still waiting for its picks. Each feat the level grants is a list of
 /// the feats this character may take; a skill increase lists the skills that can rise a rank; level 5 adds four
-/// attribute boosts. Hover an option for its description; Confirm once everything is picked.
+/// attribute boosts. A level without a skill increase says when the next comes and lists the skills' ranks. Hover an option for its description; Confirm once everything is picked.
 /// </summary>
 internal sealed class LevelUpPanel
 {
@@ -116,6 +116,22 @@ internal sealed class LevelUpPanel
             }
             sy += 14;
         }
+        else
+        {
+            // No increase this level: say so, and when the next one comes, and show where the skills stand.
+            canvas.DrawText("SKILLS", sx, sy, SKTextAlign.Left, head, dim);
+            sy += 24;
+            canvas.DrawText(SkillNote(level), sx + 8, sy, SKTextAlign.Left, small, dim);
+            sy += 22;
+            foreach (var skill in Skills.Attribute.Keys.Order())
+            {
+                var rank = c.SkillRank(skill);
+                canvas.DrawText(skill, sx + 8, sy, SKTextAlign.Left, font, rank > ProficiencyRank.Untrained ? ink : dim);
+                canvas.DrawText(rank.ToString(), sx + 130, sy, SKTextAlign.Left, font, rank > ProficiencyRank.Untrained ? gold : dim);
+                sy += 21;
+            }
+            sy += 14;
+        }
         var needsBoosts = (gains & LevelGain.AttributeBoosts) != 0 && !c.LevelUpBoosts.ContainsKey(level);
         if (needsBoosts)
         {
@@ -141,6 +157,12 @@ internal sealed class LevelUpPanel
         canvas.DrawRect(_confirm, frame);
         canvas.DrawText("Confirm", _confirm.MidX, _confirm.MidY + 5, SKTextAlign.Center, font, ready ? gold : dim);
     }
+
+    /// <summary>The line at a level with no skill increase: none now, and the level that brings the next.</summary>
+    public static string SkillNote(int level) =>
+        LevelProgression.NextSkillIncrease(level) is { } next
+            ? $"No skill increase at level {level}; the next comes at level {next}."
+            : $"No skill increase at level {level}.";
 
     private static List<string> Wrap(string text, SKFont font, float width)
     {

@@ -22,7 +22,12 @@ public sealed class WorldView : Control
 {
     public const float HalfTileWidth = 96f;
     public const float HalfTileHeight = 48f;
-    public static readonly double[] ZoomSteps = [0.42, 0.55, 0.72];
+    /// <summary>The mouse wheel's zoom steps, furthest out first; <see cref="DefaultZoomLevel"/> is where a game starts.</summary>
+    public static readonly double[] ZoomSteps = [0.36, 0.45, 0.55, 0.67, 0.82];
+    public const int DefaultZoomLevel = 2;
+
+    /// <summary>How long the view takes to glide from one zoom step to the next.</summary>
+    public const double ZoomSeconds = 0.18;
 
     private readonly FlareAssets _assets = FlareAssets.Shared;
     private readonly SpriteCache _sprites = new(FlareAssets.Shared, ActGrade());
@@ -207,7 +212,10 @@ public sealed class WorldView : Control
     private bool _worldOnGpu;
     private SKSurface? _darknessSurface;
     private float _deviceScale = 1f;
-    private int _zoomIndex = 1;
+    private int _zoomIndex = DefaultZoomLevel;
+    private double _zoom = ZoomSteps[DefaultZoomLevel], _zoomFrom = ZoomSteps[DefaultZoomLevel], _zoomStarted = double.NegativeInfinity;
+    private double _wheel;
+    private readonly System.Diagnostics.Stopwatch _zoomClock = System.Diagnostics.Stopwatch.StartNew();
     private SKRect _viewport;
     private Point? _pointer;
     private bool _holding;
@@ -224,7 +232,44 @@ public sealed class WorldView : Control
     /// <summary>When set, the view shows this many seconds of real time for the ash drift (tests pin it).</summary>
     public double? FixedTime { get; set; }
 
-    public double Zoom => ZoomSteps[_zoomIndex];
+    /// <summary>The zoom this frame is drawn at: on a step, or gliding toward <see cref="ZoomTarget"/>.</summary>
+    public double Zoom => _zoom;
+
+    /// <summary>The zoom step being moved to (or rested on).</summary>
+    public double ZoomTarget => ZoomSteps[_zoomIndex];
+
+    /// <summary>Which of <see cref="ZoomSteps"/> the view is on; setting it glides there (the settings restore it at once).</summary>
+    public int ZoomLevel
+    {
+        get => _zoomIndex;
+        set => SetZoomLevel(value, glide: false);
+    }
+
+    /// <summary>Raised when the wheel changes the zoom step (the window saves it in the settings).</summary>
+    public event Action? ZoomChanged;
+
+    private void SetZoomLevel(int level, bool glide)
+    {
+        level = Math.Clamp(level, 0, ZoomSteps.Length - 1);
+        if (level == _zoomIndex)
+            return;
+        _zoomFrom = _zoom;
+        _zoomStarted = glide && FixedTime is null ? _zoomClock.Elapsed.TotalSeconds : double.NegativeInfinity;
+        _zoomIndex = level;
+        UpdateZoom();
+        InvalidateVisual();
+    }
+
+    /// <summary>Moves the glide on: eased from where it started toward the step, a frame at a time.</summary>
+    private void UpdateZoom()
+    {
+        var t = Math.Clamp((_zoomClock.Elapsed.TotalSeconds - _zoomStarted) / ZoomSeconds, 0, 1);
+        var eased = 1 - (1 - t) * (1 - t);
+        _zoom = t >= 1 ? ZoomTarget : _zoomFrom + (ZoomTarget - _zoomFrom) * eased;
+    }
+
+    /// <summary>Whether the view is between two zoom steps.</summary>
+    public bool Zooming => _zoom != ZoomTarget;
 
     private GameWorld? World => Session?.World;
 
@@ -547,9 +592,20 @@ public sealed class WorldView : Control
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         base.OnPointerWheelChanged(e);
-        _zoomIndex = Math.Clamp(_zoomIndex + (e.Delta.Y > 0 ? 1 : -1), 0, ZoomSteps.Length - 1);
-        InvalidateVisual();
         e.Handled = true;
+        // A mouse wheel moves a step a notch; a touchpad sends small amounts, which add up to a step.
+        if (Math.Sign(e.Delta.Y) != Math.Sign(_wheel))
+            _wheel = 0;
+        _wheel += e.Delta.Y;
+        if (Math.Abs(_wheel) < 1)
+            return;
+        var steps = (int)_wheel;
+        _wheel -= steps;
+        var before = _zoomIndex;
+        lock (Gate)
+            SetZoomLevel(_zoomIndex + steps, glide: true);
+        if (_zoomIndex != before)
+            ZoomChanged?.Invoke();
     }
 
     /// <summary>Uses a bar slot on the monster under <paramref name="at"/> (or under the mouse pointer).</summary>
@@ -727,6 +783,8 @@ public sealed class WorldView : Control
         if (World is not { } world)
             return;
         Stats.Begin();
+        if (Zooming)
+            UpdateZoom(); // the window's tick asks for a frame every tick, so the glide carries on by itself
         var deviceScale = Math.Max(1f, canvas.TotalMatrix.ScaleX);
         var scale = WorldRenderScale ?? (gpu ? deviceScale : 1f);
         LastWorldScale = scale;
@@ -912,6 +970,7 @@ public sealed class WorldView : Control
         // The act's colour grade is baked into every cached sprite (SpriteCache), so no full-screen filter pass.
         DrawGround(canvas, size, world, time);
         DrawHazards(canvas, world);
+        DrawTargetMarks(canvas, world, time);
         Stats.Mark("ground");
         DrawDepthSorted(canvas, size, world);
         DrawSpells(canvas, world);
@@ -1006,6 +1065,69 @@ public sealed class WorldView : Control
         }
     }
 
+    /// <summary>The monster the hero is attacking or casting at, if it still stands (it carries the target ring).</summary>
+    public MonsterActor? Targeted => World?.Hero.CurrentTarget is { IsDead: false } target ? target : null;
+
+    /// <summary>
+    /// Rings on the ground under the hero's target and under the monster the mouse is over, so in a crowd it is plain
+    /// who the blows go to: the target's is an ember-red ring with four brackets turning slowly round it, the hovered
+    /// monster's a thin pale ring (the one the next click would attack). Both lie under every sprite.
+    /// </summary>
+    private void DrawTargetMarks(SKCanvas canvas, GameWorld world, double time)
+    {
+        var target = Targeted;
+        var hovered = _pointer is { } p && !Dragging ? MonsterUnder(p) : null;
+        if (hovered is not null && hovered != target)
+            DrawGroundRing(canvas, hovered, time, targeted: false);
+        if (target is not null)
+            DrawGroundRing(canvas, target, time, targeted: true);
+    }
+
+    /// <summary>The target ring's radius on screen at zoom 1, for a creature of scale 1 (about two-thirds of a tile).</summary>
+    public const float TargetRingRadius = 64;
+
+    private void DrawGroundRing(SKCanvas canvas, MonsterActor m, double time, bool targeted)
+    {
+        var z = (float)Zoom;
+        var foot = ToScreen(m.X, m.Y);
+        // A circle on the ground, squashed 2:1 like the tiles; bigger creatures get a bigger ring.
+        var r = TargetRingRadius * z * (float)m.Definition.Scale * (m.Creature.Stats.Rank == CreatureRank.Champion ? 1.15f : 1f);
+        var saved = canvas.Save();
+        canvas.Translate(foot.X, foot.Y);
+        canvas.Scale(1, 0.5f);
+        if (!targeted)
+        {
+            using var thin = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3 * z, Color = new SKColor(235, 225, 200, 140) };
+            canvas.DrawCircle(0, 0, r, thin);
+            canvas.RestoreToCount(saved);
+            return;
+        }
+        var pulse = (float)(0.5 + 0.5 * Math.Sin(time * 5));
+        var ember = new SKColor(235, 70, 40);
+        using (var glow = new SKPaint
+        {
+            IsAntialias = true,
+            Shader = SKShader.CreateRadialGradient(SKPoint.Empty, r * 1.15f,
+                [ember.WithAlpha(0), ember.WithAlpha(0), ember.WithAlpha((byte)(70 + 40 * pulse)), ember.WithAlpha(0)], [0, 0.5f, 0.85f, 1f],
+                SKShaderTileMode.Clamp),
+        })
+            canvas.DrawCircle(0, 0, r * 1.15f, glow);
+        using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 4.5f * z, Color = ember.WithAlpha((byte)(200 + 55 * pulse)) };
+        canvas.DrawCircle(0, 0, r, ring);
+        // Four brackets just outside the ring, turning a quarter-turn every two seconds.
+        using var bracket = new SKPaint
+        {
+            IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 7 * z, StrokeCap = SKStrokeCap.Round,
+            Color = new SKColor(255, 170, 90).WithAlpha((byte)(200 + 55 * pulse)),
+        };
+        var outer = r + 13 * z;
+        var spin = (float)(time * 45 % 360);
+        var bounds = new SKRect(-outer, -outer, outer, outer);
+        for (var i = 0; i < 4; i++)
+            canvas.DrawArc(bounds, spin + i * 90 - 18, 36, false, bracket);
+        canvas.RestoreToCount(saved);
+    }
+
     /// <summary>
     /// A boss's rot pools on the ground: a pulsing ring while it gathers, then a sickly pool that fades as it ends. A
     /// circle on the map is an ellipse on screen, √2 half-tiles across per tile of radius.
@@ -1084,10 +1206,21 @@ public sealed class WorldView : Control
         var top = anchor.Y - offsetY * scale;
         if (!SKRect.Create(left, top, width * scale, height * scale).IntersectsWith(_viewport))
             return;
-        var image = _sprites.Get(sheet, x, y, width, height, scale * _deviceScale);
         canvas.Save();
         canvas.Scale(1 / _deviceScale);
-        canvas.DrawImage(image, MathF.Round(left * _deviceScale), MathF.Round(top * _deviceScale), paint);
+        if (Zooming)
+        {
+            // Mid-glide: stretch the frame cut for the step being moved to, rather than cut and resample one for
+            // every passing scale (which would empty the cache each frame of the glide).
+            var settled = _sprites.Get(sheet, x, y, width, height, scale * (float)(ZoomTarget / Zoom) * _deviceScale);
+            var dest = SKRect.Create(left * _deviceScale, top * _deviceScale, width * scale * _deviceScale, height * scale * _deviceScale);
+            canvas.DrawImage(settled, dest, new SKSamplingOptions(SKFilterMode.Linear), paint);
+        }
+        else
+        {
+            var image = _sprites.Get(sheet, x, y, width, height, scale * _deviceScale);
+            canvas.DrawImage(image, MathF.Round(left * _deviceScale), MathF.Round(top * _deviceScale), paint);
+        }
         canvas.Restore();
     }
 

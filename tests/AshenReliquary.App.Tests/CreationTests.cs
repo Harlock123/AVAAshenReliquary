@@ -74,6 +74,8 @@ public class CreationTests
         kit.Capture(Shot("level-up"));
         Assert.Equal([2], world.Hero.Character.PendingLevels);
         Assert.NotEmpty(world.Hero.Character.FeatOptions(AshenReliquary.Core.Characters.FeatType.Class, 2));
+        // Level 2 has no skill increase: the screen says when the next one comes.
+        Assert.Equal("No skill increase at level 2; the next comes at level 3.", Rendering.LevelUpPanel.SkillNote(2));
     }
 
     [AvaloniaFact]

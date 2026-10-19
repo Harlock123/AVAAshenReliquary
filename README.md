@@ -46,7 +46,7 @@ common gear, **L** the level-up screen (when a level is waiting), **Shift** step
 shows on the title screen as a save of its own, numbered: Elirk-2, Elirk-3; Save a copy in the Escape menu does the
 same),
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
-**Space** pauses, the mouse wheel zooms, **F3** shows the frame rate, render timings and the GPU's texture cache. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
+**Space** pauses, the mouse wheel (or a touchpad's two-finger scroll) zooms through five steps and the game remembers the step, the monster you are attacking has an ember-red ring with turning brackets on the ground under it (the one under the pointer a thin pale ring), **F3** shows the frame rate, render timings and the GPU's texture cache. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
 through the refugee camp, to the gate of
 Fort Gallowmere, where Sergeant Brask asks your business.

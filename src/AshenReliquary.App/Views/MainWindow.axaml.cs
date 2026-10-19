@@ -46,6 +46,8 @@ public partial class MainWindow : Window
         AmbienceSlider.Value = settings.Ambience;
         HideCommonLoot.IsChecked = settings.HideCommonLoot;
         World.HideCommonLoot = settings.HideCommonLoot;
+        World.ZoomLevel = settings.Zoom;
+        World.ZoomChanged += SettingsChanged;
         foreach (var slider in new[] { MasterSlider, EffectsSlider, MusicSlider, AmbienceSlider })
             slider.PropertyChanged += (_, e) => { if (e.Property == Slider.ValueProperty) SettingsChanged(); };
         HideCommonLoot.IsCheckedChanged += (_, _) => SettingsChanged();
@@ -71,6 +73,7 @@ public partial class MainWindow : Window
             Master = (float)MasterSlider.Value, Effects = (float)EffectsSlider.Value,
             Music = (float)MusicSlider.Value, Ambience = (float)AmbienceSlider.Value,
             HideCommonLoot = HideCommonLoot.IsChecked == true,
+            Zoom = World.ZoomLevel,
         };
         Audio.Apply(settings);
         World.HideCommonLoot = settings.HideCommonLoot;

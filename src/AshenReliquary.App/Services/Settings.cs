@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace AshenReliquary.App.Services;
 
-/// <summary>Player settings (volumes, the loot filter), kept as settings.json beside the saves folder.</summary>
+/// <summary>Player settings (volumes, the loot filter, the zoom), kept as settings.json beside the saves folder.</summary>
 public sealed record Settings
 {
     public float Master { get; init; } = 0.8f;
@@ -12,6 +12,9 @@ public sealed record Settings
 
     /// <summary>The loot filter: common gear on the ground shows no label (Alt shows them all).</summary>
     public bool HideCommonLoot { get; init; }
+
+    /// <summary>The world view's zoom step (<c>WorldView.ZoomSteps</c>), kept from the mouse wheel.</summary>
+    public int Zoom { get; init; } = Rendering.WorldView.DefaultZoomLevel;
 
     private static string PathFor => Path.Combine(Path.GetDirectoryName(SaveStore.Folder.TrimEnd(Path.DirectorySeparatorChar))!, "settings.json");
 
