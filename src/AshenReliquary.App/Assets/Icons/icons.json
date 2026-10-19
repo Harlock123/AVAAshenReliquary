@@ -112,6 +112,34 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "earthshaker",
+  "file": "earthshaker.png",
+  "source": "https://game-icons.net/1x1/lorc/earth-crack.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "challenge",
+  "file": "challenge.png",
+  "source": "https://game-icons.net/1x1/lorc/shouting.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "burning_hands",
+  "file": "burning_hands.png",
+  "source": "https://game-icons.net/1x1/lorc/fire-breath.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "thunderclap",
+  "file": "thunderclap.png",
+  "source": "https://game-icons.net/1x1/lorc/thunder-struck.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",

@@ -55,7 +55,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   The plan's five decisions were taken on 2026-10-18 (the user said to go with the suggestions; see the plan): zones
   of about 30 minutes, Flare art first (surveyed: no rats or cultists, so crawlers and avatar cultists), the scarecrow
   weeps after the chapel, the full skill list.
-- **M3 (all classes and loot):** in progress, following `docs/M3_PLAN.md`.
+- **M3 (all classes and loot):** in progress, following `docs/M3_PLAN.md` (its five decisions taken provisionally with the
+  suggestions, as M2's were). Step 1 done: subclasses (`FeatType.Subclass` feats, `CharacterChoices.Subclass`, the
+  creation list, the level-up screen's subclass page for older saves, `Character.ChooseSubclass`), feats that modify
+  abilities (`Character.Modify`), bursts with basic saves (`AbilityKind.Burst`, `GameWorld.Bursts.cs`, `Creature.Save`),
+  Vanguard/Bulwark/Pyromancer/Stormcaller with Earthshaker, Challenge, Burning Hands and Thunderclap, two-handed weapons
+  (greatsword, greataxe, maul), quick-start flags per subclass, `CampaignReport` rows per subclass.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

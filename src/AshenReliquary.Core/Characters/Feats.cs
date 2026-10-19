@@ -11,6 +11,8 @@ public enum FeatType
     General,
     /// <summary>A side story's permanent reward, granted by a dialogue effect (never chosen on the level-up screen).</summary>
     Boon,
+    /// <summary>A class's subclass (spec, section 7): chosen at level 1, its feature and ability; one per character.</summary>
+    Subclass,
 }
 
 /// <summary>
@@ -27,6 +29,12 @@ public enum FeatType
 /// <item><see cref="Reach"/>: melee reach, in tiles. <see cref="SpellRange"/>: spell range, in tiles.</item>
 /// <item><see cref="Ability"/>: a new ability on the bar. <see cref="ExtraMissiles"/> on <see cref="Ability"/>: one more missile.</item>
 /// <item><see cref="IgnoreArmorSpeed"/>: body armour never slows the character.</item>
+/// <item>An <see cref="Ability"/> with any of <see cref="Targets"/>, <see cref="Cost"/>, <see cref="Knockback"/>,
+/// <see cref="Chain"/>, <see cref="Splash"/>, <see cref="Radius"/>, <see cref="OnHitSeconds"/> or
+/// <see cref="WardSeconds"/> set doesn't add the ability: it changes it wherever it is on the bar (the spec's
+/// "modifier" feats: one more target, 5 less Fury, a longer ward).</item>
+/// <item><see cref="BlockHardness"/>: Shield Block with a shield takes this much more off a blow.
+/// <see cref="BlockCounter"/>: after a Shield Block the hero strikes back at the attacker if it is in reach.</item>
 /// </list>
 /// </summary>
 public sealed record FeatEffect(
@@ -45,14 +53,29 @@ public sealed record FeatEffect(
     double SpellRange = 0,
     string? Ability = null,
     int ExtraMissiles = 0,
-    bool IgnoreArmorSpeed = false);
+    bool IgnoreArmorSpeed = false,
+    int Targets = 0,
+    double Cost = 0,
+    double Knockback = 0,
+    int Chain = 0,
+    int Splash = 0,
+    double Radius = 0,
+    double OnHitSeconds = 0,
+    double WardSeconds = 0,
+    int BlockHardness = 0,
+    bool BlockCounter = false)
+{
+    /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
+    public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0
+        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0);
+}
 
 /// <summary>
-/// A feat: its type and the level it becomes available at, who may take it (an ancestry, a class, training in a
-/// skill) and its effects. A background's skill feat is granted at level 1 by name.
+/// A feat: its type and the level it becomes available at, who may take it (an ancestry, a class, a subclass, training
+/// in a skill) and its effects. A background's skill feat is granted at level 1 by name.
 /// </summary>
 public sealed record FeatDefinition(string Id, string Name, FeatType Type, int Level, string Description, IReadOnlyList<FeatEffect> Effects,
-    string? Ancestry = null, string? Class = null, string? Skill = null);
+    string? Ancestry = null, string? Class = null, string? Skill = null, string? Subclass = null);
 
 /// <summary>
 /// What a character picked on reaching a level: the feats and skill increase the level grants (see

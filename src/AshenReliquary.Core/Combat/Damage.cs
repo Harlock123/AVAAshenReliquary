@@ -92,6 +92,23 @@ public static class DamageCalculator
     /// The spec's damage formula: (dice + flat bonuses) x degree multiplier, then resistance and weakness.
     /// A hit always deals at least 1 before the target's defences are applied.
     /// </summary>
+    /// <summary>
+    /// A basic saving throw (Pathfinder): the target's degree of success on its save sets the damage it takes from
+    /// <paramref name="rolled"/>: none on a critical success, half on a success, all on a failure, double on a
+    /// critical failure. Then its defences.
+    /// </summary>
+    public static int BasicSave(int rolled, DegreeOfSuccess save, DamageType type, DamageProfile? target)
+    {
+        var taken = save switch
+        {
+            DegreeOfSuccess.CriticalSuccess => 0,
+            DegreeOfSuccess.Success => Math.Max(1, rolled) / 2,
+            DegreeOfSuccess.Failure => Math.Max(1, rolled),
+            _ => Math.Max(1, rolled) * 2,
+        };
+        return taken == 0 ? 0 : ApplyDefenses(taken, type, target);
+    }
+
     public static int Compute(int diceTotal, int flatBonus, DegreeOfSuccess degree, DamageType type,
         DamageProfile? target, GrazeEffect graze = GrazeEffect.None, int extraCriticalDamage = 0)
     {

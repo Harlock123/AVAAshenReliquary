@@ -120,19 +120,42 @@ public sealed class GameSession
     /// <summary>The classes the vertical slice can start as: the ones with abilities and a starting kit.</summary>
     public static bool IsPlayable(string classId) => classId is "fighter" or "wizard";
 
-    /// <summary>Each playable class's starting gear, all common item level 1 (the fighter's sword and shield).</summary>
-    public static IReadOnlyList<string> StartingKit(string classId) => classId == "wizard"
+    /// <summary>
+    /// Each playable class's starting gear, all common item level 1: the fighter's sword and shield (a Vanguard's
+    /// greatsword instead), the wizard's staff and robes.
+    /// </summary>
+    public static IReadOnlyList<string> StartingKit(string classId, string? subclass = null) => classId == "wizard"
         ? ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"]
-        : ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"];
+        : subclass == "vanguard"
+            ? ["greatsword", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"]
+            : ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"];
+
+    /// <summary>The subclass a quick start takes when none is named: the one that suits the class's starting kit.</summary>
+    public static string DefaultSubclass(string classId) => classId == "wizard" ? "pyromancer" : "bulwark";
+
+    /// <summary>
+    /// The class and subclass a quick start's flags ask for: "--vanguard", "--bulwark", "--pyromancer" or
+    /// "--stormcaller" name both; "--wizard" or "--fighter" the class with its default subclass.
+    /// </summary>
+    public static (string ClassId, string Subclass) QuickStart(IReadOnlyCollection<string> args)
+    {
+        foreach (var (flag, classId) in new[] { ("vanguard", "fighter"), ("bulwark", "fighter"), ("pyromancer", "wizard"), ("stormcaller", "wizard") })
+        {
+            if (args.Contains($"--{flag}"))
+                return (classId, flag);
+        }
+        var chosen = args.Contains("--wizard") ? "wizard" : "fighter";
+        return (chosen, DefaultSubclass(chosen));
+    }
 
     /// <summary>What every hero starts with on the belt: a few bombs and an antidote.</summary>
     public static IReadOnlyList<(string Id, int Count)> StartingBelt { get; } = [("alchemists_fire", 3), ("antidote", 1)];
 
     /// <summary>Puts a class's starting kit on a character, and its belt items in the bag (the game and the creation preview).</summary>
-    public static Equipment Dress(Character hero, Equipment gear, string classId)
+    public static Equipment Dress(Character hero, Equipment gear, string classId, string? subclass = null)
     {
         var content = ContentDatabase.Embedded;
-        foreach (var id in StartingKit(classId))
+        foreach (var id in StartingKit(classId, subclass))
             gear.Equip(new Item(content.Item(id), Rarity.Common, 1));
         foreach (var (id, count) in StartingBelt)
             gear.TryAdd(new Item(content.Item(id), Rarity.Common, 1, count: count));
@@ -145,18 +168,22 @@ public sealed class GameSession
         var content = ContentDatabase.Embedded;
         var hero = CharacterBuilder.Create(content, choices);
         var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, seed, content.AbilityBar(choices.ClassId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
-        Dress(hero, world.Hero.Equipment, choices.ClassId);
+        Dress(hero, world.Hero.Equipment, choices.ClassId, choices.Subclass);
         hero.RestAtShrine();
         var session = new GameSession(world, choices.ClassId) { SaveId = Services.SaveStore.NewSaveId(choices.Name), Seed = seed };
         session.HookAutosave();
         return session;
     }
 
-    /// <summary>A quick start (tests, "--wizard"): a Human with the recommended build for the class.</summary>
-    public static GameSession NewGame(string classId, int seed, string zoneId = "gallows_road")
+    /// <summary>
+    /// A quick start (tests, "--wizard"): a Human with the recommended build for the class, and its default subclass
+    /// unless one is named.
+    /// </summary>
+    public static GameSession NewGame(string classId, int seed, string zoneId = "gallows_road", string? subclass = null)
     {
-        var session = NewGame(CharacterBuilder.Recommend(ContentDatabase.Embedded, "The Ashbound", "human",
-            classId == "wizard" ? "hedge-scholar" : "deserter", classId), seed, zoneId);
+        var choices = CharacterBuilder.Recommend(ContentDatabase.Embedded, "The Ashbound", "human",
+            classId == "wizard" ? "hedge-scholar" : "deserter", classId) with { Subclass = subclass ?? DefaultSubclass(classId) };
+        var session = NewGame(choices, seed, zoneId);
         session.PortraitId = Services.Portraits.For("human").FirstOrDefault()?.Id;
         return session;
     }

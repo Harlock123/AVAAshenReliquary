@@ -100,6 +100,8 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         Heritages = new ObservableCollection<HeritageDefinition>(_ancestry.Heritages ?? []);
         AncestryFeats = new ObservableCollection<FeatDefinition>(CharacterBuilder.AncestryFeats(_content, _ancestry.Id));
         _ancestryFeat = AncestryFeats.FirstOrDefault();
+        Subclasses = new ObservableCollection<FeatDefinition>(SubclassesOf(_selectedClass.Definition.Id));
+        _subclass = Subclasses.FirstOrDefault();
         Recommend();
     }
 
@@ -110,6 +112,12 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     public ObservableCollection<AttributeRow> Rows { get; }
     public ObservableCollection<SkillOption> SkillOptions { get; }
     public ObservableCollection<FeatDefinition> AncestryFeats { get; }
+
+    /// <summary>The selected class's subclasses (spec, section 7: chosen at level 1).</summary>
+    public ObservableCollection<FeatDefinition> Subclasses { get; }
+
+    private IEnumerable<FeatDefinition> SubclassesOf(string classId) =>
+        _content.Feats.Values.Where(f => f.Type == FeatType.Subclass && f.Class == classId);
     public ObservableCollection<string> Preview { get; } = [];
     public ObservableCollection<string> Abilities { get; } = [];
 
@@ -125,9 +133,11 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     [ObservableProperty] private string _freeHeader = "Free (4)";
     [ObservableProperty] private int _portraitIndex;
     [ObservableProperty] private FeatDefinition? _ancestryFeat;
+    [ObservableProperty] private FeatDefinition? _subclass;
     [ObservableProperty] private string _skillHeader = "Trained skills";
 
     partial void OnAncestryFeatChanged(FeatDefinition? value) => Refresh();
+    partial void OnSubclassChanged(FeatDefinition? value) => Refresh();
 
     /// <summary>How many skills the player picks: the class's number plus Intelligence.</summary>
     private int SkillPicks => CharacterBuilder.SkillPicks(SelectedClass.Definition, CurrentAttributes());
@@ -216,6 +226,10 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
 
     partial void OnSelectedClassChanged(ClassOption value)
     {
+        Subclasses.Clear();
+        foreach (var subclass in SubclassesOf(value.Definition.Id))
+            Subclasses.Add(subclass);
+        Subclass = Subclasses.FirstOrDefault();
         if (!_loading)
             Recommend();
     }
@@ -295,7 +309,8 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     }
 
     private CharacterChoices? BuildChoices() => new(Name, Ancestry.Id, Background.Id, SelectedClass.Definition.Id, _key,
-        _ancestryFree.ToList(), _backgroundBoost, _backgroundFree, _free.ToList(), Heritage?.Id, _skills.ToList(), AncestryFeat?.Id);
+        _ancestryFree.ToList(), _backgroundBoost, _backgroundFree, _free.ToList(), Heritage?.Id, _skills.ToList(), AncestryFeat?.Id,
+        Subclass?.Id);
 
     /// <summary>The attributes the boost table gives right now (for the skill-pick count, which follows Intelligence).</summary>
     private AttributeSet CurrentAttributes()
@@ -415,7 +430,7 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         CanBegin = TryBuild(choices, out var character);
         if (character is null)
             return;
-        var gear = GameSession.Dress(character, new Equipment(character), choices.ClassId);
+        var gear = GameSession.Dress(character, new Equipment(character), choices.ClassId, choices.Subclass);
         character.RestAtShrine();
         foreach (var stat in StatSnapshot.Take(character).Where(s => s.Core))
             Preview.Add(stat.Name == "Speed" ? $"Speed: {character.SpeedFeet} ft" : $"{stat.Name}: {stat.Text}");
@@ -424,16 +439,23 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
         Preview.Add($"Resource: {character.Class.Resource}");
         foreach (var (slot, ability) in _content.AbilityBar(choices.ClassId).OrderBy(kv => kv.Key switch { "lmb" => 0, "rmb" => 1, _ => 2 }))
             Abilities.Add($"{(slot == "lmb" ? "LMB" : slot == "rmb" ? "RMB" : slot)}  {ability.Name}: {ability.Description}");
+        foreach (var id in character.GrantedAbilities)
+        {
+            if (_content.Abilities.TryGetValue(id, out var granted))
+                Abilities.Add($"{character.Subclass?.Name ?? "Feat"}  {granted.Name}: {granted.Description}");
+        }
         Abilities.Add($"Starting gear: {string.Join(", ", gear.Worn.Values.Select(i => i.Name))}.");
     }
 
     /// <summary>For tests: pick by id without going through the UI.</summary>
-    public void Choose(string ancestryId, string backgroundId, string classId)
+    public void Choose(string ancestryId, string backgroundId, string classId, string? subclassId = null)
     {
         _loading = true;
         Ancestry = Ancestries.First(a => a.Id == ancestryId);
         Background = Backgrounds.First(b => b.Id == backgroundId);
         SelectedClass = Classes.First(c => c.Definition.Id == classId);
+        if (subclassId is not null)
+            Subclass = Subclasses.First(s => s.Id == subclassId);
         _loading = false;
         Recommend();
     }

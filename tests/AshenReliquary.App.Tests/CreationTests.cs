@@ -63,6 +63,67 @@ public class CreationTests
     }
 
     [AvaloniaFact]
+    public void The_subclass_is_picked_at_creation_and_a_vanguard_starts_with_a_greatsword()
+    {
+        var (window, vm, kit) = Open();
+        Assert.Equal(["vanguard", "bulwark"], vm.Subclasses.Select(s => s.Id));
+        Assert.Equal("vanguard", vm.Subclass?.Id);
+        Assert.Contains(vm.Abilities, a => a.StartsWith("Vanguard  Earthshaker"));
+        Assert.Contains(vm.Abilities, a => a.Contains("Greatsword"));
+        vm.Choose("human", "hedge-scholar", "wizard", "stormcaller");
+        kit.Pump();
+        Assert.Equal(["pyromancer", "stormcaller"], vm.Subclasses.Select(s => s.Id));
+        Assert.Contains(vm.Abilities, a => a.StartsWith("Stormcaller  Thunderclap"));
+        vm.Choose("human", "deserter", "fighter", "vanguard");
+        kit.Pump();
+        kit.Capture(Shot("character-creation-subclass"));
+        vm.BeginCommand.Execute(null);
+        kit.Pump();
+        var world = window.Session!.World;
+        Assert.Equal("vanguard", world.Hero.Character.Subclass?.Id);
+        Assert.Equal("greatsword", world.Hero.Equipment.In(AshenReliquary.Core.Items.EquipSlot.MainHand)?.Definition.Id);
+        Assert.Null(world.Hero.Equipment.In(AshenReliquary.Core.Items.EquipSlot.OffHand));
+        Assert.Contains(world.Bar.Values, a => a.Id == "earthshaker");
+    }
+
+    [AvaloniaFact]
+    public void A_hero_from_before_subclasses_chooses_one_on_the_level_up_screen()
+    {
+        var save = AshenReliquary.Core.Saving.SaveGame.Capture(GameSession.NewGame("fighter", 3).World, "old", 3, null);
+        save = save with { Choices = save.Choices with { Subclass = null } };
+        var window = new MainWindow { Session = GameSession.FromSave(AshenReliquary.Core.Saving.SaveGame.FromJson(save.ToJson())), Width = 1288, Height = 770 };
+        window.View.FixedTime = 0;
+        window.Show();
+        var kit = new TestKitLite(window);
+        kit.Pump();
+        var world = window.Session!.World;
+        Assert.True(world.Hero.Character.NeedsSubclass);
+        Assert.DoesNotContain(world.Bar.Values, a => a.Id == "challenge");
+        window.View.OpenLevelUp();
+        Assert.True(window.View.LevelUpOpen);
+        window.Tick(TimeSpan.FromSeconds(0.05));
+        kit.Capture(null);
+        var panel = window.View.LevelUp;
+        Assert.True(panel.ShowsSubclass);
+        var (rect, _) = panel.Options.Single(o => o.Title == "Bulwark");
+        Click(window, kit, new Point(rect.MidX, rect.MidY));
+        kit.Capture(Shot("subclass-page"));
+        Click(window, kit, new Point(panel.ConfirmButton.MidX, panel.ConfirmButton.MidY));
+        Assert.Equal("bulwark", world.Hero.Character.Subclass?.Id);
+        Assert.Contains(world.Bar.Values, a => a.Id == "challenge");
+        window.Tick(TimeSpan.FromSeconds(0.05));
+        kit.Capture(null);
+        Assert.False(window.View.LevelUpOpen); // nothing else waiting: the screen closes
+    }
+
+    private static void Click(MainWindow window, TestKitLite kit, Point at)
+    {
+        window.MouseDown(at, Avalonia.Input.MouseButton.Left);
+        window.MouseUp(at, Avalonia.Input.MouseButton.Left);
+        kit.Pump();
+    }
+
+    [AvaloniaFact]
     public void A_new_level_offers_the_level_up_screen()
     {
         var kit = TestKit.Open();

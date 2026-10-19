@@ -99,14 +99,15 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             new($"No blow lands for {GameWorld.DodgeSeconds:0.##} s; {GameWorld.DodgeCooldown:0} s cooldown.", Dim),
         ], Ink);
 
-        // Levels waiting for their picks.
-        if (c.PendingLevels.Count > 0)
+        // Levels waiting for their picks (or the subclass a save from before them still lacks).
+        if (c.PendingLevels.Count > 0 || c.NeedsSubclass)
         {
             using var badgeFont = new SKFont(WorldOverlay.Serif, 16);
             var pulse = (byte)(170 + 85 * Math.Abs(Math.Sin(world.Time * 2.5)));
             using var badgeInk = new SKPaint { IsAntialias = true, Color = Gold.WithAlpha(pulse) };
             using var badgeBack = new SKPaint { Color = new SKColor(0, 0, 0, 170) };
-            var text = $"Level up! Press L to choose what level {c.PendingLevels[0]} brings";
+            var text = c.NeedsSubclass ? $"New: press L to choose your {c.Class.Name.ToLowerInvariant()} subclass"
+                : $"Level up! Press L to choose what level {c.PendingLevels[0]} brings";
             var width = badgeFont.MeasureText(text) + 24;
             LevelUpBadge = SKRect.Create((size.Width - width) / 2, size.Height - 168, width, 28);
             canvas.DrawRect(LevelUpBadge, badgeBack);

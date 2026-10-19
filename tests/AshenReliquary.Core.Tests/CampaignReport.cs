@@ -22,8 +22,10 @@ public class CampaignReport(ITestOutputHelper output)
     public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0);
 
     [Theory]
-    [InlineData("fighter")]
-    [InlineData("wizard")]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
     public void Act_1_from_the_gallows_to_Mother_Sallow(string kit)
     {
         for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
@@ -46,12 +48,12 @@ public class CampaignReport(ITestOutputHelper output)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
-        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var hero = TestCharacters.ForKit(kit);
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(content.Zone("gallows_road"), content.Creatures, hero, seed, bar, content.Loot, content.Zones,
             content.Dialogues, content.Abilities);
         BalanceReport.Dress(hero, world.Hero.Equipment, kit);
-        var bot = new Bot(world, classId, bar);
+        var bot = new Bot(world, classId, bar) { Subclass = hero.Subclass?.Id };
 
         bot.Clear("gallows_road", "fort_gallowmere");
         bot.Fort();
@@ -69,6 +71,9 @@ public class CampaignReport(ITestOutputHelper output)
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>
     private sealed class Bot(GameWorld world, string classId, IReadOnlyDictionary<string, Abilities.AbilityDefinition> bar)
     {
+        /// <summary>The hero's subclass, which decides the weapons it keeps.</summary>
+        public string? Subclass { get; init; }
+
         public List<ZoneLeg> Legs { get; } = [];
         public List<string> Killers { get; } = [];
         public int SallowLevel { get; private set; }
@@ -235,8 +240,10 @@ public class CampaignReport(ITestOutputHelper output)
                 var d = item.Definition;
                 if (d.IsWeapon && (classId == "wizard" ? !d.CasterFocus : d.CasterFocus || d.Ranged))
                     continue;
-                if (d.IsShield && classId == "wizard")
-                    continue; // a shield would take the staff out of both hands
+                if (d.IsShield && (classId == "wizard" || Subclass == "vanguard"))
+                    continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands
+                if (d.IsWeapon && classId == "fighter" && d.IsTwoHanded != (Subclass == "vanguard"))
+                    continue; // a Vanguard fights two-handed, a Bulwark with sword and shield
                 if (d.IsBodyArmor && gear.In(EquipSlot.Chest) is { } chest && chest.Definition.ArmorCategory != d.ArmorCategory)
                     continue;
                 if (gear.SlotFor(item) is not { } slot)

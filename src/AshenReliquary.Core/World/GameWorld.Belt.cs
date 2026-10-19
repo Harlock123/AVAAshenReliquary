@@ -86,6 +86,11 @@ public sealed partial class GameWorld
             RaiseWard(ability);
             return;
         }
+        if (ability.Kind == AbilityKind.Burst)
+        {
+            SelfBurst(ability);
+            return;
+        }
         if (!UseUpBeltItem(ability))
             return;
         var c = Hero.Character;

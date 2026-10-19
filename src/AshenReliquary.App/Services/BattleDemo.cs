@@ -5,7 +5,8 @@ namespace AshenReliquary.App.Services;
 /// <summary>
 /// "--battle": the hero plays a zone's fights alone, for watching or recording (and for measuring the frame rate in a
 /// real fight). They walk to the nearest pack, fight it as the balance bots do (<see cref="Tactics"/>), drink a potion
-/// when hurt, and move on to the next. A demo hero cannot die: below half their health they are quietly topped up.
+/// when hurt, and move on to the next. A demo hero cannot die: below half their health they are quietly topped up,
+/// and no blow takes their last hit point (<see cref="Core.Characters.Character.CannotFall"/>).
 /// </summary>
 public sealed class BattleDemo(GameWorld world, string classId)
 {
@@ -20,6 +21,7 @@ public sealed class BattleDemo(GameWorld world, string classId)
     {
         if (world.Hero.IsDead)
             return;
+        world.Hero.Character.CannotFall = true;
         // Checked every frame: a level-1 hero can lose a quarter of their health in one blow.
         var hero = world.Hero.Character;
         if (hero.HitPoints < hero.MaxHitPoints * 0.6 && world.Hero.HealRemaining <= 0)

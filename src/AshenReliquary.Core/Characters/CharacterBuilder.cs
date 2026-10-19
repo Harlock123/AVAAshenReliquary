@@ -16,7 +16,8 @@ public sealed record CharacterChoices(
     IReadOnlyList<AttributeKind> FreeBoosts,
     string? HeritageId = null,
     IReadOnlyList<string>? Skills = null,
-    string? AncestryFeat = null);
+    string? AncestryFeat = null,
+    string? Subclass = null);
 
 /// <summary>
 /// Builds a level-1 character in Pathfinder order: ancestry, background, class, then four free boosts.
@@ -104,6 +105,13 @@ public static class CharacterBuilder
         else if (ancestryFeats.Count > 0)
         {
             character.Grant(ancestryFeats[0]);
+        }
+        // The subclass (spec: level 1). Saves from before subclasses have none and choose it on the level-up screen.
+        if (choices.Subclass is { } subclassId)
+        {
+            var subclass = character.SubclassOptions.FirstOrDefault(f => f.Id == subclassId)
+                ?? throw new RulesException($"'{subclassId}' isn't a {characterClass.Name} subclass.");
+            character.Grant(subclass);
         }
         character.RestoreHitPointsToMax();
         character.MarkCreated();

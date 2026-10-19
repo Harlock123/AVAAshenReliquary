@@ -1,3 +1,4 @@
+using AshenReliquary.Core.Abilities;
 using AshenReliquary.Core.Combat;
 using AshenReliquary.Core.Content;
 using AshenReliquary.Core.Items;
@@ -230,12 +231,43 @@ public sealed class Character : IDefender
         HitPoints += MaxHitPoints - before;
     }
 
-    /// <summary>Whether this character may take a feat at <paramref name="level"/>: its level, ancestry, class, skill training, not taken yet.</summary>
+    /// <summary>Whether this character may take a feat at <paramref name="level"/>: its level, ancestry, class, subclass, skill training, not taken yet.</summary>
     public bool CanTake(FeatDefinition feat, int level) =>
         feat.Level <= level && !_feats.Contains(feat)
         && (feat.Ancestry is null || feat.Ancestry == Ancestry.Id)
         && (feat.Class is null || feat.Class == Class.Id)
+        && (feat.Subclass is null || feat.Subclass == Subclass?.Id)
         && (feat.Skill is null || SkillRank(feat.Skill) >= ProficiencyRank.Trained);
+
+    // ----- Subclass --------------------------------------------------------------
+
+    /// <summary>The subclass chosen at level 1 (its feat), or null for a class without them or a save from before them.</summary>
+    public FeatDefinition? Subclass => _feats.FirstOrDefault(f => f.Type == FeatType.Subclass);
+
+    /// <summary>The subclasses this character's class offers, in the file's order.</summary>
+    public IReadOnlyList<FeatDefinition> SubclassOptions =>
+        Content is null ? [] : Content.Feats.Values.Where(f => f.Type == FeatType.Subclass && f.Class == Class.Id).ToList();
+
+    /// <summary>Whether the subclass is still to choose: the class has subclasses and none is taken (a save from before them).</summary>
+    public bool NeedsSubclass => Subclass is null && SubclassOptions.Count > 0;
+
+    /// <summary>
+    /// Takes a subclass after creation (a save from before subclasses). It counts as a level-1 pick: a respec keeps it,
+    /// and the creation choices record it so the save rebuilds it.
+    /// </summary>
+    public void ChooseSubclass(string id)
+    {
+        if (Subclass is { } taken)
+            throw new RulesException($"{Name} is already a {taken.Name}.");
+        var feat = SubclassOptions.FirstOrDefault(f => f.Id == id)
+            ?? throw new RulesException($"'{id}' isn't a {Class.Name} subclass.");
+        var before = MaxHitPoints;
+        Grant(feat);
+        _creationFeats?.Add(feat);
+        if (Choices is { } choices)
+            Choices = choices with { Subclass = id };
+        HitPoints += MaxHitPoints - before;
+    }
 
     /// <summary>Whether a skill increase at <paramref name="level"/> may raise this skill a rank (expert from 3, master from 7).</summary>
     public bool CanIncrease(string skill, int level) =>
@@ -288,11 +320,11 @@ public sealed class Character : IDefender
         _feats.Clear();
         _skillBonuses.Clear();
         _featResistances.Clear();
-        _extraMissiles.Clear();
+        _abilityMods.Clear();
         _grantedAbilities.Clear();
-        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = 0;
+        FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = 0;
         RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = 0;
-        IgnoresArmorSpeed = false;
+        IgnoresArmorSpeed = BlockCounter = false;
         Taint.ResetRate(_creationTaintRate);
         foreach (var feat in _creationFeats)
             Grant(feat);
@@ -326,7 +358,7 @@ public sealed class Character : IDefender
     private readonly List<FeatDefinition> _feats = [];
     private readonly List<(string Skill, Modifier Modifier)> _skillBonuses = [];
     private readonly Dictionary<DamageType, int> _featResistances = [];
-    private readonly Dictionary<string, int> _extraMissiles = [];
+    private readonly Dictionary<string, List<FeatEffect>> _abilityMods = [];
     private readonly List<string> _grantedAbilities = [];
 
     public IReadOnlyList<FeatDefinition> Feats => _feats;
@@ -344,7 +376,39 @@ public sealed class Character : IDefender
     public double SpellRangeBonus { get; private set; }
     public bool IgnoresArmorSpeed { get; private set; }
 
-    public int ExtraMissiles(string abilityId) => _extraMissiles.GetValueOrDefault(abilityId);
+    /// <summary>How much more Shield Block takes off a blow with a shield (the Bulwark).</summary>
+    public int BlockHardnessBonus { get; private set; }
+
+    /// <summary>Whether a Shield Block is followed by a strike back at the attacker (the Bulwark).</summary>
+    public bool BlockCounter { get; private set; }
+
+    public int ExtraMissiles(string abilityId) => _abilityMods.GetValueOrDefault(abilityId)?.Sum(m => m.ExtraMissiles) ?? 0;
+
+    /// <summary>
+    /// An ability as this character's feats have changed it: more targets or missiles, a lower cost, a wider burst, a
+    /// longer ward (see <see cref="FeatEffect.ModifiesAbility"/>). Unchanged when no feat touches it.
+    /// </summary>
+    public AbilityDefinition Modify(AbilityDefinition ability)
+    {
+        if (!_abilityMods.TryGetValue(ability.Id, out var mods))
+            return ability;
+        foreach (var m in mods)
+        {
+            ability = ability with
+            {
+                Missiles = ability.Missiles + m.ExtraMissiles,
+                Targets = ability.Targets + m.Targets,
+                Cost = Math.Max(0, ability.Cost + m.Cost),
+                Knockback = ability.Knockback + m.Knockback,
+                Chain = ability.Chain + m.Chain,
+                Splash = ability.Splash + m.Splash,
+                Radius = ability.Radius + m.Radius,
+                OnHitSeconds = ability.OnHitSeconds + m.OnHitSeconds,
+                WardSeconds = ability.WardSeconds + m.WardSeconds,
+            };
+        }
+        return ability;
+    }
 
     /// <summary>Applies a feat's effects (see <see cref="FeatEffect"/>).</summary>
     internal void Grant(FeatDefinition feat)
@@ -363,11 +427,19 @@ public sealed class Character : IDefender
                 _featResistances[type] = _featResistances.GetValueOrDefault(type) + e.Value;
             if (e.Ability is { } ability)
             {
-                if (e.ExtraMissiles > 0)
-                    _extraMissiles[ability] = _extraMissiles.GetValueOrDefault(ability) + e.ExtraMissiles;
+                if (e.ModifiesAbility)
+                {
+                    if (!_abilityMods.TryGetValue(ability, out var mods))
+                        _abilityMods[ability] = mods = [];
+                    mods.Add(e);
+                }
                 else if (!_grantedAbilities.Contains(ability))
+                {
                     _grantedAbilities.Add(ability);
+                }
             }
+            BlockHardnessBonus += e.BlockHardness;
+            BlockCounter |= e.BlockCounter;
             FeatHitPointsPerLevel += e.HitPointsPerLevel;
             FeatSpeedFeet += e.SpeedFeet;
             RecoveryBonus += e.Recovery;
@@ -402,11 +474,17 @@ public sealed class Character : IDefender
     /// Takes damage. At 0 HP the character is dying; a held Hero Point is spent at once to revive at half HP,
     /// otherwise the character dies.
     /// </summary>
+    /// <summary>
+    /// The "--battle" demo's hero: no blow takes the last hit point, so a fight left to play itself never ends in a
+    /// death screen (several blows in one frame could otherwise beat the demo's top-up).
+    /// </summary>
+    public bool CannotFall { get; set; }
+
     public DeathOutcome TakeDamage(int amount)
     {
         if (IsDead || amount <= 0)
             return IsDead ? DeathOutcome.Died : DeathOutcome.Alive;
-        HitPoints = Math.Max(0, HitPoints - amount);
+        HitPoints = Math.Max(CannotFall ? 1 : 0, HitPoints - amount);
         if (HitPoints > 0)
             return DeathOutcome.Alive;
         if (HeroPoints.TrySpend())

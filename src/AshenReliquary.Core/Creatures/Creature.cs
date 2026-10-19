@@ -105,6 +105,19 @@ public sealed class Creature(
         new[] { new Modifier("Base", Stats.AttackBonus) }
             .Concat(Conditions.PenaltiesFor(StatisticKind.Attack, AttributeKind.Strength)));
 
+    /// <summary>
+    /// A saving throw's modifier: its save DC less 10 (Pathfinder's moderate save), 2 lower below Herald rank as the
+    /// pack ranks' attacks are for one hero, with the conditions that apply.
+    /// </summary>
+    public ModifierTotal Save(StatisticKind save) => ModifierStack.Combine(
+        new[] { new Modifier("Base", Stats.SaveDc - 10 + (Stats.Rank < CreatureRank.Herald ? -2 : 0)) }
+            .Concat(Conditions.PenaltiesFor(save, save switch
+            {
+                StatisticKind.Fortitude => AttributeKind.Constitution,
+                StatisticKind.Reflex => AttributeKind.Dexterity,
+                _ => AttributeKind.Wisdom,
+            })));
+
     public void TakeDamage(int amount) => HitPoints = Math.Max(0, HitPoints - Math.Max(0, amount));
 
     /// <summary>Back to full health, conditions and persistent damage gone (a boss resetting when the hero falls).</summary>

@@ -944,5 +944,139 @@
     "speedFeet": 5
    }
   ]
+ },
+ {
+  "id": "vanguard",
+  "name": "Vanguard",
+  "type": "Subclass",
+  "level": 1,
+  "class": "fighter",
+  "description": "Two-handed weapons, cleaves and knockback. Earthshaker: with a two-handed weapon, slam the ground and every enemy within 2 tiles takes your weapon's damage (a basic Reflex save against your class DC), knocked back 1.5 tiles on a failure. Your Cleave reaches one more enemy and costs 5 less Fury.",
+  "effects": [
+   {
+    "ability": "earthshaker"
+   },
+   {
+    "ability": "cleave",
+    "targets": 1,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "bulwark",
+  "name": "Bulwark",
+  "type": "Subclass",
+  "level": 1,
+  "class": "fighter",
+  "description": "Sword and shield, blocks, counters and taunts. Challenge: roar at every enemy within 5 tiles; they turn on you, and those that fail a Will save against your class DC are frightened 1 (2 on a critical failure). Shield Block takes 2 more off a blow, and after it you strike back at the attacker.",
+  "effects": [
+   {
+    "ability": "challenge"
+   },
+   {
+    "blockHardness": 2,
+    "blockCounter": true
+   }
+  ]
+ },
+ {
+  "id": "pyromancer",
+  "name": "Pyromancer",
+  "type": "Subclass",
+  "level": 1,
+  "class": "wizard",
+  "description": "Fire, burning and areas. Burning Hands: a 3-tile cone of flame, 2d6 fire (+1d6 a rank above 1) against a basic Reflex save. Ignition splashes 1 fire on the enemies round its target (2 from rank 3).",
+  "effects": [
+   {
+    "ability": "burning_hands"
+   },
+   {
+    "ability": "ignition",
+    "splash": 1
+   }
+  ]
+ },
+ {
+  "id": "stormcaller",
+  "name": "Stormcaller",
+  "type": "Subclass",
+  "level": 1,
+  "class": "wizard",
+  "description": "Lightning chains, cold and control. Thunderclap: lightning cracks round you, 2d4 electricity (+1d4 a rank above 1) to every enemy within 2.5 tiles against a basic Reflex save, knocked back a tile on a failure. Electric Arc leaps to one more enemy and Ray of Frost slows for a second longer, once you have them.",
+  "effects": [
+   {
+    "ability": "thunderclap"
+   },
+   {
+    "ability": "electric_arc",
+    "chain": 1
+   },
+   {
+    "ability": "ray_of_frost",
+    "onHitSeconds": 1
+   }
+  ]
+ },
+ {
+  "id": "battering_blows",
+  "name": "Battering Blows",
+  "type": "Class",
+  "level": 2,
+  "class": "fighter",
+  "subclass": "vanguard",
+  "description": "Vanguard: Power Attack knocks its target back 1.5 tiles.",
+  "effects": [
+   {
+    "ability": "power_attack",
+    "knockback": 1.5
+   }
+  ]
+ },
+ {
+  "id": "steadfast_guard",
+  "name": "Steadfast Guard",
+  "type": "Class",
+  "level": 2,
+  "class": "fighter",
+  "subclass": "bulwark",
+  "description": "Bulwark: Raise a Shield lasts 3 s longer (9 s).",
+  "effects": [
+   {
+    "ability": "raise_shield",
+    "wardSeconds": 3
+   }
+  ]
+ },
+ {
+  "id": "widen_spell",
+  "name": "Widen Spell",
+  "type": "Class",
+  "level": 2,
+  "class": "wizard",
+  "subclass": "pyromancer",
+  "description": "Pyromancer: Burning Hands reaches a tile further (4 tiles).",
+  "effects": [
+   {
+    "ability": "burning_hands",
+    "radius": 1
+   }
+  ]
+ },
+ {
+  "id": "rolling_thunder",
+  "name": "Rolling Thunder",
+  "type": "Class",
+  "level": 2,
+  "class": "wizard",
+  "subclass": "stormcaller",
+  "description": "Stormcaller: Thunderclap reaches a tile further and knocks back a tile more.",
+  "effects": [
+   {
+    "ability": "thunderclap",
+    "radius": 1,
+    "knockback": 1
+   }
+  ]
  }
 ]

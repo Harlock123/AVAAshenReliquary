@@ -40,7 +40,11 @@ What M3 needs that does not exist yet:
 
 Each step ends playable: a play-test, tests, the spec and README updated, a commit when the user asks.
 
-### 1. Subclasses for the Fighter and the Wizard
+### 1. Subclasses for the Fighter and the Wizard — done 2026-10-19
+
+Built as below, with the abilities taken to level 2 so far (spec section 16, "Subclasses"). Learned on the way: a
+fighter's class abilities hold four of the six number slots, so choosing what sits on the bar has to come before the
+classes with more abilities (added to step 2).
 
 The framework every class needs, proved on the two that exist.
 
@@ -57,6 +61,9 @@ The framework every class needs, proved on the two that exist.
 - Feats and the bots learn about subclasses; `CampaignReport` plays each.
 
 ### 2. The Rogue
+
+First, choosing the bar: an ability list (the spec's 8-slot bar, two mouse buttons and keys 1-6) where the player puts
+any ability they have into any slot, kept in the save; abilities not on the bar wait in the list.
 
 Momentum (builds while moving and on crits, spent on finishers). Light armour, daggers and short swords (Flare has
 both). Sneak attack: extra precision dice against an off-guard target (flanked, or unaware: a monster that has not
@@ -115,6 +122,8 @@ finally matters.
 - **Exit (proposed):** each new class's opening zone played by the user, and the bots' twelve campaign runs passing.
 
 ## Decisions to take
+
+Taken provisionally on 2026-10-19 with the suggestions (the user said to get started on M3); each can still be changed.
 
 1. **How far the class kits go.** The spec's table runs to level 20, and Act 1 ends at 5. Options: build each class
    to level 8 (its signature abilities, as Act 2 starts near 6), to level 6 only, or to 20 now. My suggestion: to

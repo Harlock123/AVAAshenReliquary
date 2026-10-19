@@ -683,7 +683,7 @@ The build order proves the rules engine and one playable act before widening con
 1. **M0 — Rules core.** *Done.* Attributes, proficiency, bonus stacking, d20 resolution with degrees of success, damage, conditions. *Exit:* xUnit tests cover every formula in sections 8 and 10.
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
-4. **M3 — All classes and loot.** The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
+4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
@@ -1002,6 +1002,47 @@ clashed with clicks on the same gear and froze the picture. Measured on the Surf
   act fall to 0-1 for the fighter (was 0-3) and 0-4 for the wizard (was 0-8); 18-20 minutes of bot play for the
   fighter, 24-27 for the wizard. The bot keeps its belt, restocks five alchemist's fires and two antidotes at Wenna's on
   each fort trip (3-13 bought) and drinks an antidote when poisoned; gold still ends near 2,000 in its hands.
+
+### Subclasses (M3 step 1)
+
+- **What a subclass is:** a feat of type `Subclass` (`feats.json`), given at level 1 and never taken again: its
+  description is the subclass's feature, its effects add an ability and change others. The creation screen lists the
+  class's two (the first is selected); `CharacterChoices.Subclass` records the pick and the save rebuilds it. A hero from
+  a save made before subclasses has none: the HUD's badge says "New: press L to choose your fighter subclass" and the
+  level-up screen shows a subclass page first (Confirm, then any waiting level). A respec keeps the subclass. Class
+  feats can name a `subclass` and are offered only to it.
+- **Feats that change abilities** (the spec's "modifier" feats, section 9): a feat effect naming an `ability` with any
+  of `targets`, `cost`, `knockback`, `chain`, `splash`, `radius`, `onHitSeconds`, `wardSeconds` or `extraMissiles`
+  changes that ability wherever it sits on the bar (`Character.Modify`, applied by `RefreshBar`), now or once the hero
+  has it. Feat abilities fill the number slots no class ability uses first, then any left empty, so they no longer move
+  when a class ability joins later.
+- **Bursts** (`AbilityKind.Burst`, `GameWorld.Bursts.cs`): an area round the hero. Every enemy within `radius` (and
+  `arc` of the target's direction, for a cone) makes a basic save (`save`: Reflex, Fortitude or Will) against the hero's
+  spell DC (abilities with the Spell trait) or class DC. Damage follows the degree (Pathfinder's basic save: none, half,
+  full, double), from the ability's dice or, with `weaponDamage`, the weapon's dice and damage bonus; a failed save also
+  brings the ability's condition and knockback; everyone caught turns on the hero. A full burst needs no target and goes
+  off at once (like a ward); a cone is aimed and winds up. Drawn as a ring or cone spreading across the ground in the
+  damage type's colour. **Monster saves:** a creature's save is its save DC less 10 (Pathfinder's moderate save), 2
+  less below Herald rank (the pack ranks are scaled for one hero), with its conditions.
+- **The four subclasses** (abilities to level 2 for now; decision 1 of the plan takes them to 8):
+
+| Subclass | Feature | Ability | Level-2 feat |
+| --- | --- | --- | --- |
+| Vanguard | Cleave reaches one more enemy and costs 5 less Fury; starts with a greatsword (no shield) | Earthshaker: two-handed only; weapon damage to all within 2 tiles, basic Reflex, knockback 1.5 on a failure; 20 Fury, 5 s | Battering Blows: Power Attack knocks back 1.5 |
+| Bulwark | Shield Block takes 2 more off a blow and is followed by a free Strike at the attacker in reach | Challenge: all within 5 tiles turn on the hero; Will save or frightened 1 (2 on a critical failure); 10 Fury, 12 s | Steadfast Guard: Raise a Shield lasts 9 s |
+| Pyromancer | Ignition splashes 1 fire round its target (2 from rank 3), hit or miss | Burning Hands: a 3-tile, 90° cone, 2d6 fire +1d6 a rank, basic Reflex; 14 Mana | Widen Spell: Burning Hands reaches 4 tiles |
+| Stormcaller | Electric Arc chains once more; Ray of Frost slows 1 s longer (once taken) | Thunderclap: 2d4 electricity +1d4 a rank to all within 2.5 tiles, basic Reflex, knockback 1 on a failure; 14 Mana, 3 s | Rolling Thunder: Thunderclap reaches a tile further and knocks back a tile more |
+
+- **Two-handed weapons:** the greatsword, greataxe and maul (d12, Flare's greatsword, battle axe and maul art);
+  a two-handed weapon takes the shield off and the reverse, as the staff did.
+- **Quick starts:** `--fighter` is a Bulwark and `--wizard` a Pyromancer (the subclasses that suit the old starting
+  kits); `--vanguard`, `--bulwark`, `--pyromancer` and `--stormcaller` start as that subclass, with `--battle` too.
+- **The bots** use the subclass abilities against a crowd (`Tactics`); `CampaignReport` plays Act 1 as each of the
+  four subclasses. First run: every subclass kills Mother Sallow at level 5 (Bulwark and Vanguard without a death,
+  Pyromancer without one, Stormcaller with 6 deaths in a bot that never kites, as the plain wizard had 0-4). The
+  `--battle` demo's hero can no longer fall (`Character.CannotFall`): several blows in one frame beat its top-up once.
+- **The bar fills up:** the fighter's class holds four of the six number slots, so a fighter has two for its subclass
+  and feat abilities. Choosing what goes on the bar is part of the plan (step 2 onward need it).
 
 ### The arsenal (M2, after step 10)
 

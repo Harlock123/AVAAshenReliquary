@@ -17,6 +17,9 @@ ICONS = {
     "swipe": "lorc/sword-spin", "electric_arc": "lorc/lightning-arc", "ray_of_frost": "lorc/ice-bolt",
     # The arsenal: the fighter's Cleave, Raise a Shield and Finishing Blow, the wizard's Shield cantrip
     "cleave": "lorc/axe-swing", "raise_shield": "sbed/shield", "finishing_blow": "lorc/decapitation", "shield": "lorc/magic-shield",
+    # Subclass abilities (M3): Vanguard, Bulwark, Pyromancer, Stormcaller
+    "earthshaker": "lorc/earth-crack", "challenge": "lorc/shouting", "burning_hands": "lorc/fire-breath",
+    "thunderclap": "lorc/thunder-struck",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",

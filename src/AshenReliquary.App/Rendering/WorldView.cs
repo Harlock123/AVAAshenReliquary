@@ -54,10 +54,10 @@ public sealed class WorldView : Control
     private Func<Item, bool>? BenchFor(GameWorld world) =>
         world.OpenVendor is { Definition.Runework: true } && Trade.Runework ? item => Trade.PutOnBench(item, world) : null;
 
-    /// <summary>Opens the level-up screen when a level is waiting, closing any conversation that would cover it.</summary>
+    /// <summary>Opens the level-up screen when a level (or the subclass) is waiting, closing any conversation that would cover it.</summary>
     public void OpenLevelUp()
     {
-        if (World is not { } world || world.Hero.Character.PendingLevels.Count == 0)
+        if (World is not { } world || (world.Hero.Character.PendingLevels.Count == 0 && !world.Hero.Character.NeedsSubclass))
             return;
         world.EndDialogue();
         LevelUpOpen = true;
@@ -896,7 +896,7 @@ public sealed class WorldView : Control
             _journal.Draw(canvas, size, world);
             hud.Block(_journal.Bounds);
         }
-        if (LevelUpOpen && world.Hero.Character.PendingLevels.Count == 0)
+        if (LevelUpOpen && world.Hero.Character.PendingLevels.Count == 0 && !world.Hero.Character.NeedsSubclass)
             LevelUpOpen = false;
         if (LevelUpOpen)
         {
@@ -998,6 +998,7 @@ public sealed class WorldView : Control
         DrawGround(canvas, size, world, time);
         DrawHazards(canvas, world);
         DrawTargetMarks(canvas, world, time);
+        DrawBursts(canvas, world);
         Stats.Mark("ground");
         DrawDepthSorted(canvas, size, world);
         DrawSpells(canvas, world);
@@ -1639,6 +1640,44 @@ public sealed class WorldView : Control
         AshenReliquary.Core.Combat.DamageType.Taint => new SKColor(170, 80, 210),
         _ => new SKColor(255, 230, 160),
     };
+
+    /// <summary>
+    /// Bursts on the ground: the area fills in its damage type's colour and a bright edge runs out to the full radius
+    /// as it fades. Drawn in map space (a circle or a cone of tiles), so it lies flat like the tiles.
+    /// </summary>
+    private void DrawBursts(SKCanvas canvas, GameWorld world)
+    {
+        foreach (var b in world.Bursts)
+        {
+            var age = (float)Math.Clamp((world.Time - b.At) / GameWorld.BurstSeconds, 0, 1);
+            var radius = b.Radius * (0.35 + 0.65 * Math.Sqrt(age));
+            var color = SpellColor(b.Type);
+            using var fill = new SKPaint { IsAntialias = true, BlendMode = SKBlendMode.Plus, Color = color.WithAlpha((byte)(90 * (1 - age))) };
+            using var edge = new SKPaint
+            {
+                IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 4 * (float)Zoom, BlendMode = SKBlendMode.Plus,
+                Color = color.WithAlpha((byte)(230 * (1 - age))),
+            };
+            using var path = new SKPath();
+            var cone = b.Arc < 360;
+            var half = b.Arc / 2 * Math.PI / 180;
+            if (cone)
+                path.MoveTo(ToScreen(b.X, b.Y));
+            const int steps = 40;
+            for (var i = 0; i <= steps; i++)
+            {
+                var a = cone ? b.Direction - half + 2 * half * i / steps : 2 * Math.PI * i / steps;
+                var at = ToScreen(b.X + radius * Math.Cos(a), b.Y + radius * Math.Sin(a));
+                if (i == 0 && !cone)
+                    path.MoveTo(at);
+                else
+                    path.LineTo(at);
+            }
+            path.Close();
+            canvas.DrawPath(path, fill);
+            canvas.DrawPath(path, edge);
+        }
+    }
 
     /// <summary>Projectiles fly at chest height with a short glowing trail; impacts are a quick expanding burst.</summary>
     private void DrawSpells(SKCanvas canvas, GameWorld world)

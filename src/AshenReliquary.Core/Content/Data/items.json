@@ -49,6 +49,54 @@
   ]
  },
  {
+  "id": "greatsword",
+  "name": "Greatsword",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 99,
+  "loot": "greatsword",
+  "gfx": "greatsword",
+  "damageDie": 12,
+  "damageType": "Slashing",
+  "attacksPerSecond": 0.9,
+  "traits": [
+   "TwoHand",
+   "Versatile"
+  ]
+ },
+ {
+  "id": "greataxe",
+  "name": "Greataxe",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 119,
+  "loot": "battle_axe",
+  "gfx": "battle_axe",
+  "damageDie": 12,
+  "damageType": "Slashing",
+  "attacksPerSecond": 0.9,
+  "traits": [
+   "TwoHand",
+   "Sweep"
+  ]
+ },
+ {
+  "id": "maul",
+  "name": "Maul",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 103,
+  "loot": "maul",
+  "gfx": "maul",
+  "damageDie": 12,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 0.85,
+  "traits": [
+   "TwoHand",
+   "Shove"
+  ]
+ },
+ {
   "id": "hand_axe",
   "name": "Hatchet",
   "category": "Weapon",

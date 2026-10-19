@@ -29,6 +29,13 @@ public enum AbilityKind
 
     /// <summary>An elixir from the belt, drunk at once (an antidote).</summary>
     Elixir,
+
+    /// <summary>
+    /// An area round the hero: every enemy within <see cref="AbilityDefinition.Radius"/> (and <see cref="AbilityDefinition.Arc"/>
+    /// of the target's direction, for a cone) makes a basic save against the hero's spell DC (a spell) or class DC.
+    /// A full burst needs no target (Thunderclap, Earthshaker, Challenge); a cone aims at one (Burning Hands).
+    /// </summary>
+    Burst,
 }
 
 /// <summary>
@@ -44,7 +51,11 @@ public enum AbilityKind
 /// ranks above 1), <see cref="WardSeconds"/>, <see cref="NeedsShield"/> (the shield's own AC and hardness), and
 /// <see cref="BlockLockout"/>: after it blocks, the ability can't be used again for that long (the Shield cantrip).</item>
 /// <item>Belt items: <see cref="Splash"/> damage around a bomb's target, <see cref="PersistentDice"/> on a hit,
-/// <see cref="Cures"/> persistent damage of a type, <see cref="ResistsPoison"/> for <see cref="BuffSeconds"/>.</item>
+/// <see cref="Cures"/> persistent damage of a type, <see cref="ResistsPoison"/> for <see cref="BuffSeconds"/>.
+/// A spell bolt with <see cref="Splash"/> splashes the enemies round its target too (the Pyromancer's Ignition).</item>
+/// <item>Bursts: <see cref="Radius"/> in tiles, the <see cref="Save"/> the enemies make (Reflex, Fortitude, Will),
+/// <see cref="WeaponDamage"/> (the weapon's dice and damage bonus instead of <see cref="Dice"/>); <see cref="OnHit"/>
+/// and <see cref="Knockback"/> land on a failed save. <see cref="NeedsTwoHanded"/>: only with a two-handed weapon.</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -88,7 +99,11 @@ public sealed record AbilityDefinition(
     string? PersistentDice = null,
     DamageType? Cures = null,
     int ResistsPoison = 0,
-    double BuffSeconds = 0)
+    double BuffSeconds = 0,
+    double Radius = 0,
+    string? Save = null,
+    bool WeaponDamage = false,
+    bool NeedsTwoHanded = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
@@ -96,10 +111,13 @@ public sealed record AbilityDefinition(
 
     public bool IsSpell => Kind is AbilityKind.SpellBolt or AbilityKind.Missiles;
 
-    public bool UsesWeapon => Kind is AbilityKind.WeaponStrike or AbilityKind.ChargeStrike;
+    public bool UsesWeapon => Kind is AbilityKind.WeaponStrike or AbilityKind.ChargeStrike || (Kind == AbilityKind.Burst && WeaponDamage);
 
-    /// <summary>Used on the hero, with no target: wards and elixirs.</summary>
-    public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir;
+    /// <summary>Used on the hero, with no target: wards, elixirs and full bursts round the hero.</summary>
+    public bool IsSelf => Kind is AbilityKind.Ward or AbilityKind.Elixir || (Kind == AbilityKind.Burst && Arc >= 360);
+
+    /// <summary>A burst made with spell power (spell DC, cast speed) rather than a weapon or the class DC.</summary>
+    public bool IsSpellBurst => Kind == AbilityKind.Burst && Has("Spell");
 
     /// <summary>Thrown or drunk from the belt, using up one of the item.</summary>
     public bool IsConsumable => Kind is AbilityKind.Bomb or AbilityKind.Elixir;

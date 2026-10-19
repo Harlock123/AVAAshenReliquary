@@ -37,9 +37,21 @@ internal sealed class LevelUpPanel
         (LevelGain.SkillFeat, FeatType.Skill, "Skill feat"),
     ];
 
+    /// <summary>The subclass picked on the subclass page (a save from before subclasses), not yet confirmed.</summary>
+    private string? _subclass;
+
+    /// <summary>Whether the panel last drew the subclass page, which comes before any waiting level.</summary>
+    public bool ShowsSubclass { get; private set; }
+
     public void Draw(SKCanvas canvas, SKSize size, GameWorld world, SKPoint? pointer)
     {
         var c = world.Hero.Character;
+        ShowsSubclass = c.NeedsSubclass;
+        if (ShowsSubclass)
+        {
+            DrawSubclass(canvas, size, c, pointer);
+            return;
+        }
         if (c.PendingLevels.FirstOrDefault() is not (> 0 and var level))
             return;
         if (level != _level)
@@ -170,6 +182,67 @@ internal sealed class LevelUpPanel
         }
     }
 
+    /// <summary>
+    /// The subclass page: a character from before subclasses chooses one, its feature and ability described side by
+    /// side, before any waiting level.
+    /// </summary>
+    private void DrawSubclass(SKCanvas canvas, SKSize size, Character c, SKPoint? pointer)
+    {
+        var width = Math.Min(Width, size.Width - 16);
+        Bounds = SKRect.Create((size.Width - width) / 2, 16, width, Math.Max(420, size.Height - 32 - 150));
+        _hits.Clear();
+        using var back = new SKPaint { Color = Palette.Panel.WithAlpha(255) };
+        using var frame = new SKPaint { Color = Palette.Frame, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+        using var titleFont = new SKFont(WorldOverlay.Serif, 24);
+        using var nameFont = new SKFont(WorldOverlay.Serif, 18);
+        using var font = new SKFont(WorldOverlay.Serif, 14);
+        using var small = new SKFont(WorldOverlay.Serif, 12);
+        using var gold = new SKPaint { IsAntialias = true, Color = Palette.Gold };
+        using var ink = new SKPaint { IsAntialias = true, Color = Palette.Ink };
+        using var dim = new SKPaint { IsAntialias = true, Color = Palette.Dim };
+        using var picked = new SKPaint { Color = new SKColor(240, 200, 90, 60) };
+        using var hover = new SKPaint { Color = new SKColor(240, 200, 90, 24) };
+        canvas.DrawRect(Bounds, back);
+        canvas.DrawRect(Bounds, frame);
+        canvas.DrawText($"{c.Class.Name} subclass", Bounds.Left + Pad, Bounds.Top + 38, SKTextAlign.Left, titleFont, gold);
+        var intro = Wrap($"Every {c.Class.Name.ToLowerInvariant()} now walks one of two paths, chosen once (a respec keeps it). "
+            + "Its ability joins your bar. L or Esc to close.", small, Bounds.Width - 2 * Pad);
+        for (var i = 0; i < intro.Count; i++)
+            canvas.DrawText(intro[i], Bounds.Left + Pad, Bounds.Top + 62 + i * 15, SKTextAlign.Left, small, dim);
+
+        var options = c.SubclassOptions;
+        var gap = 16f;
+        var columnWidth = (Bounds.Width - 2 * Pad - gap * (options.Count - 1)) / Math.Max(1, options.Count);
+        var top = Bounds.Top + 80 + intro.Count * 15;
+        for (var i = 0; i < options.Count; i++)
+        {
+            var subclass = options[i];
+            var x = Bounds.Left + Pad + i * (columnWidth + gap);
+            var lines = Wrap(subclass.Description, font, columnWidth - 24);
+            var rect = SKRect.Create(x, top, columnWidth, 48 + lines.Count * 19);
+            if (_subclass == subclass.Id)
+                canvas.DrawRect(rect, picked);
+            else if (pointer is { } p && rect.Contains(p))
+                canvas.DrawRect(rect, hover);
+            canvas.DrawRect(rect, frame);
+            canvas.DrawText(subclass.Name, x + 12, top + 28, SKTextAlign.Left, nameFont, _subclass == subclass.Id ? gold : ink);
+            for (var l = 0; l < lines.Count; l++)
+                canvas.DrawText(lines[l], x + 12, top + 52 + l * 19, SKTextAlign.Left, font, dim);
+            var id = subclass.Id;
+            _hits.Add((rect, () => _subclass = id, subclass.Name, subclass.Description));
+        }
+
+        var bottom = Bounds.Bottom - Pad;
+        var ready = _subclass is not null;
+        _confirm = SKRect.Create(Bounds.Right - Pad - 140, bottom - 36, 140, 34);
+        using (var button = new SKPaint { Color = ready ? new SKColor(80, 60, 30, 240) : new SKColor(34, 26, 22, 240) })
+            canvas.DrawRect(_confirm, button);
+        canvas.DrawRect(_confirm, frame);
+        canvas.DrawText("Confirm", _confirm.MidX, _confirm.MidY + 5, SKTextAlign.Center, font, ready ? gold : dim);
+        if (!ready)
+            canvas.DrawText("Still to choose: a subclass.", Bounds.Left + Pad, _confirm.MidY + 5, SKTextAlign.Left, small, gold);
+    }
+
     /// <summary>The line at a level with no skill increase: none now, and the level that brings the next.</summary>
     public static string SkillNote(int level) =>
         LevelProgression.NextSkillIncrease(level) is { } next
@@ -255,6 +328,15 @@ internal sealed class LevelUpPanel
                 hit.Pick();
                 return true;
             }
+        }
+        if (ShowsSubclass)
+        {
+            if (_confirm.Contains(p) && _subclass is { } id && world.Hero.Character.NeedsSubclass)
+            {
+                world.ChooseSubclass(id);
+                _subclass = null;
+            }
+            return true;
         }
         if (_confirm.Contains(p) && Choice(world.Hero.Character, _level) is { } choice)
         {

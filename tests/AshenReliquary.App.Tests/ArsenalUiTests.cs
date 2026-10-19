@@ -22,7 +22,8 @@ public class ArsenalUiTests
         kit.Play(0.2);
         Assert.Equal(["alchemists_fire", "antidote", null, null], world.Belt.Select(i => i?.Id));
         Assert.Equal(3, world.BeltCount(0));
-        Assert.Equal(["cleave", "power_attack", "raise_shield", "strike", "sudden_charge"], world.Bar.Values.Select(a => a.Id).Order());
+        // A quick start is a Bulwark, whose Challenge joins the class's bar.
+        Assert.Equal(["challenge", "cleave", "power_attack", "raise_shield", "strike", "sudden_charge"], world.Bar.Values.Select(a => a.Id).Order());
         kit.Capture(Shot("belt"));
     }
 
@@ -131,5 +132,19 @@ public class ArsenalUiTests
         kit.Play(1.5);
         kit.Capture(Shot("ossuary-prior"));
         Assert.Contains(world.Monsters, m => m.Ward > 0);
+    }
+
+    [AvaloniaFact]
+    public void A_stormcallers_thunderclap_spreads_a_ring_on_the_ground()
+    {
+        var kit = TestKit.Open("wizard", zoneId: "rotwater_fens", subclass: "stormcaller");
+        var world = kit.World;
+        var zombie = world.Monsters.Where(m => m.Definition.Id == "fen_zombie").MinBy(m => m.DistanceTo(world.Hero))!;
+        TestHooks.Place(world, zombie.X - 1.5, zombie.Y);
+        kit.Play(0.1);
+        world.UseSlot(world.Bar.Single(kv => kv.Value.Id == "thunderclap").Key, null);
+        kit.Window.Tick(TimeSpan.FromSeconds(0.1));
+        Assert.Single(world.Bursts);
+        kit.Capture(Shot("thunderclap"));
     }
 }

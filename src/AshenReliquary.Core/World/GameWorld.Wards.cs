@@ -42,7 +42,7 @@ public sealed partial class GameWorld
                 Say($"{ability.Name} needs a shield in your off hand.");
                 return;
             }
-            (ac, hardness) = (shield.Definition.AcBonus, shield.Definition.Hardness);
+            (ac, hardness) = (shield.Definition.AcBonus, shield.Definition.Hardness + Hero.Character.BlockHardnessBonus);
         }
         else
         {
@@ -77,10 +77,10 @@ public sealed partial class GameWorld
 
     /// <summary>
     /// Shield Block against a blow of <paramref name="damage"/>: with a ward up and the reaction ready, the ward's
-    /// hardness comes off it. The Shield cantrip's ward breaks when it blocks and can't be cast again for a while.
-    /// Returns the damage left to take.
+    /// hardness comes off it. The Shield cantrip's ward breaks when it blocks and can't be cast again for a while. A
+    /// Bulwark strikes straight back at <paramref name="attacker"/> when it is in reach. Returns the damage left to take.
     /// </summary>
-    private int ShieldBlock(int damage)
+    private int ShieldBlock(int damage, MonsterActor? attacker = null)
     {
         if (Hero.Ward is not { } ward || Time < _blockReadyAt || ward.Hardness <= 0)
             return damage;
@@ -92,6 +92,12 @@ public sealed partial class GameWorld
         {
             Hero.ReadyAt[ward.Ability.Id] = Time + ward.Ability.BlockLockout;
             EndWard();
+        }
+        if (Hero.Character.BlockCounter && ward.Ability.NeedsShield && attacker is { IsDead: false }
+            && Hero.DistanceTo(attacker) <= MeleeReach + Hero.Character.ReachBonus + attacker.Radius + 0.3)
+        {
+            Float(Hero, "counter", FloatingTextKind.Info, 0.8);
+            HeroStrike(attacker, BasicAbility);
         }
         return damage - blocked;
     }

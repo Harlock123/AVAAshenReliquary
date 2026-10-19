@@ -493,16 +493,21 @@ public sealed partial class GameWorld
     private void RefreshBar()
     {
         _bar.Clear();
+        // Each ability as the hero's feats have changed it (a subclass's cheaper Cleave, a longer ward).
+        var c = Hero.Character;
         foreach (var (slot, ability) in _classBar)
         {
-            if (ability.Level <= Hero.Character.Level)
-                _bar[slot] = ability;
+            if (ability.Level <= c.Level)
+                _bar[slot] = c.Modify(ability);
         }
-        var free = new Queue<string>(new[] { "1", "2", "3", "4", "5", "6" }.Where(s => !_bar.ContainsKey(s)));
-        foreach (var id in Hero.Character.GrantedAbilities)
+        // Feat abilities take the number slots no class ability uses first, so one doesn't have to move when a class
+        // ability joins later (Finishing Blow at 2); then any slot still empty.
+        var numbers = new[] { "1", "2", "3", "4", "5", "6" };
+        var free = new Queue<string>(numbers.Where(s => !_classBar.ContainsKey(s)).Concat(numbers.Where(s => _classBar.ContainsKey(s) && !_bar.ContainsKey(s))));
+        foreach (var id in c.GrantedAbilities)
         {
             if (_abilities.TryGetValue(id, out var ability) && free.TryDequeue(out var slot))
-                _bar[slot] = ability;
+                _bar[slot] = c.Modify(ability);
         }
         RefreshBelt();
     }
@@ -513,6 +518,14 @@ public sealed partial class GameWorld
         Hero.Character.Choose(level, choice);
         RefreshBar();
         Say($"Level {level}: your choices are made.");
+    }
+
+    /// <summary>Takes the subclass a save from before subclasses still lacks (the level-up screen); its ability goes on the bar.</summary>
+    public void ChooseSubclass(string id)
+    {
+        Hero.Character.ChooseSubclass(id);
+        RefreshBar();
+        Say($"You are a {Hero.Character.Subclass!.Name}.");
     }
 
     /// <summary>The basic attack: the "lmb" slot, or a plain weapon Strike when the bar has none.</summary>
@@ -978,6 +991,7 @@ public sealed partial class GameWorld
         _monsters.RemoveAll(m => m.IsDead && m.DeadFor > CorpseSeconds);
         _texts.RemoveAll(t => Time - t.BornAt > FloatingText.Lifetime);
         _impacts.RemoveAll(i => Time - i.At > Impact.Lifetime);
+        UpdateBursts();
         Hero.Character.Taint.Update(dt);
     }
 
@@ -1264,6 +1278,7 @@ public sealed partial class GameWorld
     private double ReachFor(AbilityDefinition ability, MonsterActor target) =>
         ability.IsSpell ? ability.Range + Hero.Character.SpellRangeBonus
         : ability.Kind == AbilityKind.Bomb ? ability.Range
+        : ability.Kind == AbilityKind.Burst ? ability.Radius * 0.8 + target.Radius
         : MeleeReach + Hero.Character.ReachBonus + target.Radius;
 
     /// <summary>Why an ability can't start right now, or null if it can.</summary>
@@ -1276,6 +1291,8 @@ public sealed partial class GameWorld
                 : $"{ability.Name} is not ready ({cooldown:0.0} s).";
         if (!Hero.Resource.CanSpend(ability.Cost))
             return $"Not enough {Hero.Resource.Name} for {ability.Name} ({ability.Cost:0}).";
+        if (ability.NeedsTwoHanded && !WieldsTwoHanded)
+            return $"{ability.Name} needs a two-handed weapon.";
         return null;
     }
 
@@ -1302,15 +1319,15 @@ public sealed partial class GameWorld
         var swing = ActionTiming.AttackInterval(c.Weapon.Definition.AttacksPerSecond, c.Gear.AttackSpeed, slowed);
         var duration = ability.UsesWeapon
             ? Math.Max(swing, ability.Actions > 1 ? ActionTiming.CastTime(ability.Actions, c.Gear.AttackSpeed, slowed) : 0)
-            : ActionTiming.CastTime(ability.Actions, c.Gear.CastSpeed, slowed);
+            : ActionTiming.CastTime(ability.Actions, ability.Kind == AbilityKind.Burst && !ability.IsSpellBurst ? c.Gear.AttackSpeed : c.Gear.CastSpeed, slowed);
         var dashing = ability.Kind == AbilityKind.ChargeStrike && hero.DistanceTo(target) > ReachFor(ability, target);
         hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing, ExtraDice = extraDice };
         hero.Face(target.X, target.Y);
         if (dashing)
             hero.Play("run", 2.0, restart: true);
         else
-            hero.Play(ability.IsSpell ? "cast" : "swing", AnimationRate(ability, duration), restart: true);
-        if (!ability.IsSpell && !dashing)
+            hero.Play(ability.IsSpell || ability.IsSpellBurst ? "cast" : "swing", AnimationRate(ability, duration), restart: true);
+        if (!ability.IsSpell && ability.Kind != AbilityKind.Burst && !dashing)
             Sound(SoundCue.Swing, hero);
     }
 
@@ -1379,8 +1396,11 @@ public sealed partial class GameWorld
                 _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, 0) { ChainLeft = ability.Chain });
                 Sound(SoundCue.Ignition, Hero);
                 break;
+            case AbilityKind.Burst:
+                Burst(ability, target);
+                break;
             case AbilityKind.Missiles:
-                var count = ability.MissilesAt(rank) + Hero.Character.ExtraMissiles(ability.Id);
+                var count = ability.MissilesAt(rank);
                 for (var i = 0; i < count; i++)
                     _projectiles.Add(new Projectile(ability, target, rank, Hero.X, Hero.Y, Time, i));
                 Sound(SoundCue.ForceBolt, Hero);
@@ -1452,6 +1472,7 @@ public sealed partial class GameWorld
             if (critical)
                 HeroCrits++;
             Chain(p);
+            SpellSplash(ability, target, p.Rank);
             if (damage == 0)
             {
                 Float(target, result.Label, FloatingTextKind.Miss);
@@ -1888,7 +1909,7 @@ public sealed partial class GameWorld
         {
             if (result.Degree == DegreeOfSuccess.CriticalSuccess)
                 HeroCritsTaken++;
-            var dealt = ShieldBlock(result.Damage);
+            var dealt = ShieldBlock(result.Damage, m);
             if (dealt <= 0)
                 return;
             Sound(SoundCue.HeroHurt, Hero);

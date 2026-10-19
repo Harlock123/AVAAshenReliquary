@@ -381,5 +381,94 @@
    "Elixir"
   ],
   "description": "Ends any poison in you and gives +2 to saves against poison (the bog, the rot) for 2 minutes."
+ },
+ {
+  "id": "earthshaker",
+  "name": "Earthshaker",
+  "class": "fighter",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Burst",
+  "actions": 2,
+  "cost": 20,
+  "cooldown": 5,
+  "radius": 2,
+  "save": "Reflex",
+  "weaponDamage": true,
+  "knockback": 1.5,
+  "needsTwoHanded": true,
+  "traits": [
+   "Attack",
+   "Flourish"
+  ],
+  "description": "Slam your two-handed weapon into the ground: every enemy within 2 tiles takes your weapon's damage against a basic Reflex save (your class DC), knocked back 1.5 tiles on a failure. 20 Fury, 5 s cooldown."
+ },
+ {
+  "id": "challenge",
+  "name": "Challenge",
+  "class": "fighter",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Burst",
+  "actions": 1,
+  "cost": 10,
+  "cooldown": 12,
+  "radius": 5,
+  "save": "Will",
+  "onHit": "Frightened",
+  "onHitValue": 1,
+  "traits": [
+   "Auditory",
+   "Emotion",
+   "Fear",
+   "Mental"
+  ],
+  "description": "Roar a challenge: every enemy within 5 tiles turns on you, and those that fail a Will save against your class DC are frightened 1 (2 on a critical failure). 10 Fury, 12 s cooldown."
+ },
+ {
+  "id": "burning_hands",
+  "name": "Burning Hands",
+  "class": "wizard",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Burst",
+  "actions": 2,
+  "cost": 14,
+  "radius": 3,
+  "arc": 90,
+  "save": "Reflex",
+  "damageType": "Fire",
+  "dice": "2d6",
+  "heightenDice": "1d6",
+  "traits": [
+   "Spell",
+   "Fire",
+   "Concentrate",
+   "Manipulate"
+  ],
+  "description": "A 3-tile cone of flame toward your target: 2d6 fire (+1d6 a rank above 1) to every enemy in it, against a basic Reflex save (your spell DC). 14 Mana."
+ },
+ {
+  "id": "thunderclap",
+  "name": "Thunderclap",
+  "class": "wizard",
+  "slot": "feat",
+  "feat": true,
+  "kind": "Burst",
+  "actions": 2,
+  "cost": 14,
+  "cooldown": 3,
+  "radius": 2.5,
+  "save": "Reflex",
+  "damageType": "Electricity",
+  "dice": "2d4",
+  "heightenDice": "1d4",
+  "knockback": 1,
+  "traits": [
+   "Spell",
+   "Electricity",
+   "Concentrate"
+  ],
+  "description": "Lightning cracks all round you: 2d4 electricity (+1d4 a rank above 1) to every enemy within 2.5 tiles against a basic Reflex save (your spell DC), knocked back a tile on a failure. 14 Mana, 3 s cooldown."
  }
 ]

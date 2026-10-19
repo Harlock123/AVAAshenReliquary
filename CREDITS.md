@@ -8,7 +8,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt
 - Changes: None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt).
-- Files: 153 (listed in `assets.manifest.json`)
+- Files: 165 (listed in `assets.manifest.json`)
 
 ## Flare character portraits (mods/fantasycore/images/portraits)
 
@@ -48,7 +48,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC BY 3.0 (`src/AshenReliquary.App/Assets/Icons/LICENSE-game-icons.txt`)
 - Authors: Carl Olsen, Delapouite, Lorc, Sbed, Skoll (each icon's author and page are in Assets/Icons/icons.json)
 - Changes: Rasterised from SVG to 96x96 PNG with a transparent background and the glyph filled in one ivory tint, by tools/AssetTool 'icon' (see tools/build_icons.py).
-- Files: 43 (listed in `assets.manifest.json`)
+- Files: 47 (listed in `assets.manifest.json`)
 
 ## artisticdude, RPG Sound Pack
 

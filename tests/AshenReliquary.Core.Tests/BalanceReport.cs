@@ -46,6 +46,11 @@ public class BalanceReport(ITestOutputHelper output)
         ["fighter"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         ["fighter in leather"] = ["longsword", "wooden_shield", "leather_chest", "leather_pants", "leather_boots", "leather_gloves"],
         ["wizard"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
+        // The subclasses (M3): a Vanguard starts with a greatsword instead of the sword and shield.
+        ["fighter vanguard"] = ["greatsword", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
+        ["fighter bulwark"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
+        ["wizard pyromancer"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
+        ["wizard stormcaller"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
     };
 
     [Theory]
@@ -77,7 +82,7 @@ public class BalanceReport(ITestOutputHelper output)
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
         var zone = content.Zone("gallows_road");
-        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var hero = TestCharacters.ForKit(kit);
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot);
         Dress(hero, world.Hero.Equipment, kit);
@@ -216,7 +221,7 @@ public class BalanceReport(ITestOutputHelper output)
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
         var zone = content.Zone(zoneId);
-        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var hero = TestCharacters.ForKit(kit);
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, kit);
@@ -396,7 +401,7 @@ public class BalanceReport(ITestOutputHelper output)
         var content = TestCharacters.Content;
         var mire = content.Zone("sallows_mire");
         var zone = mire with { Spawns = [mire.Spawns.Single(s => s.Pack.Any(m => m.Creature == "mother_sallow"))] };
-        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var hero = TestCharacters.ForKit(kit);
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         foreach (var id in Kits[kit])
@@ -559,7 +564,7 @@ public class BalanceReport(ITestOutputHelper output)
 
     private static Character Dressed(string classId, string kit)
     {
-        var hero = classId == "wizard" ? TestCharacters.Wizard() : TestCharacters.Fighter();
+        var hero = TestCharacters.ForKit(kit);
         Dress(hero, new Items.Equipment(hero), kit);
         return hero;
     }

@@ -48,6 +48,19 @@ internal static class TestCharacters
         FreeBoosts: [AttributeKind.Intelligence, AttributeKind.Dexterity, AttributeKind.Constitution, AttributeKind.Charisma],
         AncestryFeat: "elven_lore"));
 
+    /// <summary>
+    /// The hero for a report's kit: "fighter", "wizard", or a class and a subclass ("fighter vanguard"), which is then
+    /// taken as a new character would at creation.
+    /// </summary>
+    public static Character ForKit(string kit)
+    {
+        var words = kit.Split(' ');
+        var hero = words[0] == "wizard" ? Wizard() : Fighter();
+        if (words.Length > 1 && hero.SubclassOptions.Any(s => s.Id == words[1]))
+            hero.ChooseSubclass(words[1]);
+        return hero;
+    }
+
     public static Character AtLevel(Character character, int level)
     {
         while (character.Level < level)

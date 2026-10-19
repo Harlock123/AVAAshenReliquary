@@ -27,6 +27,7 @@ combat. The full design is in [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) (
 dotnet run --project src/AshenReliquary.App               # character creation, then Gallows Road
 dotnet run --project src/AshenReliquary.App -- --fighter  # skip creation: a recommended Human Fighter
 dotnet run --project src/AshenReliquary.App -- --wizard   # skip creation: a recommended Human Wizard
+dotnet run --project src/AshenReliquary.App -- --vanguard # or --bulwark, --pyromancer, --stormcaller: that subclass
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id, or --wizard)
 ```
@@ -98,7 +99,12 @@ bottled lightning, acid flask: thrown, splashing even on a miss) and antidotes; 
 from monsters and chests, and Wenna sells them in the fort at prices that grow with your level.
 The exit test (gallows to gate in one sitting) passed on 2026-10-17. M2, the rest of Act 1, closed on 2026-10-19 with a
 play-through that killed Mother Sallow at level 5. Next is M3 (`docs/M3_PLAN.md`): the other four classes, subclasses,
-the rest of the loot tiers, crafting and multiclassing.
+the rest of the loot tiers, crafting and multiclassing. Step 1 is done: **subclasses**, chosen on the creation screen
+(a hero from before them chooses on the level-up screen, L). The fighter's **Vanguard** starts with a greatsword and
+slams the ground with **Earthshaker** (a two-handed weapon's damage round them, knocking back); the **Bulwark** keeps the
+sword and shield, roars a **Challenge** that turns and frightens a pack, and strikes back after each Shield Block. The
+wizard's **Pyromancer** casts **Burning Hands** (a cone of fire) and splashes Ignition round its target; the
+**Stormcaller** casts **Thunderclap** (lightning all round, knocking back) and chains Electric Arc further.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,
