@@ -106,7 +106,11 @@ public sealed partial class GameWorld
         _lastRevealCell = (int.MinValue, int.MinValue);
     }
 
-    /// <summary>Marks the cells within <see cref="RevealRadius"/> of the hero as explored (only when the hero changes cell).</summary>
+    /// <summary>
+    /// Marks the cells within <see cref="RevealRadius"/> of the hero as explored (only when the hero changes cell). In a
+    /// dark zone (a dungeon) only what the hero can see is explored: the cells in line of sight, and the walls bordering
+    /// them, so the minimap draws the rooms looked into and not the rock and rooms behind their walls.
+    /// </summary>
     private void Reveal()
     {
         var cell = ((int)Math.Floor(Hero.X), (int)Math.Floor(Hero.Y));
@@ -114,16 +118,32 @@ public sealed partial class GameWorld
             return;
         _lastRevealCell = cell;
         var changed = false;
+        void Mark(int x, int y)
+        {
+            if (!Map.InBounds(x, y) || _explored[y * Map.Width + x])
+                return;
+            _explored[y * Map.Width + x] = true;
+            changed = true;
+        }
         for (var dy = -RevealRadius; dy <= RevealRadius; dy++)
         for (var dx = -RevealRadius; dx <= RevealRadius; dx++)
         {
             if (dx * dx + dy * dy > RevealRadius * RevealRadius)
                 continue;
             int x = cell.Item1 + dx, y = cell.Item2 + dy;
-            if (!Map.InBounds(x, y) || _explored[y * Map.Width + x])
+            if (!Zone.IsDark)
+            {
+                Mark(x, y);
                 continue;
-            _explored[y * Map.Width + x] = true;
-            changed = true;
+            }
+            if (Map.BlocksSight(x, y) || !Map.HasLineOfSight(Hero.X, Hero.Y, x + 0.5, y + 0.5))
+                continue;
+            for (var ny = y - 1; ny <= y + 1; ny++)
+            for (var nx = x - 1; nx <= x + 1; nx++)
+            {
+                if (nx == x && ny == y || Map.BlocksSight(nx, ny))
+                    Mark(nx, ny);
+            }
         }
         if (changed)
             ExploredVersion++;

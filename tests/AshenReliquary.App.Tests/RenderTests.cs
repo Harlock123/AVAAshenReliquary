@@ -11,6 +11,26 @@ public class RenderTests
     private static string? Shot(string name) =>
         Environment.GetEnvironmentVariable("ASHEN_SHOTS") is { Length: > 0 } dir ? Path.Combine(dir, name + ".png") : null;
 
+    /// <summary>Walking from the Fens into the chapel: the minimap shows the chapel's rooms as seen, not the Fens.</summary>
+    [AvaloniaFact]
+    public void The_minimap_follows_the_hero_into_a_dungeon()
+    {
+        var kit = TestKit.Open(zoneId: "rotwater_fens");
+        var world = kit.World;
+        kit.Play(0.3);
+        kit.Capture(Shot("minimap-fens"));
+        var doors = world.Zone.Exits.Single(e => e.Id == "chapel");
+        TestHooks.Place(world, doors.Arrive![0] + 0.5, doors.Arrive[1] + 0.5);
+        world.MoveTo(doors.At[0] + 0.5, doors.At[1] + 0.5);
+        kit.PlayUntil(() => world.Zone.Id == "drowned_chapel", 8);
+        Assert.Equal("drowned_chapel", world.Zone.Id);
+        kit.Play(1.0);
+        kit.Capture(Shot("minimap-chapel"));
+        // Only cells in sight (and their walls) are explored: nothing in the rock beyond the narthex.
+        Assert.True(world.IsExplored(31, 8));
+        Assert.False(world.IsExplored(31, 18));
+    }
+
     [AvaloniaFact]
     public void The_gallows_renders_ground_sprites_and_hud()
     {

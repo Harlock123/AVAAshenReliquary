@@ -154,12 +154,13 @@ internal sealed class Minimap
         using var paint = new SKPaint { IsAntialias = false };
         using var path = new SKPath();
         var map = world.Map;
+        var dungeon = world.Zone.Tileset == "tileset_dungeon";
         for (var y = 0; y < map.Height; y++)
         for (var x = 0; x < map.Width; x++)
         {
-            if (!world.IsExplored(x, y))
+            if (!world.IsExplored(x, y) || (dungeon ? DungeonColour(map, x, y) : CellColour(map, x, y)) is not { } colour)
                 continue;
-            paint.Color = CellColour(map, x, y);
+            paint.Color = colour;
             var c = At(x + 0.5, y + 0.5);
             path.Reset();
             path.MoveTo(c.X, c.Y - _scale / 2 - 0.3f);
@@ -172,8 +173,25 @@ internal sealed class Minimap
         _terrain = surface.Snapshot();
     }
 
-    private static SKColor CellColour(TileMap map, int x, int y)
+    /// <summary>
+    /// A dungeon's cell: solid rock (no ground, nothing on it) is left blank, walls are pale so the rooms read, floors
+    /// dark stone, flooded floor bog green.
+    /// </summary>
+    private static SKColor? DungeonColour(TileMap map, int x, int y)
     {
+        if (map.Ground(x, y) < 0 && map.Objects(x, y).Count == 0)
+            return null;
+        if (map.IsBog(x, y))
+            return new SKColor(62, 74, 34);
+        if (map.BlocksSight(x, y) && map.Ground(x, y) < 0)
+            return new SKColor(128, 116, 98);
+        return map.IsBlocked(x, y) ? new SKColor(92, 84, 72) : new SKColor(58, 52, 46);
+    }
+
+    private static SKColor? CellColour(TileMap map, int x, int y)
+    {
+        if (map.Ground(x, y) < 0 && map.Objects(x, y).Count == 0)
+            return null;
         var ground = map.Ground(x, y);
         if (map.IsWater(x, y))
             return new SKColor(40, 62, 70);

@@ -39,6 +39,36 @@ public class ChapelTests
         PlayerStart: [2, 2], spawns, Shrines: [], Exits: [], Darkness: 0.93, HeroLight: 4.5);
 
     [Fact]
+    public void In_the_dark_only_what_the_hero_can_see_is_explored()
+    {
+        // Two rooms side by side; the wall between them has no door.
+        var zone = new ZoneDefinition("rooms", "Rooms", 3, "tileset_dungeon",
+        [
+            "###########",
+            "#....#....#",
+            "#....#....#",
+            "#....#....#",
+            "###########",
+        ],
+        new Dictionary<string, LegendEntry>
+        {
+            ["."] = new("floor", Tiles: [16, 17, 18, 19]),
+            ["#"] = new("none", [65], Blocks: true, BlocksSight: true),
+        },
+        PlayerStart: [2, 2], [], Shrines: [], Exits: [], Darkness: 0.93, HeroLight: 4.5);
+        var world = new GameWorld(zone, Content.Creatures, TestCharacters.Fighter(), 1);
+        Run(world, 0.1);
+        Assert.True(world.IsExplored(4, 2));   // the hero's own room
+        Assert.True(world.IsExplored(5, 2));   // the wall that bounds it
+        Assert.False(world.IsExplored(7, 2));  // the room behind the wall, within reach but out of sight
+
+        var outdoors = zone with { Darkness = 0.5 };
+        var open = new GameWorld(outdoors, Content.Creatures, TestCharacters.Fighter(), 1);
+        Run(open, 0.1);
+        Assert.True(open.IsExplored(7, 2));    // outdoors the whole circle is explored, as before
+    }
+
+    [Fact]
     public void The_chapel_loads_and_every_pack_chest_shrine_exit_and_the_lantern_can_be_walked_to()
     {
         var zone = Content.Zone("drowned_chapel");

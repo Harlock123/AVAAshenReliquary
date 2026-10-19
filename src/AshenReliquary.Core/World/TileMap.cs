@@ -87,6 +87,9 @@ public sealed class TileMap
 
     public bool IsBlocked(int x, int y) => !InBounds(x, y) || _blocked[x, y];
 
+    /// <summary>True for a cell nothing can be seen through (a wall, solid rock, a tree trunk).</summary>
+    public bool BlocksSight(int x, int y) => !InBounds(x, y) || _blocksSight[x, y];
+
     /// <summary>True for a cell the zone file marks as water (its edge cells show a shore).</summary>
     public bool IsWater(int x, int y) => InBounds(x, y) && _water[x, y];
 
