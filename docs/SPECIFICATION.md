@@ -684,7 +684,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; Acts 3–4 wait on the check-in).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1678,6 +1678,76 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - In the starting kit, or a level under, he is a hard fight.
   - `Siege_Walls_at_level_9` (the whole zone in the starting kit) finishes for everyone. The wizards die there
     repeatedly; the campaign's wizards, in what they found, do not.
+
+### Levels 11–15 and Saint Oriel's Rest (M4 step 5)
+
+- **The art survey** (decision 3):
+  - **Found:** Flare's snowplains tileset: snow ground and paths (numbered as the grassland's, so the engine's ground
+    sets carry over), frozen cliffs, dead snow-trees, tents, carts, watchtowers, piers, log-cabin walls, ice, snow
+    rocks, and a whole timber lodge with its roof (tile 744).
+  - **Gaps:** no snowy stone walls or monastery buildings. The cloister is the ruins' grey stone on snow, with the lodge
+    for its guest hall.
+- **The tileset** `tileset_oriel`: Flare's snowplains definition (its four images), then the ruins at +1000 as in
+  `tileset_ironhold`.
+  - `ZoneDefinition.Snowy` marks it: the trees beyond the map edge are the snow set's dead trees, chests are the
+    ruins' wooden and skull chests, and the minimap draws snow pale.
+  - It counts as outdoors.
+- **Saint Oriel's Rest** (`tools/saint_oriels_rest_mapgen.py`, Act 3's hub, level 11): a walled cloister on a snowy
+  ledge under frozen cliffs, with a flagstone walk round the garth, the timber guest hall, the bell tower's piers,
+  statues of the abbesses, a well, and pilgrims' tents and carts outside. Its people:
+  - **Abbess Ilse** (the act's story: the three sisters who went up the Bell Tower and came down singing, the Choir);
+  - **Brother Caddoc** (the Penitent: he will walk the pass with the hero and has something to confess, step 6);
+  - **Halvard the smith** (runes and crafting);
+  - **Sister Mora** (wares and the belt's supplies);
+  - the stash, the Cloister altar (respec, free once in Act 3) and the Cloister Shrine.
+
+  The Siege Walls' Herald gate now leads here; the Frostbitten Pass will lie between in step 6. The north door to the
+  Hollow Woods is barred.
+- **A class ability at level 11** (each with its own bar key, `"11"`, which is no slot, so it takes a free one or
+  waits in the K list):
+  - Fighter: **Sundering Blow** (two dice more, off-guard 6 s).
+  - Champion: **Divine Wrath** (fire in 3 tiles).
+  - Rogue: **Crippling Strike** (bleed and slowed).
+  - Ranger: **Pinning Shot** (held 3 s).
+  - Wizard: **Cone of Cold** (a 5-tile cone, slowed).
+  - Necromancer: **Grasp of the Grave** (void round a target, held 2 s).
+- **A subclass signature at level 13** (through the subclass feat):
+
+  | Subclass | Ability |
+  | --- | --- |
+  | Vanguard | **Earthsplitter**: a weapon cone, prone |
+  | Bulwark | **Shield Rush**: a charge, knocked back and prone |
+  | Lanternbearer | **Dawnbreak**: fire round the hero, drains a quarter, hallows the rising dead |
+  | Oathbreaker | **Ruinous Blow**: three dice more, paid in Taint |
+  | Cutthroat | **Assassinate**: three dice more and 2d6 bleed |
+  | Trickster | **Caltrops**: a trap that slows |
+  | Marksman | **Killshot**: four dice more, piercing |
+  | Beastmaster | **Hunt as One**: every wolf to the mark, two dice more |
+  | Pyromancer | **Meteor**: fire in 3.5 tiles |
+  | Stormcaller | **Ball Lightning**: electricity, stunned |
+  | Bonelord | **Bone Colossus**: a timed giant of bone, 25 s |
+  | Plaguebringer | **Blight**: poison, sickened and persistent poison |
+- **Feats:** 24 more, two per class at 12 and one per subclass at 14, mostly sharpening the new abilities.
+- **Items to 15:** five Act 3 Uniques:
+  - Frostbrand, a cold greatsword (11);
+  - Saint Oriel's Crook (12);
+  - Whisperbane, a helm against the mind (13);
+  - The Penitent's Shroud, a cloak (14);
+  - Frostfang, a cold longbow (15).
+
+  The **Vestments of Saint Oriel** set is a robe, cowl and boots at level 12: +1 Will and spell attack at two; HP,
+  resistance 5 mental and slower Taint at three. Hadric's Severed Oath is now marked a story item, so it never drops at
+  random.
+- **The Mirrored affix** (`MonsterAffix.Mirrored`, `GameWorld.Split`): at half its health a Mirrored monster splits off
+  two images of itself. They are minions (weaker), drawn glassy blue and see-through, worth no XP or loot, and shatter
+  when the original falls. **Stacked affixes** were already possible and now have a test: a "Mirrored Hasted Legionary
+  Champion" carries both.
+- **Icons:** 18 game-icons.net glyphs for the new abilities.
+- **The bots** (`Tactics`) use all eighteen.
+- **Balance:** `BalanceReport.Siege_Walls_raised_to_levels_11_13_and_15` runs every subclass through the Siege Walls
+  with Hadric and every pack raised to the hero's level, in the starting kit with +2 runes.
+  - Everyone gets through at 11, 13 and 15, and deaths fall with the levels, so the kits scale.
+  - The worst row is the level-11 Pyromancer against Hadric raised to 11.
 
 ### The arsenal (M2, after step 10)
 

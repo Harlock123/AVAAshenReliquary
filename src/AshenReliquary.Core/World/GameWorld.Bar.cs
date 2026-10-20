@@ -88,7 +88,8 @@ public sealed partial class GameWorld
         {
             if (!_offered.Add(ability.Id))
                 continue;
-            var slot = home is not null && !_layout.ContainsKey(home) ? home
+            // A home that isn't a bar slot (a level-11 ability's "11", the number slots all being taken) means a free one.
+            var slot = home is not null && BarSlots.Contains(home) && !_layout.ContainsKey(home) ? home
                 : NumberSlots.Where(s => !_classBar.ContainsKey(s)).Concat(NumberSlots).FirstOrDefault(s => !_layout.ContainsKey(s));
             if (slot is not null)
                 _layout[slot] = ability.Id;

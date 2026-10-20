@@ -69,8 +69,14 @@ public sealed record ZoneDefinition(
     int Act = 1,
     IReadOnlyList<TrapDefinition>? Traps = null)
 {
-    /// <summary>Under the open sky (Flare's grassland, or Act 2's grassland-and-ruins set): trees fringe the map, campfires glow.</summary>
-    public bool Outdoors => Tileset is "tileset_grassland" or "tileset_ironhold";
+    /// <summary>
+    /// Under the open sky (Flare's grassland, Act 2's grassland-and-ruins set, Act 3's snow-and-ruins set): trees fringe
+    /// the map, campfires glow.
+    /// </summary>
+    public bool Outdoors => Tileset is "tileset_grassland" or "tileset_ironhold" or "tileset_oriel";
+
+    /// <summary>Snow underfoot (Act 3's set): its own trees and chests, a paler minimap.</summary>
+    public bool Snowy => Tileset == "tileset_oriel";
 
     // XpScale: the share of monster XP the zone pays, Act 1's curve tuned so a hero leaves each zone about a level up.
 

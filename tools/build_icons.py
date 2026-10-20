@@ -56,6 +56,13 @@ ICONS = {
     # Item glyphs (items.json "glyph"), for things Flare's icon sheet lacks
     "lantern": "delapouite/old-lantern", "ember": "lorc/burning-embers",
     "oath_sword": "lorc/sword-in-stone", "cog": "lorc/cog", "spring": "delapouite/spring", "grille": "delapouite/robot-helmet",
+    # Levels 11-15 (M4 step 5): a class ability at 11, a subclass signature at 13.
+    "sundering_blow": "lorc/sword-break", "divine_wrath": "lorc/sun-radiations", "crippling_strike": "delapouite/achilles-heel",
+    "pinning_shot": "lorc/arrowed", "cone_of_cold": "lorc/frozen-orb", "grasp_of_the_grave": "lorc/grasping-claws",
+    "earthsplitter": "lorc/ground-sprout", "shield_rush": "lorc/shield-reflect", "dawnbreak": "lorc/sunrise",
+    "ruinous_blow": "lorc/broken-skull", "assassinate": "delapouite/dagger-rose", "caltrops": "delapouite/caltrops",
+    "killshot": "lorc/target-arrows", "hunt_as_one": "lorc/hound", "meteor": "lorc/meteor-impact", "ball_lightning": "lorc/ball-glow",
+    "bone_colossus": "skoll/skeleton", "blight": "lorc/poison-gas",
     "pauldrons": "skoll/pauldrons", "cloak": "delapouite/cape",
 }
 

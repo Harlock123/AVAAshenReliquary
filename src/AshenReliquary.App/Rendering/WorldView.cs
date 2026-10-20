@@ -1551,7 +1551,7 @@ public sealed class WorldView : Control
         for (var x = x0; x <= x1; x++)
         {
             IReadOnlyList<int> objects = world.Map.InBounds(x, y) ? world.Map.Objects(x, y)
-                : world.Zone.Outdoors && OutsideTree(x, y) is { } tree ? [tree] : [];
+                : world.Zone.Outdoors && OutsideTree(x, y) is { } tree ? [world.Zone.Snowy ? tree - 4 : tree] : [];   // snow: dead trees 244-247
             foreach (var id in objects)
             {
                 if (!tileset.Tiles.TryGetValue(id, out var tile))
@@ -1658,6 +1658,13 @@ public sealed class WorldView : Control
                 : new SKColor((byte)(55 * beat), (byte)(45 * beat), 0);
             var mark = SKColorFilter.CreateLighting(SKColors.White, add);
             filter = filter is null ? mark : SKColorFilter.CreateCompose(mark, filter);
+        }
+        // A mirror image: cold and see-through.
+        if (m.IsMirrorImage)
+        {
+            var glass = SKColorFilter.CreateLighting(new SKColor(190, 215, 255), new SKColor(70, 95, 140));
+            filter = filter is null ? glass : SKColorFilter.CreateCompose(filter, glass);
+            paint.Color = SKColors.White.WithAlpha(185);
         }
         // A creature's own tint (the plague crawler's bog brown) goes on first.
         if (m.Definition.Tint is { } tint && SKColor.TryParse(tint, out var colour))
@@ -1876,9 +1883,11 @@ public sealed class WorldView : Control
         var facing = cache.Definition.Facing == 1 ? 1 : 0;
         // The dungeon tileset has its own chests: wooden ones shut (144, 145) and open (160, 161), the skull chest at 288-291.
         var dungeon = World?.Zone.Tileset == "tileset_dungeon";
+        // In the snow, the ruins' chests: wooden ones shut (1264, 1265) and open (1266, 1267), the skull chest at 1384-1387.
+        var snowy = World?.Zone.Snowy == true;
         var id = cache.Definition.Kind == CacheKind.Reliquary
-            ? (dungeon ? 288 : 297) + (facing == 0 ? 0 : 2) + (cache.Opened ? 1 : 0)
-            : dungeon ? (cache.Opened ? 160 : 144) + facing : 76 + facing;
+            ? (dungeon ? 288 : snowy ? 1384 : 297) + (facing == 0 ? 0 : 2) + (cache.Opened ? 1 : 0)
+            : dungeon ? (cache.Opened ? 160 : 144) + facing : snowy ? (cache.Opened ? 1266 : 1264) + facing : 76 + facing;
         if (!tileset.Tiles.TryGetValue(id, out var tile))
             return;
         var hovered = _pointer is { } p && CacheUnder(p) == cache;

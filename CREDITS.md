@@ -8,7 +8,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt
 - Changes: None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt), and the skeleton knight (Centurion Varro) from mods/empyrean_campaign/.
-- Files: 203 (listed in `assets.manifest.json`)
+- Files: 207 (listed in `assets.manifest.json`)
 
 ## Flare character portraits (mods/fantasycore/images/portraits)
 
@@ -55,8 +55,8 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Source: [https://opengameart.org/content/old-ruins-tileset](https://opengameart.org/content/old-ruins-tileset) (retrieved 2026-10-20)
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: rubberduck (Old Ruins tileset, OpenGameArt); extended with stairs, gates, pits, objects and plants by Justin Jacobs for Flare (https://github.com/flareteam/flare-game)
-- Changes: The image is copied unmodified. tilesetdefs/tileset_ironhold.txt joins Flare's grassland definition with the ruins definition, its tile ids moved up by 1000, so Act 2's zones can use both.
-- Files: 2 (listed in `assets.manifest.json`)
+- Changes: The image is copied unmodified. tilesetdefs/tileset_ironhold.txt joins Flare's grassland definition with the ruins definition, and tilesetdefs/tileset_oriel.txt joins Flare's snowplains definition with it, the ruins' tile ids moved up by 1000 in both, so Act 2's and Act 3's zones can use the ruins.
+- Files: 3 (listed in `assets.manifest.json`)
 
 ## game-icons.net
 
@@ -64,7 +64,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC BY 3.0 (`src/AshenReliquary.App/Assets/Icons/LICENSE-game-icons.txt`)
 - Authors: Carl Olsen, DarkZaitzev, Delapouite, Lorc, Sbed, Skoll, Willdabeast (each icon's author and page are in Assets/Icons/icons.json)
 - Changes: Rasterised from SVG to 96x96 PNG with a transparent background and the glyph filled in one ivory tint, by tools/AssetTool 'icon' (see tools/build_icons.py).
-- Files: 101 (listed in `assets.manifest.json`)
+- Files: 119 (listed in `assets.manifest.json`)
 
 ## artisticdude, RPG Sound Pack
 

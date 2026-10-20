@@ -366,6 +366,37 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// Levels 11-15 before Act 3's zones exist (M4 step 5): the Siege Walls with every pack and Ser Hadric raised to the
+    /// hero's level, in the starting kit with +2 runes. The yardstick for the class kits past level 10.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Siege_Walls_raised_to_levels_11_13_and_15(string kit)
+    {
+        foreach (var level in new[] { 11, 13, 15 })
+        {
+            var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("siege_walls", "heights", kit, seed, level,
+                monsterLevel: level, runes: 2)).ToList();
+            output.WriteLine($"{kit} at level {level}: the Siege Walls raised to {level}, {runs.Count} runs");
+            foreach (var r in runs)
+                output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  {(r.Reached ? "through the gate" : "did not finish")}");
+            foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(3))
+                output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+        }
+    }
+
+    /// <summary>
     /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTo"/> makes them): every pack
     /// in the zone file's order (in the Fens the main route, then the Sunken Road, then back for the Old Dyke), then the
     /// exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.

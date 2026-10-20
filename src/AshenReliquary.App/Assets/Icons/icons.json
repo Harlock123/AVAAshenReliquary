@@ -693,6 +693,132 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "sundering_blow",
+  "file": "sundering_blow.png",
+  "source": "https://game-icons.net/1x1/lorc/sword-break.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "divine_wrath",
+  "file": "divine_wrath.png",
+  "source": "https://game-icons.net/1x1/lorc/sun-radiations.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "crippling_strike",
+  "file": "crippling_strike.png",
+  "source": "https://game-icons.net/1x1/delapouite/achilles-heel.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "pinning_shot",
+  "file": "pinning_shot.png",
+  "source": "https://game-icons.net/1x1/lorc/arrowed.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "cone_of_cold",
+  "file": "cone_of_cold.png",
+  "source": "https://game-icons.net/1x1/lorc/frozen-orb.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "grasp_of_the_grave",
+  "file": "grasp_of_the_grave.png",
+  "source": "https://game-icons.net/1x1/lorc/grasping-claws.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "earthsplitter",
+  "file": "earthsplitter.png",
+  "source": "https://game-icons.net/1x1/lorc/ground-sprout.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "shield_rush",
+  "file": "shield_rush.png",
+  "source": "https://game-icons.net/1x1/lorc/shield-reflect.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "dawnbreak",
+  "file": "dawnbreak.png",
+  "source": "https://game-icons.net/1x1/lorc/sunrise.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "ruinous_blow",
+  "file": "ruinous_blow.png",
+  "source": "https://game-icons.net/1x1/lorc/broken-skull.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "assassinate",
+  "file": "assassinate.png",
+  "source": "https://game-icons.net/1x1/delapouite/dagger-rose.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "caltrops",
+  "file": "caltrops.png",
+  "source": "https://game-icons.net/1x1/delapouite/caltrops.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "killshot",
+  "file": "killshot.png",
+  "source": "https://game-icons.net/1x1/lorc/target-arrows.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hunt_as_one",
+  "file": "hunt_as_one.png",
+  "source": "https://game-icons.net/1x1/lorc/hound.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "meteor",
+  "file": "meteor.png",
+  "source": "https://game-icons.net/1x1/lorc/meteor-impact.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "ball_lightning",
+  "file": "ball_lightning.png",
+  "source": "https://game-icons.net/1x1/lorc/ball-glow.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "bone_colossus",
+  "file": "bone_colossus.png",
+  "source": "https://game-icons.net/1x1/skoll/skeleton.html",
+  "author": "Skoll",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "blight",
+  "file": "blight.png",
+  "source": "https://game-icons.net/1x1/lorc/poison-gas.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "pauldrons",
   "file": "pauldrons.png",
   "source": "https://game-icons.net/1x1/skoll/pauldrons.html",

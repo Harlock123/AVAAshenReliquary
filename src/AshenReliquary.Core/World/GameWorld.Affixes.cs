@@ -4,8 +4,9 @@ using AshenReliquary.Core.Rules;
 namespace AshenReliquary.Core.World;
 
 /// <summary>
-/// Monster affixes beyond Vengeful (see <see cref="MonsterAffix"/>): Hasted, Shielded and Tainted. Every blow, spell,
-/// bomb and burn that lands on a monster goes through <see cref="DamageMonster"/>, so a Shielded ally's ward soaks it.
+/// Monster affixes beyond Vengeful (see <see cref="MonsterAffix"/>): Hasted, Shielded, Tainted and Mirrored. Every blow,
+/// spell, bomb and burn that lands on a monster goes through <see cref="DamageMonster"/>, so a Shielded ally's ward soaks
+/// it and a Mirrored monster splits there. A monster may carry several affixes at once (Act 3's champions stack two).
 /// </summary>
 public sealed partial class GameWorld
 {
@@ -19,6 +20,40 @@ public sealed partial class GameWorld
 
     /// <summary>How much the Taint meter fills for each point of Taint damage taken.</summary>
     public const double TaintPerDamage = 3.0;
+
+    /// <summary>How many images a Mirrored monster splits into.</summary>
+    public const int MirrorImages = 2;
+
+    /// <summary>
+    /// A Mirrored monster at half its health splits: <see cref="MirrorImages"/> images of it (minions, so weaker, and
+    /// worth no XP or loot) step out beside it and fight; they shatter when the original falls.
+    /// </summary>
+    private void Split(MonsterActor m)
+    {
+        m.HasSplit = true;
+        for (var i = 0; i < MirrorImages; i++)
+        {
+            var image = SpawnNear(m.Definition.Id, Creatures.CreatureRank.Minion, m.X, m.Y, 1.5, m.PackId, m.Creature.Stats.Level);
+            image.SummonedBy = m;
+            image.IsMirrorImage = true;
+            image.Play("spawn", restart: true);
+            Aggro(image);
+        }
+        Float(m, "MIRRORED", FloatingTextKind.Critical, 0.8);
+        Sound(SoundCue.Ward, m, "monster");
+    }
+
+    /// <summary>The original fell: its images shatter.</summary>
+    private void ShatterImages(MonsterActor original)
+    {
+        foreach (var image in _monsters.Where(x => x.IsMirrorImage && x.SummonedBy == original && !x.IsDead).ToList())
+        {
+            image.Creature.TakeDamage(image.Creature.HitPoints);
+            image.State = MonsterState.Dead;
+            image.Play("die", restart: true);
+            Float(image, "shatters", FloatingTextKind.Info, 0.4);
+        }
+    }
 
     /// <summary>A Shielded monster's ward on its pack: soaks 4 + 2 × level.</summary>
     public static int PackWard(int level) => 4 + 2 * level;
@@ -57,6 +92,8 @@ public sealed partial class GameWorld
                 Float(m, $"absorbed {soaked}", FloatingTextKind.Miss);
         }
         m.Creature.TakeDamage(damage);
+        if (m.Has(MonsterAffix.Mirrored) && !m.HasSplit && !m.IsDead && m.Creature.HitPoints * 2 <= m.Creature.Stats.HitPoints)
+            Split(m);
         return damage;
     }
 

@@ -192,7 +192,14 @@ where **Ser Hadric the Unburied**, Herald of Iron, holds the breach. He fights b
 lane he marks on the ground first (Step out of it), raises the Iron Legion's standard to rally his dead (break it), and
 at the last casts off his armour, faster but far easier to hit. In the ruined gatehouse below, **Red Mirella** waits to
 see whose side you are on: talk her into the Guard's hands or join her outlaws. Back in Ironhold, Ysolde's cure (if
-Sallow's relic went to her) has saved the refugees. Acts 3 and 4 come after a check-in.
+Sallow's relic went to her) has saved the refugees. Step 5 began Act 3: past Hadric the road climbs into the frozen
+cliffs to **Saint Oriel's Rest**, a cloister in the snow whose bells have not rung since three of its sisters became
+the Choir of Whispers; Abbess Ilse, Brother Caddoc (who has something to confess), Halvard the smith and Sister Mora
+keep it. Heroes now grow to level 15: a class ability at 11 (Sundering Blow, Divine Wrath, Crippling Strike, Pinning
+Shot, Cone of Cold, Grasp of the Grave), a subclass signature at 13 (Earthsplitter, Shield Rush, Dawnbreak, Ruinous
+Blow, Assassinate, Caltrops, Killshot, Hunt as One, Meteor, Ball Lightning, Bone Colossus, Blight), feats at 12 and 14,
+five more Uniques and the Vestments of Saint Oriel; and **Mirrored** champions split into glassy images at half health.
+Next: Act 3's zones.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

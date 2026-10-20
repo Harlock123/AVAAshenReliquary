@@ -73,7 +73,7 @@ public class SiegeTests
     }
 
     [Fact]
-    public void The_barrow_fields_north_road_leads_to_the_siege_walls_and_the_herald_gate_opens_when_hadric_falls()
+    public void The_barrow_fields_north_road_leads_to_the_siege_walls_and_the_herald_gate_opens_to_act_3_when_hadric_falls()
     {
         var world = Zone("barrow_fields");
         foreach (var m in world.Monsters.ToList())
@@ -104,8 +104,8 @@ public class SiegeTests
         (world.Hero.X, world.Hero.Y) = (gate.At[0] + 0.5, gate.At[1] + 6.5);
         Run(world, 0.5);
         WalkIn();
-        Assert.True(world.ZoneComplete);
-        Assert.Contains("Act 3", world.Arrival?.Subtitle);
+        Assert.Equal("saint_oriels_rest", world.Zone.Id);                       // Act 3's hub
+        Assert.Equal(3, world.Zone.Act);
     }
 
     // ----- Ser Hadric ----------------------------------------------------------------

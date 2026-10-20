@@ -111,10 +111,15 @@ Thale's answer), Sister Hale and Ysolde's cure, the Herald gate to Act 3, and `C
 subclasses kill Hadric at level 10. Act 2 is whole; Acts 3-4 wait on the check-in (decision 1). See the spec, section
 16, "The Siege Walls and Ser Hadric".
 
-### 5. Levels 11–15 and Saint Oriel's Rest
+### 5. Levels 11–15 and Saint Oriel's Rest (done)
 
 - **Levels:** abilities to level 13, feats to 15, spell ranks to 8, the Act 3 Uniques and Set, the Mirrored affix and stacking affixes.
 - **The hub:** the monastery's rest.
+
+*Done (2026-10-20):* class abilities at 11 and subclass signatures at 13, 24 feats at 12 and 14, five Act 3 Uniques
+and the Vestments of Saint Oriel, the Mirrored affix (stacked affixes tested), and Saint Oriel's Rest on Flare's
+snowplains tileset joined to the ruins (`tileset_oriel`), reached through the Siege Walls' Herald gate for now. See the
+spec, section 16, "Levels 11–15 and Saint Oriel's Rest".
 
 ### 6. Act 3's zones: Frostbitten Pass, Hollow Woods, the Catacombs of Oriel
 

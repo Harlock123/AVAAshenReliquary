@@ -963,6 +963,9 @@
    },
    {
     "ability": "whirlwind_strike"
+   },
+   {
+    "ability": "earthsplitter"
    }
   ]
  },
@@ -983,6 +986,9 @@
    },
    {
     "ability": "shield_slam"
+   },
+   {
+    "ability": "shield_rush"
    }
   ]
  },
@@ -1003,6 +1009,9 @@
    },
    {
     "ability": "fireball"
+   },
+   {
+    "ability": "meteor"
    }
   ]
  },
@@ -1027,6 +1036,9 @@
    },
    {
     "ability": "chain_lightning"
+   },
+   {
+    "ability": "ball_lightning"
    }
   ]
  },
@@ -1108,6 +1120,9 @@
    },
    {
     "ability": "fan_of_knives"
+   },
+   {
+    "ability": "assassinate"
    }
   ]
  },
@@ -1127,6 +1142,9 @@
    },
    {
     "ability": "smoke_bomb"
+   },
+   {
+    "ability": "caltrops"
    }
   ]
  },
@@ -1244,6 +1262,9 @@
    },
    {
     "ability": "deadeye"
+   },
+   {
+    "ability": "killshot"
    }
   ]
  },
@@ -1263,6 +1284,9 @@
    },
    {
     "ability": "call_of_the_pack"
+   },
+   {
+    "ability": "hunt_as_one"
    }
   ]
  },
@@ -1385,6 +1409,9 @@
    },
    {
     "ability": "beacon_of_hope"
+   },
+   {
+    "ability": "dawnbreak"
    }
   ]
  },
@@ -1404,6 +1431,9 @@
    },
    {
     "ability": "dread_harvest"
+   },
+   {
+    "ability": "ruinous_blow"
    }
   ]
  },
@@ -1531,6 +1561,9 @@
    },
    {
     "ability": "raise_bone_knight"
+   },
+   {
+    "ability": "bone_colossus"
    }
   ]
  },
@@ -1554,6 +1587,9 @@
    },
    {
     "ability": "plague_cloud"
+   },
+   {
+    "ability": "blight"
    }
   ]
  },
@@ -2354,5 +2390,417 @@
     "value": 2
    }
   ]
+ },
+ {
+  "id": "shattering_blows",
+  "name": "Shattering Blows",
+  "type": "Class",
+  "level": 12,
+  "class": "fighter",
+  "description": "Sundering Blow costs 10 less Fury, and its target stays off-guard 3 s longer.",
+  "effects": [
+   {
+    "ability": "sundering_blow",
+    "cost": -10,
+    "onHitSeconds": 3
+   }
+  ]
+ },
+ {
+  "id": "unyielding",
+  "name": "Unyielding",
+  "type": "Class",
+  "level": 12,
+  "class": "fighter",
+  "description": "+3 HP a level, and +1 to Fortitude and Will saves.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 3
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "wrath_of_heaven",
+  "name": "Wrath of Heaven",
+  "type": "Class",
+  "level": 12,
+  "class": "champion",
+  "description": "Divine Wrath reaches a tile further and costs 5 less Devotion.",
+  "effects": [
+   {
+    "ability": "divine_wrath",
+    "radius": 1,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "aegis_of_faith",
+  "name": "Aegis of Faith",
+  "type": "Class",
+  "level": 12,
+  "class": "champion",
+  "description": "+1 AC, and resistance 3 to void and Taint.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "resist": "Void",
+    "value": 3
+   },
+   {
+    "resist": "Taint",
+    "value": 3
+   }
+  ]
+ },
+ {
+  "id": "hamstring",
+  "name": "Hamstring",
+  "type": "Class",
+  "level": 12,
+  "class": "rogue",
+  "description": "Crippling Strike's wound bleeds a die more, and the target stays slowed 2 s longer.",
+  "effects": [
+   {
+    "ability": "crippling_strike",
+    "persistentDice": 1,
+    "onHitSeconds": 2
+   }
+  ]
+ },
+ {
+  "id": "vicious_edge",
+  "name": "Vicious Edge",
+  "type": "Class",
+  "level": 12,
+  "class": "rogue",
+  "description": "+3 damage on every hit, and 4 more on a critical hit.",
+  "effects": [
+   {
+    "statistic": "Damage",
+    "value": 3
+   },
+   {
+    "critDamage": 4
+   }
+  ]
+ },
+ {
+  "id": "nailing_shot",
+  "name": "Nailing Shot",
+  "type": "Class",
+  "level": 12,
+  "class": "ranger",
+  "description": "Pinning Shot holds them 2 s longer and costs 5 less Focus.",
+  "effects": [
+   {
+    "ability": "pinning_shot",
+    "onHitSeconds": 2,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "eagle_eye",
+  "name": "Eagle Eye",
+  "type": "Class",
+  "level": 12,
+  "class": "ranger",
+  "description": "+1 to attack rolls and Perception, and your bows reach a tile further.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 1
+   },
+   {
+    "statistic": "Perception",
+    "value": 1
+   },
+   {
+    "weaponRange": 1
+   }
+  ]
+ },
+ {
+  "id": "deep_freeze",
+  "name": "Deep Freeze",
+  "type": "Class",
+  "level": 12,
+  "class": "wizard",
+  "description": "Cone of Cold reaches a tile further, and its chill lasts 2 s longer.",
+  "effects": [
+   {
+    "ability": "cone_of_cold",
+    "radius": 1,
+    "onHitSeconds": 2
+   }
+  ]
+ },
+ {
+  "id": "arcane_mastery",
+  "name": "Arcane Mastery",
+  "type": "Class",
+  "level": 12,
+  "class": "wizard",
+  "description": "+1 to spell attacks and spell DCs, and your Mana returns a quarter faster.",
+  "effects": [
+   {
+    "statistic": "SpellAttack",
+    "value": 1
+   },
+   {
+    "statistic": "SpellDc",
+    "value": 1
+   },
+   {
+    "resourceRegen": 0.25
+   }
+  ]
+ },
+ {
+  "id": "grave_hold",
+  "name": "Grave Hold",
+  "type": "Class",
+  "level": 12,
+  "class": "necromancer",
+  "description": "Grasp of the Grave covers half a tile more and holds them 1 s longer.",
+  "effects": [
+   {
+    "ability": "grasp_of_the_grave",
+    "radius": 0.5,
+    "onHitSeconds": 1
+   }
+  ]
+ },
+ {
+  "id": "lich_touched",
+  "name": "Lich-Touched",
+  "type": "Class",
+  "level": 12,
+  "class": "necromancer",
+  "description": "+2 HP a level, and your skeletons are sturdier (a step of growth).",
+  "effects": [
+   {
+    "hitPointsPerLevel": 2
+   },
+   {
+    "minionGrowth": 1
+   }
+  ]
+ },
+ {
+  "id": "tectonic",
+  "name": "Tectonic",
+  "type": "Class",
+  "level": 14,
+  "class": "fighter",
+  "description": "Vanguard: Earthsplitter reaches a tile further and costs 10 less Fury.",
+  "effects": [
+   {
+    "ability": "earthsplitter",
+    "radius": 1,
+    "cost": -10
+   }
+  ],
+  "subclass": "vanguard"
+ },
+ {
+  "id": "battering_ram",
+  "name": "Battering Ram",
+  "type": "Class",
+  "level": 14,
+  "class": "fighter",
+  "description": "Bulwark: Shield Rush knocks them a tile further, and Shield Block takes 3 more off a blow.",
+  "effects": [
+   {
+    "ability": "shield_rush",
+    "knockback": 1
+   },
+   {
+    "blockHardness": 3
+   }
+  ],
+  "subclass": "bulwark"
+ },
+ {
+  "id": "high_noon",
+  "name": "High Noon",
+  "type": "Class",
+  "level": 14,
+  "class": "champion",
+  "description": "Lanternbearer: Dawnbreak burns a tile wider and costs 10 less Devotion.",
+  "effects": [
+   {
+    "ability": "dawnbreak",
+    "radius": 1,
+    "cost": -10
+   }
+  ],
+  "subclass": "lanternbearer"
+ },
+ {
+  "id": "ruin_incarnate",
+  "name": "Ruin Incarnate",
+  "type": "Class",
+  "level": 14,
+  "class": "champion",
+  "description": "Oathbreaker: Ruinous Blow costs 10 less Taint, and +2 damage on every hit.",
+  "effects": [
+   {
+    "ability": "ruinous_blow",
+    "cost": -10
+   },
+   {
+    "statistic": "Damage",
+    "value": 2
+   }
+  ],
+  "subclass": "oathbreaker"
+ },
+ {
+  "id": "exsanguinate",
+  "name": "Exsanguinate",
+  "type": "Class",
+  "level": 14,
+  "class": "rogue",
+  "description": "Cutthroat: Assassinate's wound bleeds a die more, and +1d6 sneak attack.",
+  "effects": [
+   {
+    "ability": "assassinate",
+    "persistentDice": 1
+   },
+   {
+    "sneakDice": 1
+   }
+  ],
+  "subclass": "cutthroat"
+ },
+ {
+  "id": "minefield",
+  "name": "Minefield",
+  "type": "Class",
+  "level": 14,
+  "class": "rogue",
+  "description": "Trickster: Caltrops spread a tile wider and slow 2 s longer.",
+  "effects": [
+   {
+    "ability": "caltrops",
+    "radius": 1,
+    "onHitSeconds": 2
+   }
+  ],
+  "subclass": "trickster"
+ },
+ {
+  "id": "through_and_through",
+  "name": "Through and Through",
+  "type": "Class",
+  "level": 14,
+  "class": "ranger",
+  "description": "Marksman: Killshot flies through two more enemies.",
+  "effects": [
+   {
+    "ability": "killshot",
+    "pierce": 2
+   }
+  ],
+  "subclass": "marksman"
+ },
+ {
+  "id": "pack_alpha",
+  "name": "Pack Alpha",
+  "type": "Class",
+  "level": 14,
+  "class": "ranger",
+  "description": "Beastmaster: your wolf grows again, and Hunt as One costs 10 less Focus.",
+  "effects": [
+   {
+    "companionGrowth": 1
+   },
+   {
+    "ability": "hunt_as_one",
+    "cost": -10
+   }
+  ],
+  "subclass": "beastmaster"
+ },
+ {
+  "id": "cataclysm",
+  "name": "Cataclysm",
+  "type": "Class",
+  "level": 14,
+  "class": "wizard",
+  "description": "Pyromancer: Meteor bursts a tile wider and costs 6 less Mana.",
+  "effects": [
+   {
+    "ability": "meteor",
+    "radius": 1,
+    "cost": -6
+   }
+  ],
+  "subclass": "pyromancer"
+ },
+ {
+  "id": "supercell",
+  "name": "Supercell",
+  "type": "Class",
+  "level": 14,
+  "class": "wizard",
+  "description": "Stormcaller: Ball Lightning bursts a tile wider, and Chain Lightning leaps to one more enemy.",
+  "effects": [
+   {
+    "ability": "ball_lightning",
+    "radius": 1
+   },
+   {
+    "ability": "chain_lightning",
+    "chain": 1
+   }
+  ],
+  "subclass": "stormcaller"
+ },
+ {
+  "id": "ossuary_lord",
+  "name": "Ossuary Lord",
+  "type": "Class",
+  "level": 14,
+  "class": "necromancer",
+  "description": "Bonelord: you hold one more skeleton, and they are sturdier (a step of growth).",
+  "effects": [
+   {
+    "minions": 1
+   },
+   {
+    "minionGrowth": 1
+   }
+  ],
+  "subclass": "bonelord"
+ },
+ {
+  "id": "pandemic",
+  "name": "Pandemic",
+  "type": "Class",
+  "level": 14,
+  "class": "necromancer",
+  "description": "Plaguebringer: Blight spreads a tile wider and its rot bleeds a die more.",
+  "effects": [
+   {
+    "ability": "blight",
+    "radius": 1,
+    "persistentDice": 1
+   }
+  ],
+  "subclass": "plaguebringer"
  }
 ]

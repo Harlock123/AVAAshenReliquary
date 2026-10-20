@@ -121,5 +121,41 @@
     ]
    }
   ]
+ },
+ {
+  "id": "oriel_vestments",
+  "name": "Vestments of Saint Oriel",
+  "bonuses": [
+   {
+    "pieces": 2,
+    "description": "+1 to Will saves and +1 to spell attacks.",
+    "effects": [
+     {
+      "statistic": "Will",
+      "value": 1
+     },
+     {
+      "statistic": "SpellAttack",
+      "value": 1
+     }
+    ]
+   },
+   {
+    "pieces": 3,
+    "description": "+2 HP a level, resistance 5 mental, and the Taint builds in you a quarter more slowly.",
+    "effects": [
+     {
+      "hitPointsPerLevel": 2
+     },
+     {
+      "resist": "Mental",
+      "value": 5
+     },
+     {
+      "taintRate": 0.25
+     }
+    ]
+   }
+  ]
  }
 ]

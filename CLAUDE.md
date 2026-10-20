@@ -117,8 +117,13 @@ implementation decisions made so far). `README.md` has the run commands and cont
   charge `chargeEverySeconds` and `BossCharge`, the `banner` standard with `rallies` and `tile`; `Creature.ArmorClassShift`;
   NPC `requires`; loading rebuilds people and traps after the flags; Red Mirella's faction `act2.faction`, Thale's
   answer, Sister Hale and `act2.refugees`; `CampaignReport.Acts_1_and_2_to_Ser_Hadric`, Act 2 XP scales 0.75/0.85/0.5/0.9;
-  `BalanceReport.Ser_Hadric_at_levels_9_and_10`, `Siege_Walls_at_level_9`). Act 2 is whole; Acts 3-4 wait on the
-  check-in (M4 decision 1).
+  `BalanceReport.Ser_Hadric_at_levels_9_and_10`, `Siege_Walls_at_level_9`). Act 2 is whole. Step 5 done:
+  levels 11-15 and Saint Oriel's Rest (`tools/saint_oriels_rest_mapgen.py`, `tileset_oriel` = snowplains + ruins at
+  +1000, `ZoneDefinition.Snowy`; class abilities at 11 on bar key "11" (no slot: `RefreshBar` treats a non-bar home as
+  none), subclass signatures at 13, 24 feats at 12/14; five Act 3 uniques and the `oriel_vestments` set; the Mirrored
+  affix (`GameWorld.Split`, `MonsterActor.IsMirrorImage`); `BalanceReport.Siege_Walls_raised_to_levels_11_13_and_15`).
+  The Siege Walls' Herald gate leads to the Rest until the Frostbitten Pass (step 6) goes between. Next: step 6, Act
+  3's zones.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

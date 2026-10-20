@@ -1536,6 +1536,216 @@
     "critDamage": 6
    }
   ],
-  "description": "You broke it across his wife's headstone. The oath went out of the steel, and the blade that is left holds nothing back."
+  "description": "You broke it across his wife's headstone. The oath went out of the steel, and the blade that is left holds nothing back.",
+  "story": true
+ },
+ {
+  "id": "frostbrand",
+  "name": "Frostbrand",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 99,
+  "loot": "greatsword",
+  "gfx": "greatsword",
+  "damageDie": 12,
+  "damageType": "Cold",
+  "attacksPerSecond": 0.9,
+  "traits": [
+   "TwoHand",
+   "Versatile"
+  ],
+  "versatile": "Piercing",
+  "minLevel": 11,
+  "potency": 2,
+  "striking": 1,
+  "trait": "Rime",
+  "traitText": "+2 damage on every hit, and resistance 5 cold.",
+  "effects": [
+   {
+    "statistic": "Damage",
+    "value": 2
+   },
+   {
+    "resist": "Cold",
+    "value": 5
+   }
+  ],
+  "description": "Forged for the monastery's wardens in the pass, and never once warm.",
+  "unique": true
+ },
+ {
+  "id": "oriels_crook",
+  "name": "Saint Oriel's Crook",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 107,
+  "loot": "greatstaff",
+  "gfx": "greatstaff",
+  "damageDie": 6,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.0,
+  "traits": [
+   "TwoHand"
+  ],
+  "casterFocus": true,
+  "implicit": {
+   "castSpeed": 0.1
+  },
+  "minLevel": 12,
+  "trait": "Bell-Toll",
+  "traitText": "+1 to spell attacks and spell DCs, and your Mana returns a fifth faster.",
+  "effects": [
+   {
+    "statistic": "SpellAttack",
+    "value": 1
+   },
+   {
+    "statistic": "SpellDc",
+    "value": 1
+   },
+   {
+    "resourceRegen": 0.2
+   }
+  ],
+  "description": "The abbesses carried it up the cliff stair for six hundred years. Its iron bell hangs silent.",
+  "unique": true
+ },
+ {
+  "id": "whisperbane",
+  "name": "Whisperbane",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 160,
+  "loot": "steel_armor",
+  "gfx": "plate_helm",
+  "minLevel": 13,
+  "implicit": {
+   "maxHitPoints": 12
+  },
+  "trait": "Shut Ears",
+  "traitText": "+2 to Will saves, and resistance 5 mental.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 2
+   },
+   {
+    "resist": "Mental",
+    "value": 5
+   }
+  ],
+  "description": "The visor is lined with wax and lead. Whatever it shuts out, it shuts out well.",
+  "unique": true
+ },
+ {
+  "id": "penitents_shroud",
+  "name": "The Penitent's Shroud",
+  "category": "Armor",
+  "slot": "Cloak",
+  "icon": 0,
+  "loot": "clothes",
+  "glyph": "cloak",
+  "weight": 8,
+  "minLevel": 14,
+  "implicit": {
+   "maxHitPoints": 10
+  },
+  "trait": "Contrition",
+  "traitText": "+1 AC, and the Taint builds in you a quarter more slowly.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "taintRate": 0.25
+   }
+  ],
+  "description": "Grey wool, mended a hundred times by someone who meant every stitch.",
+  "unique": true
+ },
+ {
+  "id": "frostfang",
+  "name": "Frostfang",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 114,
+  "loot": "longbow",
+  "gfx": "longbow",
+  "damageDie": 8,
+  "damageType": "Cold",
+  "attacksPerSecond": 1.0,
+  "ranged": true,
+  "range": 10,
+  "deadlyDie": 10,
+  "traits": [
+   "TwoHand",
+   "Deadly"
+  ],
+  "minLevel": 15,
+  "potency": 2,
+  "striking": 2,
+  "trait": "Winter's Bite",
+  "traitText": "+1 to attack rolls, and 6 more damage on a critical hit.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 1
+   },
+   {
+    "critDamage": 6
+   }
+  ],
+  "description": "Strung with a sinew that never thaws. The arrows come back frosted.",
+  "unique": true
+ },
+ {
+  "id": "oriel_vestment",
+  "name": "Vestment of Saint Oriel",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 137,
+  "loot": "clothes",
+  "gfx": "mage_vest",
+  "armorCategory": "Unarmored",
+  "acBonus": 0,
+  "dexCap": 5,
+  "implicit": {
+   "castSpeed": 0.05,
+   "maxHitPoints": 10
+  },
+  "minLevel": 12,
+  "set": "oriel_vestments",
+  "description": "White wool worked with a silver bell at the breast."
+ },
+ {
+  "id": "oriel_cowl",
+  "name": "Cowl of Saint Oriel",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 136,
+  "loot": "clothes",
+  "gfx": "mage_hood",
+  "minLevel": 12,
+  "set": "oriel_vestments",
+  "implicit": {
+   "maxHitPoints": 8
+  },
+  "description": "Its hem is stitched with the names of abbesses."
+ },
+ {
+  "id": "oriel_sandals",
+  "name": "Pilgrim-Boots of Saint Oriel",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 140,
+  "loot": "boots",
+  "gfx": "mage_boots",
+  "minLevel": 12,
+  "set": "oriel_vestments",
+  "implicit": {
+   "moveSpeed": 0.05
+  },
+  "description": "Worn up the cliff stair a thousand times, and never down."
  }
 ]

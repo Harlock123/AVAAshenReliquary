@@ -317,8 +317,9 @@
     1031
    ],
    "objects": [
-    1182,
-    1183
+    1223,
+    1226,
+    1228
    ],
    "blocks": true,
    "blocksSight": true
@@ -699,7 +700,12 @@
     "act2.hadric": "slain"
    },
    "sealedText": "The Iron Legion still holds the north gate. It will not open while Ser Hadric stands.",
-   "openText": "The road north to the Whispering Heights lies open. (Act 3 is still being written.)"
+   "to": "saint_oriels_rest",
+   "toExit": "south_road",
+   "arrive": [
+    30,
+    17
+   ]
   }
  ],
  "caches": [

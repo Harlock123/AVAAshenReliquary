@@ -1728,6 +1728,7 @@ public sealed partial class GameWorld
             DropLoot(monster);
         LayToRise(monster, critical);
         Avenge(monster);
+        ShatterImages(monster);
         GatherGraveCharge(monster);
         if (monster.Has(MonsterAffix.Tainted))
             LeaveTaint(monster);

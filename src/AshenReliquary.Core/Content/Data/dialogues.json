@@ -2124,5 +2124,144 @@
         "text": "Sister Hale doesn't look up from the cot she is kneeling by."
       }
     }
+  },
+  {
+    "id": "oriel_ilse",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.ilse": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "An old woman in white sits very straight by the cold brazier, her hands folded on a crook. \"You came up from the Iron March. Then Hadric is dead.\" She closes her eyes a moment. \"Good. He was a decent man once. I am Ilse, abbess of this house, for what that is worth now that our bells do not ring.\"",
+        "effects": [
+          {
+            "flag": "act3.ilse",
+            "value": "met"
+          },
+          {
+            "journal": {
+              "id": "act3_rest",
+              "title": "Saint Oriel's Rest",
+              "kind": "main",
+              "text": "Past the broken walls the road climbed into the frozen cliffs, to the Rest of the Monastery of Saint Oriel. Abbess Ilse keeps it. The bells have not rung since three of her sisters went up the Bell Tower to pray when the ash fell, and came down singing: the Choir of Whispers, the third Herald."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Why don't the bells ring?\"",
+            "to": "choir"
+          },
+          {
+            "text": "\"What does the house need?\"",
+            "to": "need"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "choir": {
+        "text": "\"Three sisters of this house went up the Bell Tower to pray when the ash first fell on the cliffs. They came down singing.\" Her knuckles whiten on the crook. \"They call themselves the Choir now. When they sing, my brothers walk out into the snow at night, smiling, and do not come back. One of them is my sister. The youngest.\""
+      },
+      "need": {
+        "text": "\"The pass above is buried, and the woods beyond it are full of things that are not there when you look twice. When the way opens, the Bell Tower is at the end of it.\" She looks at the rope scar on your neck, then at your chest, as if she could see what is in it. \"And you will want to be careful what you carry up there. The Choir listens for things like you.\""
+      },
+      "again": {
+        "text": "Abbess Ilse inclines her head.",
+        "choices": [
+          {
+            "text": "\"Tell me of the Choir again.\"",
+            "to": "choir"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "oriel_caddoc",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.caddoc": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A lean monk in a patched habit is scrubbing the cloister flags on his knees, though they are already clean. \"Caddoc. Brother Caddoc, they still call me.\" He doesn't stop scrubbing. \"I came up from the Mire years ago with a great deal to atone for. I'd walk the pass with you, when it opens. I know the woods.\" He hesitates. \"There's something I should tell you first. Not yet.\"",
+        "effects": [
+          {
+            "flag": "act3.caddoc",
+            "value": "met"
+          },
+          {
+            "journal": {
+              "id": "act3_penitent",
+              "title": "The Penitent",
+              "kind": "side",
+              "text": "Brother Caddoc, a penitent at Saint Oriel's Rest, offers to walk the pass with me when it opens. He says there is something he should confess to me first, but not yet."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "Caddoc looks up from the flagstones. \"When the pass opens, I'll be ready. And I'll tell you. I swear it.\""
+      }
+    }
+  },
+  {
+    "id": "oriel_altar",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A cloister altar of grey stone, a silver bell set in it, silent. Kneeling here, you feel the choices of your road loosen, as if they could be made again.",
+        "choices": [
+          {
+            "text": "Let go of what I have chosen, and choose again (free, once this act).",
+            "requires": {
+              "act3.respec": ""
+            },
+            "effects": [
+              {
+                "respec": true
+              },
+              {
+                "flag": "act3.respec",
+                "value": "used"
+              }
+            ]
+          },
+          {
+            "text": "Let go of what I have chosen, and choose again ({cost} gold).",
+            "requires": {
+              "act3.respec": "used"
+            },
+            "effects": [
+              {
+                "payPerLevel": 20
+              },
+              {
+                "respec": true
+              }
+            ]
+          },
+          {
+            "text": "Rise and leave."
+          }
+        ]
+      }
+    }
   }
 ]

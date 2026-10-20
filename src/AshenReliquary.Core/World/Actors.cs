@@ -345,6 +345,12 @@ public sealed class MonsterActor : Actor
     /// <summary>How many times it has risen; a risen monster gives no XP or loot again.</summary>
     public int Rises { get; internal set; }
 
+    /// <summary>A Mirrored monster has split into its images (it does so once).</summary>
+    internal bool HasSplit { get; set; }
+
+    /// <summary>One of a Mirrored monster's images: weaker, see-through, gone when the original falls.</summary>
+    public bool IsMirrorImage { get; internal set; }
+
     /// <summary>A corpse that will stand again unless it is destroyed.</summary>
     public bool IsRising => IsDead && RisesIn > 0;
 
@@ -403,6 +409,7 @@ public enum MonsterAffix
     Hasted,
     Shielded,
     Tainted,
+    Mirrored,
 }
 
 public enum FloatingTextKind

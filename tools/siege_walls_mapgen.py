@@ -4,7 +4,8 @@
 # The way runs north (low y) from the Barrow Fields' siege road at the south end, through the legion's siege works
 # (trenches of rubble and barricades, crossbow nests), past the ruined gatehouse to the west (Red Mirella's hideout: the
 # Outlaw Queen, Act 2's faction story), to the breach in the city's wall, and up onto the wall-top: a paved plaza where
-# Hadric waits (his arena, radius 11). Beyond him the Herald gate opens the road north (Act 3) once he falls.
+# Hadric waits (his arena, radius 11). Beyond him the Herald gate opens the road north to Saint Oriel's Rest (Act 3)
+# once he falls.
 #
 # Act 2's mechanics come together here: cover and kiting crossbowmen in the siege works, the rising dead in the mass
 # graves, and Hadric's three phases on the boss framework (a shield wall and charges, a rallying standard, his armour
@@ -250,7 +251,7 @@ zone = {
         "W": {"ground": "grass", "objects": [1223, 1224, 1225, 1226, 1227, 1228, 1229], "blocks": True, "blocksSight": True},
         "R": {"ground": "grass", "objects": [1230, 1231, 1232, 1233], "blocks": True, "blocksSight": True},
         "Q": {"ground": "grass", "objects": [1230], "blocks": True, "blocksSight": True},
-        "I": {"ground": "grass", "tiles": FLAG, "objects": [1182, 1183], "blocks": True, "blocksSight": True},
+        "I": {"ground": "grass", "tiles": FLAG, "objects": [1223, 1226, 1228], "blocks": True, "blocksSight": True},
         "c": {"ground": "grass", "objects": [102], "blocks": True},
         "B": {"ground": "grass", "tiles": FLAG, "objects": [102], "blocks": True, "light": 4.0},
         "S": {"ground": "grass", "objects": [265]},
@@ -268,7 +269,7 @@ zone = {
         {"id": "heights", "label": "The Whispering Heights", "at": exit_north, "radius": 1.5,
          "requires": {"act2.hadric": "slain"},
          "sealedText": "The Iron Legion still holds the north gate. It will not open while Ser Hadric stands.",
-         "openText": "The road north to the Whispering Heights lies open. (Act 3 is still being written.)"},
+         "to": "saint_oriels_rest", "toExit": "south_road", "arrive": [ax, ay - ar + 2]},
     ],
     "caches": caches,
     # The Outlaw Queen (Act 2's faction story): Red Mirella in the ruined gatehouse, until her choice is made.

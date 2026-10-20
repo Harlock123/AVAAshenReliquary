@@ -166,7 +166,7 @@ internal sealed class Minimap
         for (var y = 0; y < map.Height; y++)
         for (var x = 0; x < map.Width; x++)
         {
-            if (!world.IsExplored(x, y) || (dungeon ? DungeonColour(map, x, y) : CellColour(map, x, y)) is not { } colour)
+            if (!world.IsExplored(x, y) || (dungeon ? DungeonColour(map, x, y) : CellColour(map, x, y, world.Zone.Snowy)) is not { } colour)
                 continue;
             paint.Color = colour;
             var c = At(x + 0.5, y + 0.5);
@@ -196,7 +196,7 @@ internal sealed class Minimap
         return map.IsBlocked(x, y) ? new SKColor(92, 84, 72) : new SKColor(58, 52, 46);
     }
 
-    private static SKColor? CellColour(TileMap map, int x, int y)
+    private static SKColor? CellColour(TileMap map, int x, int y, bool snowy = false)
     {
         if (map.Ground(x, y) < 0 && map.Objects(x, y).Count == 0)
             return null;
@@ -209,11 +209,14 @@ internal sealed class Minimap
         if (map.IsBlocked(x, y))
             return map.Objects(x, y).Any(id => id >= 1000) ? (map.BlocksSight(x, y) ? new SKColor(128, 116, 98) : new SKColor(92, 84, 72))
                 : map.Objects(x, y).Any(id => id >= 240) ? new SKColor(28, 40, 26) : new SKColor(70, 64, 56);
-        if (ground is >= 32 and <= 47)
+        if (!snowy && ground is >= 32 and <= 47)
             return new SKColor(120, 104, 80);
         // Flagstones (the ruins' floors): grey stone.
         if (ground >= 1000)
             return new SKColor(96, 92, 84);
+        // Snow: pale, its trodden paths a little darker (the snow set numbers its ground as the grassland does).
+        if (snowy)
+            return ground is >= 32 and <= 47 ? new SKColor(132, 136, 140) : new SKColor(170, 176, 184);
         return new SKColor(56, 64, 40);
     }
 }

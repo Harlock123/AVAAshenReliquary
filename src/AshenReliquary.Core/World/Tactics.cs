@@ -109,7 +109,8 @@ public static class Tactics
             world.Dodge(hero.X + (hero.X - melee.X) / away * 4, hero.Y + (hero.Y - melee.Y) / away * 4);
             return;
         }
-        // Past level 5 (M4): each class's level-6 ability and its subclass's level-8 signature, by id.
+        // Past level 5 (M4): each class's level-6 and level-11 abilities and its subclass's level-8 and level-13
+        // signatures, by id, the bigger first.
         int Near(MonsterActor at, double tiles) => world.Monsters.Count(m => !m.IsDead && m.DistanceTo(at) <= tiles + m.Radius);
         var tough = target.Creature.Stats.Rank >= CreatureRank.Champion;
         var health = hero.Character.HitPoints / (double)hero.Character.MaxHitPoints;
@@ -126,6 +127,24 @@ public static class Tactics
             }
             (string Id, bool When, MonsterActor? At, (double X, double Y)? Toward)[] signatures =
             [
+                ("earthsplitter", Within(3.5) >= 2 && world.WieldsTwoHanded, target, null),
+                ("shield_rush", distance > 2.5 && distance < 7 && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true }, target, null),
+                ("dawnbreak", Within(4) >= 2 || (health < 0.5 && Within(4) >= 1), null, null),
+                ("ruinous_blow", distance < 1.8 && (tough || hero.Character.Taint.Value > 60), target, null),
+                ("assassinate", distance < 1.8 && tough, target, null),
+                ("caltrops", Within(2.5) >= 2, null, null),
+                ("killshot", tough && distance < 10, target, null),
+                ("hunt_as_one", tough && world.Allies.Any(a => !a.IsDead), target, null),
+                ("meteor", distance < 10 && Near(target, 3.5) >= 2, target, null),
+                ("ball_lightning", distance < 9 && Near(target, 2.5) >= 2, target, null),
+                ("bone_colossus", (tough || Within(8) >= 3) && world.Allies.All(a => a.IsDead || a.Definition.Id != "bone_colossus"), null, null),
+                ("blight", distance < 9 && Near(target, 3) >= 2, target, null),
+                ("sundering_blow", distance < 1.8 && tough, target, null),
+                ("divine_wrath", Within(3) >= 2, null, null),
+                ("crippling_strike", distance < 1.8 && target.Creature.Stats.Rank >= CreatureRank.Normal, target, null),
+                ("pinning_shot", distance < 10 && distance > 2 && !target.Definition.Ranged, target, null),
+                ("cone_of_cold", Within(5) >= 2, target, null),
+                ("grasp_of_the_grave", distance < 8 && Near(target, 2.5) >= 2, target, null),
                 ("intimidating_roar", Within(3) >= 2, null, null),
                 ("whirlwind_strike", close >= 2 && distance < 1.6 && world.WieldsTwoHanded, target, null),
                 ("shield_slam", distance < 1.6 && target.Creature.Stats.Rank >= CreatureRank.Normal, target, null),
