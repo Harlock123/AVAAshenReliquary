@@ -363,7 +363,7 @@ public sealed class WorldView : Control
         if (MonsterUnder(p) is { } under)
             return under;
         var (x, y) = ToMap(p);
-        return world.Monsters.Where(m => !m.IsDead && world.IsLit(m.X, m.Y) && m.DistanceTo(x, y) <= AttackPickTiles)
+        return world.Monsters.Where(m => world.CanTarget(m) && world.IsLit(m.X, m.Y) && m.DistanceTo(x, y) <= AttackPickTiles)
             .MinBy(m => m.DistanceTo(x, y));
     }
 
@@ -851,7 +851,7 @@ public sealed class WorldView : Control
         var bestDistance = double.MaxValue;
         foreach (var m in world.Monsters)
         {
-            if (m.IsDead || !world.IsLit(m.X, m.Y))
+            if (!world.CanTarget(m) || !world.IsLit(m.X, m.Y))
                 continue;
             var foot = ToScreen(m.X, m.Y);
             var height = (m.Definition.Stationary ? 110 : 150) * z * (float)m.Definition.Scale;
@@ -1267,6 +1267,8 @@ public sealed class WorldView : Control
         canvas.RestoreToCount(shaken);
         Stats.Mark("darkness");
         DrawAsh(canvas, size, time);
+        if (world.Blizzard)
+            DrawBlizzard(canvas, size, time);
         Stats.Mark("ash");
         DrawVignette(canvas, size);
         Stats.Mark("vignette");
@@ -1659,6 +1661,11 @@ public sealed class WorldView : Control
             var mark = SKColorFilter.CreateLighting(SKColors.White, add);
             filter = filter is null ? mark : SKColorFilter.CreateCompose(mark, filter);
         }
+        // A wraith is half there (Flare's own ghosts are drawn so); an unseen one is the barest shimmer.
+        if (m.Definition.Alpha < 1)
+            paint.Color = SKColors.White.WithAlpha((byte)(255 * m.Definition.Alpha));
+        if (world.IsUnseen(m))
+            paint.Color = SKColors.White.WithAlpha(30);
         // A mirror image: cold and see-through.
         if (m.IsMirrorImage)
         {
@@ -1697,9 +1704,9 @@ public sealed class WorldView : Control
             var set = _assets.Enemy(m.Definition.Sprite);
             if (Pick(set, m.Animation) is not { } anim)
                 return;
-            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(m.AnimationTime), m.Direction), foot, (float)m.Definition.Scale, paint);
+            DrawFrame(canvas, anim.Image ?? set.Image, anim.Frame(anim.FrameAt(m.AnimationTime), m.Direction), foot, (float)m.Definition.Scale, paint);
         }
-        if (!m.IsDead && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints && world.IsLit(m.X, m.Y))
+        if (!m.IsDead && !world.IsUnseen(m) && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints && world.IsLit(m.X, m.Y))
             WorldOverlay.DrawHealthBar(canvas, foot, (float)Zoom, m.Creature.HitPoints / (float)m.Creature.Stats.HitPoints,
                 m.Creature.Stats.Rank == CreatureRank.Champion);
     }
@@ -1724,6 +1731,12 @@ public sealed class WorldView : Control
         SKColorFilter? filter = null;
         if (ally.HitFlinch > 0)
             filter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(90, 30, 30));
+        // Turned by a whisperer: violet, and it fights the hero.
+        if (World is { } w && ally.IsTurned(w.Time))
+        {
+            var turned = SKColorFilter.CreateLighting(new SKColor(200, 140, 255), new SKColor(60, 0, 70));
+            filter = filter is null ? turned : SKColorFilter.CreateCompose(filter, turned);
+        }
         // A raised skeleton's own pale tint, as a monster's.
         if (ally.Definition.Tint is { } tint && SKColor.TryParse(tint, out var colour))
         {
@@ -1744,7 +1757,7 @@ public sealed class WorldView : Control
         }
         var set = _assets.Enemy(ally.Definition.Sprite);
         if (Pick(set, ally.Animation) is { } anim)
-            DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(ally.AnimationTime), ally.Direction), foot, (float)ally.Definition.Scale, paint);
+            DrawFrame(canvas, anim.Image ?? set.Image, anim.Frame(anim.FrameAt(ally.AnimationTime), ally.Direction), foot, (float)ally.Definition.Scale, paint);
         if (!ally.IsDead && ally.Creature.HitPoints < ally.Creature.Stats.HitPoints)
             WorldOverlay.DrawHealthBar(canvas, foot, z, ally.Creature.HitPoints / (float)ally.Creature.Stats.HitPoints, false, 95,
                 new SKColor(90, 190, 80));
@@ -2463,6 +2476,25 @@ public sealed class WorldView : Control
             var y = (float)((hy * size.Height + time * speed) % size.Height);
             paint.Color = new SKColor(190, 185, 175, (byte)(40 + 60 * Hash01(i * 13 + 4)));
             canvas.DrawCircle(x, y, (float)(0.8 + 1.6 * Hash01(i * 17 + 5)), paint);
+        }
+    }
+
+    /// <summary>A blizzard (a cold zone's): the air whitens and snow drives across the screen, fast and sideways.</summary>
+    private static void DrawBlizzard(SKCanvas canvas, SKSize size, double time)
+    {
+        using (var haze = new SKPaint { Color = new SKColor(225, 232, 240, 70) })
+            canvas.DrawRect(SKRect.Create(size), haze);
+        using var paint = new SKPaint { IsAntialias = true, StrokeCap = SKStrokeCap.Round };
+        for (var i = 0; i < 260; i++)
+        {
+            var hx = Hash01(i * 5 + 7);
+            var hy = Hash01(i * 9 + 11);
+            var speed = 160 + 220 * Hash01(i * 13 + 17);
+            var x = (float)((hx * size.Width + time * speed) % size.Width);
+            var y = (float)((hy * size.Height + time * speed * 0.35) % size.Height);
+            paint.Color = new SKColor(245, 248, 255, (byte)(90 + 110 * Hash01(i * 19 + 23)));
+            paint.StrokeWidth = (float)(1 + 1.5 * Hash01(i * 29 + 31));
+            canvas.DrawLine(x, y, x - 9, y - 3, paint);
         }
     }
 

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using AshenReliquary.Core.Combat;
 using AshenReliquary.Core.Creatures;
+using AshenReliquary.Core.Rules;
 
 namespace AshenReliquary.Core.World;
 
@@ -15,6 +16,12 @@ namespace AshenReliquary.Core.World;
 /// </summary>
 public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false,
     IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null, bool Cover = false);
+
+/// <summary>
+/// A condition a monster's hits lay on the hero (a crowd-control caster's): <see cref="Condition"/> of
+/// <see cref="Value"/> for <see cref="Seconds"/>, unless the hero makes a <see cref="Save"/> against the monster's DC.
+/// </summary>
+public sealed record InflictDefinition(ConditionKind Condition, int Value = 1, double Seconds = 3, StatisticKind Save = StatisticKind.Will);
 
 /// <summary>One monster in a pack: a creature id, its rank and any monster affixes ("vengeful").</summary>
 public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null);
@@ -67,8 +74,10 @@ public sealed record ZoneDefinition(
     double HeroLight = 6.5,
     double XpScale = 1.0,
     int Act = 1,
-    IReadOnlyList<TrapDefinition>? Traps = null)
+    IReadOnlyList<TrapDefinition>? Traps = null,
+    bool Cold = false)
 {
+    // Cold: the hero's cold exposure rises out here, away from fires, faster in a blizzard (the Frostbitten Pass).
     /// <summary>
     /// Under the open sky (Flare's grassland, Act 2's grassland-and-ruins set, Act 3's snow-and-ruins set): trees fringe
     /// the map, campfires glow.
@@ -136,8 +145,18 @@ public sealed record CreatureDefinition(
     bool Kites = false,
     double Revives = 0,
     bool Rallies = false,
-    int? Tile = null)
+    int? Tile = null,
+    double Alpha = 1.0,
+    InflictDefinition? Inflicts = null,
+    bool Unseen = false,
+    bool Illusion = false,
+    bool Dominates = false)
 {
+    // Alpha: how solid it is drawn (a wraith is half there, as Flare draws its ghosts).
+    // Inflicts: a condition its hits lay on the hero, against a save (Act 3's crowd-control casters).
+    // Unseen: invisible until found with Perception, until it strikes, or until an area attack catches it (the Hollow Woods).
+    // Illusion: a figment: a Will save on first sight sees through it; a hit dissolves it; it is worth nothing.
+    // Dominates: a caster that turns the hero's allies against them for a while (the Catacombs of Oriel).
     // Rallies: a standard (Hadric's banner): its legion fights harder while it stands (see BossPhase.Banner).
     // Tile: drawn as this tile of the zone's tileset instead of a sprite (a standard, a totem): stationary things only.
     // Revives: seconds after it falls before its corpse rises again (the Barrow Fields' dead), unless destroyed.

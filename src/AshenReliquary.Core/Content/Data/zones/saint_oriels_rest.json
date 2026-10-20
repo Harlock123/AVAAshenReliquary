@@ -388,6 +388,32 @@
    "facing": 3,
    "portrait": "flare/male10",
    "dialogue": "oriel_caddoc",
+   "requires": {
+    "act3.caddoc": ""
+   },
+   "look": {
+    "head": "leather_hood",
+    "chest": "mage_vest",
+    "hands": "cloth_gloves",
+    "legs": "cloth_pants",
+    "feet": "cloth_sandals",
+    "main": "staff"
+   }
+  },
+  {
+   "id": "caddoc_back",
+   "name": "Brother Caddoc",
+   "title": "Penitent",
+   "at": [
+    16,
+    21
+   ],
+   "facing": 3,
+   "portrait": "flare/male10",
+   "dialogue": "oriel_caddoc_forgiven",
+   "requires": {
+    "act3.penitent": "forgiven"
+   },
    "look": {
     "head": "leather_hood",
     "chest": "mage_vest",
@@ -477,14 +503,14 @@
  "exits": [
   {
    "id": "south_road",
-   "label": "The Siege Walls",
+   "label": "The Frostbitten Pass",
    "at": [
     22,
     40
    ],
    "radius": 1.5,
-   "to": "siege_walls",
-   "toExit": "heights",
+   "to": "frostbitten_pass",
+   "toExit": "rest",
    "arrive": [
     22,
     36
@@ -498,10 +524,12 @@
     7
    ],
    "radius": 1.5,
-   "requires": {
-    "act3.north_door": "open"
-   },
-   "sealedText": "The north door to the cliff stair is barred from within. (The Hollow Woods are still being written.)"
+   "to": "hollow_woods",
+   "toExit": "rest",
+   "arrive": [
+    22,
+    9
+   ]
   }
  ]
 }

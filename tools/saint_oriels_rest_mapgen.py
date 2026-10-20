@@ -1,11 +1,12 @@
 # Generates zones/saint_oriels_rest.json: Act 3's hub, the Rest of the Monastery of Saint Oriel, a walled cloister on a
 # snowy ledge under frozen cliffs. The Choir of Whispers, the third Herald, sings in the Bell Tower above it.
 #
-# Its people: Abbess Ilse (the act's story), Brother Caddoc (the companion of the Penitent's story, M4 step 6; met here),
+# Its people: Abbess Ilse (the act's story), Brother Caddoc (the companion of the Penitent's story; met here, then found in
+# the Hollow Woods and the catacombs, and back here if forgiven),
 # Halvard the smith (arms, armour, rune work and crafting), Sister Mora (wares and the belt's supplies), the stash, the
 # Cloister altar (respec) and the Cloister Shrine (a Rift Shrine). Pilgrims' tents stand outside the wall. The south road
-# goes down to the Siege Walls (the Frostbitten Pass will lie between, step 6); the north door, up toward the Hollow
-# Woods and the Bell Tower, is shut for now. The tileset is tileset_oriel: Flare's snowplains plus rubberduck's Old Ruins
+# goes down the Frostbitten Pass to the Siege Walls; the north door opens on the cliff stair up to the Hollow Woods
+# (M4 step 6). The tileset is tileset_oriel: Flare's snowplains plus rubberduck's Old Ruins
 # (ruins tile n is n + 1000).
 #
 # Deterministic. Bump REVISION whenever the layout changes.
@@ -52,7 +53,7 @@ for y in range(y1 + 1, H):
     for x in (cx - 2, cx + 2):
         if grid[y][x] in '.,T':
             grid[y][x] = '-'
-# The north door, toward the cliff stair (shut for now).
+# The north door, toward the cliff stair and the Hollow Woods.
 for x in range(cx - 1, cx + 2):
     grid[y0][x] = 'G'
 grid[y0][cx - 2] = 'Q'; grid[y0][cx + 2] = 'Q'
@@ -135,7 +136,11 @@ zone = {
          "portrait": "flare/female09", "dialogue": "oriel_ilse",
          "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "mage_sleeves", "legs": "mage_skirt", "feet": "mage_boots", "main": "greatstaff"}},
         {"id": "caddoc", "name": "Brother Caddoc", "title": "Penitent", "at": [cx - 6, y1 - 5], "facing": 3,
-         "portrait": "flare/male10", "dialogue": "oriel_caddoc",
+         "portrait": "flare/male10", "dialogue": "oriel_caddoc", "requires": {"act3.caddoc": ""},
+         "look": {"head": "leather_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "cloth_pants", "feet": "cloth_sandals", "main": "staff"}},
+        # Once met he goes ahead to the Hollow Woods; forgiven in the catacombs, he comes back to wait here.
+        {"id": "caddoc_back", "name": "Brother Caddoc", "title": "Penitent", "at": [cx - 6, y1 - 5], "facing": 3,
+         "portrait": "flare/male10", "dialogue": "oriel_caddoc_forgiven", "requires": {"act3.penitent": "forgiven"},
          "look": {"head": "leather_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "cloth_pants", "feet": "cloth_sandals", "main": "staff"}},
     ],
     "interactables": [
@@ -154,11 +159,10 @@ zone = {
          "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "mage_skirt", "feet": "cloth_sandals", "main": "rod"}},
     ],
     "exits": [
-        {"id": "south_road", "label": "The Siege Walls", "at": gate, "radius": 1.5, "to": "siege_walls", "toExit": "heights",
+        {"id": "south_road", "label": "The Frostbitten Pass", "at": gate, "radius": 1.5, "to": "frostbitten_pass", "toExit": "rest",
          "arrive": [cx, H - 6]},
-        {"id": "north_door", "label": "The Hollow Woods", "at": [cx, y0 + 1], "radius": 1.5,
-         "requires": {"act3.north_door": "open"},
-         "sealedText": "The north door to the cliff stair is barred from within. (The Hollow Woods are still being written.)"},
+        {"id": "north_door", "label": "The Hollow Woods", "at": [cx, y0 + 1], "radius": 1.5, "to": "hollow_woods", "toExit": "rest",
+         "arrive": [cx, y0 + 3]},
     ],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)

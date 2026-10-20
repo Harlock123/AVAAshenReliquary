@@ -690,7 +690,7 @@
   },
   {
    "id": "heights",
-   "label": "The Whispering Heights",
+   "label": "The Frostbitten Pass",
    "at": [
     30,
     5
@@ -700,8 +700,8 @@
     "act2.hadric": "slain"
    },
    "sealedText": "The Iron Legion still holds the north gate. It will not open while Ser Hadric stands.",
-   "to": "saint_oriels_rest",
-   "toExit": "south_road",
+   "to": "frostbitten_pass",
+   "toExit": "siege_walls",
    "arrive": [
     30,
     17

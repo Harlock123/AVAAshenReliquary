@@ -92,6 +92,9 @@ public sealed partial class GameWorld
                 Float(m, $"absorbed {soaked}", FloatingTextKind.Miss);
         }
         m.Creature.TakeDamage(damage);
+        // A figment struck dissolves (Kill sees to it, worth nothing).
+        if (m.Definition.Illusion && damage > 0)
+            m.Creature.TakeDamage(m.Creature.HitPoints);
         if (m.Has(MonsterAffix.Mirrored) && !m.HasSplit && !m.IsDead && m.Creature.HitPoints * 2 <= m.Creature.Stats.HitPoints)
             Split(m);
         return damage;

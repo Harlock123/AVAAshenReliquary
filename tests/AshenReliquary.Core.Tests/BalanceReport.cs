@@ -143,7 +143,7 @@ public class BalanceReport(ITestOutputHelper output)
                     potions++;
                 Tactics.Upkeep(world);
                 var target = world.Monsters
-                    .Where(m => !m.IsDead && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
+                    .Where(m => world.CanTarget(m) && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                     .MinBy(m => m.DistanceTo(world.Hero));
                 if (target is not null || world.Hero.IsSwinging)
                     calmSince = world.Time;
@@ -355,6 +355,63 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("necromancer plaguebringer")]
     public void Siege_Walls_at_level_9(string kit) => ReportZone(kit, "siege_walls", "heights", 9, "the Siege Walls and Ser Hadric", runes: 2);
 
+    /// <summary>
+    /// The Frostbitten Pass (M4 step 6): every pack, in the cold, warming at the campfires between fights (Tactics.WarmUp),
+    /// up to Saint Oriel's Rest; a level-11 hero in the starting kit with +2 runes.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Frostbitten_Pass_at_level_11(string kit) => ReportZone(kit, "frostbitten_pass", "rest", 11, "the Frostbitten Pass to the Rest", runes: 2);
+
+    /// <summary>
+    /// The Hollow Woods (M4 step 6): every pack, the unseen stalkers and the phantoms, to the catacombs' door; a level-12
+    /// hero in the starting kit with +2 runes.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Hollow_Woods_at_level_12(string kit) => ReportZone(kit, "hollow_woods", "catacombs", 12, "the Hollow Woods to the catacombs", runes: 2);
+
+    /// <summary>
+    /// The Catacombs of Oriel (M4 step 6): every pack, the Choir's acolytes turning the hero's allies, the Hollow Abbot,
+    /// and back up the stair; a level-13 hero in the starting kit with +2 runes.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Catacombs_of_Oriel_at_level_13(string kit) => ReportZone(kit, "catacombs_of_oriel", "woods", 13, "the Catacombs of Oriel and back up the stair", runes: 2);
+
     private void ReportZone(string kit, string zoneId, string exitId, int level, string what, int runes = 1)
     {
         var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: runes)).ToList();
@@ -464,7 +521,7 @@ public class BalanceReport(ITestOutputHelper output)
                     potions++;
                 Tactics.Upkeep(world);
                 var target = world.Monsters
-                    .Where(m => !m.IsDead && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
+                    .Where(m => world.CanTarget(m) && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                     .MinBy(m => m.DistanceTo(world.Hero));
                 if (world.Boss is not null && bossLevel == 0)
                     bossLevel = hero.Level;
@@ -481,6 +538,11 @@ public class BalanceReport(ITestOutputHelper output)
                 else if (Tactics.Tidy(world))
                 {
                     route = null;
+                }
+                else if (world.Time >= nextMove && Tactics.WarmUp(world))
+                {
+                    route = null;
+                    nextMove = world.Time + 1.0;
                 }
                 else if (hero.HitPoints < hero.MaxHitPoints * 0.8)
                 {
@@ -748,10 +810,12 @@ public class BalanceReport(ITestOutputHelper output)
     /// <summary>What the hero was fighting when it went down: the living monsters within 6 tiles.</summary>
     internal static string Nearby(GameWorld world)
     {
-        var near = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(world.Hero) < 6)
+        var near = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(world.Hero) < 8)
             .GroupBy(m => m.Definition.Id + (m.Creature.Stats.Rank == Creatures.CreatureRank.Normal ? "" : $" {m.Creature.Stats.Rank}"))
-            .Select(g => $"{g.Count()} {g.Key}");
-        return string.Join(" + ", near);
+            .Select(g => $"{g.Count()} {g.Key}")
+            .Concat(world.Allies.Where(a => a.IsTurned(world.Time)).GroupBy(a => a.Definition.Id).Select(g => $"{g.Count()} turned {g.Key}"));
+        var said = string.Join(" + ", near);
+        return said.Length > 0 ? said : "nothing near";
     }
 
     [Theory]

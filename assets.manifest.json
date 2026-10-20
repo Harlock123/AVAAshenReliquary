@@ -217,7 +217,18 @@
         "images/tilesets/tileset_snowplains_water.png",
         "tileset_config.txt",
         "tilesetdefs/tileset_dungeon.txt",
-        "tilesetdefs/tileset_grassland.txt"
+        "tilesetdefs/tileset_grassland.txt",
+        "Flare/animations/enemies/ice_ant.txt",
+        "Flare/images/enemies/ice_ant.png",
+        "Flare/animations/enemies/minotaur.txt",
+        "Flare/images/enemies/minotaur/minotaur_block.png",
+        "Flare/images/enemies/minotaur/minotaur_cast.png",
+        "Flare/images/enemies/minotaur/minotaur_cast_alt.png",
+        "Flare/images/enemies/minotaur/minotaur_die.png",
+        "Flare/images/enemies/minotaur/minotaur_run.png",
+        "Flare/images/enemies/minotaur/minotaur_shoot.png",
+        "Flare/images/enemies/minotaur/minotaur_stance.png",
+        "Flare/images/enemies/minotaur/minotaur_swing.png"
       ]
     },
     {

@@ -14,9 +14,13 @@ public readonly record struct FlareFrame(int X, int Y, int Width, int Height, in
 /// One animation (stance, run, swing...). Frames are indexed [frame, direction], where direction 0 to 7 runs
 /// clockwise on screen from west: W, NW, N, NE, E, SE, S, SW.
 /// </summary>
-public sealed class FlareAnimation(string name, int frameCount, int durationMs, FlareLoop loop, int? activeFrame, FlareFrame[,] frames)
+public sealed class FlareAnimation(string name, int frameCount, int durationMs, FlareLoop loop, int? activeFrame, FlareFrame[,] frames,
+    string? image = null)
 {
     public string Name { get; } = name;
+
+    /// <summary>This animation's own sheet, when the set gives each animation one (Flare's minotaur); else the set's.</summary>
+    public string? Image { get; } = image;
     public int FrameCount { get; } = frameCount;
     public int DurationMs { get; } = durationMs;
     public FlareLoop Loop { get; } = loop;
@@ -53,7 +57,9 @@ public sealed class FlareAnimation(string name, int frameCount, int durationMs, 
 /// A Flare <c>animations/*.txt</c> file: the sprite sheet plus every animation's frames. Two layouts are read: the
 /// packed one (a <c>frame=</c> line per frame and direction, as Flare's own art) and the older grid (a top-level
 /// <c>render_size</c> and <c>render_offset</c>, and each animation's <c>position</c>: the sheet's column of its first
-/// frame, one row per direction), which community creatures such as Danimal's wolves use.
+/// frame, one row per direction), which community creatures such as Danimal's wolves use. An <c>image=</c> line may give
+/// its sheet a key (<c>image=…/minotaur_run.png,run</c>), and frames then name the sheet they are cut from in a ninth
+/// field (<c>frame=0,0,…,run</c>): Flare's minotaur gives each animation its own sheet that way.
 /// </summary>
 public sealed class FlareAnimationSet
 {
@@ -71,15 +77,22 @@ public sealed class FlareAnimationSet
     public static FlareAnimationSet Parse(string text)
     {
         string? image = null;
+        var images = new Dictionary<string, string>();
         int[]? renderSize = null, renderOffset = null;
         var animations = new Dictionary<string, FlareAnimation>();
         var pending = new Dictionary<string, (int Frames, int Duration, FlareLoop Loop, int? Active, List<int[]> Lines, int? Position)>();
+        var sheetOf = new Dictionary<string, string>();
 
         foreach (var (section, key, value) in FlareText.Entries(text))
         {
             if (section is null)
             {
-                if (key == "image")
+                if (key == "image" && value.Split(',') is [var path, var forAnimation])
+                {
+                    images[forAnimation.Trim()] = path.Trim();
+                    image ??= path.Trim();
+                }
+                else if (key == "image")
                     image = value;
                 else if (key == "render_size")
                     renderSize = FlareText.Ints(value);
@@ -97,7 +110,12 @@ public sealed class FlareAnimationSet
                     break;
                 // A number, or "all" (a projectile's every frame is active), which has no frame of its own.
                 case "active_frame": a.Active = int.TryParse(value.Split(',')[0], out var active) ? active : null; break;
-                case "frame": a.Lines.Add(FlareText.Ints(value)); break;
+                case "frame":
+                    var fields = value.Split(',');
+                    a.Lines.Add(FlareText.Ints(string.Join(',', fields.Take(8))));
+                    if (fields.Length > 8)
+                        sheetOf.TryAdd(section, fields[8].Trim());
+                    break;
                 case "position": a.Position = FlareText.Ints(value).FirstOrDefault(); break;
             }
             pending[section] = a;
@@ -118,7 +136,8 @@ public sealed class FlareAnimationSet
                 for (var d = 0; d < 8; d++)
                     frames[f, d] = new FlareFrame((column + f) * w, d * h, w, h, ox, oy);
             }
-            animations[name] = new FlareAnimation(name, Math.Max(1, a.Frames), a.Duration, a.Loop, a.Active, frames);
+            animations[name] = new FlareAnimation(name, Math.Max(1, a.Frames), a.Duration, a.Loop, a.Active, frames,
+                images.GetValueOrDefault(sheetOf.GetValueOrDefault(name) ?? name));
         }
 
         return new FlareAnimationSet(image ?? throw new FormatException("Animation file has no image= line."), animations);

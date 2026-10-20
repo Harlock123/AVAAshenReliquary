@@ -116,6 +116,9 @@ public sealed class HeroActor : Actor
     public MonsterActor? Prey { get; internal set; }
     internal double InvulnerableUntil { get; set; }
 
+    /// <summary>Cold exposure, 0 to 100 (a cold zone's: chilled at half, freezing at full).</summary>
+    public double Cold { get; internal set; }
+
     /// <summary>True during a Step dodge: monsters' blows pass through.</summary>
     public bool IsDodging => DodgeRemaining > 0;
     internal double FlourishReadyAt { get; set; }
@@ -241,6 +244,11 @@ public sealed class AllyActor : Actor
     public override string Name => Creature.Name;
     public override bool IsDead => Creature.IsDead;
 
+    /// <summary>Dominated until then: it fights the hero (the Catacombs' whisperers).</summary>
+    public double TurnedUntil { get; internal set; }
+
+    public bool IsTurned(double now) => !IsDead && now < TurnedUntil;
+
     /// <summary>Seconds until a fallen ally comes back to the hero.</summary>
     public double ReturnIn { get; internal set; }
 
@@ -344,6 +352,16 @@ public sealed class MonsterActor : Actor
 
     /// <summary>How many times it has risen; a risen monster gives no XP or loot again.</summary>
     public int Rises { get; internal set; }
+
+    /// <summary>An unseen monster is visible until then (it struck, was spotted or was caught in a blast).</summary>
+    public double RevealedUntil { get; internal set; }
+
+    internal double SpotIn { get; set; }
+
+    /// <summary>An illusion the hero has had their Will save against.</summary>
+    internal bool Doubted { get; set; }
+
+    internal double DominateIn { get; set; } = 4;
 
     /// <summary>A Mirrored monster has split into its images (it does so once).</summary>
     internal bool HasSplit { get; set; }

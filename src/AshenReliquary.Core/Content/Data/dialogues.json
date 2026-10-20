@@ -2138,7 +2138,7 @@
     ],
     "nodes": {
       "start": {
-        "text": "An old woman in white sits very straight by the cold brazier, her hands folded on a crook. \"You came up from the Iron March. Then Hadric is dead.\" She closes her eyes a moment. \"Good. He was a decent man once. I am Ilse, abbess of this house, for what that is worth now that our bells do not ring.\"",
+        "text": "An old woman in white sits very straight by the cold brazier, her hands folded on a crook. \"You came up the pass from the Iron March. Then Hadric is dead.\" She closes her eyes a moment. \"Good. He was a decent man once. I am Ilse, abbess of this house, for what that is worth now that our bells do not ring.\"",
         "effects": [
           {
             "flag": "act3.ilse",
@@ -2149,7 +2149,7 @@
               "id": "act3_rest",
               "title": "Saint Oriel's Rest",
               "kind": "main",
-              "text": "Past the broken walls the road climbed into the frozen cliffs, to the Rest of the Monastery of Saint Oriel. Abbess Ilse keeps it. The bells have not rung since three of her sisters went up the Bell Tower to pray when the ash fell, and came down singing: the Choir of Whispers, the third Herald."
+              "text": "Past the broken walls the road climbed the Frostbitten Pass into the frozen cliffs, to the Rest of the Monastery of Saint Oriel. Abbess Ilse keeps it. The bells have not rung since three of her sisters went up the Bell Tower to pray when the ash fell, and came down singing: the Choir of Whispers, the third Herald."
             }
           }
         ],
@@ -2171,7 +2171,7 @@
         "text": "\"Three sisters of this house went up the Bell Tower to pray when the ash first fell on the cliffs. They came down singing.\" Her knuckles whiten on the crook. \"They call themselves the Choir now. When they sing, my brothers walk out into the snow at night, smiling, and do not come back. One of them is my sister. The youngest.\""
       },
       "need": {
-        "text": "\"The pass above is buried, and the woods beyond it are full of things that are not there when you look twice. When the way opens, the Bell Tower is at the end of it.\" She looks at the rope scar on your neck, then at your chest, as if she could see what is in it. \"And you will want to be careful what you carry up there. The Choir listens for things like you.\""
+        "text": "\"The north door opens on the cliff stair to the Hollow Woods, and the woods are full of things that are not there when you look twice. Under them lie our catacombs, and from the catacombs the old stair climbs to the Bell Tower.\" She looks at the rope scar on your neck, then at your chest, as if she could see what is in it. \"When the Choir came down they burned our library, and the wind took the pages over the mountain. And you will want to be careful what you carry up there. The Choir listens for things like you.\""
       },
       "again": {
         "text": "Abbess Ilse inclines her head.",
@@ -2200,7 +2200,7 @@
     ],
     "nodes": {
       "start": {
-        "text": "A lean monk in a patched habit is scrubbing the cloister flags on his knees, though they are already clean. \"Caddoc. Brother Caddoc, they still call me.\" He doesn't stop scrubbing. \"I came up from the Mire years ago with a great deal to atone for. I'd walk the pass with you, when it opens. I know the woods.\" He hesitates. \"There's something I should tell you first. Not yet.\"",
+        "text": "A lean monk in a patched habit is scrubbing the cloister flags on his knees, though they are already clean. \"Caddoc. Brother Caddoc, they still call me.\" He doesn't stop scrubbing. \"I came up from the Mire years ago with a great deal to atone for. You'll be going north, through the woods. I know them; I kept the hermitage there before the Choir. I'll go ahead and wait for you.\" He hesitates. \"There's something I should tell you first. Not here.\"",
         "effects": [
           {
             "flag": "act3.caddoc",
@@ -2211,13 +2211,13 @@
               "id": "act3_penitent",
               "title": "The Penitent",
               "kind": "side",
-              "text": "Brother Caddoc, a penitent at Saint Oriel's Rest, offers to walk the pass with me when it opens. He says there is something he should confess to me first, but not yet."
+              "text": "Brother Caddoc, a penitent at Saint Oriel's Rest, has gone ahead of me into the Hollow Woods, to his old hermitage. He says there is something he should confess to me first, but not at the Rest."
             }
           }
         ]
       },
       "again": {
-        "text": "Caddoc looks up from the flagstones. \"When the pass opens, I'll be ready. And I'll tell you. I swear it.\""
+        "text": "Caddoc looks up from the flagstones. \"The hermitage, in the woods. I'll be there. And I'll tell you. I swear it.\""
       }
     }
   },
@@ -2261,6 +2261,403 @@
             "text": "Rise and leave."
           }
         ]
+      }
+    }
+  },
+  {
+    "id": "pass_hermit",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.teodor": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "An old man in three coats sits over a fire no bigger than a hat, feeding it one twig at a time. \"Sit, sit. Not too close; it's mine.\" He squints at you. \"Teodor. I keep the ledge. Forty winters. The pass kills the ones who keep walking, you know. Walk from fire to fire, and when the white comes down the mountain, stop at the nearest and wait it out.\"",
+        "effects": [
+          {
+            "flag": "act3.teodor",
+            "value": "met"
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"What are the things on the road?\"",
+            "to": "things"
+          },
+          {
+            "text": "\"Have you seen pages blowing about? Burned ones.\"",
+            "to": "pages"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "things": {
+        "text": "\"The crawlers came up out of the ice-falls when the ash fell. The horned ones were the Order's, once; they kept the stair for the monks, and now they keep it from everybody. The pale ones are drowned pilgrims, frozen on the road. Fire, friend. All of them hate fire.\""
+      },
+      "pages": {
+        "text": "\"Oh, aye. The wind brought them down from the monastery the night the bells stopped. Black at the edges, and the writing's still warm to the touch, if you'll believe it. I left them where they fell. Seemed wrong to burn them twice.\" He nods up the road. \"One by the horned ones' stair. One near here.\""
+      },
+      "again": {
+        "text": "Teodor feeds his fire another twig. \"Fire to fire, friend.\"",
+        "choices": [
+          {
+            "text": "\"Tell me about the things on the road again.\"",
+            "to": "things"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "library_page_1",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.1": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page one of the Chronicle of Saint Oriel: \"...in the year the rivers burned, a shepherd named Ashur went up into the fire on the mountain to bring down his flock, and walked out of it with the fire in his chest. The grass came up green behind him in the ash...\" The rest is burned away.",
+        "effects": [
+          {
+            "flag": "act3.page.1",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page one of the Chronicle of Saint Oriel. \"...in the year the rivers burned, a shepherd named Ashur went up into the fire on the mountain to bring down his flock, and walked out of it with the fire in his chest. The grass came up green behind him in the ash...\" The rest is burned away."
+      }
+    }
+  },
+  {
+    "id": "library_page_2",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.2": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page two of the Chronicle of Saint Oriel: \"...where he walked the dead fields greened and the sick rose up. They called him the Renewer, and he let them, because he was young and it pleased him. He was never a god, Oriel wrote. He was a man carrying a thing too large for him...\"",
+        "effects": [
+          {
+            "flag": "act3.page.2",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page two of the Chronicle of Saint Oriel. \"...where he walked the dead fields greened and the sick rose up. They called him the Renewer, and he let them, because he was young and it pleased him. He was never a god, Oriel wrote. He was a man carrying a thing too large for him...\""
+      }
+    }
+  },
+  {
+    "id": "library_page_3",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.3": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page three of the Chronicle of Saint Oriel: \"...every hundred years the fire burned through him. He died in it, and rose from his own ash a young man again, and remembered less each time. In the fourth burning he forgot his mother's name. In the sixth, his own...\"",
+        "effects": [
+          {
+            "flag": "act3.page.3",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page three of the Chronicle of Saint Oriel. \"...every hundred years the fire burned through him. He died in it, and rose from his own ash a young man again, and remembered less each time. In the fourth burning he forgot his mother's name. In the sixth, his own...\""
+      }
+    }
+  },
+  {
+    "id": "library_page_4",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.4": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page four of the Chronicle of Saint Oriel: \"...and so the Order of the Pale Lantern was founded, to keep his ashes safe between the burnings, that he might rise. We were his wardens, not his jailers. Let whoever reads this remember that...\"",
+        "effects": [
+          {
+            "flag": "act3.page.4",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page four of the Chronicle of Saint Oriel. \"...and so the Order of the Pale Lantern was founded, to keep his ashes safe between the burnings, that he might rise. We were his wardens, not his jailers. Let whoever reads this remember that...\""
+      }
+    }
+  },
+  {
+    "id": "library_page_5",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.5": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page five of the Chronicle of Saint Oriel: \"...in the ninth burning he did not rise clean. He rose screaming, and the fire would not go back into him. It ran down the mountain for a year. The High Lector of that day ruled that he must not be let rise again...\"",
+        "effects": [
+          {
+            "flag": "act3.page.5",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page five of the Chronicle of Saint Oriel. \"...in the ninth burning he did not rise clean. He rose screaming, and the fire would not go back into him. It ran down the mountain for a year. The High Lector of that day ruled that he must not be let rise again...\""
+      }
+    }
+  },
+  {
+    "id": "library_page_6",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.6": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page six of the Chronicle of Saint Oriel: \"...they did not kill a god. They killed a man who had carried the world's fire for nine hundred years, because he could not carry it any longer and no one would take it from him. They put the fire in a reliquary, with his bones, and called it a victory...\"",
+        "effects": [
+          {
+            "flag": "act3.page.6",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page six of the Chronicle of Saint Oriel. \"...they did not kill a god. They killed a man who had carried the world's fire for nine hundred years, because he could not carry it any longer and no one would take it from him. They put the fire in a reliquary, with his bones, and called it a victory...\""
+      }
+    }
+  },
+  {
+    "id": "library_page_7",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.page.7": "read"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A page of a chronicle, its edges burned black, held down by a stone. Page seven of the Chronicle of Saint Oriel: \"...Saint Oriel believed the fire could be carried again, by one willing to take it into their own chest as he did, and burn as he burned. The High Lector ordered this chronicle burned, so that no one would ever try.\" Below, in a newer hand: \"They did not burn it well enough. - I.\"",
+        "effects": [
+          {
+            "flag": "act3.page.7",
+            "value": "read"
+          },
+          {
+            "xp": 150
+          }
+        ]
+      },
+      "again": {
+        "text": "Page seven of the Chronicle of Saint Oriel. \"...Saint Oriel believed the fire could be carried again, by one willing to take it into their own chest as he did, and burn as he burned. The High Lector ordered this chronicle burned, so that no one would ever try.\" Below, in a newer hand: \"They did not burn it well enough. - I.\""
+      }
+    }
+  },
+  {
+    "id": "woods_caddoc",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act3.caddoc_woods": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "Brother Caddoc is sweeping snow off the hermitage step. \"You came. Good.\" He leans on the broom. \"Mind the woods. The stalkers you'll hear before you see, if you see them at all; stand still and look, or let them come to you. And the walkers among the stones are mostly not there. Trust your eyes less than your gut.\" He looks north. \"The catacombs are past the hanging grove. I'll tell you there. It's where it happened.\"",
+        "effects": [
+          {
+            "flag": "act3.caddoc_woods",
+            "value": "met"
+          },
+          {
+            "journal": {
+              "id": "act3_penitent",
+              "title": "The Penitent",
+              "kind": "side",
+              "text": "I found Brother Caddoc at his old hermitage in the Hollow Woods. He will make his confession in the Catacombs of Oriel, beyond the woods: \"where it happened\"."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "\"The catacombs,\" Caddoc says. \"Past the hanging grove. I'll go ahead.\""
+      }
+    }
+  },
+  {
+    "id": "catacombs_caddoc",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "Brother Caddoc kneels in the last of the penitents' cells, facing the wall. He speaks without turning. \"Fifteen years ago I was a novice here, and I had a fine voice. A man came up the pass in a lector's grey and taught me a hymn. He said it was older than the Order. I taught it to three sisters who sang in the Bell Tower.\" His shoulders shake. \"That hymn is the one they sing now. I opened the door the Choir came through. Then I ran to the Mire, and I sang it for Mother Sallow too.\"",
+        "choices": [
+          {
+            "text": "\"You're not telling me all of it.\" (Perception)",
+            "check": {
+              "skill": "Perception",
+              "dc": 31,
+              "success": "all_of_it",
+              "failure": "that_is_all"
+            }
+          },
+          {
+            "text": "\"You came back to put it right. I forgive you, Caddoc.\"",
+            "to": "forgive"
+          },
+          {
+            "text": "\"Get out of my sight. Go, and don't follow me.\"",
+            "to": "banish"
+          }
+        ]
+      },
+      "all_of_it": {
+        "text": "Caddoc is quiet a long time. \"I still hear them,\" he says at last. \"When I sleep. They ask me to come up the tower and sing the last verse with them. I don't know what I'll do when we're standing under it. That is the truth, all of it.\"",
+        "choices": [
+          {
+            "text": "\"Then I'll be there to stop you. I forgive you.\"",
+            "to": "forgive"
+          },
+          {
+            "text": "\"Then I can't have you near me. Go.\"",
+            "to": "banish"
+          }
+        ]
+      },
+      "that_is_all": {
+        "text": "\"That's all of it,\" Caddoc says, and does not look at you.",
+        "choices": [
+          {
+            "text": "\"I forgive you, Caddoc.\"",
+            "to": "forgive"
+          },
+          {
+            "text": "\"Get out of my sight. Go, and don't follow me.\"",
+            "to": "banish"
+          }
+        ]
+      },
+      "forgive": {
+        "text": "Caddoc turns. His face is wet. \"Then I'll stand with you under the tower, and I'll sing them something else.\" He presses your hand between his. \"Go up the stair when it's clear. I'll go back to the Rest and pray that I'm worth it.\"",
+        "effects": [
+          {
+            "flag": "act3.penitent",
+            "value": "forgiven"
+          },
+          {
+            "xp": 900
+          },
+          {
+            "boon": "penitents_grace"
+          },
+          {
+            "journal": {
+              "id": "act3_penitent",
+              "title": "The Penitent",
+              "kind": "side",
+              "text": "In the Catacombs of Oriel Brother Caddoc confessed that he taught the Choir their hymn, fifteen years ago, from a lector in grey. I forgave him. He has gone back to the Rest, and means to stand with me under the Bell Tower."
+            }
+          }
+        ]
+      },
+      "banish": {
+        "text": "Caddoc gets up slowly, and goes past you without a word. At the end of the corridor he stops. \"They'll take me in, you know. They always said they would.\" Then he is gone into the dark.",
+        "effects": [
+          {
+            "flag": "act3.penitent",
+            "value": "banished"
+          },
+          {
+            "xp": 900
+          },
+          {
+            "journal": {
+              "id": "act3_penitent",
+              "title": "The Penitent",
+              "kind": "side",
+              "text": "In the Catacombs of Oriel Brother Caddoc confessed that he taught the Choir their hymn, fifteen years ago, from a lector in grey. I sent him away. He said the Choir would take him in."
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "oriel_caddoc_forgiven",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "Caddoc is scrubbing the flags again, but he is humming under his breath, and the tune is not the Choir's. \"When you go up the tower, I'll be on the stair behind you.\""
       }
     }
   }

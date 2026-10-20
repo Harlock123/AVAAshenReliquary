@@ -59,6 +59,30 @@ public static class Tactics
         return false;
     }
 
+    /// <summary>
+    /// In a cold zone, between fights: past half exposure (a third in a blizzard) walk to the nearest campfire, and wait
+    /// by it until warm and the blizzard has blown over, as the hermit of the pass advises. True while it is doing so.
+    /// </summary>
+    public static bool WarmUp(GameWorld world)
+    {
+        var hero = world.Hero;
+        if (!world.Zone.Cold || hero.IsDead)
+            return false;
+        var fire = world.Map.Lights.Where(l => l.Color is null).MinBy(l => hero.DistanceTo(l.X, l.Y));
+        if (fire is null)
+            return false;
+        var by = hero.DistanceTo(fire.X, fire.Y) <= fire.Radius * 0.8 - 0.3;
+        if (by)
+            return hero.Cold > 2 || world.Blizzard;
+        if (hero.Cold < (world.Blizzard ? 33 : 50) || world.Monsters.Any(m => !m.IsDead && m.State != MonsterState.Idle && m.DistanceTo(hero) < 6))
+            return false;
+        var d = Math.Max(0.1, hero.DistanceTo(fire.X, fire.Y));
+        var (x, y) = (fire.X + (hero.X - fire.X) / d * 1.6, fire.Y + (hero.Y - fire.Y) / d * 1.6);
+        if (hero.Path is not [.., var end] || Math.Abs(end.X - x) + Math.Abs(end.Y - y) > 2)
+            world.MoveTo(x, y);
+        return true;
+    }
+
     public static void Act(GameWorld world, string classId, MonsterActor target)
     {
         var hero = world.Hero;

@@ -980,7 +980,7 @@ public sealed partial class GameWorld
 
     /// <summary>The living monster under a map point, if any (generous radius for clicking).</summary>
     public MonsterActor? MonsterAt(double x, double y, double radius = 0.8) =>
-        _monsters.Where(m => !m.IsDead && m.DistanceTo(x, y) <= radius)
+        _monsters.Where(m => CanTarget(m) && m.DistanceTo(x, y) <= radius)
             .OrderBy(m => m.DistanceTo(x, y))
             .FirstOrDefault();
 
@@ -1012,6 +1012,7 @@ public sealed partial class GameWorld
             Hero.Resource.OnMoved(moved);
         UpdateHidden(dt);
         UpdateTraps();
+        UpdateCold(dt);
         UpdateAllies(dt);
         Reveal();
         UpdateProjectiles(dt);
@@ -1706,6 +1707,12 @@ public sealed partial class GameWorld
 
     private void Kill(MonsterActor monster, bool critical)
     {
+        // An illusion struck down is gone, and worth nothing.
+        if (monster.Definition.Illusion)
+        {
+            Dissolve(monster);
+            return;
+        }
         if (Hero.Prey == monster)
             Hero.Prey = null;
         if (monster.SpawnIndex >= 0)
@@ -1892,6 +1899,9 @@ public sealed partial class GameWorld
             return;
         }
         m.Creature.Conditions.Update(dt);
+        UpdateVeil(m, dt);
+        if (m.IsDead)
+            return;
         foreach (var (type, amount) in m.Creature.Persistent.Update(dt, Random))
         {
             var dealt = DamageMonster(m, DamageCalculator.ApplyDefenses(amount, type, m.Creature.Defenses));
@@ -2047,6 +2057,8 @@ public sealed partial class GameWorld
                 m.State = MonsterState.Attack;
                 m.AttackElapsed = 0;
                 m.AttackLanded = false;
+                if (def.Unseen)
+                    RevealMonster(m);                                    // it shows itself as it strikes
                 var anim = def.Ranged ? (def.Caster || def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";
                 if (def.Ranged)
                     Sound(anim == "cast" ? SoundCue.WitchCast : SoundCue.Bow, m);
@@ -2149,6 +2161,7 @@ public sealed partial class GameWorld
             Sound(SoundCue.HeroHurt, Hero);
             if (!HurtHero(dealt))
                 return;
+            Inflict(m);
             Retaliate(m);
             if (m.Definition.PoisonOnHit is { } poison && Random.Roll(1, 100) <= m.Definition.PoisonChance * 100)
                 Poison(Dice.Parse(poison));
@@ -2189,6 +2202,13 @@ public sealed partial class GameWorld
     /// </summary>
     internal bool LostInTheDark(MonsterActor target)
     {
+        // Act 3's unseen: a blow at one not revealed must pass Pathfinder's hidden check, DC 11.
+        if (IsUnseen(target) && !Random.FlatCheck(UnseenFlatCheckDc))
+        {
+            Sound(SoundCue.Miss, target);
+            Float(target, "missed the unseen", FloatingTextKind.Miss);
+            return true;
+        }
         if (IsLit(target.X, target.Y) || Random.FlatCheck(ConcealedFlatCheckDc))
             return false;
         Sound(SoundCue.Miss, target);
@@ -2385,6 +2405,7 @@ public sealed partial class GameWorld
         var c = Hero.Character;
         c.Potion.Refill();
         c.Taint.Cleanse();
+        Hero.Cold = 0;
         if (first)
         {
             c.Heal(c.MaxHitPoints);

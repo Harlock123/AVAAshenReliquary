@@ -62,7 +62,10 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
 
         // Zone name and level, top left.
         canvas.DrawText(world.Zone.Name, 22, 34, SKTextAlign.Left, big, ink);
+        _titleRight = 22 + big.MeasureText(world.Zone.Name);
         canvas.DrawText($"Act {world.Zone.Act}  ·  Level {world.Zone.Level} area", 22, 54, SKTextAlign.Left, small, dim);
+        if (world.Zone.Cold)
+            DrawCold(canvas, world, small);
 
         // Health orb.
         const float orbRadius = 58f;
@@ -264,7 +267,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         var boss = world.Boss;
         if (boss is not null)
             DrawBossBar(canvas, size, boss, world);
-        var below = boss is not null ? 66f : 0f;
+        var below = boss is not null ? 66f + _bossBarTop - 30 : 0f;
         if (target is { IsDead: false } t && t != boss)
             DrawTarget(canvas, size, t, below);
 
@@ -273,7 +276,9 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         {
             var alpha = (byte)(255 * Math.Clamp(5 - (world.Time - world.LastMessageAt), 0, 1));
             using var paint = new SKPaint { IsAntialias = true, Color = new SKColor(240, 215, 150, alpha) };
-            canvas.DrawText(message, size.Width / 2, below + (target is { IsDead: false } && target != boss ? 108 : 90), SKTextAlign.Center, font, paint);
+            // Under the target's frame and its affix line (lower when a narrow window pushed the frame down).
+            var y = target is { IsDead: false } && target != boss ? Math.Max(below + 108, _targetTop + 70) : below + 90;
+            canvas.DrawText(message, size.Width / 2, y, SKTextAlign.Center, font, paint);
         }
 
         if (world.Arrival is { } arrival && TownBanner.Alpha(world.Time - arrival.At) is var fade and > 0)
@@ -314,6 +319,27 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
 
     /// <summary>Areas that swallow clicks without a tooltip of their own (panels).</summary>
     public void Block(SKRect rect) => _blocked.Add(rect);
+
+    /// <summary>A cold zone's exposure meter under the zone's name: pale blue, white when freezing, a blizzard named beside it.</summary>
+    private void DrawCold(SKCanvas canvas, GameWorld world, SKFont small)
+    {
+        var cold = world.Hero.Cold;
+        var bar = SKRect.Create(22, 64, 140, 6);
+        using (var back = new SKPaint { Color = new SKColor(20, 18, 16, 220) })
+            canvas.DrawRect(SKRect.Inflate(bar, 1, 1), back);
+        using (var fill = new SKPaint { Color = cold >= 100 ? new SKColor(235, 245, 255) : cold >= 50 ? new SKColor(150, 200, 255) : new SKColor(100, 150, 210) })
+            canvas.DrawRect(SKRect.Create(bar.Left, bar.Top, bar.Width * (float)(cold / 100), bar.Height), fill);
+        using var ink = new SKPaint { IsAntialias = true, Color = world.Blizzard ? new SKColor(235, 245, 255) : Dim };
+        canvas.DrawText(world.Blizzard ? $"Cold {cold:0}%  ·  blizzard" : $"Cold {cold:0}%", bar.Right + 8, bar.Bottom + 3, SKTextAlign.Left, small, ink);
+        Region(SKRect.Create(bar.Left, bar.Top - 6, 240, 18), () =>
+        [
+            new("Cold", new SKColor(150, 200, 255), $"{cold:0}%", true),
+            new("It rises out in the pass, three times as fast in a blizzard.", Dim),
+            new("At 50%: clumsy 1. At 100%: freezing damage every 3 s.", Dim),
+            new("Fires and braziers warm you; a shrine thaws you at once.", Dim),
+            new("Cold resistance slows it.", Dim),
+        ], new SKColor(150, 200, 255));
+    }
 
     // ----- Buffs and conditions -------------------------------------------------------------
 
@@ -901,8 +927,9 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         using var dim = new SKPaint { IsAntialias = true, Color = Dim };
         using var back = new SKPaint { Color = new SKColor(16, 14, 12, 230) };
         using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, Color = new SKColor(150, 120, 70) };
-        var width = Math.Min(620, size.Width - 360);
-        var bar = SKRect.Create(size.Width / 2 - width / 2, 30, width, 16);
+        var (barLeft, barTop, barWidth) = TopFrame(size, Math.Min(620, size.Width - 360), 30, 96);
+        var bar = SKRect.Create(barLeft, barTop, barWidth, 16);
+        _bossBarTop = barTop;
         canvas.DrawRect(SKRect.Inflate(bar, 3, 3), back);
         var share = (float)boss.Creature.HitPoints / boss.Creature.Stats.HitPoints;
         using (var fill = new SKPaint
@@ -928,13 +955,36 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         _blocked.Add(SKRect.Inflate(bar, 6, 22));
     }
 
+    /// <summary>The zone name's right edge, and the tops of the Herald's bar and the target's frame, as last drawn.</summary>
+    private float _titleRight, _bossBarTop = 30, _targetTop;
+
+    /// <summary>
+    /// Where a frame across the top goes: centred, or, in a window too narrow for that to clear the zone name and the
+    /// minimap, between the two; with no room there either, under the zone name at <paramref name="lowTop"/>.
+    /// </summary>
+    private (float Left, float Top, float Width) TopFrame(SKSize size, float width, float top, float lowTop)
+    {
+        var (from, to) = (_titleRight + 14, size.Width - Minimap.Width - 28);
+        var left = size.Width / 2 - width / 2;
+        if (left >= from && left + width <= to)
+            return (left, top, width);
+        if (to - from >= 220)
+        {
+            var fit = Math.Min(width, to - from);
+            return ((from + to) / 2 - fit / 2, top, fit);
+        }
+        return (22, lowTop, Math.Min(width, to - 22));
+    }
+
     private void DrawTarget(SKCanvas canvas, SKSize size, MonsterActor t, float below = 0)
     {
         using var small = new SKFont(WorldOverlay.Serif, 13);
         using var ink = new SKPaint { IsAntialias = true, Color = Ink };
         using var dim = new SKPaint { IsAntialias = true, Color = Dim };
         using var back = new SKPaint { Color = new SKColor(20, 18, 16, 220) };
-        var frame = SKRect.Create(size.Width / 2 - 170, 18 + below, 340, 18);
+        var (left, top, width) = TopFrame(size, 340, 18 + below, below > 0 ? 18 + below : 84);
+        var frame = SKRect.Create(left, top, width, 18);
+        _targetTop = top;
         using var red = new SKPaint { Color = t.Creature.Stats.Rank == CreatureRank.Champion ? new SKColor(200, 110, 40) : new SKColor(150, 25, 22) };
         canvas.DrawRect(SKRect.Inflate(frame, 2, 2), back);
         canvas.DrawRect(SKRect.Create(frame.Left, frame.Top, frame.Width * t.Creature.HitPoints / t.Creature.Stats.HitPoints, frame.Height), red);

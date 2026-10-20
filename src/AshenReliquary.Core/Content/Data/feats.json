@@ -2802,5 +2802,43 @@
    }
   ],
   "subclass": "plaguebringer"
+ },
+ {
+  "id": "penitents_grace",
+  "name": "The Penitent's Grace",
+  "type": "Boon",
+  "level": 1,
+  "description": "You forgave Brother Caddoc. +1 to Will saves, and resistance 3 to mental.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "resist": "Mental",
+    "value": 3
+   }
+  ]
+ },
+ {
+  "id": "ashurs_chronicle",
+  "name": "Ashur's Chronicle",
+  "type": "Boon",
+  "level": 1,
+  "description": "You read the whole Chronicle of Saint Oriel. Resistance 5 to fire, and +2 to Religion and Occultism checks.",
+  "effects": [
+   {
+    "resist": "Fire",
+    "value": 5
+   },
+   {
+    "skill": "Religion",
+    "value": 2
+   },
+   {
+    "skill": "Occultism",
+    "value": 2
+   }
+  ]
  }
 ]

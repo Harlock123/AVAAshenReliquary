@@ -60,14 +60,13 @@ public class OrielTests
     }
 
     [Fact]
-    public void The_north_door_is_barred_for_now()
+    public void The_north_door_opens_on_the_hollow_woods()
     {
         var world = Rest();
         var door = world.Zone.Exits.Single(e => e.Id == "north_door");
         (world.Hero.X, world.Hero.Y) = (door.At[0] + 0.5, door.At[1] + 4.5);
         world.MoveTo(door.At[0] + 0.5, door.At[1] + 0.5);
         Run(world, 3);
-        Assert.Equal("saint_oriels_rest", world.Zone.Id);
-        Assert.Contains("barred", world.Arrival?.Subtitle);
+        Assert.Equal("hollow_woods", world.Zone.Id);
     }
 }

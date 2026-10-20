@@ -199,7 +199,15 @@ keep it. Heroes now grow to level 15: a class ability at 11 (Sundering Blow, Div
 Shot, Cone of Cold, Grasp of the Grave), a subclass signature at 13 (Earthsplitter, Shield Rush, Dawnbreak, Ruinous
 Blow, Assassinate, Caltrops, Killshot, Hunt as One, Meteor, Ball Lightning, Bone Colossus, Blight), feats at 12 and 14,
 five more Uniques and the Vestments of Saint Oriel; and **Mirrored** champions split into glassy images at half health.
-Next: Act 3's zones.
+Step 6 built Act 3's zones. The **Frostbitten Pass** (levels 11-12) climbs from the Siege Walls to the Rest: a cold
+meter fills away from the campfires along the road (clumsy at half, freezing at full), and blizzards blow it up three
+times as fast; minotaurs, ice crawlers, frost wraiths and hexers keep the road. Through the Rest's north door the
+**Hollow Woods** (levels 12-13) hide stalkers you can't target until Perception finds them or they strike, and phantoms a
+Will save sees through. Below, the dark **Catacombs of Oriel** (levels 13-14) hold the Choir's acolytes, who turn your
+wolf or skeletons against you for a while, and the Hollow Abbot. Crowd-control casters slow, frighten and stupefy. Two
+side stories: seven burned pages of the **Library of Ash** (read them all to learn what Ashur was), and **the
+Penitent**, Brother Caddoc's confession in the catacombs (forgive him or send him away). Next: the Bell Tower and the
+Choir of Whispers.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

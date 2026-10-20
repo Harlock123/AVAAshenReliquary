@@ -4,7 +4,7 @@ An isometric action RPG in Grim Dawn's style with Pathfinder 2e Remaster rules, 
 SkiaSharp. The design is `docs/SPECIFICATION.md` (the working copy; section 15 has the milestones, section 16 the
 implementation decisions made so far). `README.md` has the run commands and controls.
 
-## Where things stand (2026-10-19)
+## Where things stand (2026-10-20)
 
 - **M0 (rules core):** done.
 - **M1 (vertical slice):** done (2026-10-17). Built: renderer, Gallows Road, six monsters, abilities, loot and
@@ -122,8 +122,16 @@ implementation decisions made so far). `README.md` has the run commands and cont
   +1000, `ZoneDefinition.Snowy`; class abilities at 11 on bar key "11" (no slot: `RefreshBar` treats a non-bar home as
   none), subclass signatures at 13, 24 feats at 12/14; five Act 3 uniques and the `oriel_vestments` set; the Mirrored
   affix (`GameWorld.Split`, `MonsterActor.IsMirrorImage`); `BalanceReport.Siege_Walls_raised_to_levels_11_13_and_15`).
-  The Siege Walls' Herald gate leads to the Rest until the Frostbitten Pass (step 6) goes between. Next: step 6, Act
-  3's zones.
+  Step 6 done: Act 3's zones (`tools/frostbitten_pass_mapgen.py`, `tools/hollow_woods_mapgen.py`,
+  `tools/catacombs_of_oriel_mapgen.py`; road: siege `heights` → pass → Rest `south_road`, Rest `north_door` → woods →
+  catacombs, whose `bell_tower` stair waits on `act3.bell_tower` for step 7) and their mechanics in
+  `World/GameWorld.ActThree.cs`: zone `cold` (`HeroActor.Cold`, fires = colourless lights, blizzards; HUD `DrawCold`,
+  `DrawBlizzard`), creature `inflicts`/`unseen`/`illusion`/`dominates`/`alpha`, `GameWorld.CanTarget` (bots must use it),
+  turned allies (`AllyActor.TurnedUntil`); Flare's minotaur (per-frame sheet keys in `FlareAnimationSet`) and ice ant;
+  the Library of Ash (`act3.page.N`, `ReadLibraryPage`, boon `ashurs_chronicle`) and the Penitent (`act3.penitent`
+  forgiven/banished, boon `penitents_grace`; Caddoc's NPC entries hang on flags); `Tactics.WarmUp`;
+  `BalanceReport.Frostbitten_Pass_at_level_11`, `Hollow_Woods_at_level_12`, `Catacombs_of_Oriel_at_level_13`. The
+  campaign's Act 3 leg waits for the Choir (step 7). Next: step 7, the Bell Tower and the Choir of Whispers.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -134,9 +142,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   gold still ends near 2,000 in the bot's hands (supplies are a sink a player may use more); bombs fly as a glow, not a
   tumbling flask; check the bog's frame time with F3 in the Fens; orcs have 3 portraits (orchidrabbit's CC BY pack, $5,
   has three more); the level-4 wizard's Mire zone report dies ~40 times a run (as before the arsenal; the campaign's
-  level-5 wizard is fine); shields have no hit points; Mirrored waits for Act 3; the wizards in the starting kit die
+  level-5 wizard is fine); shields have no hit points; the wizards in the starting kit die
   often at Ser Hadric in `Siege_Walls_at_level_9` (the campaign's wizards don't); the Iron March costs the most deaths
-  of Act 2 (Act 1's gear meeting squads); Act 2 has no colour grade of its own.
+  of Act 2 (Act 1's gear meeting squads); Act 2 has no colour grade of its own; a turned ally can't be hit back (only
+  outlasted, or its dominator killed); the Hedge Scholar's early reading of the Library pages isn't built.
 
 ## The development machine
 

@@ -767,5 +767,270 @@
   ],
   "hitPointsScale": 3.0,
   "scale": 1.5
+ },
+ {
+  "id": "rime_crawler",
+  "name": "Rime crawler",
+  "sprite": "ice_ant",
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.1,
+  "moveSpeed": 3.0,
+  "aggroRadius": 8,
+  "attackRange": 1.1,
+  "damage": "1d8",
+  "flanks": true,
+  "weaknesses": {
+   "Fire": 3
+  },
+  "resistances": {
+   "Cold": 5
+  },
+  "voice": "crawler"
+ },
+ {
+  "id": "frost_wraith",
+  "name": "Frost wraith",
+  "sprite": "zombie",
+  "damageType": "Cold",
+  "attacksPerSecond": 0.9,
+  "moveSpeed": 2.6,
+  "aggroRadius": 9,
+  "attackRange": 1.2,
+  "tint": "#c4dcff",
+  "alpha": 0.55,
+  "inflicts": {
+   "condition": "Slowed",
+   "value": 1,
+   "seconds": 2,
+   "save": "Fortitude"
+  },
+  "weaknesses": {
+   "Fire": 5,
+   "Vitality": 3
+  },
+  "resistances": {
+   "Cold": 10,
+   "Piercing": 3,
+   "Slashing": 3
+  },
+  "voice": "zombie",
+  "immunities": [
+   "Poison"
+  ],
+  "undead": true
+ },
+ {
+  "id": "frost_hexer",
+  "name": "Frost hexer",
+  "sprite": "skeleton_mage",
+  "damageType": "Cold",
+  "attacksPerSecond": 0.6,
+  "moveSpeed": 2.0,
+  "aggroRadius": 10,
+  "attackRange": 8,
+  "ranged": true,
+  "caster": true,
+  "kites": true,
+  "tint": "#b8d8ff",
+  "inflicts": {
+   "condition": "Slowed",
+   "value": 1,
+   "seconds": 3,
+   "save": "Fortitude"
+  },
+  "weaknesses": {
+   "Fire": 3,
+   "Vitality": 3
+  },
+  "resistances": {
+   "Cold": 10
+  },
+  "voice": "skeleton",
+  "immunities": [
+   "Poison"
+  ],
+  "undead": true
+ },
+ {
+  "id": "horned_guardian",
+  "name": "Horned guardian",
+  "sprite": "minotaur",
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 0.7,
+  "moveSpeed": 2.4,
+  "aggroRadius": 9,
+  "attackRange": 1.5,
+  "damage": "2d8",
+  "hitPointsScale": 1.4,
+  "tint": "#dfe6f0",
+  "resistances": {
+   "Cold": 5
+  },
+  "voice": "zombie"
+ },
+ {
+  "id": "hollow_stalker",
+  "name": "Hollow stalker",
+  "sprite": "wolf",
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.1,
+  "moveSpeed": 3.3,
+  "aggroRadius": 9,
+  "attackRange": 1.1,
+  "damage": "1d10",
+  "flanks": true,
+  "unseen": true,
+  "tint": "#5a5a70",
+  "scale": 1.1,
+  "voice": "wolf"
+ },
+ {
+  "id": "phantom",
+  "name": "Phantom",
+  "sprite": "skeleton",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.9,
+  "moveSpeed": 2.4,
+  "aggroRadius": 9,
+  "attackRange": 1.3,
+  "illusion": true,
+  "tint": "#e0d8ff",
+  "alpha": 0.75,
+  "voice": "skeleton"
+ },
+ {
+  "id": "whisperer",
+  "name": "Whisperer",
+  "sprite": "skeleton_mage",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.55,
+  "moveSpeed": 2.1,
+  "aggroRadius": 10,
+  "attackRange": 8,
+  "ranged": true,
+  "caster": true,
+  "kites": true,
+  "tint": "#d0b8ff",
+  "alpha": 0.7,
+  "inflicts": {
+   "condition": "Frightened",
+   "value": 2,
+   "seconds": 6,
+   "save": "Will"
+  },
+  "weaknesses": {
+   "Vitality": 3
+  },
+  "resistances": {
+   "Mental": 5
+  },
+  "voice": "crone",
+  "immunities": [
+   "Poison"
+  ],
+  "undead": true
+ },
+ {
+  "id": "mirror_cultist",
+  "name": "Mirror cultist",
+  "sprite": "avatar",
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.0,
+  "moveSpeed": 2.6,
+  "aggroRadius": 9,
+  "attackRange": 1.2,
+  "flanks": true,
+  "voice": "cultist",
+  "look": {
+   "head": "mage_hood",
+   "chest": "mage_vest",
+   "hands": "mage_sleeves",
+   "legs": "mage_skirt",
+   "feet": "mage_boots",
+   "main": "shortsword"
+  }
+ },
+ {
+  "id": "catacomb_dead",
+  "name": "Catacomb dead",
+  "sprite": "skeleton_weak",
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.0,
+  "moveSpeed": 2.4,
+  "aggroRadius": 8,
+  "attackRange": 1.2,
+  "tint": "#d8d0c0",
+  "weaknesses": {
+   "Vitality": 3,
+   "Bludgeoning": 2
+  },
+  "resistances": {
+   "Piercing": 3
+  },
+  "voice": "skeleton",
+  "immunities": [
+   "Poison"
+  ],
+  "undead": true
+ },
+ {
+  "id": "choir_acolyte",
+  "name": "Choir acolyte",
+  "sprite": "avatar",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.6,
+  "moveSpeed": 2.3,
+  "aggroRadius": 10,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "kites": true,
+  "dominates": true,
+  "inflicts": {
+   "condition": "Stupefied",
+   "value": 1,
+   "seconds": 6,
+   "save": "Will"
+  },
+  "resistances": {
+   "Mental": 5
+  },
+  "voice": "cultist",
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest",
+   "hands": "mage_sleeves",
+   "legs": "mage_skirt",
+   "feet": "mage_boots",
+   "main": "wand"
+  }
+ },
+ {
+  "id": "hollow_abbot",
+  "name": "The Hollow Abbot",
+  "sprite": "skeleton_knight_boss",
+  "damageType": "Void",
+  "attacksPerSecond": 0.8,
+  "moveSpeed": 2.2,
+  "aggroRadius": 9,
+  "attackRange": 1.5,
+  "damage": "2d8",
+  "tint": "#cbb8f0",
+  "hitPointsScale": 1.8,
+  "named": true,
+  "rareDrop": true,
+  "dominates": true,
+  "weaknesses": {
+   "Vitality": 3
+  },
+  "resistances": {
+   "Void": 5,
+   "Mental": 5
+  },
+  "voice": "skeleton",
+  "immunities": [
+   "Poison"
+  ],
+  "undead": true
  }
 ]

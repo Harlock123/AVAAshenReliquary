@@ -36,7 +36,7 @@ public sealed class BattleDemo(GameWorld world, string classId)
             return;
         _thinkIn = 0.2;
 
-        var living = world.Monsters.Where(m => !m.IsDead).ToList();
+        var living = world.Monsters.Where(world.CanTarget).ToList();
         var target = living.Where(m => m.DistanceTo(world.Hero) < EngageDistance).MinBy(m => m.DistanceTo(world.Hero));
         if (target is not null)
         {
@@ -45,7 +45,7 @@ public sealed class BattleDemo(GameWorld world, string classId)
                 Tactics.Act(world, classId, target);
             return;
         }
-        if (Tactics.Tidy(world))
+        if (Tactics.Tidy(world) || Tactics.WarmUp(world))
         {
             _walkingTo = null;
             return;

@@ -104,7 +104,7 @@ public class SiegeTests
         (world.Hero.X, world.Hero.Y) = (gate.At[0] + 0.5, gate.At[1] + 6.5);
         Run(world, 0.5);
         WalkIn();
-        Assert.Equal("saint_oriels_rest", world.Zone.Id);                       // Act 3's hub
+        Assert.Equal("frostbitten_pass", world.Zone.Id);                        // Act 3's first zone, up to its hub
         Assert.Equal(3, world.Zone.Act);
     }
 

@@ -248,7 +248,11 @@ public sealed partial class GameWorld
     private void Apply(DialogueEffect effect)
     {
         if (effect.Flag is { } flag)
+        {
             SetFlag(flag, effect.Value ?? "true");
+            if (flag.StartsWith(LibraryPageFlag, StringComparison.Ordinal))
+                ReadLibraryPage();
+        }
         if (effect.Journal is { } entry)
             WriteJournal(entry);
         if (effect.Xp > 0)

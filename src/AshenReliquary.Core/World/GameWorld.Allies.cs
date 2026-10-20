@@ -214,6 +214,11 @@ public sealed partial class GameWorld
         }
         if (!ally.Creature.Conditions.CanAct)
             return;
+        if (ally.IsTurned(Time))
+        {
+            TurnedAllyActs(ally, dt);
+            return;
+        }
 
         if (ally.Target is { } held && (held.IsDead || held.DistanceTo(Hero) > AllyLeashTiles || !IsLit(held.X, held.Y)))
         {
@@ -314,7 +319,7 @@ public sealed partial class GameWorld
         if (ally.Target is { IsDead: false } current && current.State != MonsterState.Idle && current.DistanceTo(Hero) <= AllyEngageTiles + 3)
             return current;
         bool Fighting(MonsterActor m) => m.State != MonsterState.Idle && m.DistanceTo(Hero) <= AllyEngageTiles && IsLit(m.X, m.Y);
-        return _monsters.Where(m => !m.IsDead && (Fighting(m) || m.Victim == ally)).MinBy(m => m.DistanceTo(ally));
+        return _monsters.Where(m => CanTarget(m) && (Fighting(m) || m.Victim == ally)).MinBy(m => m.DistanceTo(ally));
     }
 
     /// <summary>An ally's bite: a creature Strike against the monster's AC; a commanded bite adds its dice and condition.</summary>
@@ -380,14 +385,15 @@ public sealed partial class GameWorld
             foreach (var foe in m.Threat.Keys.ToList())
                 m.Threat[foe] *= fade;
         }
-        if (m.Victim is AllyActor { IsDead: true } || m.Victim is null || m.VictimIn <= 0)
+        // A turned ally fights for the monsters now: they leave it be.
+        if (m.Victim is AllyActor { IsDead: true } || m.Victim is AllyActor turned && turned.IsTurned(Time) || m.Victim is null || m.VictimIn <= 0)
         {
             m.VictimIn = 1.0;
             if (m.Definition.Boss is not null)
             {
                 Actor chosen = Hero;
                 var most = m.Threat.GetValueOrDefault(Hero) * HeroThreatWeight;
-                foreach (var ally in _allies.Where(a => !a.IsDead))
+                foreach (var ally in _allies.Where(a => !a.IsDead && !a.IsTurned(Time)))
                 {
                     if (m.Threat.GetValueOrDefault(ally) > most)
                         (chosen, most) = (ally, m.Threat[ally]);
@@ -399,7 +405,7 @@ public sealed partial class GameWorld
             var bestDistance = m.DistanceTo(Hero) - 1.0;
             foreach (var ally in _allies)
             {
-                if (ally.IsDead)
+                if (ally.IsDead || ally.IsTurned(Time))
                     continue;
                 var d = m.DistanceTo(ally);
                 if (d < bestDistance)

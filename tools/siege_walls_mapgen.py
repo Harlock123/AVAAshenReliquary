@@ -5,7 +5,7 @@
 # (trenches of rubble and barricades, crossbow nests), past the ruined gatehouse to the west (Red Mirella's hideout: the
 # Outlaw Queen, Act 2's faction story), to the breach in the city's wall, and up onto the wall-top: a paved plaza where
 # Hadric waits (his arena, radius 11). Beyond him the Herald gate opens the road north to Saint Oriel's Rest (Act 3)
-# once he falls.
+# once he falls (through the Frostbitten Pass, M4 step 6).
 #
 # Act 2's mechanics come together here: cover and kiting crossbowmen in the siege works, the rising dead in the mass
 # graves, and Hadric's three phases on the boss framework (a shield wall and charges, a rallying standard, his armour
@@ -266,10 +266,10 @@ zone = {
     "exits": [
         {"id": "barrow_fields", "label": "The Barrow Fields", "at": exit_south, "radius": 1.5, "to": "barrow_fields",
          "toExit": "siege_walls", "arrive": [sx, 123]},
-        {"id": "heights", "label": "The Whispering Heights", "at": exit_north, "radius": 1.5,
+        {"id": "heights", "label": "The Frostbitten Pass", "at": exit_north, "radius": 1.5,
          "requires": {"act2.hadric": "slain"},
          "sealedText": "The Iron Legion still holds the north gate. It will not open while Ser Hadric stands.",
-         "to": "saint_oriels_rest", "toExit": "south_road", "arrive": [ax, ay - ar + 2]},
+         "to": "frostbitten_pass", "toExit": "siege_walls", "arrive": [ax, ay - ar + 2]},
     ],
     "caches": caches,
     # The Outlaw Queen (Act 2's faction story): Red Mirella in the ruined gatehouse, until her choice is made.

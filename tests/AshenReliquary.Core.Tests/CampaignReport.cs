@@ -224,7 +224,7 @@ public class CampaignReport(ITestOutputHelper output)
                 world.Update(Tick);
                 return true;
             }
-            var target = world.Monsters.Where(m => !m.IsDead && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
+            var target = world.Monsters.Where(m => world.CanTarget(m) && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                 .MinBy(m => m.DistanceTo(world.Hero));
             if (target is not null)
             {
@@ -234,7 +234,7 @@ public class CampaignReport(ITestOutputHelper output)
                 world.Update(Tick);
                 return true;
             }
-            if (Tactics.Tidy(world))
+            if (Tactics.Tidy(world) || Tactics.WarmUp(world))
             {
                 _route = null;
                 world.Update(Tick);

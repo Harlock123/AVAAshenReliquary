@@ -85,6 +85,30 @@ public class FlareFormatTests
     }
 
     [Fact]
+    public void Keyed_sheets_give_each_animation_the_sheet_its_frames_name()
+    {
+        var set = FlareAnimationSet.Parse("""
+            image=images/enemies/minotaur/minotaur_stance.png,stance
+            image=images/enemies/minotaur/minotaur_swing.png,swing
+
+            [stance]
+            frames=1
+            duration=1600ms
+            type=looped
+            frame=0,0,0,1092,157,248,76,227,stance
+
+            [run]
+            frames=1
+            duration=500ms
+            frame=0,2,10,20,30,40,5,35,swing
+            """);
+        Assert.Equal("images/enemies/minotaur/minotaur_stance.png", set.Image);
+        Assert.Equal("images/enemies/minotaur/minotaur_stance.png", set["stance"]!.Image);
+        Assert.Equal(new FlareFrame(0, 1092, 157, 248, 76, 227), set["stance"]!.Frame(0, 0));
+        Assert.Equal("images/enemies/minotaur/minotaur_swing.png", set["run"]!.Image);   // by the frames' key, not the name
+    }
+
+    [Fact]
     public void Frame_timing_follows_the_loop_type()
     {
         var swing = FlareAnimationSet.Parse(Animation)["swing"]!; // 4 frames over 0.4 s, once

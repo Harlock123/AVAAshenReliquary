@@ -121,13 +121,22 @@ and the Vestments of Saint Oriel, the Mirrored affix (stacked affixes tested), a
 snowplains tileset joined to the ruins (`tileset_oriel`), reached through the Siege Walls' Herald gate for now. See the
 spec, section 16, "Levels 11–15 and Saint Oriel's Rest".
 
-### 6. Act 3's zones: Frostbitten Pass, Hollow Woods, the Catacombs of Oriel
+### 6. Act 3's zones: Frostbitten Pass, Hollow Woods, the Catacombs of Oriel (done)
 
 - **Frostbitten Pass:** a cold-exposure meter, the Taint meter's sibling, and blizzards.
 - **Hollow Woods:** invisible and illusion enemies, broken by Will saves and Perception.
 - **The Catacombs of Oriel (a dungeon):** mind-control enemies that turn the hero's allies against them.
 - **The AI's third behaviour:** crowd-control casters.
 - **Side stories:** Library of Ash (seven pages) and The Penitent (a companion's confession).
+
+*Done (2026-10-20):* the Frostbitten Pass (levels 11-12, cold exposure and blizzards, campfires to warm at, Flare's
+minotaurs and ice ants) between the Siege Walls and the Rest; the Hollow Woods (12-13, unseen stalkers found by
+Perception, phantoms a Will save sees through) through the Rest's north door; the Catacombs of Oriel (13-14, dark; the
+Choir's acolytes turn the hero's allies, or frighten the hero) with the Bell Tower stair barred for step 7; crowd-control
+casters (`inflicts`); the Library of Ash (seven pages, a boon and the chronicle's revelation) and the Penitent
+(Caddoc's confession: forgiven or banished). Every subclass finishes all three zones in `BalanceReport`. The art
+survey's gaps (ghosts, white-robed cultists) are recolours with a creature alpha. See the spec, section 16, "The
+Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel".
 
 ### 7. The Bell Tower and the Choir of Whispers
 

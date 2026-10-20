@@ -70,6 +70,7 @@ public sealed partial class GameWorld
         var dealtInAll = 0;
         foreach (var m in caught)
         {
+            RevealMonster(m);
             var degree = Check.Roll(Random, m.Creature.Save(save).Total, dc).Degree;
             var failed = degree <= DegreeOfSuccess.Failure;
             Aggro(m);

@@ -684,7 +684,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1701,8 +1701,8 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **Sister Mora** (wares and the belt's supplies);
   - the stash, the Cloister altar (respec, free once in Act 3) and the Cloister Shrine.
 
-  The Siege Walls' Herald gate now leads here; the Frostbitten Pass will lie between in step 6. The north door to the
-  Hollow Woods is barred.
+  The Siege Walls' Herald gate led here; from step 6 the Frostbitten Pass lies between, and the north door opens on the
+  Hollow Woods.
 - **A class ability at level 11** (each with its own bar key, `"11"`, which is no slot, so it takes a free one or
   waits in the K list):
   - Fighter: **Sundering Blow** (two dice more, off-guard 6 s).
@@ -1748,6 +1748,95 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   with Hadric and every pack raised to the hero's level, in the starting kit with +2 runes.
   - Everyone gets through at 11, 13 and 15, and deaths fall with the levels, so the kits scale.
   - The worst row is the level-11 Pyromancer against Hadric raised to 11.
+
+### The Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel (M4 step 6)
+
+- **The art survey** (decision 3):
+  - **Found:** Flare's minotaur (each animation on its own sheet, its frames naming the sheet in a ninth field, which
+    `FlareAnimationSet` now reads) and its ice ant; the snowplains' ice floor, ice spires and snow boulders; the ruins'
+    lecterns and standing stones.
+  - **Gaps:** no ghosts, frost wraiths, cultists in white, or whisper-spawn. They are recolours, as Flare draws its own
+    ghosts: a tint and a creature `alpha` (0 to 1) for the see-through.
+- **The road:** the Siege Walls' Herald gate → **the Frostbitten Pass** → Saint Oriel's Rest → (the north door) **the
+  Hollow Woods** → **the Catacombs of Oriel** → the stair to the Bell Tower, barred until step 7.
+- **New creatures** (`creatures.json`):
+
+  | Creature | Art | What it does |
+  | --- | --- | --- |
+  | Rime crawler | Flare's ice ant | Flanks, in fours; weak to fire |
+  | Frost wraith | the zombie, pale blue, alpha 0.55 | Cold blows that slow (Fortitude); undead |
+  | Frost hexer | the skeleton mage, pale blue | A kiting caster whose cold bolts slow |
+  | Horned guardian | Flare's minotaur, frosted | 2d8, ×1.4 HP, the pass's brute |
+  | Hollow stalker | the wolf, dusk-grey | **Unseen** |
+  | Phantom | the skeleton, violet-white, alpha 0.75 | An **illusion** |
+  | Whisperer | the skeleton mage, violet, alpha 0.7 | A kiting caster that frightens (Will); undead |
+  | Mirror cultist | avatar robes | The Choir's swordsmen; Mirrored champions |
+  | Catacomb dead | the weak skeleton, bone-pale | The catacombs' rank and file |
+  | Choir acolyte | avatar in white with a wand | A kiting caster that stupefies (Will) and **dominates** |
+  | The Hollow Abbot | the skeleton knight, violet | A named guardian (`rareDrop`) who dominates |
+- **Crowd-control casters** (the AI's third behaviour): a creature's `inflicts` (condition, value, seconds, save) lays
+  its condition on the hero with each hit unless they make the save against its DC; a critical failure doubles the
+  time. The casters kite (Act 2's behaviour) as they do it.
+- **Cold** (a zone's `cold`, the Frostbitten Pass): the hero's exposure (0–100, under the zone's name on the HUD, with a
+  tooltip):
+  - It rises 1.25 a second away from a fire (full in about 80 s), three times as fast in a **blizzard**. A blizzard
+    blows 20 s in every 95 and whitens the screen with driving snow.
+  - Cold resistance slows it (10 stops it most of the way).
+  - A fire warms within 80% of its light (a legend `light` with no colour: campfires and braziers, about one a fight
+    apart along the road), 10 a second. A shrine thaws the hero at once.
+  - At 50 the hero is clumsy 1. At 100, every 3 s, a basic Fortitude save against 14 + the zone's level, or
+    (1 + level/3)d6 cold.
+- **The unseen** (a creature's `unseen`, the Hollow Woods' stalkers): drawn as a faint shimmer with no health bar, and
+  they can't be clicked or targeted (`GameWorld.CanTarget`; the bots use it too). One shows itself for 4 s when it
+  strikes and when a burst catches it; near the hero (5 tiles) a Perception check against its Perception DC every 2 s
+  makes it out for 6 s.
+- **Illusions** (`illusion`, the phantoms): the first time one comes within 6 tiles in sight, a Will save against its
+  DC sees through it and it is gone. Otherwise any hit dissolves it. Either way it is worth no XP or loot.
+- **Domination** (`dominates`, the Choir's acolytes and the Hollow Abbot): once in a fight, every 10 s (the first after
+  4), a Will save for the hero's nearest ally within 8 tiles in sight, or that ally is **turned** for 6 s. A turned
+  ally is tinted violet and goes for the hero; monsters leave it be. With no ally to turn, the hero's own Will save,
+  or frightened 2.
+- **The Frostbitten Pass** (`tools/frostbitten_pass_mapgen.py`, levels 11–12, 60×150, `xpScale` 0.8): a gully up the
+  frozen cliffs, with campfires along the road. It passes the ice-falls (the crawlers' nest), the Horned Stair (a ruined
+  waystation of the Order, the minotaurs' lair, a reliquary), the frozen tarn (wraiths on the ice), the hermit's ledge
+  (Old Teodor, who explains the fires and the pages), and the high saddle where the Choir's mirror cultists watch.
+  There are 17 packs, three shrines and six chests.
+- **The Hollow Woods** (`tools/hollow_woods_mapgen.py`, levels 12–13, 70×130, dusk under the trees, `xpScale` 0.8): a
+  track through dead forest. It passes the woodcutters' clearing, the stone ring (phantoms walk there, a reliquary), the
+  frozen mirror pool (the Choir's cultists), Caddoc's hermitage, the hanging grove (the stalkers' den), and the
+  catacombs' door. There are 14 packs, three shrines and six chests.
+- **The Catacombs of Oriel** (`tools/catacombs_of_oriel_mapgen.py`, levels 13–14, a dark dungeon, `xpScale` 0.6): the
+  stair hall, the long ossuary, the Choir's chapel, the penitents' cells (Caddoc's confession), the abbots' hall, and
+  the abbots' crypt (the Hollow Abbot and the reliquary). The stair up to the Bell Tower is choked with stone until step
+  7. There are 17 packs, three shrines and six chests.
+- **The Library of Ash** (a hidden side story): seven burned pages of the Chronicle of Saint Oriel lie on lecterns, two
+  in the pass, two in the woods and three in the catacombs (`library_page_1`…`7`, flags `act3.page.N`).
+  - The journal counts the pages read.
+  - The seventh makes the chronicle whole (`act3.library = complete`, 900 XP and the boon **Ashur's Chronicle**:
+    resistance 5 fire, +2 Religion and Occultism).
+  - The chronicle's revelation: Ashur was a shepherd who took the mountain's fire into his chest and carried it for nine
+    hundred years, dying and rising, until the Order killed him because he could carry it no longer. Saint Oriel
+    believed another could take it up. The flag is the epilogue's (M5) for the ending that binds Ashur.
+  - Pages can be read in any order; the Hedge Scholar's early reading waits for M5's backgrounds pass.
+- **The Penitent** (decision 4: Caddoc is story-only, not an ally):
+  1. Met at the Rest (`act3.caddoc`), Brother Caddoc goes ahead to his old hermitage in the woods.
+  2. There he warns of the stalkers and the phantoms.
+  3. In the catacombs' last cell he confesses: as a novice he taught the three sisters the hymn a lector in grey gave
+     him, the hymn the Choir sings, and later sang it for Mother Sallow. A Perception check (DC 31) draws out the rest:
+     he still hears them.
+  4. **Forgive** (`act3.penitent = forgiven`, 900 XP, the boon **The Penitent's Grace**: +1 Will, resistance 3 mental):
+     he goes back to the Rest and will stand with the hero under the tower.
+  5. **Banish** (`banished`, 900 XP): he goes, saying the Choir will take him in. Step 7's betrayal reads the flag.
+- **The HUD in a narrow window:** the target's frame (and a Herald's bar) is centred across the top only when that
+  clears the zone name and the minimap. Otherwise it fits between the two, or with no room there drops under the zone
+  name, and the message line moves down below it. Act 3's long zone names had run under it.
+- **The bots:** `Tactics.WarmUp` walks to the nearest fire between fights past half exposure (a third in a blizzard) and
+  waits there until warm and the blizzard has passed; the zone bots, the campaign bot and `--battle` use it.
+  `BalanceReport.Nearby` names turned allies.
+- **Balance** (`BalanceReport`, every subclass, in the starting kit with +2 runes, two runs each):
+  - **The pass at 11:** everyone through, in 2.5–4.4 bot minutes; the Cutthroat dies most (two a run, to wraith packs).
+  - **The woods at 12:** no deaths; a hero point now and then to a Mirrored cultist.
+  - **The catacombs at 13:** at most one death a run (turned wolves, the Hollow Abbot, Mirrored cultists).
 
 ### The arsenal (M2, after step 10)
 
