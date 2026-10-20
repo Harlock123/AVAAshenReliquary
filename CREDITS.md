@@ -8,7 +8,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt
 - Changes: None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt).
-- Files: 179 (listed in `assets.manifest.json`)
+- Files: 201 (listed in `assets.manifest.json`)
 
 ## Flare character portraits (mods/fantasycore/images/portraits)
 
@@ -54,9 +54,9 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 
 - Source: [https://game-icons.net](https://game-icons.net) (retrieved 2026-10-18)
 - Licence: CC BY 3.0 (`src/AshenReliquary.App/Assets/Icons/LICENSE-game-icons.txt`)
-- Authors: Carl Olsen, Delapouite, Lorc, Sbed, Skoll (each icon's author and page are in Assets/Icons/icons.json)
+- Authors: Carl Olsen, DarkZaitzev, Delapouite, Lorc, Sbed, Skoll, Willdabeast (each icon's author and page are in Assets/Icons/icons.json)
 - Changes: Rasterised from SVG to 96x96 PNG with a transparent background and the glyph filled in one ivory tint, by tools/AssetTool 'icon' (see tools/build_icons.py).
-- Files: 79 (listed in `assets.manifest.json`)
+- Files: 97 (listed in `assets.manifest.json`)
 
 ## artisticdude, RPG Sound Pack
 
@@ -121,7 +121,7 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: The Flare team and the open-licensed sound artists credited in Assets/Flare/CREDITS.txt
 - Changes: Converted with ffmpeg by tools/build_audio.py: mono 44.1 kHz Ogg Vorbis (q4). No trimming or mixing. audio.json maps every file to its original. Released under CC-BY-SA 3.0 like the originals.
-- Files: 17 (listed in `assets.manifest.json`)
+- Files: 18 (listed in `assets.manifest.json`)
 
 ## rubberduck, 80 CC0 creature SFX
 

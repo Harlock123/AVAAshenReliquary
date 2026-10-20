@@ -95,6 +95,25 @@ public class AudioTests
     }
 
     [AvaloniaFact]
+    public void A_long_cooldown_ticks_as_it_comes_ready_and_a_short_one_does_not()
+    {
+        var engine = new RecordingAudioEngine();
+        var director = new AudioDirector(engine, Root);
+        var kit = TestKit.Open();
+        var world = kit.World;
+        TestHooks.StartCooldown(world, "sudden_charge", 1);    // an 8 s cooldown: ticks
+        TestHooks.StartCooldown(world, "power_attack", 1);     // no cooldown of its own: silent
+        director.Update(world, 0.1, false);
+        Assert.DoesNotContain(engine.Effects, e => e.Path.Contains("ready-"));
+        for (var t = 0.0; t < 1.5; t += 1 / 30.0)
+        {
+            world.Update(1 / 30.0);
+            director.Update(world, 1 / 30.0, false);
+        }
+        Assert.Single(engine.Effects, e => e.Path.Contains("ready-"));
+    }
+
+    [AvaloniaFact]
     public void Sounds_fade_with_distance_and_pan_with_position()
     {
         var engine = new RecordingAudioEngine();

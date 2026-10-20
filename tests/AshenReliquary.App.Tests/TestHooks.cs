@@ -22,6 +22,13 @@ internal static class TestHooks
     public static void GainXp(GameWorld world, int xp) =>
         typeof(GameWorld).GetMethod("GainXp", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(world, [xp, world.Hero]);
 
+    /// <summary>Puts one of the hero's abilities on cooldown for <paramref name="seconds"/>, as if just used.</summary>
+    public static void StartCooldown(GameWorld world, string abilityId, double seconds)
+    {
+        var readyAt = (Dictionary<string, double>)world.Hero.GetType().GetProperty("ReadyAt", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(world.Hero)!;
+        readyAt[abilityId] = world.Time + seconds;
+    }
+
     /// <summary>Moves the hero to a map point at once.</summary>
     public static void Place(GameWorld world, double x, double y)
     {

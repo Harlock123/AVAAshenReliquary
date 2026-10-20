@@ -153,8 +153,12 @@ internal sealed class LevelUpPanel
             // No increase this level: say so, and when the next one comes, and show where the skills stand.
             canvas.DrawText("SKILLS", sx, sy, SKTextAlign.Left, head, dim);
             sy += 24;
-            canvas.DrawText(SkillNote(level), sx + 8, sy, SKTextAlign.Left, small, dim);
-            sy += 22;
+            foreach (var line in Wrap(SkillNote(level), small, Bounds.Right - Pad - sx - 8))
+            {
+                canvas.DrawText(line, sx + 8, sy, SKTextAlign.Left, small, dim);
+                sy += 16;
+            }
+            sy += 6;
             foreach (var skill in Skills.Attribute.Keys.Order())
             {
                 var rank = c.SkillRank(skill);

@@ -49,6 +49,9 @@ public sealed class HealingPotion
         return random.Roll(1, 8) + 2 * level;
     }
 
+    /// <summary>Seconds until the next drink is allowed (0 when ready), for the HUD's cooldown sweep.</summary>
+    public double CooldownRemaining(double now) => Math.Max(0, _readyAt - now);
+
     public void Refill() => Charges = MaxCharges;
 
     internal void Restore(int charges) => Charges = Math.Clamp(charges, 0, MaxCharges);

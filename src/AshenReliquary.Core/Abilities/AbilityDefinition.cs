@@ -122,6 +122,13 @@ public enum AbilityKind
 /// <see cref="ChargeInstead"/>: a Grave Charge pays for it when there is one, else its Mana (Raise Bones);
 /// <see cref="Creature"/>: what a summon raises. A spell bolt with <see cref="Drain"/> heals the hero that share of its
 /// damage (Siphon Life).</item>
+/// <item>Past level 5 (M4): <see cref="HideSeconds"/> leaves the hero hidden that long after a Tumble or a self burst
+/// (Shadowstep, Smoke Bomb); an aura with <see cref="Retaliate"/> strikes back at each monster that hits the hero in
+/// reach, at most once a second (Retributive Strike); <see cref="CleansesTaint"/> takes that much off the Taint meter
+/// (Beacon of Hope); a burst's <see cref="Drain"/> heals the hero that share of what it deals (Dread Harvest); a summon
+/// raises <see cref="Count"/> allies, and with <see cref="BuffSeconds"/> they last only that long and don't count
+/// against the hero's skeletons (Call of the Pack); <see cref="NeedsShield"/> on a Strike needs a shield in hand (Shield
+/// Slam).</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -185,7 +192,11 @@ public sealed record AbilityDefinition(
     bool CostsTaint = false,
     int Charges = 0,
     bool ChargeInstead = false,
-    string? Creature = null)
+    string? Creature = null,
+    double HideSeconds = 0,
+    bool Retaliate = false,
+    int CleansesTaint = 0,
+    int Count = 1)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 

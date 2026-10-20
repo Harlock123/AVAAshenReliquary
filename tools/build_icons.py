@@ -34,6 +34,13 @@ ICONS = {
     # The Necromancer (M3): class abilities, the Bonelord's and the Plaguebringer's
     "grave_bolt": "lorc/skull-bolt", "raise_bones": "skoll/raise-skeleton", "siphon_life": "lorc/life-tap",
     "bone_rush": "delapouite/skeletal-hand", "bone_armor": "lorc/ribcage", "corpse_explosion": "lorc/skull-crack",
+    # Levels 6-10 (M4): each class's level-6 ability and each subclass's level-8 signature
+    "intimidating_roar": "lorc/lion", "whirlwind_strike": "lorc/whirlwind", "shield_slam": "delapouite/shield-bash",
+    "retributive_strike": "delapouite/shield-impact", "beacon_of_hope": "lorc/sunbeams", "dread_harvest": "lorc/reaper-scythe",
+    "shadowstep": "lorc/shadow-follower", "fan_of_knives": "lorc/thrown-daggers", "smoke_bomb": "darkzaitzev/smoke-bomb",
+    "rain_of_arrows": "lorc/arrows-shield", "deadeye": "lorc/arrow-scope", "call_of_the_pack": "lorc/direwolf",
+    "blink": "lorc/teleport", "fireball": "lorc/burning-meteor", "chain_lightning": "willdabeast/chain-lightning",
+    "bone_spear": "lorc/spears", "raise_bone_knight": "delapouite/black-knight-helm", "plague_cloud": "sbed/poison-cloud",
     # Conditions (ConditionKind names)
     "Frightened": "lorc/terror", "Sickened": "lorc/vomiting", "Clumsy": "lorc/tripwire", "Enfeebled": "sbed/weight-crush",
     "Stupefied": "delapouite/tired-eye", "Drained": "lorc/heart-drop", "Slowed": "lorc/snail",
@@ -51,7 +58,8 @@ ICONS = {
     "pauldrons": "skoll/pauldrons", "cloak": "delapouite/cape",
 }
 
-AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll"}
+AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll",
+           "darkzaitzev": "DarkZaitzev", "willdabeast": "Willdabeast"}
 
 def main():
     repo = sys.argv[1]

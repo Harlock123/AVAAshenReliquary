@@ -16,6 +16,8 @@ public sealed class AudioDirector
     public const double CombatHoldSeconds = 5;
     public const double FootstepSeconds = 0.34;
     public const double RepeatGuardSeconds = 0.06;
+    /// <summary>Only a bar ability with at least this cooldown ticks as it comes ready (shorter ones would chatter).</summary>
+    public const double ReadyTickCooldown = 5;
 
     private readonly IAudioEngine _engine;
     private readonly string _root;
@@ -28,6 +30,8 @@ public sealed class AudioDirector
     private double _combatUntil = double.NegativeInfinity;
     private double _footstepIn;
     private string? _musicGroup;
+    private readonly HashSet<string> _cooling = [];
+    private GameWorld? _cooldownWorld;
 
     public AudioDirector(IAudioEngine engine, string? root = null)
     {
@@ -87,6 +91,8 @@ public sealed class AudioDirector
             Play(IdFor(sound), gain, pan);
         }
 
+        ReadyTicks(world);
+
         if (!paused && !hero.IsDead && hero.Animation == "run")
         {
             _footstepIn -= dt;
@@ -108,6 +114,26 @@ public sealed class AudioDirector
         SetMusic(world.Boss is not null && _music.ContainsKey("boss") ? "boss" : _clock < _combatUntil ? "combat" : "explore");
         if (_ambience.TryGetValue("road", out var road) && road.Length > 0 && _engine.CurrentAmbience != road[0])
             _engine.PlayAmbience(road[0]);
+    }
+
+    /// <summary>A soft clink when a bar ability with a long cooldown comes ready again.</summary>
+    private void ReadyTicks(GameWorld world)
+    {
+        if (!ReferenceEquals(world, _cooldownWorld))
+        {
+            // A new zone (or a load) starts its own clocks: nothing that was cooling there comes ready here.
+            _cooling.Clear();
+            _cooldownWorld = world;
+        }
+        foreach (var ability in world.Bar.Values)
+        {
+            if (ability.Cooldown < ReadyTickCooldown)
+                continue;
+            if (world.CooldownRemaining(ability) > 0)
+                _cooling.Add(ability.Id);
+            else if (_cooling.Remove(ability.Id) && !world.Hero.IsDead)
+                Play("ready", 0.45f);
+        }
     }
 
     /// <summary>The audio.json effect id for a world sound.</summary>

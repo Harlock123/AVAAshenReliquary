@@ -92,5 +92,34 @@
     ]
    }
   ]
+ },
+ {
+  "id": "ironhold_guard",
+  "name": "Ironhold Guard's Plate",
+  "bonuses": [
+   {
+    "pieces": 2,
+    "description": "+1 AC.",
+    "effects": [
+     {
+      "statistic": "ArmorClass",
+      "value": 1
+     }
+    ]
+   },
+   {
+    "pieces": 3,
+    "description": "+2 HP a level, and resistance 5 Taint.",
+    "effects": [
+     {
+      "hitPointsPerLevel": 2
+     },
+     {
+      "resist": "Taint",
+      "value": 5
+     }
+    ]
+   }
+  ]
  }
 ]

@@ -154,6 +154,9 @@ public sealed partial class GameWorld
         Hero.DodgeSpeed = tiles / TumbleSeconds;
         Hero.DodgeFeinted = Hero.Character.TumbleFeint ? [] : null;
         Hero.InvulnerableUntil = Time + TumbleSeconds;
+        // Shadowstep: the hero comes out of it hidden.
+        if (ability.HideSeconds > 0)
+            Hero.HiddenRemaining = ability.HideSeconds;
         Hero.Face(tx, ty);
         Hero.Play("run", rate: 2.5, restart: true);
         Sound(SoundCue.Swing, Hero);

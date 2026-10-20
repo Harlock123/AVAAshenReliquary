@@ -20,6 +20,12 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
 
     private static readonly IReadOnlyList<string> Slots = GameWorld.BarSlots;
     private readonly Dictionary<string, SKRect> _slotRects = [];
+    /// <summary>The top of the potions-and-Step row (above the health orb in a narrow window).</summary>
+    public float RowTop { get; private set; }
+    // Each timer's seconds left at the last frame, and when it last came ready (for the ready flash).
+    private readonly Dictionary<string, double> _lastRemaining = [];
+    private readonly Dictionary<string, double> _readyAt = [];
+    public const double FlashSeconds = 0.25;
 
     /// <summary>
     /// The ability being placed from the Abilities panel (K), or null: while one is held the bar's slots light up to
@@ -72,27 +78,50 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             new("without one you wake at your last shrine (−100 XP).", Dim),
         ], new SKColor(200, 60, 50));
 
-        // Potion charges and Hero Points.
+        // Potion charges, the Step and Hero Points, beside the health orb; in a window too narrow for them to clear
+        // the ability bar's left end, they sit in a row above the orb instead (the bar had covered them).
         using var flask = new SKPaint { IsAntialias = true };
-        var flaskLeft = hp.X + orbRadius + 22;
+        var abilityBarLeft = size.Width / 2 - (Slots.Count * 54 + (Slots.Count - 1) * 6) / 2f;
+        var narrow = hp.X + orbRadius + 22 + HealingPotion.MaxCharges * 22 + 8 + 28 + 6 > abilityBarLeft;
+        var flaskLeft = narrow ? 30 : hp.X + orbRadius + 22;
+        // The row's foot: the window's bottom, or just above the orb.
+        var rowBase = narrow ? hp.Y - orbRadius - 4 : size.Height;
+        RowTop = rowBase - 68;
         for (var i = 0; i < HealingPotion.MaxCharges; i++)
         {
             flask.Color = i < c.Potion.Charges ? new SKColor(200, 40, 40) : new SKColor(60, 50, 50);
-            canvas.DrawRoundRect(SKRect.Create(flaskLeft + i * 22, size.Height - 64, 14, 26), 5, 5, flask);
+            canvas.DrawRoundRect(SKRect.Create(flaskLeft + i * 22, rowBase - 64, 14, 26), 5, 5, flask);
         }
-        canvas.DrawText("Q", flaskLeft + 33, size.Height - 26, SKTextAlign.Center, small, dim);
-        Region(SKRect.Create(flaskLeft - 4, size.Height - 68, 70, 46), () =>
+        var flasks = SKRect.Create(flaskLeft - 3, rowBase - 67, HealingPotion.MaxCharges * 22 - 2, 32);
+        var potionWait = c.Potion.CooldownRemaining(world.Time);
+        if (potionWait > 0 && c.Potion.Charges > 0)
+        {
+            canvas.Save();
+            using (var shapes = new SKPath())
+            {
+                for (var i = 0; i < c.Potion.Charges; i++)
+                    shapes.AddRoundRect(SKRect.Create(flaskLeft + i * 22, rowBase - 64, 14, 26), 5, 5);
+                canvas.ClipPath(shapes, antialias: true);
+            }
+            DrawSweep(canvas, flasks, potionWait, HealingPotion.CooldownSeconds, null, edge: false);
+            canvas.Restore();
+        }
+        ReadyFlash(canvas, "potion", flasks, c.Potion.Charges > 0 ? potionWait : 0, world.Time);
+        canvas.DrawText(potionWait > 0 && c.Potion.Charges > 0 ? SweepText(potionWait) : "Q", flaskLeft + 33, rowBase - 26, SKTextAlign.Center, small, dim);
+        Region(SKRect.Create(flaskLeft - 4, rowBase - 68, 70, 46), () =>
         [
             new("Healing potion", Ink, $"{c.Potion.Charges} / {HealingPotion.MaxCharges}", true),
             new($"Q: heals 1d8 + {2 * c.Level} over 2 s; 8 s cooldown.", Dim),
             new("Charges refill at shrines; healing draughts add one.", Dim),
             .. (c.Conditions.PotionsBlocked ? [new TipLine("Sickened: you can't drink!", Bad)] : Array.Empty<TipLine>()),
         ], new SKColor(200, 60, 50));
+        // Hero Points above the potions, or after the Step in the narrow row.
+        var pointsAt = narrow ? new SKPoint(flaskLeft + HealingPotion.MaxCharges * 22 + 8 + 28 + 12, rowBase - 61) : new SKPoint(flaskLeft - 2, rowBase - 100);
         for (var i = 0; i < c.HeroPoints.Count; i++)
-            icons.Draw(canvas, "hero-point", SKRect.Create(flaskLeft + i * 24 - 2, size.Height - 100, 22, 22), Gold);
+            icons.Draw(canvas, "hero-point", SKRect.Create(pointsAt.X + i * 24, pointsAt.Y, 22, 22), Gold);
         if (c.HeroPoints.Count > 0)
         {
-            Region(SKRect.Create(flaskLeft - 2, size.Height - 100, 24 * c.HeroPoints.Count, 22), () =>
+            Region(SKRect.Create(pointsAt.X, pointsAt.Y, 24 * c.HeroPoints.Count, 22), () =>
             [
                 new("Hero Points", Gold, $"{c.HeroPoints.Count} / {HeroPoints.Max}", true),
                 new("One per zone, up to three. At 0 HP one is spent", Dim),
@@ -101,10 +130,13 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         }
 
         // The Step dodge (Shift), beside the potions: dimmed with its seconds left while it recovers.
-        var step = SKRect.Create(flaskLeft + HealingPotion.MaxCharges * 22 + 8, size.Height - 66, 28, 28);
+        var step = SKRect.Create(flaskLeft + HealingPotion.MaxCharges * 22 + 8, rowBase - 66, 28, 28);
         var cooldown = world.DodgeCooldownRemaining;
-        icons.Draw(canvas, "step", step, cooldown > 0 ? Dim.WithAlpha(110) : Ink);
-        canvas.DrawText(cooldown > 0 ? $"{cooldown:0.0}" : "Shift", step.MidX, size.Height - 26, SKTextAlign.Center, small, dim);
+        icons.Draw(canvas, "step", step, Ink);
+        if (cooldown > 0)
+            DrawSweep(canvas, SKRect.Inflate(step, 2, 2), cooldown, GameWorld.DodgeCooldown, null, c => icons.Draw(c, "step", step, Dim.WithAlpha(110)));
+        ReadyFlash(canvas, "step", SKRect.Inflate(step, 2, 2), cooldown, world.Time);
+        canvas.DrawText(cooldown > 0 ? SweepText(cooldown) : "Shift", step.MidX, rowBase - 26, SKTextAlign.Center, small, dim);
         Region(SKRect.Create(step.Left - 4, step.Top - 2, step.Width + 8, 46), () =>
         [
             new("Step", Ink, cooldown > 0 ? $"{cooldown:0.0}s" : "ready", true),
@@ -132,7 +164,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             LevelUpBadge = SKRect.Empty;
         }
 
-        DrawBuffs(canvas, world, new SKPoint(24, hp.Y - orbRadius - 44));
+        DrawBuffs(canvas, world, new SKPoint(24, Math.Min(hp.Y - orbRadius, RowTop) - 44));
         DrawCompanion(canvas, world, new SKPoint(hp.X + orbRadius + 22, size.Height - 136), small);
 
         // Resource orb and the Taint bar.
@@ -522,10 +554,12 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         using var frame = new SKPaint { IsAntialias = true, Color = Palette.Frame, Style = SKPaintStyle.Stroke, StrokeWidth = 2 };
         using var back = new SKPaint { Color = new SKColor(16, 13, 12, 230) };
         using var face = new SKPaint { IsAntialias = true };
-        using var shade = new SKPaint { Color = new SKColor(0, 0, 0, 160) };
         using var ink = new SKPaint { IsAntialias = true, Color = Ink };
         using var key = new SKPaint { IsAntialias = true, Color = new SKColor(200, 180, 130) };
         using var costInk = new SKPaint { IsAntialias = true, Color = new SKColor(255, 170, 90) };
+        using var poorInk = new SKPaint { IsAntialias = true, Color = new SKColor(255, 80, 70) };
+        using var greyFace = new SKPaint { Color = new SKColor(44, 40, 38) };
+        using var poorShade = new SKPaint { Color = new SKColor(0, 0, 0, 95) };
         using var stroke = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3, Color = SKColors.Black };
         using var big = new SKFont(WorldOverlay.Serif, 17);
         var active = world.Hero.CurrentAbility?.Id;
@@ -553,29 +587,35 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             var label = Slots[i] switch { "lmb" => "LMB", "rmb" => "RMB", var n => n };
             if (world.Bar.TryGetValue(Slots[i], out var ability))
             {
+                var remaining = world.CooldownRemaining(ability);
+                var total = Math.Max(ability.Cooldown, ability.IsFlourish ? GameWorld.FlourishLockoutSeconds : 0);
+                var cooling = remaining > 0 && total > 0;
+                // Short of Fury, Mana and the like (but not cooling): the icon dims a little and its cost turns red,
+                // so "wait" and "you need more" look different.
+                var poor = !cooling && !world.CanAfford(ability);
                 face.Shader = SKShader.CreateLinearGradient(new SKPoint(rect.Left, rect.Top), new SKPoint(rect.Right, rect.Bottom),
                     AbilityColors(ability), SKShaderTileMode.Clamp);
                 canvas.DrawRect(SKRect.Inflate(rect, -3, -3), face);
+                face.Shader = null;
                 icons.Draw(canvas, ability.Id, SKRect.Inflate(rect, -8, -8), AbilityTint(ability));
+                if (poor)
+                    canvas.DrawRect(SKRect.Inflate(rect, -3, -3), poorShade);
 
-                var remaining = world.CooldownRemaining(ability);
-                var total = Math.Max(ability.Cooldown, ability.IsFlourish ? GameWorld.FlourishLockoutSeconds : 0);
-                if (remaining > 0 && total > 0)
+                if (cooling)
                 {
-                    var fraction = (float)Math.Clamp(remaining / total, 0, 1);
-                    canvas.DrawRect(SKRect.Create(rect.Left, rect.Top + rect.Height * (1 - fraction), rect.Width, rect.Height * fraction), shade);
-                    canvas.DrawText($"{remaining:0.0}", rect.MidX, rect.MidY + 6, SKTextAlign.Center, big, stroke);
-                    canvas.DrawText($"{remaining:0.0}", rect.MidX, rect.MidY + 6, SKTextAlign.Center, big, ink);
-                }
-                else if (!world.CanAfford(ability))
-                {
-                    canvas.DrawRect(rect, shade);
+                    var id = ability.Id;
+                    DrawSweep(canvas, rect, remaining, total, big, c =>
+                    {
+                        c.DrawRect(SKRect.Inflate(rect, -3, -3), greyFace);
+                        icons.Draw(c, id, SKRect.Inflate(rect, -8, -8), new SKColor(128, 122, 116));
+                    });
                 }
                 if (ability.Cost > 0)
                 {
                     canvas.DrawText($"{ability.Cost:0}", rect.Right - 4, rect.Bottom - 4, SKTextAlign.Right, small, stroke);
-                    canvas.DrawText($"{ability.Cost:0}", rect.Right - 4, rect.Bottom - 4, SKTextAlign.Right, small, costInk);
+                    canvas.DrawText($"{ability.Cost:0}", rect.Right - 4, rect.Bottom - 4, SKTextAlign.Right, small, poor ? poorInk : costInk);
                 }
+                ReadyFlash(canvas, Slots[i], rect, remaining, world.Time);
                 if (ability.Id == active)
                     frame.Color = new SKColor(255, 210, 120);
                 var a = ability;
@@ -590,6 +630,87 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         }
         face.Shader = null;
     }
+
+    /// <summary>
+    /// A cooldown's sweep over <paramref name="rect"/>: a dark pie, the part still to wait, that shrinks clockwise from
+    /// 12 o'clock with a bright line on its moving edge, and (given a font) the seconds left in the middle.
+    /// <paramref name="greyed"/> draws what lies under the dark part in grey, so the icon stays readable.
+    /// </summary>
+    internal static void DrawSweep(SKCanvas canvas, SKRect rect, double remaining, double total, SKFont? font,
+        Action<SKCanvas>? greyed = null, bool edge = true)
+    {
+        var fraction = (float)Math.Clamp(remaining / total, 0, 1);
+        if (fraction <= 0)
+            return;
+        var centre = new SKPoint(rect.MidX, rect.MidY);
+        var radius = MathF.Sqrt(rect.Width * rect.Width + rect.Height * rect.Height) / 2 + 1;
+        var start = -90 + 360 * (1 - fraction);
+        using var pie = new SKPath();
+        if (fraction >= 0.999f)
+            pie.AddRect(rect);
+        else
+        {
+            pie.MoveTo(centre);
+            pie.ArcTo(new SKRect(centre.X - radius, centre.Y - radius, centre.X + radius, centre.Y + radius), start, 360 * fraction, false);
+            pie.Close();
+        }
+        canvas.Save();
+        canvas.ClipRect(rect);
+        canvas.ClipPath(pie, antialias: true);
+        greyed?.Invoke(canvas);
+        using var dark = new SKPaint { Color = new SKColor(0, 0, 0, greyed is null ? (byte)165 : (byte)110) };
+        canvas.DrawRect(rect, dark);
+        canvas.Restore();
+
+        if (edge && fraction < 0.999f)
+        {
+            var angle = start * MathF.PI / 180;
+            canvas.Save();
+            canvas.ClipRect(rect);
+            using var line = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2, Color = new SKColor(255, 222, 160, 220) };
+            canvas.DrawLine(centre, new SKPoint(centre.X + MathF.Cos(angle) * radius, centre.Y + MathF.Sin(angle) * radius), line);
+            canvas.Restore();
+        }
+        if (font is not null)
+        {
+            var text = SweepText(remaining);
+            using var stroke = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3, Color = SKColors.Black };
+            using var ink = new SKPaint { IsAntialias = true, Color = Ink };
+            canvas.DrawText(text, rect.MidX, rect.MidY + 6, SKTextAlign.Center, font, stroke);
+            canvas.DrawText(text, rect.MidX, rect.MidY + 6, SKTextAlign.Center, font, ink);
+        }
+    }
+
+    /// <summary>Seconds left on a cooldown: whole seconds, rounded up, and tenths under 3 s.</summary>
+    internal static string SweepText(double remaining) =>
+        remaining < 3 ? $"{remaining:0.0}" : $"{Math.Ceiling(remaining):0}";
+
+    /// <summary>
+    /// Notes when a timer comes ready (seconds left going from above 0 to 0) and, for <see cref="FlashSeconds"/> after,
+    /// flares the slot's frame.
+    /// </summary>
+    private void ReadyFlash(SKCanvas canvas, string key, SKRect rect, double remaining, double now)
+    {
+        if (_lastRemaining.TryGetValue(key, out var before) && before > 0 && remaining <= 0)
+            _readyAt[key] = now;
+        _lastRemaining[key] = remaining;
+        var strength = FlashStrength(key, now);
+        if (strength <= 0)
+            return;
+        using var glow = new SKPaint
+        {
+            IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 3,
+            Color = new SKColor(255, 230, 170, (byte)(255 * strength)),
+            MaskFilter = SKMaskFilter.CreateBlur(SKBlurStyle.Outer, 4),
+        };
+        canvas.DrawRect(rect, glow);
+        using var fill = new SKPaint { Color = new SKColor(255, 230, 170, (byte)(70 * strength)) };
+        canvas.DrawRect(rect, fill);
+    }
+
+    /// <summary>How bright a slot's ready flash is now, from 1 as it comes ready down to 0 after <see cref="FlashSeconds"/>.</summary>
+    internal float FlashStrength(string key, double now) =>
+        _readyAt.TryGetValue(key, out var at) && now - at < FlashSeconds && now >= at ? (float)(1 - (now - at) / FlashSeconds) : 0;
 
     /// <summary>The belt: four small slots above the bar's right end, each an item's icon with how many are left.</summary>
     private void DrawBelt(SKCanvas canvas, SKSize size, GameWorld world, SKFont small)
@@ -611,8 +732,12 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             {
                 drawItem?.Invoke(canvas, item, SKRect.Inflate(rect, -3, -3));
                 var count = world.BeltCount(i);
-                if (world.CooldownRemaining(ability) > 0 || count == 0)
+                var remaining = world.CooldownRemaining(ability);
+                if (count == 0)
                     canvas.DrawRect(rect, shade);
+                else if (remaining > 0 && ability.Cooldown > 0)
+                    DrawSweep(canvas, rect, remaining, ability.Cooldown, null);
+                ReadyFlash(canvas, "belt" + i, rect, count == 0 ? 0 : remaining, world.Time);
                 canvas.DrawText(count.ToString(), rect.Right - 3, rect.Bottom - 3, SKTextAlign.Right, small, stroke);
                 canvas.DrawText(count.ToString(), rect.Right - 3, rect.Bottom - 3, SKTextAlign.Right, small, ink);
                 var (index, ab, label) = (i, ability, GameWorld.BeltKeys[i]);
@@ -655,7 +780,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             case AbilityKind.Elixir:
                 break;
             case AbilityKind.Tumble:
-                lines.Add(new($"Up to {a.Range:0.#} tiles, untouchable for {GameWorld.TumbleSeconds:0.##} s{(c.TumbleFeint ? "; enemies passed are left off-guard" : "")}.", Good));
+                lines.Add(new($"Up to {a.Range:0.#} tiles, untouchable for {GameWorld.TumbleSeconds:0.##} s{(c.TumbleFeint ? "; enemies passed are left off-guard" : "")}"
+                    + (a.HideSeconds > 0 ? $"; hidden for {a.HideSeconds:0} s after." : "."), Good));
                 break;
             case AbilityKind.Mark:
                 lines.Add(new(world.Hero.Prey is { IsDead: false } prey ? $"Now hunting: {prey.Name}; +{c.PreyDice}d8 against it." : $"+{c.PreyDice}d8 against your prey.", Good));
@@ -671,14 +797,26 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             case AbilityKind.Trap:
                 lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, radius {a.Radius:0.#}, class DC {c.ClassDc().Total}", Good));
                 break;
-            case AbilityKind.Summon:
-                lines.Add(new($"Now: {world.Minions.Count(m => !m.IsDead)} of {world.MinionCap} skeletons standing, {(6 + 5 * c.Level) * (1 + 0.5 * c.MinionGrowth):0} HP each.", Good));
+            case AbilityKind.Summon when a.BuffSeconds > 0:
+                lines.Add(new($"Now: {a.Count} for {a.BuffSeconds:0} s, beside the allies you hold.", Good));
                 break;
-            case AbilityKind.Blast:
-                lines.Add(new($"Now (rank {rank}): {a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}, radius {a.Radius:0.#}, spell DC {c.SpellDc().Total}", Good));
+            case AbilityKind.Summon:
+                lines.Add(new($"Now: {world.Minions.Count(m => !m.IsDead && !m.IsTimed)} of {world.MinionCap} skeletons standing, {(6 + 5 * c.Level) * (1 + 0.5 * c.MinionGrowth):0} HP each.", Good));
+                break;
+            case AbilityKind.Blast or AbilityKind.Burst:
+                // Bursts and blasts: the weapon's dice (a bow's arrows, a fan of knives) or their own, and the DC to save against.
+                var harm = a.WeaponDamage ? $"{c.Weapon.Definition.Name} {c.Weapon.DiceCount + a.ExtraDiceAt(c.Level)}d{c.Weapon.Definition.DamageDie}{c.DamageBonus().Total:+0;-0;+0}"
+                    : a.Dice is not null ? $"{a.DamageAt(rank)} {a.DamageType.ToString().ToLowerInvariant()}" : "no damage";
+                lines.Add(new($"Now (rank {rank}): {harm}, radius {a.Radius:0.#}, {(a.IsSpellBurst ? $"spell DC {c.SpellDc().Total}" : $"class DC {c.ClassDc().Total}")}", Good));
+                if (a.Drain > 0)
+                    lines.Add(new($"{a.Drain:0%} of all it deals heals you.", Dim));
+                if (a.HideSeconds > 0)
+                    lines.Add(new($"You are hidden for {a.HideSeconds:0} s after.", Dim));
                 break;
             case AbilityKind.Heal:
                 lines.Add(new($"Now (rank {rank}): heals {(int)Math.Round(a.HealAt(rank) * (1 + c.HealShare))} HP{(world.Allies.Count > 0 ? $", allies within {a.Radius:0.#} tiles too" : "")}", Good));
+                if (a.CleansesTaint > 0)
+                    lines.Add(new($"Takes {a.CleansesTaint} off your Taint meter.", Dim));
                 break;
             case AbilityKind.Aura:
                 lines.Add(new($"Now (rank {rank}), {a.BuffSeconds:0} s, radius {a.Radius:0.#}:", Good));
@@ -724,6 +862,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             yield return new($"Every blow at you or an ally within loses {soak}.", Dim);
         if (a.RaisesShield)
             yield return new("Your shield is raised for as long.", Dim);
+        if (a.Retaliate)
+            yield return new("A monster that strikes you in reach takes a Strike back (once a second).", Dim);
         if (a.Dice is not null)
             yield return new($"Every {GameWorld.AuraTickSeconds:0} s: {a.AuraDiceAt(rank)} {(a.Holy ? "vitality to the undead, fire to the living" : a.DamageType.ToString().ToLowerInvariant())}, basic {a.Save} save (class DC {c.ClassDc().Total}).", Dim);
         if (a.Drain > 0)

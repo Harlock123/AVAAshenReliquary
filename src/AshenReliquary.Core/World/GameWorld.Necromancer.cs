@@ -47,7 +47,7 @@ public sealed partial class GameWorld
             ArmorClass: 13 + level + growth,
             AttackBonus: 5 + level + growth,
             SaveDc: 14 + level,
-            HitPoints: (int)Math.Round((6 + 5 * level) * (1 + 0.5 * growth)),
+            HitPoints: (int)Math.Round((6 + 5 * level) * (1 + 0.5 * growth) * definition.HitPointsScale),
             DamageMultiplier: 1.0);
         return new Creature(definition.Name, stats, dice with { Count = dice.Count + growth, Bonus = dice.Bonus + level / 2 },
             definition.DamageType, definition.BuildDefenses(), definition.AttacksPerSecond);
@@ -63,30 +63,40 @@ public sealed partial class GameWorld
         Float(fallen, gained == 1 ? "+1 grave charge" : $"+{gained} grave charges", FloatingTextKind.Info, 0.9);
     }
 
-    /// <summary>Raise Bones: a skeleton climbs out of the ground beside the hero; at the cap the oldest crumbles first.</summary>
+    /// <summary>
+    /// Raise Bones (and the summons like it): a skeleton climbs out of the ground beside the hero; at the cap the oldest
+    /// crumbles first. A summon that lasts only a while (<see cref="AbilityDefinition.BuffSeconds"/>: Call of the Pack)
+    /// raises its <see cref="AbilityDefinition.Count"/> beside the held ones, outside the cap.
+    /// </summary>
     private void RaiseMinion(AbilityDefinition ability)
     {
         if (ability.Creature is not { } id || !_creatures.TryGetValue(id, out var definition))
             return;
         if (!BeginSelf(ability))
             return;
-        var standing = _allies.Where(a => a.IsMinion && !a.IsDead).ToList();
-        if (standing.Count >= MinionCap)
-            Crumble(standing[0]);
+        var timed = ability.BuffSeconds > 0;
         var c = Hero.Character;
-        var minion = new AllyActor(definition, MinionStats(definition, c.Level, c.MinionGrowth), c.Level, c.MinionGrowth)
+        for (var i = 0; i < Math.Max(1, ability.Count); i++)
         {
-            IsMinion = true,
-            RaisedAt = Time,
-        };
-        var (x, y) = OpenNear(Hero.X, Hero.Y);
-        (minion.X, minion.Y) = (x, y);
-        minion.Face(Hero.X, Hero.Y);
-        _allies.Add(minion);
-        AddImpact(x, y, DamageType.Void);
+            var standing = _allies.Where(a => a.IsMinion && !a.IsDead && !a.IsTimed).ToList();
+            if (!timed && standing.Count >= MinionCap)
+                Crumble(standing[0]);
+            var minion = new AllyActor(definition, MinionStats(definition, c.Level, c.MinionGrowth), c.Level, c.MinionGrowth)
+            {
+                IsMinion = true,
+                RaisedAt = Time,
+                ExpiresAt = timed ? Time + ability.BuffSeconds : double.PositiveInfinity,
+            };
+            var (x, y) = OpenNear(Hero.X + i * 0.6, Hero.Y - i * 0.6);
+            (minion.X, minion.Y) = (x, y);
+            minion.Face(Hero.X, Hero.Y);
+            _allies.Add(minion);
+            AddImpact(x, y, timed ? DamageType.Force : DamageType.Void);
+        }
+        var (sx, sy) = (Hero.X, Hero.Y);
         if (!Hero.IsSwinging)
             Hero.Play("cast", 1.5, restart: true);
-        Sound(SoundCue.GraveRise, minion, "grave");
+        Sound(timed ? SoundCue.MonsterAggro : SoundCue.GraveRise, sx, sy, timed ? definition.Voice : "grave");
     }
 
     /// <summary>A skeleton falls apart (made room for, or its master fell).</summary>

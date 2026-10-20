@@ -1304,6 +1304,8 @@ public sealed partial class GameWorld
             return $"{ability.Name} needs a two-handed weapon.";
         if (ability.NeedsRanged && !Shoots)
             return $"{ability.Name} needs a bow.";
+        if (ability.NeedsShield && ability.Kind != AbilityKind.Ward && Hero.Equipment.In(EquipSlot.OffHand) is not { Definition.IsShield: true })
+            return $"{ability.Name} needs a shield in your off hand.";
         if (ability.IsSweep && Shoots)
             return $"{ability.Name} needs a melee weapon.";
         return null;
@@ -2012,6 +2014,7 @@ public sealed partial class GameWorld
             Sound(SoundCue.HeroHurt, Hero);
             if (!HurtHero(dealt))
                 return;
+            Retaliate(m);
             if (m.Definition.PoisonOnHit is { } poison && Random.Roll(1, 100) <= m.Definition.PoisonChance * 100)
                 Poison(Dice.Parse(poison));
         }

@@ -684,7 +684,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -822,6 +822,18 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 - **Minimap:** top right, isometric, centred on the hero at 3.5 px per tile. Cells within 9 tiles of the hero are explored as you move (in a dark zone, a dungeon, only those in line of sight and the walls bordering them, so it maps the rooms looked into; a dungeon is drawn as stone floors outlined by pale walls, with solid rock left blank); the explored map is saved (a base64 bitset; older saves start unexplored). Markers: shrines (bright once awake), the exit, living monsters within 14 tiles (champions larger and orange), Uncommon and better loot, and the hero with a facing tick.
 - **Character sheet (C):** attributes (hover for what each drives, the key attribute and partial boosts), then hit points, AC, saves, resistances, attack, damage, class DC, spell attack and DC for casters, Perception, speed and proficiency ranks. Hovering a number lists every part of it, with bonuses the stacking rule drops shown greyed.
 - Clicks on the HUD, minimap or open panels never move the hero.
+- **Cooldowns** (asked for on 2026-10-20: a cooling button was only shaded from the top, much as one the hero could
+  not afford, so the two looked alike): a clock sweep, as in Grim Dawn. A dark pie covers the part still to wait and
+  shrinks clockwise from 12 o'clock, with a bright line on its moving edge. The icon under it is drawn grey, and the
+  seconds left sit in the middle, in whole seconds and in tenths below 3 (`Hud.DrawSweep`, `Hud.SweepText`). The same
+  sweep covers the Step icon, the potion flasks (their seconds replace the Q) and a cooling belt item. As a timer
+  comes ready its slot flares for a quarter second (`Hud.FlashStrength`). A bar ability with a cooldown of 5 s or
+  more also clinks softly (Flare's gem sound, `ready` in `audio.json`, played by `AudioDirector`); shorter ones, such
+  as Power Attack's lockout, stay silent so they don't chatter. An ability the hero can't afford (no cooldown left)
+  has no sweep: its slot is lightly shaded and its cost turns red.
+- **The potions, Step and Hero Points in a narrow window:** where they would not clear the ability bar's left end
+  (the 731-pixel tiled window, where the bar had covered them and so hid the Step's sweep), they sit in one row just
+  above the health orb, the buffs and conditions above them (`Hud.RowTop`).
 
 ### Audio (M1)
 
@@ -1419,6 +1431,55 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   level 5 every subclass now wins all 6 fights in the starting kit (the Stormcaller had won 5). At level 4 the spread narrowed: the Trickster went from 0 to 5 of 6 (Hunt Prey's d8 from its
   Ranger dedication), the Vanguard, Beastmaster and Cutthroat win 4, the rest 6, and the wizards 1 of 6 (a frail caster
   a level under her: left as it is).
+
+### Levels 6–10 (M4 step 1)
+
+- **Why first:** Act 2 is levels 6–10 (M4's decision 5 keeps Act 1's XP curve), so the class kits had to reach them
+  before any Act 2 zone could be tuned. Proficiency steps through level 20 were already in `classes.json`, and spell
+  ranks follow the level (rank 5 at level 9-10); the level-up screen needed only a wrapped line for the later levels.
+- **A class ability at level 6** (on the bar's key 6 when free, otherwise in the K list):
+  - Fighter: **Intimidating Roar** (a Will save in 4 tiles: frightened 2, and they turn on you).
+  - Champion: **Retributive Strike** (12 s in which a monster that strikes you takes a Strike back, once a second).
+  - Rogue: **Shadowstep** (6 tiles, untouchable, hidden 4 s after).
+  - Ranger: **Rain of Arrows** (the bow's damage in 2.5 tiles against a basic Reflex save).
+  - Wizard: **Blink** (5 tiles, untouchable).
+  - Necromancer: **Bone Spear** (a spell attack that flies on through two more).
+- **A subclass ability at level 8** (granted by the subclass feat, gated by the ability's `level`):
+
+  | Subclass | Ability |
+  | --- | --- |
+  | Vanguard | **Whirlwind Strike**: every enemy in reach, a weapon die more (two-handed) |
+  | Bulwark | **Shield Slam**: a Strike that knocks back and prone (needs a shield) |
+  | Lanternbearer | **Beacon of Hope**: heals you and allies in 4 tiles, burns out 50 Taint |
+  | Oathbreaker | **Dread Harvest**: Taint damage in 3 tiles, paid with 30 Taint, half drained |
+  | Cutthroat | **Fan of Knives**: the weapon's damage in 3 tiles, bleed on a failed save |
+  | Trickster | **Smoke Bomb**: dazzled in 3 tiles, and you hide 4 s |
+  | Marksman | **Deadeye**: three weapon dice more, piercing two |
+  | Beastmaster | **Call of the Pack**: two more wolves for 20 s |
+  | Pyromancer | **Fireball**: fire in 2.5 tiles against a basic Reflex save |
+  | Stormcaller | **Chain Lightning**: leaps to four more enemies |
+  | Bonelord | **Raise Bone Knight**: a skeleton twice as tough with a great blade |
+  | Plaguebringer | **Plague Cloud**: acid in 3 tiles, sickened 2 on a failure |
+- **New mechanics, as ability data** (`AbilityDefinition`): `hideSeconds` (hidden after a Tumble or self-burst),
+  `retaliate` (an aura's Strike back after a monster's blow), `cleansesTaint`, `count` (timed summons:
+  `AllyActor.ExpiresAt`, outside the minion cap, crumbling when their time runs out). `needsShield` now applies to
+  weapon Strikes too. A burst's drain heals from all it dealt. `GameWorld.UseAbility` lets a bot use an ability that is
+  not on the bar.
+- **Feats:** 36 class feats, two per class at 6 and 10 and one per subclass at 8, mostly data on the new abilities
+  (Cyclone, Volley, Wildfire…) or the class's core (Weapon Mastery, Debilitating Strikes, Masterful Hunter, Grave
+  Mastery, Army of Bone…).
+- **Items to level 10:** full plate (Heavy, AC 6, level 7) and the plate helm, gauntlets, greaves and boots, the war
+  hammer, reinforced club and great staff, all with Flare's art on the paper doll; five Uniques (Ironhold Oathblade 6,
+  Red Mirella's Draw 7, Siegebreaker 8, Cinderglass Staff 8, Crown of the Unburied 9); the **Ironhold Guard's Plate**
+  set (helm, gauntlets, boots, level 7: +1 AC at two, +2 HP a level and resistance 5 Taint at three). +2 potency runes
+  open at item level 10 by the existing rune table.
+- **Tooltips** (`Hud.AbilityTip`) say what the new kinds do: hiding, timed summons, a blast's or burst's dice, DC and
+  drain, a heal's cleansing, an aura's retaliation.
+- **The bots** (`Tactics`) use every new ability, and the wizard Blinks away when pressed while its Step recharges.
+  With no Act 2 zone yet, `BalanceReport.Sallows_Mire_raised_to_levels_6_8_and_10` runs each subclass through Sallow's
+  Mire with its monsters raised to the hero's level (runes +1 at 6 and 8, +2 at 10): every subclass reaches the gate in
+  2.5-6.5 minutes, and only the level-6 Stormcaller died (twice). Act 1's campaign is unchanged (all twelve kill
+  Mother Sallow at level 5, in 15-22 minutes).
 
 ### The arsenal (M2, after step 10)
 

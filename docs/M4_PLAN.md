@@ -50,13 +50,19 @@ What M4 needs that does not exist yet:
 Each step ends playable: a play-test, tests, the spec and README updated, a commit when the user asks. Each act is
 built whole before the next, as Act 1 was in M2, so each act can be played and judged as a piece.
 
-### 1. Levels 6–10
+### 1. Levels 6–10 (done)
 
 The groundwork for Act 2 (decision 1):
 - **Classes:** the class and subclass abilities to level 8 (each class's signature ability, as M3's decision 1 had it) and the feats to level 10.
 - **Rules:** proficiency steps, spell ranks 3–5, and the level-up screen's later choices.
 - **Items:** item levels to 10, with +2 runes, the Act 2 Uniques and a Set.
 - **Bots:** `CampaignReport` gains a "level 6 to 10" leg.
+
+*Done (2026-10-19):* the six level-6 class abilities, the twelve level-8 subclass abilities and 36 class feats at 6, 8
+and 10; plate, three new weapon bases, five Uniques and the Ironhold Guard's Plate set; proficiency steps and spell
+ranks were already in place. With no Act 2 zone yet, the bots' check is `BalanceReport`'s Sallow's Mire raised to
+levels 6, 8 and 10 (every subclass through, one Stormcaller death in two); the campaign's Act 2 leg comes with the
+zones (step 4). See the spec, section 16, "Levels 6–10".
 
 ### 2. Ironhold and the Iron March (2.1)
 

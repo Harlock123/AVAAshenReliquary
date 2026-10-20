@@ -335,5 +335,24 @@
   "immunities": [
    "Poison"
   ]
+ },
+ {
+  "id": "raised_knight",
+  "name": "Bone knight",
+  "sprite": "skeleton",
+  "damageType": "Slashing",
+  "attacksPerSecond": 0.9,
+  "moveSpeed": 2.4,
+  "aggroRadius": 8,
+  "attackRange": 1.3,
+  "damage": "1d10",
+  "tint": "#c8e4ff",
+  "voice": "skeleton",
+  "undead": true,
+  "immunities": [
+   "Poison"
+  ],
+  "hitPointsScale": 2.0,
+  "scale": 1.1
  }
 ]

@@ -336,6 +336,132 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "intimidating_roar",
+  "file": "intimidating_roar.png",
+  "source": "https://game-icons.net/1x1/lorc/lion.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "whirlwind_strike",
+  "file": "whirlwind_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/whirlwind.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "shield_slam",
+  "file": "shield_slam.png",
+  "source": "https://game-icons.net/1x1/delapouite/shield-bash.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "retributive_strike",
+  "file": "retributive_strike.png",
+  "source": "https://game-icons.net/1x1/delapouite/shield-impact.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "beacon_of_hope",
+  "file": "beacon_of_hope.png",
+  "source": "https://game-icons.net/1x1/lorc/sunbeams.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "dread_harvest",
+  "file": "dread_harvest.png",
+  "source": "https://game-icons.net/1x1/lorc/reaper-scythe.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "shadowstep",
+  "file": "shadowstep.png",
+  "source": "https://game-icons.net/1x1/lorc/shadow-follower.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "fan_of_knives",
+  "file": "fan_of_knives.png",
+  "source": "https://game-icons.net/1x1/lorc/thrown-daggers.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "smoke_bomb",
+  "file": "smoke_bomb.png",
+  "source": "https://game-icons.net/1x1/darkzaitzev/smoke-bomb.html",
+  "author": "DarkZaitzev",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "rain_of_arrows",
+  "file": "rain_of_arrows.png",
+  "source": "https://game-icons.net/1x1/lorc/arrows-shield.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "deadeye",
+  "file": "deadeye.png",
+  "source": "https://game-icons.net/1x1/lorc/arrow-scope.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "call_of_the_pack",
+  "file": "call_of_the_pack.png",
+  "source": "https://game-icons.net/1x1/lorc/direwolf.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "blink",
+  "file": "blink.png",
+  "source": "https://game-icons.net/1x1/lorc/teleport.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "fireball",
+  "file": "fireball.png",
+  "source": "https://game-icons.net/1x1/lorc/burning-meteor.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "chain_lightning",
+  "file": "chain_lightning.png",
+  "source": "https://game-icons.net/1x1/willdabeast/chain-lightning.html",
+  "author": "Willdabeast",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "bone_spear",
+  "file": "bone_spear.png",
+  "source": "https://game-icons.net/1x1/lorc/spears.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "raise_bone_knight",
+  "file": "raise_bone_knight.png",
+  "source": "https://game-icons.net/1x1/delapouite/black-knight-helm.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "plague_cloud",
+  "file": "plague_cloud.png",
+  "source": "https://game-icons.net/1x1/sbed/poison-cloud.html",
+  "author": "Sbed",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "Frightened",
   "file": "Frightened.png",
   "source": "https://game-icons.net/1x1/lorc/terror.html",

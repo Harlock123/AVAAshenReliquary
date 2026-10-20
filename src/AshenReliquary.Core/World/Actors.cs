@@ -219,6 +219,12 @@ public sealed class AllyActor : Actor
     /// <summary>A Necromancer's skeleton: it doesn't come back once it falls, and it crumbles when the hero does.</summary>
     public bool IsMinion { get; init; }
 
+    /// <summary>When a summoned ally goes (game time; Call of the Pack's wolves), or never.</summary>
+    public double ExpiresAt { get; init; } = double.PositiveInfinity;
+
+    /// <summary>Summoned for a while, beside the hero's held skeletons rather than among them.</summary>
+    public bool IsTimed => !double.IsPositiveInfinity(ExpiresAt);
+
     /// <summary>When it was raised (game time): it climbs out of the ground.</summary>
     public double RaisedAt { get; init; } = double.NegativeInfinity;
 

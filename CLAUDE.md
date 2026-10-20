@@ -95,6 +95,14 @@ implementation decisions made so far). `README.md` has the run commands and cont
   creature pack, `tools/build_audio.py`) and was re-rendered at 256-px frames from Danimal's .blend with Blender 2.79
   and packed (`tools/build_wolf.py`, scale 1.1), the bots take a level-4 dedication and use it, salvage and craft at
   Garrow's forge, and the casters Step out of melee. M4's plan is `docs/M4_PLAN.md`.
+- **M4 (Acts 2–4):** in progress, following `docs/M4_PLAN.md` (decisions taken with the suggestions: Act 2 whole,
+  then a check-in; 20–30 minute zones; survey art first, recolour gaps; the Act 3 companion story-only; Act 1's XP
+  curve). M3's exit test still waits on the user's play of the new classes. Step 1 done: levels 6–10 (class abilities
+  at 6 on key 6, subclass abilities at 8 via the subclass feat and the ability's `level`, 36 feats at 6/8/10; new
+  ability fields `hideSeconds`, `retaliate`, `cleansesTaint`, `count` for timed summons; `GameWorld.UseAbility` for
+  bots; plate, war hammer, reinforced club, great staff, five Uniques, the Ironhold Guard set;
+  `BalanceReport.Sallows_Mire_raised_to_levels_6_8_and_10`). Next: step 2, Ironhold and the Iron March (art survey
+  first).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

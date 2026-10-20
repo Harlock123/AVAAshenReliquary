@@ -43,6 +43,9 @@ public sealed partial class GameWorld
         if (!Hero.IsSwinging)
             Hero.Play(ability.IsSpellBurst ? "cast" : "swing", 1.5, restart: true);
         Burst(ability, null, (Hero.X, Hero.Y));
+        // Smoke Bomb: into the smoke, hidden.
+        if (ability.HideSeconds > 0)
+            Hero.HiddenRemaining = ability.HideSeconds;
     }
 
     /// <summary>
@@ -64,6 +67,7 @@ public sealed partial class GameWorld
         var caught = _monsters.Where(m => !m.IsDead && IsLit(m.X, m.Y) && m.DistanceTo(at.X, at.Y) <= ability.Radius + m.Radius
                 && (!cone || WithinArc(ability.Arc, aim!, m)))
             .ToList();
+        var dealtInAll = 0;
         foreach (var m in caught)
         {
             var degree = Check.Roll(Random, m.Creature.Save(save).Total, dc).Degree;
@@ -79,6 +83,7 @@ public sealed partial class GameWorld
                 if (dealt > 0)
                 {
                     dealt = DamageMonster(m, dealt);
+                    dealtInAll += dealt;
                     var doubled = degree == DegreeOfSuccess.CriticalFailure;
                     Float(m, doubled ? $"{dealt}!" : dealt.ToString(), doubled ? FloatingTextKind.Critical : FloatingTextKind.DamageDealt);
                     m.HitFlinch = 0.15;
@@ -97,6 +102,12 @@ public sealed partial class GameWorld
                 Kill(m, degree == DegreeOfSuccess.CriticalFailure);
             else if (failed)
                 OnHit(ability, m, degree == DegreeOfSuccess.CriticalFailure);
+        }
+        // Dread Harvest: a share of all it dealt comes back to the hero.
+        if (ability.Drain > 0 && (int)Math.Round(dealtInAll * ability.Drain) is > 0 and var drained && c.HitPoints < c.MaxHitPoints)
+        {
+            c.Heal(drained);
+            Float(Hero, $"+{drained}", FloatingTextKind.Heal, 0.3);
         }
         // A weapon burst that lands on anything feeds Fury once, like a sweep's first hit.
         if (ability.WeaponDamage && caught.Count > 0)

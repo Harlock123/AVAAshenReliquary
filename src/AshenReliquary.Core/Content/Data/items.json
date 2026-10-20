@@ -189,6 +189,19 @@
   "traits": []
  },
  {
+  "id": "reinforced_club",
+  "name": "Reinforced club",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 110,
+  "loot": "reinforced_club",
+  "gfx": "reinforced_club",
+  "damageDie": 8,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.1,
+  "minLevel": 6
+ },
+ {
   "id": "mace",
   "name": "Mace",
   "category": "Weapon",
@@ -205,6 +218,23 @@
   "minLevel": 1
  },
  {
+  "id": "war_hammer",
+  "name": "War hammer",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 102,
+  "loot": "war_hammer",
+  "gfx": "war_hammer",
+  "damageDie": 8,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.1,
+  "traits": [
+   "Shove",
+   "Forceful"
+  ],
+  "minLevel": 6
+ },
+ {
   "id": "staff",
   "name": "Staff",
   "category": "Weapon",
@@ -219,6 +249,26 @@
    "TwoHand"
   ],
   "casterFocus": true
+ },
+ {
+  "id": "greatstaff",
+  "name": "Great staff",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 107,
+  "loot": "greatstaff",
+  "gfx": "greatstaff",
+  "damageDie": 6,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.0,
+  "traits": [
+   "TwoHand"
+  ],
+  "casterFocus": true,
+  "implicit": {
+   "castSpeed": 0.08
+  },
+  "minLevel": 6
  },
  {
   "id": "wand",
@@ -314,6 +364,22 @@
   "minLevel": 1
  },
  {
+  "id": "full_plate",
+  "name": "Full plate",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 161,
+  "loot": "steel_armor",
+  "gfx": "plate_cuirass",
+  "armorCategory": "Heavy",
+  "acBonus": 6,
+  "dexCap": 0,
+  "checkPenalty": -3,
+  "speedPenalty": 10,
+  "strength": 4,
+  "minLevel": 7
+ },
+ {
   "id": "leather_hood",
   "name": "Leather hood",
   "category": "Armor",
@@ -331,6 +397,16 @@
   "loot": "steel_armor",
   "gfx": "chain_coif",
   "minLevel": 1
+ },
+ {
+  "id": "plate_helm",
+  "name": "Plate helm",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 160,
+  "loot": "steel_armor",
+  "gfx": "plate_helm",
+  "minLevel": 6
  },
  {
   "id": "mage_hood",
@@ -371,6 +447,16 @@
   "minLevel": 1
  },
  {
+  "id": "plate_gauntlets",
+  "name": "Plate gauntlets",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 162,
+  "loot": "steel_armor",
+  "gfx": "plate_gauntlets",
+  "minLevel": 6
+ },
+ {
   "id": "mage_sleeves",
   "name": "Mage sleeves",
   "category": "Armor",
@@ -409,6 +495,16 @@
   "minLevel": 1
  },
  {
+  "id": "plate_greaves",
+  "name": "Plate greaves",
+  "category": "Armor",
+  "slot": "Legs",
+  "icon": 163,
+  "loot": "steel_armor",
+  "gfx": "plate_greaves",
+  "minLevel": 6
+ },
+ {
   "id": "mage_skirt",
   "name": "Mage skirt",
   "category": "Armor",
@@ -445,6 +541,16 @@
   "loot": "steel_armor",
   "gfx": "chain_boots",
   "minLevel": 1
+ },
+ {
+  "id": "plate_boots",
+  "name": "Plate boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 164,
+  "loot": "steel_armor",
+  "gfx": "plate_boots",
+  "minLevel": 6
  },
  {
   "id": "mage_boots",
@@ -1158,5 +1264,205 @@
    "maxHitPoints": 4
   },
   "description": "Sallow's sisters wore these, before the Taint took them."
+ },
+ {
+  "id": "ironhold_oathblade",
+  "name": "Ironhold Oathblade",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 98,
+  "loot": "longsword",
+  "gfx": "longsword",
+  "damageDie": 8,
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.2,
+  "traits": [
+   "Versatile"
+  ],
+  "versatile": "Piercing",
+  "minLevel": 6,
+  "unique": true,
+  "potency": 1,
+  "striking": 1,
+  "trait": "Oathkeeper",
+  "traitText": "+1 AC, and 4 more damage on a critical hit.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "critDamage": 4
+   }
+  ],
+  "description": "Sworn on at every Guard captain's taking of office, for two hundred years."
+ },
+ {
+  "id": "mirellas_draw",
+  "name": "Red Mirella's Draw",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 114,
+  "loot": "longbow",
+  "gfx": "longbow",
+  "minLevel": 7,
+  "damageDie": 8,
+  "damageType": "Piercing",
+  "attacksPerSecond": 1.0,
+  "ranged": true,
+  "range": 10,
+  "deadlyDie": 10,
+  "traits": [
+   "TwoHand",
+   "Deadly"
+  ],
+  "unique": true,
+  "potency": 1,
+  "striking": 1,
+  "trait": "Outlaw's Aim",
+  "traitText": "Your bow reaches 2 tiles further, and 3 more damage on a critical hit.",
+  "effects": [
+   {
+    "weaponRange": 2
+   },
+   {
+    "critDamage": 3
+   }
+  ],
+  "description": "Every notch on the grip is a Guard sergeant who came looking for her."
+ },
+ {
+  "id": "siegebreaker",
+  "name": "Siegebreaker",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 102,
+  "loot": "war_hammer",
+  "gfx": "war_hammer",
+  "damageDie": 8,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.1,
+  "traits": [
+   "Shove",
+   "Forceful"
+  ],
+  "minLevel": 8,
+  "unique": true,
+  "potency": 1,
+  "striking": 1,
+  "trait": "Wallbreaker",
+  "traitText": "+3 damage on every hit.",
+  "effects": [
+   {
+    "statistic": "Damage",
+    "value": 3
+   }
+  ],
+  "description": "It broke the Iron March gate in the old war. The gate has not been rebuilt."
+ },
+ {
+  "id": "cinderglass_staff",
+  "name": "Cinderglass Staff",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 107,
+  "loot": "greatstaff",
+  "gfx": "greatstaff",
+  "damageDie": 6,
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 1.0,
+  "traits": [
+   "TwoHand"
+  ],
+  "casterFocus": true,
+  "implicit": {
+   "castSpeed": 0.1
+  },
+  "minLevel": 8,
+  "unique": true,
+  "trait": "Glassfire",
+  "traitText": "Your spells reach 2 tiles further, and +1 to spell attacks.",
+  "effects": [
+   {
+    "spellRange": 2
+   },
+   {
+    "statistic": "SpellAttack",
+    "value": 1
+   }
+  ],
+  "description": "Glass blown from the ash of the first burning, still warm."
+ },
+ {
+  "id": "crown_of_the_unburied",
+  "name": "Crown of the Unburied",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 160,
+  "loot": "steel_armor",
+  "gfx": "plate_helm",
+  "minLevel": 9,
+  "unique": true,
+  "implicit": {
+   "maxHitPoints": 10
+  },
+  "trait": "Unburied",
+  "traitText": "Resistance 5 void, and +2 to Will saves.",
+  "effects": [
+   {
+    "resist": "Void",
+    "value": 5
+   },
+   {
+    "statistic": "Will",
+    "value": 2
+   }
+  ],
+  "description": "A dead knight's helm, still warm inside."
+ },
+ {
+  "id": "guard_helm",
+  "name": "Ironhold Guard's Helm",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 160,
+  "loot": "steel_armor",
+  "gfx": "plate_helm",
+  "minLevel": 7,
+  "set": "ironhold_guard",
+  "implicit": {
+   "maxHitPoints": 6
+  },
+  "description": "The Guard's own plate, the city's hammer on every piece."
+ },
+ {
+  "id": "guard_gauntlets",
+  "name": "Ironhold Guard's Gauntlets",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 162,
+  "loot": "steel_armor",
+  "gfx": "plate_gauntlets",
+  "minLevel": 7,
+  "set": "ironhold_guard",
+  "implicit": {
+   "attackSpeed": 0.05
+  },
+  "description": "The Guard's own plate, the city's hammer on every piece."
+ },
+ {
+  "id": "guard_boots",
+  "name": "Ironhold Guard's Boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 164,
+  "loot": "steel_armor",
+  "gfx": "plate_boots",
+  "minLevel": 7,
+  "set": "ironhold_guard",
+  "implicit": {
+   "maxHitPoints": 6
+  },
+  "description": "The Guard's own plate, the city's hammer on every piece."
  }
 ]

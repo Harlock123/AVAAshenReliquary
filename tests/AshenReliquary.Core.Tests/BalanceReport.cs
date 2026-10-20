@@ -239,21 +239,69 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// Levels 6-10 before Act 2 exists (M4 step 1): Sallow's Mire with every pack and Mother Sallow raised to the
+    /// hero's level, the hero in the starting kit with the runes a player would have etched by then (+1 at 6 and 8, +2
+    /// at 10). Its deaths and minutes are the yardstick for the class kits past level 5.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Sallows_Mire_raised_to_levels_6_8_and_10(string kit)
+    {
+        foreach (var level in new[] { 6, 8, 10 })
+        {
+            var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("sallows_mire", "iron_march", kit, seed, level,
+                monsterLevel: level, runes: level >= 10 ? 2 : 1)).ToList();
+            output.WriteLine($"{kit} at level {level}: Sallow's Mire raised to {level}, {runs.Count} runs");
+            foreach (var r in runs)
+                output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  {(r.Reached ? "through the gate" : "did not finish")}");
+            foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(4))
+                output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+        }
+    }
+
+    /// <summary>
     /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTo"/> makes them): every pack
     /// in the zone file's order (in the Fens the main route, then the Sunken Road, then back for the Old Dyke), then the
     /// exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.
     /// The route is planned here over the whole map, then walked a stretch at a time, as a player clicks ahead.
     /// </summary>
-    public static RoadResult ZoneRun(string zoneId, string exitId, string kit, int seed, int level, bool lantern = false)
+    public static RoadResult ZoneRun(string zoneId, string exitId, string kit, int seed, int level, bool lantern = false,
+        int? monsterLevel = null, int runes = 0)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
         var zone = content.Zone(zoneId);
+        // Only the exit the run is for: a Step out of a pool near the Mire's chapel door had walked the hero back into
+        // the chapel, which counted as finishing the zone.
+        zone = zone with { Exits = zone.Exits.Where(e => e.Id == exitId).ToList() };
+        // Raised: every pack (and the boss) at this level, a stand-in for the acts not yet built.
+        if (monsterLevel is { } raised)
+            zone = zone with { Level = raised, Spawns = zone.Spawns.Select(s => s with { Level = raised }).ToList() };
         var hero = TestCharacters.ForKit(kit);
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, kit);
         LevelTo(world, level);
+        // Runes a player of that level would have had etched: potency and striking on the weapon, potency and
+        // resilient on the body armour, each up to what the item level allows.
+        if (runes > 0)
+        {
+            foreach (var worn in world.Hero.Equipment.Worn.Values.ToList())
+                foreach (var kind in Items.Runework.Kinds(worn.Definition))
+                    worn.SetRune(kind, runes);
+            world.Hero.Equipment.Refresh();
+        }
         if (lantern)
             world.Hero.Equipment.TryAdd(new Items.Item(content.Item("pilgrims_lantern"), Items.Rarity.Common, 1));
         var exit = zone.Exits.Single(e => e.Id == exitId);

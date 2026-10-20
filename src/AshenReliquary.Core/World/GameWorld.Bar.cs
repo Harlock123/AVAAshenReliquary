@@ -73,7 +73,8 @@ public sealed partial class GameWorld
         }
         foreach (var id in c.GrantedAbilities)
         {
-            if (_abilities.TryGetValue(id, out var ability) && known.All(k => k.Ability.Id != id))
+            // A subclass's level-8 ability waits for level 8, as a class ability does.
+            if (_abilities.TryGetValue(id, out var ability) && ability.Level <= c.Level && known.All(k => k.Ability.Id != id))
                 known.Add((c.Modify(ability), null));
         }
         KnownAbilities = known.Select(k => k.Ability).ToList();
@@ -119,6 +120,18 @@ public sealed partial class GameWorld
         }
         _layout[slot] = abilityId;
         RefreshBar();
+        return true;
+    }
+
+    /// <summary>
+    /// Uses an ability the hero knows by its id, on the bar or waiting in the list (the bots: a player would put it on
+    /// the bar). False when the hero doesn't know it.
+    /// </summary>
+    public bool UseAbility(string id, MonsterActor? target, (double X, double Y)? toward = null)
+    {
+        if (KnownAbilities.FirstOrDefault(a => a.Id == id) is not { } ability)
+            return false;
+        Use(ability, target, toward);
         return true;
     }
 

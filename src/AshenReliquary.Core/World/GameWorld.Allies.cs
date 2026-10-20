@@ -164,6 +164,8 @@ public sealed partial class GameWorld
     private void UpdateAllies(double dt)
     {
         RefreshCompanion();
+        foreach (var expired in _allies.Where(a => a.IsTimed && !a.IsDead && Time >= a.ExpiresAt).ToList())
+            Crumble(expired);
         _allies.RemoveAll(a => a.IsMinion && a.IsDead && a.ReturnIn <= 0);
         foreach (var ally in _allies)
             UpdateAlly(ally, dt);

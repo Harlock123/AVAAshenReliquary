@@ -80,6 +80,7 @@ EFFECTS = {
     "crone-death": [f"{F}/female_die.ogg"],
     # M3: a Unique or Set piece dropping; the Beastmaster's wolf barking and falling.
     "rare-drop": [f"{F}/powers/heal.ogg"],
+    "ready": [f"{F}/inventory/inventory_gem.ogg"],
     "wolf": [f"{C}/barking_01.ogg", f"{C}/barking_02.ogg"],
     "wolf-death": [f"{C}/howl.ogg"],
 }

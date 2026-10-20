@@ -132,4 +132,47 @@ public class HudTests
         Assert.InRange(AshenReliquary.App.Rendering.TownBanner.Alpha(5.75), 0.4, 0.6);
         Assert.Equal(0, AshenReliquary.App.Rendering.TownBanner.Alpha(7));
     }
+
+    [AvaloniaFact]
+    public void A_cooling_ability_shows_a_clock_sweep_and_flashes_as_it_comes_ready()
+    {
+        var kit = TestKit.Open(width: 1288, height: 770);
+        var world = kit.World;
+        var view = kit.Window.View;
+        world.Hero.Character.TakeDamage(8);
+        Assert.True(world.DrinkPotion());
+        Assert.True(world.Dodge(world.Hero.X + 3, world.Hero.Y));
+        TestHooks.StartCooldown(world, "sudden_charge", 8);
+        kit.Play(3);                                            // 5 s left on the charge: the dark pie covers 5/8
+        kit.Capture(Shot("hud-cooldown-sweep"));
+        Assert.Equal("5", Rendering.Hud.SweepText(world.CooldownRemaining(world.Bar["1"]) + 0.01));
+        Assert.Equal("2.4", Rendering.Hud.SweepText(2.4));
+        Assert.Equal(0, view.ReadyFlash("1"));
+
+        kit.Play(5.05);                                         // ready: the frame flares, then fades within a quarter second
+        Assert.Equal(0, world.CooldownRemaining(world.Bar["1"]));
+        Assert.True(view.ReadyFlash("1") > 0, "the slot should flash as it comes ready");
+        kit.Capture(Shot("hud-cooldown-ready"));
+        kit.Play(0.4);
+        Assert.Equal(0, view.ReadyFlash("1"));
+    }
+
+    [AvaloniaFact]
+    public void In_a_narrow_window_the_potions_and_step_sit_above_the_orb_clear_of_the_bar()
+    {
+        var kit = TestKit.Open();
+        kit.Window.MinWidth = 0;
+        kit.Window.Width = 731;
+        kit.Window.Height = 946;
+        var world = kit.World;
+        Assert.True(world.Dodge(world.Hero.X + 3, world.Hero.Y));
+        kit.Play(1);
+        kit.Capture(Shot("hud-narrow-step"));
+        var barTop = kit.Window.View.BarSlot("lmb").Y - 27;
+        Assert.True(kit.Window.View.HudRowTop + 68 <= barTop - 40, $"the row ({kit.Window.View.HudRowTop}) should end above the bar ({barTop})");
+
+        var wide = TestKit.Open(width: 1288, height: 770);
+        wide.Play(0.1);
+        Assert.Equal(770 - 68, wide.Window.View.HudRowTop);   // a wide window keeps them beside the orb
+    }
 }

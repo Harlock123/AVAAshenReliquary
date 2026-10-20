@@ -180,6 +180,9 @@
   ],
   "wolf-death": [
    "sfx/wolf-death-howl.ogg"
+  ],
+  "ready": [
+   "sfx/ready-inventory_gem.ogg"
   ]
  },
  "music": {
@@ -896,6 +899,13 @@
    "url": "https://opengameart.org/content/80-cc0-creature-sfx",
    "original": "howl.ogg",
    "licence": "CC0"
+  },
+  {
+   "file": "sfx/ready-inventory_gem.ogg",
+   "source": "Flare: Empyrean Campaign, soundfx",
+   "url": "https://github.com/flareteam/flare-game",
+   "original": "inventory_gem.ogg",
+   "licence": "CC-BY-SA 3.0"
   }
  ]
 }

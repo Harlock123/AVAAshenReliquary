@@ -69,6 +69,11 @@ public sealed partial class GameWorld
         var healed = Math.Min(amount, c.MaxHitPoints - c.HitPoints);
         c.Heal(amount);
         Float(Hero, $"+{healed}", FloatingTextKind.Heal, 0.4);
+        if (ability.CleansesTaint > 0 && c.Taint.Value > 0)
+        {
+            c.Taint.Cleanse(ability.CleansesTaint);
+            Float(Hero, "cleansed", FloatingTextKind.Heal, 0.7);
+        }
         foreach (var ally in _allies.Where(a => !a.IsDead && a.DistanceTo(Hero) <= ability.Radius))
         {
             ally.Creature.Heal(amount);
@@ -226,6 +231,22 @@ public sealed partial class GameWorld
             AddTaint(OathTaintPerHit);
         }
         return extra;
+    }
+
+    private double _retaliateReadyAt;
+
+    /// <summary>
+    /// Retributive Strike: while an aura that retaliates is up, a monster that lands a blow on the hero from within reach
+    /// is struck back at once (at most once a second).
+    /// </summary>
+    private void Retaliate(MonsterActor attacker)
+    {
+        if (Time < _retaliateReadyAt || attacker.IsDead || !_auras.Any(a => a.Ability.Retaliate)
+            || Hero.DistanceTo(attacker) > MeleeReach + Hero.Character.ReachBonus + attacker.Radius + 0.3 || Shoots)
+            return;
+        _retaliateReadyAt = Time + 1;
+        Float(Hero, "retribution", FloatingTextKind.Info, 0.8);
+        HeroStrike(attacker, BasicAbility);
     }
 
     /// <summary>The Taint meter fills; at 100 the whispers take the hero's feet.</summary>

@@ -69,6 +69,12 @@ public sealed class WorldView : Control
     internal AbilitiesPanel Abilities => AbilitiesView;
 
     /// <summary>Where a bar slot is on screen, as last drawn (tests click it).</summary>
+    /// <summary>How bright a HUD timer's ready flash is now (0 when none): "1"…"6", "lmb", "rmb", "step", "potion", "belt0"…</summary>
+    public float ReadyFlash(string key) => World is { } world ? HudLayer.FlashStrength(key, world.Time) : 0;
+
+    /// <summary>The top of the HUD's potions-and-Step row (lifted above the health orb in a narrow window).</summary>
+    public float HudRowTop => HudLayer.RowTop;
+
     public Point BarSlot(string slot) => HudLayer.SlotRect(slot) is var r ? new Point(r.MidX, r.MidY) : default;
 
     /// <summary>Where an ability's row in the Abilities panel is, as last drawn (tests click it).</summary>

@@ -64,7 +64,7 @@ fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the dr
 through the refugee camp, to the gate of
 Fort Gallowmere, where Sergeant Brask asks your business.
 
-## Status: M1 and M2 done (Act 1 complete); M3 (all classes and loot) in progress
+## Status: M1 and M2 done (Act 1 complete); M3 (all classes and loot) built, awaiting its play-test; M4 (Acts 2-4) in progress
 
 Done so far: the Avalonia app; a SkiaSharp isometric renderer for the Flare art (192x96 tiles, 8-direction
 sprites, the layered hero paper doll, depth sorting, see-through occluders, Act 1 colour grade, darkness with
@@ -72,7 +72,8 @@ light pools, drifting ash, vignette); Gallows Road as data (`Content/Data/zones/
 by `tools/gallows_road_mapgen.py`: seven stretches, 24 packs, side glades and three shrines); six Act 1 monsters with chase, melee, ranged and spawner AI; click-to-move
 with A* pathfinding; real-time combat through the rules core; shrines, potions, Hero Points, XP and respawning; out-of-combat recovery (5% of max HP a second after 4 s of quiet);
 a first HUD; abilities from `Content/Data/abilities.json` (Fighter: Strike, Power Attack, Sudden Charge, built on
-Fury; Wizard: Ignition, Force Bolt, Staff Strike, on Mana) with cooldowns, the Flourish lockout and homing spell
+Fury; Wizard: Ignition, Force Bolt, Staff Strike, on Mana) with cooldowns (a clock sweep over the slot, a flash and a soft clink as it comes ready; a red cost when you
+can't afford it), the Flourish lockout and homing spell
 projectiles; loot and inventory (`items.json`, `affixes.json`): Common, Uncommon and Rare drops by monster rank,
 random affixes, potency and striking runes gated by item level, gold, healing draughts, a 10x6 bag, eleven worn
 slots drawn on the paper doll, armour training, and tooltips with comparison. Character creation in Pathfinder
@@ -164,7 +165,15 @@ in all of its runs. M3 closes with your play of the new classes.
 Since then: in a narrow window the bag and a trader (or the stash) are drawn smaller to sit side by side; archers'
 arrows and casters' bolts fly, and a well-timed Step dodges them; the wolf barks and howls and was re-rendered twice as
 sharp from its Blender source (`tools/build_wolf.py`); and the bots take a multiclass dedication, salvage and craft, and
-step their casters out of melee. Next is M4, Acts 2-4 (`docs/M4_PLAN.md`).
+step their casters out of melee.
+
+M4, Acts 2-4 (`docs/M4_PLAN.md`), has begun with step 1, **levels 6-10**: each class gains an ability at level 6
+(the fighter's **Intimidating Roar**, the champion's **Retributive Strike**, the rogue's **Shadowstep**, the ranger's
+**Rain of Arrows**, the wizard's **Blink**, the necromancer's **Bone Spear**) and each subclass a signature at level 8
+(Whirlwind Strike, Shield Slam, Beacon of Hope, Dread Harvest, Fan of Knives, Smoke Bomb, Deadeye, Call of the Pack,
+Fireball, Chain Lightning, Raise Bone Knight, Plague Cloud), with class feats at 6, 8 and 10. Loot reaches level 10:
+full plate and its helm, gauntlets, greaves and boots, the war hammer, reinforced club and great staff, five new
+Uniques and the Ironhold Guard's Plate set. Act 2's zones come next.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

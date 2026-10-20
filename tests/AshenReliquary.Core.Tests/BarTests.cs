@@ -89,9 +89,10 @@ public class BarTests
         Assert.False(world.Bar.ContainsKey("5"));
         Assert.Contains("challenge", world.AbilitiesOffBar.Select(a => a.Id));
         Assert.False(world.ClearSlot("5"));
-        // A level-up refreshes the bar; what the player took off stays off.
+        // A level-up refreshes the bar; what the player took off stays off (a new ability, level 6's Intimidating
+        // Roar, may take the empty slot).
         world.GainXp(5000, world.Hero);
-        Assert.False(world.Bar.ContainsKey("5"));
+        Assert.DoesNotContain("challenge", world.Bar.Values.Select(a => a.Id));
     }
 
     [Fact]
