@@ -128,8 +128,12 @@ public sealed record CreatureDefinition(
     bool RareDrop = false,
     bool Undead = false,
     bool Kites = false,
-    double Revives = 0)
+    double Revives = 0,
+    bool Rallies = false,
+    int? Tile = null)
 {
+    // Rallies: a standard (Hadric's banner): its legion fights harder while it stands (see BossPhase.Banner).
+    // Tile: drawn as this tile of the zone's tileset instead of a sprite (a standard, a totem): stationary things only.
     // Revives: seconds after it falls before its corpse rises again (the Barrow Fields' dead), unless destroyed.
     // Undead: the walking dead (the Lanternbearer's undead bane and holy light burn them with vitality).
     // Kites: a ranged monster that keeps its distance, falling back when the hero closes (Act 2's AI behaviour).

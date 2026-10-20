@@ -99,7 +99,11 @@ public sealed class Creature(
 
     public ModifierTotal ArmorClass() => ModifierStack.Combine(
         new[] { new Modifier("Base", Stats.ArmorClass) }
+            .Concat(ArmorClassShift != 0 ? [new Modifier("Stance", ArmorClassShift)] : Array.Empty<Modifier>())
             .Concat(Conditions.PenaltiesFor(StatisticKind.ArmorClass, AttributeKind.Dexterity)));
+
+    /// <summary>A shift to its AC from how it stands (a boss's shield wall, or its armour cast off).</summary>
+    public int ArmorClassShift { get; set; }
 
     public ModifierTotal AttackModifier() => ModifierStack.Combine(
         new[] { new Modifier("Base", Stats.AttackBonus) }

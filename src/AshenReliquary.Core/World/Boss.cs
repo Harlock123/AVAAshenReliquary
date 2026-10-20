@@ -24,7 +24,15 @@ public sealed record BossDefinition(
 /// <see cref="DryRadius"/> tiles;</item>
 /// <item><see cref="Fuses"/>: the boss goes back to its home and roots there (Mother Sallow and her cauldron); after
 /// <see cref="EnrageSeconds"/> it unleashes <see cref="EnrageDamage"/> on the hero every <see cref="EnrageEverySeconds"/>,
-/// so the phase is a race.</item>
+/// so the phase is a race;</item>
+/// <item>its stance (Ser Hadric): <see cref="AcShift"/> to its AC (a shield wall up, armour cast off), its speed and attack
+/// rate times <see cref="SpeedScale"/> and <see cref="AttackRateScale"/>, and its own <see cref="Look"/> (a paper-doll
+/// boss in other gear);</item>
+/// <item>a charge: every <see cref="ChargeEverySeconds"/> it marks a lane at the hero for <see cref="ChargeWindup"/>
+/// seconds, then rushes down it; caught in it, the hero takes <see cref="ChargeDamage"/> against a basic Reflex save
+/// and is knocked prone on a failure (a Step under way dodges it);</item>
+/// <item><see cref="Banner"/>: it plants a standard (a creature that <see cref="CreatureDefinition.Rallies"/>) that
+/// gives it and its legion +2 to hit and a fifth more damage until the standard is broken.</item>
 /// </list>
 /// </summary>
 public sealed record BossPhase(
@@ -44,7 +52,26 @@ public sealed record BossPhase(
     bool Fuses = false,
     double EnrageSeconds = 0,
     double EnrageEverySeconds = 2,
-    string EnrageDamage = "4d6");
+    string EnrageDamage = "4d6",
+    int AcShift = 0,
+    double SpeedScale = 1.0,
+    double AttackRateScale = 1.0,
+    double ChargeEverySeconds = 0,
+    double ChargeWindup = 1.0,
+    string ChargeDamage = "3d8",
+    string? Banner = null,
+    IReadOnlyDictionary<string, string>? Look = null);
+
+/// <summary>A boss's charge: the lane it marked (from its spot to beyond the hero), live from <see cref="RushAt"/>.</summary>
+public sealed class BossCharge(double fromX, double fromY, double toX, double toY, double rushAt)
+{
+    public double FromX { get; } = fromX;
+    public double FromY { get; } = fromY;
+    public double ToX { get; } = toX;
+    public double ToY { get; } = toY;
+    public double RushAt { get; } = rushAt;
+    internal bool Struck { get; set; }
+}
 
 /// <summary>
 /// A pool on the ground: a warning ring until <see cref="ActiveAt"/>, then a hazard until <see cref="EndsAt"/>. Mother

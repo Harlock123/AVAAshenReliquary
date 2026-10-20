@@ -26,7 +26,8 @@ public sealed partial class GameWorld
     /// <summary>A fallen reviver begins to stir, unless the killing blow was a critical hit (the body is broken outright).</summary>
     private void LayToRise(MonsterActor m, bool critical)
     {
-        if (m.Definition.Revives <= 0 || m.Rises >= MaxRises)
+        // A boss's conjured adds (Hadric's legion called up round him) crumble for good.
+        if (m.Definition.Revives <= 0 || m.Rises >= MaxRises || m.SummonedBy?.Definition.Boss is not null)
             return;
         if (critical)
         {

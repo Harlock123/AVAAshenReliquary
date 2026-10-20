@@ -52,7 +52,7 @@ public sealed record JournalEntry(string Id, string Title, string Text, string K
 /// doesn't idle (a scarecrow on its pole).
 /// </summary>
 public sealed record NpcDefinition(string Id, string Name, string Title, int[] At, IReadOnlyDictionary<string, string> Look,
-    string Dialogue, int Facing = 6, string? Portrait = null, bool Still = false);
+    string Dialogue, int Facing = 6, string? Portrait = null, bool Still = false, IReadOnlyDictionary<string, string>? Requires = null);
 
 /// <summary>
 /// Something to look at or use, placed in a zone: a well, a letter, a notice board. <see cref="Tile"/> is a tileset

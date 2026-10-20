@@ -46,7 +46,8 @@ public sealed partial class GameWorld
         EndDialogue();
         CloseStash();
         _interactives.Clear();
-        foreach (var npc in zone.Npcs ?? [])
+        // Someone there only while flags hold (Red Mirella, until her choice is made).
+        foreach (var npc in (zone.Npcs ?? []).Where(n => Holds(n.Requires)))
             _interactives.Add(new Interactive(npc.Id, npc.Name, npc.Title, npc.At, npc.Dialogue, npc, null));
         foreach (var thing in zone.Interactables ?? [])
             _interactives.Add(new Interactive(thing.Id, thing.Name, null, thing.At, thing.Dialogue, null, thing));
@@ -143,6 +144,8 @@ public sealed partial class GameWorld
         _node = null;
         _speaker = null;
         Dialogue = null;
+        // A conversation may have settled someone's fate: whoever is there only while flags hold leaves.
+        _interactives.RemoveAll(i => i.Npc is { Requires: not null } npc && !Holds(npc.Requires));
     }
 
     /// <summary>Picks the answer at <paramref name="index"/> among those on offer.</summary>
@@ -324,5 +327,9 @@ public sealed partial class GameWorld
             _flags[name] = value;
         _journal.AddRange(journal);
         ApplyBoons();
+        // The zone was set up before its flags came back: who is there (Red Mirella, once her choice is made) and its
+        // traps' states follow them.
+        PopulateInteractives(Zone);
+        PopulateTraps(Zone);
     }
 }

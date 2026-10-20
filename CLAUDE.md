@@ -112,7 +112,13 @@ implementation decisions made so far). `README.md` has the run commands and cont
   Explosion, crits; traps via the zone's `traps`, `Trap`, `GameWorld.Traps.cs` with states in `trap.<zone>.<id>` flags;
   the rogue's own set traps are `Traps`, these are `ZoneTraps`; `Tactics.Tidy` for the bots; Hadric's Oath and the
   Clockwork Confessor dialogues; dialogue effects `dust`/`fragments`; `BalanceReport.Barrow_Fields_at_level_7`,
-  `Old_Barracks_at_level_8`). Next: step 4, the Siege Walls and Ser Hadric.
+  `Old_Barracks_at_level_8`). Step 4 done: the Siege Walls and Ser
+  Hadric (`tools/siege_walls_mapgen.py`; `BossPhase` stances `acShift`/`speedScale`/`attackRateScale`/`look`, the
+  charge `chargeEverySeconds` and `BossCharge`, the `banner` standard with `rallies` and `tile`; `Creature.ArmorClassShift`;
+  NPC `requires`; loading rebuilds people and traps after the flags; Red Mirella's faction `act2.faction`, Thale's
+  answer, Sister Hale and `act2.refugees`; `CampaignReport.Acts_1_and_2_to_Ser_Hadric`, Act 2 XP scales 0.75/0.85/0.5/0.9;
+  `BalanceReport.Ser_Hadric_at_levels_9_and_10`, `Siege_Walls_at_level_9`). Act 2 is whole; Acts 3-4 wait on the
+  check-in (M4 decision 1).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -123,7 +129,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   gold still ends near 2,000 in the bot's hands (supplies are a sink a player may use more); bombs fly as a glow, not a
   tumbling flask; check the bog's frame time with F3 in the Fens; orcs have 3 portraits (orchidrabbit's CC BY pack, $5,
   has three more); the level-4 wizard's Mire zone report dies ~40 times a run (as before the arsenal; the campaign's
-  level-5 wizard is fine); shields have no hit points; Mirrored waits for Act 3.
+  level-5 wizard is fine); shields have no hit points; Mirrored waits for Act 3; the wizards in the starting kit die
+  often at Ser Hadric in `Siege_Walls_at_level_9` (the campaign's wizards don't); the Iron March costs the most deaths
+  of Act 2 (Act 1's gear meeting squads); Act 2 has no colour grade of its own.
 
 ## The development machine
 

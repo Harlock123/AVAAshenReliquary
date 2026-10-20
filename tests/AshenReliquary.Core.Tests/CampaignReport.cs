@@ -12,6 +12,8 @@ namespace AshenReliquary.Core.Tests;
 /// makes its level-up picks as levels come, and between zones goes back to the fort by Rift to sell its spare loot and
 /// have Garrow etch runes. It fights as <see cref="BalanceReport"/>'s bot does (no kiting) and steps out of rot pools.
 /// Run it with `--logger "console;verbosity=detailed"`; ASHEN_BALANCE_RUNS sets the runs per class (1 by default).
+/// <see cref="Acts_1_and_2_to_Ser_Hadric"/> plays on through Act 2 (M4 step 4), with Ironhold's Hilde and Sable for the
+/// smith and trader.
 /// </summary>
 public class CampaignReport(ITestOutputHelper output)
 {
@@ -21,7 +23,7 @@ public class CampaignReport(ITestOutputHelper output)
     public sealed record ZoneLeg(string Zone, double Minutes, int Deaths, int Potions, int LevelIn, int XpIn, int LevelOut, int XpOut, int Gold);
 
     public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0,
-        int Salvaged = 0, int Crafted = 0, string? Dedication = null);
+        int Salvaged = 0, int Crafted = 0, string? Dedication = null, bool HadricSlain = false, int HadricLevel = 0);
 
     [Theory]
     [InlineData("fighter vanguard")]
@@ -54,7 +56,42 @@ public class CampaignReport(ITestOutputHelper output)
         }
     }
 
-    public static Campaign Play(string kit, int seed)
+    /// <summary>
+    /// Act 2 played on from Act 1's end (M4 step 4): the Iron March to Ironhold (Hilde's forge, Sable's supplies), the
+    /// Barrow Fields, the Old Barracks and back, the Siege Walls and Ser Hadric. The exit test: Hadric falls, and Act 2
+    /// ends about level 10.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Acts_1_and_2_to_Ser_Hadric(string kit)
+    {
+        for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
+             seed <= (only > 0 ? only : Runs); seed++)
+        {
+            var c = Play(kit, seed, actTwo: true);
+            output.WriteLine($"{kit}, run {seed}: Sallow {(c.SallowSlain ? "slain" : "lives")} at {c.SallowLevel}, Hadric {(c.HadricSlain ? "slain" : "lives")} at {c.HadricLevel}, {c.Minutes:0} min of play, {c.SuppliesBought} supplies, {c.Salvaged} salvaged, {c.Crafted} crafted");
+            foreach (var leg in c.Legs)
+                output.WriteLine($"  {leg.Zone,-22} {leg.Minutes,5:0.0} min  deaths {leg.Deaths,2}  potions {leg.Potions,2}  level {leg.LevelIn} ({leg.XpIn,3}) -> {leg.LevelOut} ({leg.XpOut,3})  gold {leg.Gold}");
+            foreach (var g in c.Killers.GroupBy(k => k).OrderByDescending(g => g.Count()).Take(6))
+                output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+            Assert.True(c.HadricSlain, $"{kit} run {seed} did not kill Ser Hadric");
+            Assert.InRange(c.Legs[^1].LevelOut, 9, 11);
+            Assert.DoesNotContain(c.Killers, k => k.StartsWith("STUCK"));
+        }
+    }
+
+    public static Campaign Play(string kit, int seed, bool actTwo = false)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
@@ -74,8 +111,20 @@ public class CampaignReport(ITestOutputHelper output)
         bot.Clear("drowned_chapel", "mire");
         bot.WakeAndVisitFort();
         bot.Clear("sallows_mire", "iron_march");
+        if (actTwo)
+        {
+            bot.Clear("iron_march", "ironhold");
+            bot.Town("hilde", "sable");
+            bot.Walk("ironhold", "north_gate");
+            bot.Clear("barrow_fields", "barracks", wakeFirstShrine: true);
+            bot.Clear("old_barracks", "stair");
+            bot.WakeAndVisit("ward_shrine", "hilde", "sable");
+            bot.Walk("barrow_fields", "siege_walls");
+            bot.Clear("siege_walls", "heights");
+        }
         return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers,
-            bot.SuppliesBought, bot.Salvaged, bot.Crafted, hero.DedicationClass?.Name);
+            bot.SuppliesBought, bot.Salvaged, bot.Crafted, hero.DedicationClass?.Name,
+            world.Flags.GetValueOrDefault("act2.hadric") == "slain", bot.HadricLevel);
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>
@@ -87,6 +136,7 @@ public class CampaignReport(ITestOutputHelper output)
         public List<ZoneLeg> Legs { get; } = [];
         public List<string> Killers { get; } = [];
         public int SallowLevel { get; private set; }
+        public int HadricLevel { get; private set; }
 
         private int _deaths, _potions;
         private bool _wasDead;
@@ -161,8 +211,10 @@ public class CampaignReport(ITestOutputHelper output)
             }
             if (Hero.PendingLevels.Count > 0)
                 BalanceReport.ChoosePending(world);
-            if (world.Boss is { } boss && SallowLevel == 0)
+            if (world.Boss is { } boss && boss.Definition.Id == "mother_sallow" && SallowLevel == 0)
                 SallowLevel = Hero.Level;
+            if (world.Boss is { Definition.Id: "ser_hadric" } && HadricLevel == 0)
+                HadricLevel = Hero.Level;
             if (Hero.HitPoints < Hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                 _potions++;
             Tactics.Upkeep(world);
@@ -279,10 +331,13 @@ public class CampaignReport(ITestOutputHelper output)
         /// In the fort: sell the spare loot to Garrow (keeping the belt), have him etch runes, restock the belt at Wenna's
         /// (five alchemist's fires, two antidotes), and wake the Fort Shrine.
         /// </summary>
-        public void Fort()
+        public void Fort() => Town("garrow", "wenna");
+
+        /// <summary>In a hub: the smith <paramref name="smithId"/> (sell, salvage, craft, etch) and the supplies of <paramref name="traderId"/>.</summary>
+        public void Town(string smithId, string traderId)
         {
             var gear = world.Hero.Equipment;
-            var garrow = world.Vendors.Single(v => v.Definition.Id == "garrow");
+            var garrow = world.Vendors.Single(v => v.Definition.Id == smithId);
             world.TalkTo(garrow);
             for (var t = 0.0; t < 20 && world.OpenVendor is null; t += Tick)
                 world.Update(Tick);
@@ -316,7 +371,7 @@ public class CampaignReport(ITestOutputHelper output)
                 }
                 world.CloseVendor();
             }
-            var wenna = world.Vendors.Single(v => v.Definition.Id == "wenna");
+            var wenna = world.Vendors.Single(v => v.Definition.Id == traderId);
             world.TalkTo(wenna);
             for (var t = 0.0; t < 20 && world.OpenVendor is null; t += Tick)
                 world.Update(Tick);
@@ -325,7 +380,7 @@ public class CampaignReport(ITestOutputHelper output)
                 foreach (var (id, keep) in new[] { ("alchemists_fire", 5), ("antidote", 2) })
                 {
                     var supply = world.Supplies.Single(s => s.Id == id);
-                    while (gear.CountOf(supply) < keep && gear.Gold >= Pricing.SupplyPrice(supply, Hero) && world.BuySupply(supply))
+                    while (gear.CountOf(supply) < keep && gear.Gold >= world.SupplyPrice(supply) && world.BuySupply(supply))
                         SuppliesBought++;
                 }
                 world.CloseVendor();
@@ -341,13 +396,16 @@ public class CampaignReport(ITestOutputHelper output)
         public int Crafted { get; private set; }
 
         /// <summary>Wakes the zone's first shrine, Rifts to the fort for the smith, and comes back.</summary>
-        public void WakeAndVisitFort()
+        public void WakeAndVisitFort() => WakeAndVisit("fort_shrine", "garrow", "wenna");
+
+        /// <summary>Wakes the zone's first shrine, Rifts to a hub's shrine for its smith and trader, and comes back.</summary>
+        public void WakeAndVisit(string townShrine, string smithId, string traderId)
         {
-            var here = world.Zone.Shrines[0];
+            var here = world.Zone.Shrines.MinBy(sh => world.Hero.DistanceTo(sh.At[0] + 0.5, sh.At[1] + 0.5))!;
             Wake(here);
-            if (!Rift(here, "fort_shrine"))
+            if (!Rift(here, townShrine))
                 return;
-            Fort();
+            Town(smithId, traderId);
             Rift(world.Zone.Shrines[0], here.Id);
         }
 

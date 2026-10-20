@@ -4,6 +4,7 @@
  "level": 6,
  "act": 2,
  "revision": 1,
+ "xpScale": 0.75,
  "tileset": "tileset_ironhold",
  "tagline": "The dead of a forgotten war still march.",
  "rows": [

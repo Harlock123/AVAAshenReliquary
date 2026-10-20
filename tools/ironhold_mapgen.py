@@ -129,6 +129,10 @@ zone = {
          "still": True, "dialogue": "ironhold_confessor",
          "look": {"head": "plate_helm", "chest": "plate_cuirass", "hands": "plate_gauntlets", "legs": "mage_skirt", "feet": "plate_boots",
                   "main": "rod"}},
+        # The refugees' nurse (the Well-Keeper's Daughter's payoff: Ysolde's cure, if the relic went to her).
+        {"id": "hale", "name": "Sister Hale", "title": "Refugees' nurse", "at": [x0 + 10, my + 8], "facing": 3,
+         "portrait": "flare/female07", "dialogue": "ironhold_hale",
+         "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "mage_skirt", "feet": "cloth_sandals"}},
         {"id": "pell", "name": "Archivist Pell", "title": "Keeper of the founders' rolls", "at": [cx - 6, my - 4], "facing": 3,
          "portrait": "flare/male03", "dialogue": "ironhold_pell",
          "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "mage_sleeves", "legs": "mage_skirt", "feet": "mage_boots",

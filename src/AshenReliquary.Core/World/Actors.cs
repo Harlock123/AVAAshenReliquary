@@ -372,6 +372,15 @@ public sealed class MonsterActor : Actor
     internal double DelugeIn { get; set; }
     internal double FloodRadius { get; set; }
 
+    internal double ChargeIn { get; set; }
+
+    /// <summary>A boss's charge under way (its lane marked, then the rush), or null.</summary>
+    public BossCharge? Charge { get; internal set; }
+
+    /// <summary>What it looks like now: its boss phase's own gear (Hadric with his armour cast off), or its own.</summary>
+    public IReadOnlyDictionary<string, string>? Look =>
+        Definition.Boss is { } b && b.Phases[BossPhase].Look is { } phaseLook ? phaseLook : Definition.Look;
+
     /// <summary>Seconds of the last phase left before the boss's deluge (0 once it has begun; null outside it).</summary>
     public double? EnrageLeft => Fused && Definition.Boss is { } b && b.Phases[BossPhase].EnrageSeconds > 0 ? Math.Max(0, EnrageIn) : null;
 }

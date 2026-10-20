@@ -684,7 +684,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; Acts 3–4 wait on the check-in).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1612,6 +1612,72 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **The Old Barracks:** 3–6.5 bot minutes, leaving at level 9; most deaths come near Corvin.
   - **Deaths:** 0–2 a run in either zone.
   - Act 1's campaign is unchanged.
+
+### The Siege Walls and Ser Hadric (M4 step 4)
+
+- **The road on:** the Barrow Fields' north road (its gate open since revision 2) leads to the Siege Walls. The Herald
+  gate beyond Hadric (`heights`) opens once he falls (`act2.hadric`). Act 3 is not built yet, so it shows "the road
+  north to the Whispering Heights lies open".
+- **The Siege Walls** (`tools/siege_walls_mapgen.py`, 64×132, levels 9–10, 15 packs and Hadric, three shrines, seven
+  chests). From the siege road:
+  - the legion's siege works: three trenches of rubble and barricades with gaps, crossbow nests, and the siege's mass
+    graves, whose dead rise;
+  - the ruined gatehouse to the west, Red Mirella's hideout;
+  - the breach in the city's wall;
+  - a ramp up onto the wall-top, Hadric's paved arena (radius 11), ringed with broken merlons, with four standing
+    pillars to break his line.
+- **Ser Hadric the Unburied** (`ser_hadric`, a Herald at level 9, a level under the hero who meets him, as Mother
+  Sallow is): drawn on the paper doll in ghostly plate with a longsword and kite shield, 1d10 slashing, resistant to
+  piercing, slashing and void, weak to vitality. The boss framework gained:
+  - **Stances** (`BossPhase.AcShift`, `SpeedScale`, `AttackRateScale`, `Look`): a phase can shift the boss's AC
+    (`Creature.ArmorClassShift`), quicken it and change its gear on the paper doll (`MonsterActor.Look`).
+  - **The charge** (`ChargeEverySeconds`, `ChargeWindup`, `ChargeDamage`, `BossCharge`):
+    - Every few seconds, with the hero 2.5–12 tiles off in sight, the boss marks a lane on the ground: a red band
+      through the hero, deepening for a second.
+    - It then rushes down the lane at 12 tiles a second. The hero caught within 1.2 tiles of it makes a basic Reflex
+      save against 2d10 and is knocked prone for a second on a failure.
+    - A Step under way dodges it, and the bots walk out of the lane (`BalanceReport.StepOutOfLane`).
+  - **The standard** (`Banner`, `CreatureDefinition.Rallies`, `Tile`): the boss plants a standard beside its home, a
+    stationary thing drawn from the tileset (the ruins' orb pedestal, tinted gold). While it stands, the boss and its
+    pack have +2 to hit and a fifth more damage (`GameWorld.Rallied`). Break it to end that.
+  - A boss's summoned adds never rise again, even revivers.
+- **Hadric's phases:**
+
+  | Phase | Name | What happens |
+  | --- | --- | --- |
+  | 1 | Ser Hadric holds the wall | shield wall +2 AC; charges every 9 s; a legionary every 20 s, two at most |
+  | 2 (65%) | The Iron Legion's standard is raised | the standard; charges every 11 s; two legionaries every 16 s, three at most |
+  | 3 (30%) | He casts off his armour | −5 AC, 30% faster, 20% quicker blows; charges every 9 s; bare to the waist with a greatsword |
+
+  His death line asks after Edith and the gate. It writes the main journal entry and sets `act2.hadric`.
+- **The Outlaw Queen** (Act 2's faction story):
+  - **Finding her:** Red Mirella waits in the gatehouse. NPCs now take `requires` like exits, so she is there only
+    while `act2.faction` is unset, and leaves once a conversation settles it.
+  - **Bringing her in:** talk her into surrendering (Diplomacy or Intimidation, DC 26), and the faction is `guard`.
+    Captain Thale then gives the Guard's Oathblade, 300 gold and 500 XP for bringing her in alive.
+  - **Failing that:** she slips away (`none`).
+  - **Joining her:** her bow, Red Mirella's Draw, and the faction is `outlaws`. Thale turns cold.
+  - The flag is for Act 4's allies.
+- **The refugees** (the Well-Keeper's Daughter's payoff): Sister Hale nurses Ironhold's refugees.
+  - If Ysolde had Sallow's relic for a cure (`act1.sallow_relic` = cured), the cure came up the March with Coll's
+    boats: they are saved (`act2.refugees`, 400 XP).
+  - If the relic was destroyed, they are dying.
+- **Loading** now rebuilds the zone's people and traps after its flags come back: a save made after Mirella's choice
+  had brought her back, and a disarmed trap in the zone the save was made in had come back armed.
+- **The campaign** (`CampaignReport.Acts_1_and_2_to_Ser_Hadric`): the bot plays on from Act 1:
+  - the Iron March to Ironhold, with Hilde and Sable as its smith and trader (the bot's town visit is now generic);
+  - the Barrow Fields, the Old Barracks and back;
+  - the Siege Walls.
+
+  All twelve subclasses kill Hadric at level 10, and Act 2 ends at 10–11. **XP scales** tune the act's levelling:
+  the March 0.75, the Fields 0.85, the Barracks 0.5, the Walls 0.9. Act 2 takes 13–29 bot minutes (Act 1 takes
+  15–22). Most deaths come in the Iron March, the first zone for Act 1's gear.
+- **The duels** (`BalanceReport.Ser_Hadric_at_levels_9_and_10`, `BossFight` now takes any zone and boss):
+  - At level 10 with a +2 striking weapon and +1 armour, most subclasses win 4–6 of 6. The wizards and the
+    Plaguebringer win fewer (1–4).
+  - In the starting kit, or a level under, he is a hard fight.
+  - `Siege_Walls_at_level_9` (the whole zone in the starting kit) finishes for everyone. The wizards die there
+    repeatedly; the campaign's wizards, in what they found, do not.
 
 ### The arsenal (M2, after step 10)
 

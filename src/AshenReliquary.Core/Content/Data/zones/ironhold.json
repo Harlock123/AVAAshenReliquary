@@ -379,6 +379,25 @@
    }
   },
   {
+   "id": "hale",
+   "name": "Sister Hale",
+   "title": "Refugees' nurse",
+   "at": [
+    14,
+    25
+   ],
+   "facing": 3,
+   "portrait": "flare/female07",
+   "dialogue": "ironhold_hale",
+   "look": {
+    "head": "mage_hood",
+    "chest": "mage_vest",
+    "hands": "cloth_gloves",
+    "legs": "mage_skirt",
+    "feet": "cloth_sandals"
+   }
+  },
+  {
    "id": "pell",
    "name": "Archivist Pell",
    "title": "Keeper of the founders' rolls",

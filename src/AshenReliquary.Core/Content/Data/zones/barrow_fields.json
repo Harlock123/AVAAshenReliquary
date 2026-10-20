@@ -3,7 +3,8 @@
  "name": "The Barrow Fields",
  "level": 7,
  "act": 2,
- "revision": 1,
+ "revision": 2,
+ "xpScale": 0.85,
  "tileset": "tileset_ironhold",
  "tagline": "The Iron Legion was buried with honours. It did not stay buried.",
  "darkness": 0.74,
@@ -11,7 +12,7 @@
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TTD..D.TOD.....T.O,DO.,,T..O.........===.......T...OT......O,D..OODD..TT",
-  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTvvvvvGGGvvvvvTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+  "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTvvvvv===vvvvvTTTTTTTTTTTTTTTTTTTTTTTTTTT",
   "TT..TT.....O.O..T.DT.T...OD...........-==-..........O.,,..O..,DTT...O.TT",
   "TTTD..,D.....D.D,.,,DO.TOO...,..........==-,....,......TT.DD.T.,.OT..TTT",
   "TTT,.OT,OT....T.D,TOD.D...T...,,......,.-==-.....,.....TD.DDDO.O..D...TT",
@@ -879,10 +880,12 @@
     5
    ],
    "radius": 1.5,
-   "requires": {
-    "act2.siege_road": "open"
-   },
-   "sealedText": "Hadric's banners stand on the broken walls beyond. (The Siege Walls are still being written.)"
+   "to": "siege_walls",
+   "toExit": "barrow_fields",
+   "arrive": [
+    38,
+    9
+   ]
   }
  ],
  "caches": [

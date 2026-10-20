@@ -1114,6 +1114,20 @@
     "start": "start",
     "openings": [
       {
+        "node": "mirella_brought",
+        "requires": {
+          "act2.faction": "guard",
+          "act2.thale_mirella": ""
+        }
+      },
+      {
+        "node": "mirella_joined",
+        "requires": {
+          "act2.faction": "outlaws",
+          "act2.thale_mirella": ""
+        }
+      },
+      {
         "node": "again",
         "requires": {
           "act2.thale": "met"
@@ -1237,6 +1251,91 @@
       },
       "news": {
         "text": "\"The dead come up out of the Barrow Fields every night, beyond the north gate. With Varro gone the Guard will open it for you, but no one else. Hadric's legion lies buried out there, and his old barracks under it.\""
+      },
+      "mirella_brought": {
+        "text": "Thale is waiting at the gate when Mirella walks in on her own feet. He hears her out, all of it, the grain and the graves, and when she is done he is quiet a long time. \"She'll stand trial,\" he says at last. \"A fair one. And you'll take this. Every captain of the Guard has sworn on it for two hundred years. I'd rather it went to someone who brought a thief in alive.\"",
+        "effects": [
+          {
+            "flag": "act2.thale_mirella",
+            "value": "given"
+          },
+          {
+            "flag": "act2.thale",
+            "value": "met"
+          },
+          {
+            "xp": 500
+          },
+          {
+            "gold": 300
+          },
+          {
+            "item": "ironhold_oathblade"
+          },
+          {
+            "journal": {
+              "id": "act2_mirella",
+              "title": "The Outlaw Queen",
+              "kind": "side",
+              "text": "I brought Red Mirella to Captain Thale alive. She will stand a fair trial, and Thale gave me the Guard's Oathblade for it. The Ironhold Guard stands with me now."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Centurion Varro is dead. His line before your gate is broken.\"",
+            "requires": {
+              "act2.varro": "slain",
+              "act2.thale_reward": ""
+            },
+            "to": "thanks"
+          },
+          {
+            "text": "\"Who is Hadric?\"",
+            "to": "hadric"
+          },
+          {
+            "text": "\"What news?\"",
+            "to": "news"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "mirella_joined": {
+        "text": "Thale's eyes go to the red-fletched bow on your back, and his face closes. \"So it's true. You ran with Mirella.\" He steps back to let you through. \"The Guard will hold its walls. Don't ask it for anything more.\"",
+        "effects": [
+          {
+            "flag": "act2.thale_mirella",
+            "value": "cold"
+          },
+          {
+            "flag": "act2.thale",
+            "value": "met"
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Centurion Varro is dead. His line before your gate is broken.\"",
+            "requires": {
+              "act2.varro": "slain",
+              "act2.thale_reward": ""
+            },
+            "to": "thanks"
+          },
+          {
+            "text": "\"Who is Hadric?\"",
+            "to": "hadric"
+          },
+          {
+            "text": "\"What news?\"",
+            "to": "news"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
       }
     }
   },
@@ -1836,6 +1935,193 @@
       },
       "broken": {
         "text": "A crack runs down Edith's headstone where the sword broke against it."
+      }
+    }
+  },
+  {
+    "id": "siege_mirella",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A woman in a red hood sits on the gatehouse stair with a longbow across her knees, and doesn't get up. \"The gallows-bird who broke Varro. My people watched you come up the March.\" She looks you over. \"The Guard want my head for feeding the refugees out of the city's stores. Thale wants a hanging, to make Ironhold feel safe while the dead sit on its walls. So. What do you want, Ashbound?\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act2_mirella",
+              "title": "The Outlaw Queen",
+              "kind": "side",
+              "text": "I found Red Mirella in the ruined gatehouse below the Siege Walls. The Guard want her hanged for feeding the refugees from Ironhold's stores. She is waiting to see whose side I am on."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Come back to Ironhold and answer for it. Nobody else needs to bleed.\" (Diplomacy)",
+            "check": {
+              "skill": "Diplomacy",
+              "dc": 26,
+              "success": "surrenders",
+              "failure": "slips"
+            }
+          },
+          {
+            "text": "\"Come quietly, or I drag you.\" (Intimidation)",
+            "check": {
+              "skill": "Intimidation",
+              "dc": 26,
+              "success": "surrenders",
+              "failure": "slips"
+            }
+          },
+          {
+            "text": "\"I'll stand with you. The Guard can count their own sacks.\"",
+            "to": "join"
+          },
+          {
+            "text": "Leave her be, for now."
+          }
+        ]
+      },
+      "surrenders": {
+        "text": "Mirella looks at you a long moment, then unstrings her bow. \"Fine. But I walk in on my own feet, and Thale hears what I did with his grain.\" Her outlaws melt into the ruins without a word.",
+        "effects": [
+          {
+            "flag": "act2.faction",
+            "value": "guard"
+          },
+          {
+            "xp": 500
+          },
+          {
+            "journal": {
+              "id": "act2_mirella",
+              "title": "The Outlaw Queen",
+              "kind": "side",
+              "text": "Red Mirella gave herself up to me, to answer to the Ironhold Guard. She asked only that Captain Thale hear what she did with the city's grain. Her outlaws scattered into the ruins."
+            }
+          }
+        ]
+      },
+      "slips": {
+        "text": "\"No.\" She is on her feet and through the back of the gatehouse before you can move, and the ruins swallow her. A voice comes back out of the dark: \"Ask me nicer next time, Ashbound. If there is one.\"",
+        "effects": [
+          {
+            "flag": "act2.faction",
+            "value": "none"
+          },
+          {
+            "xp": 200
+          },
+          {
+            "journal": {
+              "id": "act2_mirella",
+              "title": "The Outlaw Queen",
+              "kind": "side",
+              "text": "Red Mirella slipped away from me in the ruins below the Siege Walls. Neither the Guard nor I will see her again soon."
+            }
+          }
+        ]
+      },
+      "join": {
+        "text": "Mirella grins and stands. \"Then take this. It never missed for me; let's see what it does for you.\" She presses her bow into your hands. \"When the Herald falls, the March feeds the refugees, not the Guard's cellars. My people will remember who stood with them.\"",
+        "effects": [
+          {
+            "flag": "act2.faction",
+            "value": "outlaws"
+          },
+          {
+            "xp": 500
+          },
+          {
+            "item": "mirellas_draw"
+          },
+          {
+            "journal": {
+              "id": "act2_mirella",
+              "title": "The Outlaw Queen",
+              "kind": "side",
+              "text": "I threw in with Red Mirella and her outlaws. She gave me her own bow. When the Herald falls, she means to feed the March's refugees, and the Guard will not thank me for it."
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "ironhold_hale",
+    "start": "start",
+    "openings": [
+      {
+        "node": "saved",
+        "requires": {
+          "act2.refugees": "saved"
+        }
+      },
+      {
+        "node": "lost",
+        "requires": {
+          "act2.refugees": "lost"
+        }
+      },
+      {
+        "node": "cure",
+        "requires": {
+          "act1.sallow_relic": "cured"
+        }
+      },
+      {
+        "node": "nocure",
+        "requires": {
+          "act1.sallow_relic": "destroyed"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A nurse in a stained grey habit moves between the refugee tents. \"Rot-fever. They brought it up the March from the Mire, and it's in the water now. If anyone had a cure from Sallow's own rot... but nobody does.\""
+      },
+      "cure": {
+        "text": "Sister Hale stops you with a hand on your arm. \"You came up from the Mire? Then this is yours.\" She holds up a stoppered vial. \"Ysolde's cure, from the fort. Old Coll's boats ran it upriver with a letter: made from Sallow's own relic, it says, and the one who brought her the relic deserves the thanks. Half the yard is standing today because of it.\"",
+        "effects": [
+          {
+            "flag": "act2.refugees",
+            "value": "saved"
+          },
+          {
+            "xp": 400
+          },
+          {
+            "journal": {
+              "id": "act1_well",
+              "title": "The Well-Keeper's Daughter",
+              "kind": "side",
+              "text": "Ysolde made a cure of Sallow's Cinder Relic, and it reached Ironhold up the March. Sister Hale says half the refugees' yard is standing because of it."
+            }
+          }
+        ]
+      },
+      "nocure": {
+        "text": "\"Rot-fever,\" Sister Hale says. \"They say Sallow's relic was broken in the Mire, and good riddance to it. But it was the one thing that might have made a cure.\" She looks at the tents. \"We bury two a day.\"",
+        "effects": [
+          {
+            "flag": "act2.refugees",
+            "value": "lost"
+          },
+          {
+            "journal": {
+              "id": "act1_well",
+              "title": "The Well-Keeper's Daughter",
+              "kind": "side",
+              "text": "In Ironhold the refugees are dying of rot-fever. Sister Hale says Sallow's relic, the one I broke, might have made a cure."
+            }
+          }
+        ]
+      },
+      "saved": {
+        "text": "\"They're mending,\" Sister Hale says. \"Thanks to you, and to Ysolde.\""
+      },
+      "lost": {
+        "text": "Sister Hale doesn't look up from the cot she is kneeling by."
       }
     }
   }

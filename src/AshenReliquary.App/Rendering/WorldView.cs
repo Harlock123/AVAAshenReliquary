@@ -1255,6 +1255,7 @@ public sealed class WorldView : Control
         DrawAuras(canvas, world, time);
         DrawTargetMarks(canvas, world, time);
         DrawZoneTraps(canvas, world, time);
+        DrawChargeLanes(canvas, world);
         DrawBursts(canvas, world);
         DrawTraps(canvas, world);
         Stats.Mark("ground");
@@ -1667,7 +1668,7 @@ public sealed class WorldView : Control
         paint.ColorFilter = filter;
         if (m.IsDead)
             paint.Color = SKColors.White.WithAlpha((byte)(255 * Math.Clamp(1 - (m.DeadFor - (GameWorld.CorpseSeconds - 3)) / 3, 0, 1)));
-        if (m.Definition.Look is { } look)
+        if (m.Look is { } look)
         {
             // A cultist: Flare's avatar layers in its robes, playing the monster's animation.
             foreach (var slot in _assets.LayerOrder(m.Direction))
@@ -1677,6 +1678,12 @@ public sealed class WorldView : Control
                     continue;
                 DrawFrame(canvas, _assets.AvatarLayer(layer).Image, part.Frame(part.FrameAt(m.AnimationTime), m.Direction), foot, (float)m.Definition.Scale, paint);
             }
+        }
+        else if (m.Definition.Tile is { } tileId)
+        {
+            // A thing drawn from the zone's tileset (Hadric's standard): it stands, glows when hit and fades when broken.
+            if (_assets.Tileset(world.Zone.Tileset).Tiles.TryGetValue(tileId, out var tile))
+                DrawTile(canvas, tile, foot, world.Time, paint);
         }
         else
         {
@@ -1941,6 +1948,40 @@ public sealed class WorldView : Control
             var at = ToScreen(trap.X, trap.Y);
             if (tiles.TryGetValue(glowing ? 60 + kind : 56 + kind, out var tile))
                 DrawTile(canvas, tile, at, time, trap.State is TrapState.Disarmed or TrapState.Sprung && !glowing ? grey : null);
+        }
+    }
+
+    /// <summary>
+    /// A boss's charge lane (Ser Hadric): a red band on the ground from where it stands through the hero, deepening as
+    /// the rush comes, so a Step out of it can be timed.
+    /// </summary>
+    private void DrawChargeLanes(SKCanvas canvas, GameWorld world)
+    {
+        var z = (float)Zoom;
+        foreach (var m in world.Monsters)
+        {
+            if (m.Charge is not { } c || m.IsDead)
+                continue;
+            var bracing = world.Time < c.RushAt;
+            var urgency = bracing ? (float)Math.Clamp(1 - (c.RushAt - world.Time), 0, 1) : 1f;
+            // The lane's width on the ground: ChargeReach either side, as an iso band (screen half-height is half the width).
+            var (dx, dy) = (c.ToX - c.FromX, c.ToY - c.FromY);
+            var length = Math.Max(1e-6, Math.Sqrt(dx * dx + dy * dy));
+            var (nx, ny) = (-dy / length * GameWorld.ChargeReach, dx / length * GameWorld.ChargeReach);
+            var a = ToScreen(c.FromX + nx, c.FromY + ny);
+            var b = ToScreen(c.ToX + nx, c.ToY + ny);
+            var d = ToScreen(c.ToX - nx, c.ToY - ny);
+            var e = ToScreen(c.FromX - nx, c.FromY - ny);
+            using var band = new SKPath();
+            band.MoveTo(a);
+            band.LineTo(b);
+            band.LineTo(d);
+            band.LineTo(e);
+            band.Close();
+            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(220, 40, 30, (byte)(50 + 110 * urgency)) };
+            using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2 * z, Color = new SKColor(255, 120, 90, (byte)(120 + 120 * urgency)) };
+            canvas.DrawPath(band, fill);
+            canvas.DrawPath(band, edge);
         }
     }
 

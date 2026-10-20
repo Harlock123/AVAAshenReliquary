@@ -224,7 +224,7 @@ def thing(ids, blocks=True, light=0, tiles=FLOOR, sight=False):
         e["light"] = light
     return e
 zone = {
-    "id": "old_barracks", "name": "The Old Barracks", "level": 8, "act": 2, "revision": REVISION, "tileset": "tileset_dungeon",
+    "id": "old_barracks", "name": "The Old Barracks", "level": 8, "act": 2, "revision": REVISION, "xpScale": 0.5, "tileset": "tileset_dungeon",
     "tagline": "The legion's beds are still made.",
     "darkness": 0.92, "heroLight": 4.5,
     "rows": rows,

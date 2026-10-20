@@ -97,4 +97,34 @@ public class ActTwoZoneTests
         Assert.Equal(trap, kit.Window.View.TrapUnder(at));
         kit.Capture(Shot("barracks-trap"));
     }
+
+    [AvaloniaFact]
+    public void Ser_hadric_marks_his_charge_raises_his_standard_and_casts_off_his_armour()
+    {
+        var kit = TestKit.Open(zoneId: "siege_walls");
+        var world = kit.World;
+        world.TrainTo(10);
+        world.Hero.Character.CannotFall = true;
+        var hadric = world.Monsters.Single(m => m.Definition.Id == "ser_hadric");
+        foreach (var m in world.Monsters.Where(m => m != hadric).ToList())
+            TestHooks.Slay(world, m);
+        TestHooks.Place(world, hadric.X, hadric.Y + 6);
+        for (var i = 0; i < 120 && hadric.Charge is null; i++)
+        {
+            TestHooks.Place(world, hadric.X, hadric.Y + 6);
+            kit.Play(0.1);
+        }
+        Assert.NotNull(hadric.Charge);
+        kit.Capture(Shot("hadric-charge"));
+
+        hadric.Creature.SetHitPoints(hadric.Creature.Stats.HitPoints * 6 / 10);
+        kit.Play(1.5);
+        Assert.Contains(world.Monsters, m => m.Definition.Id == "legion_standard" && !m.IsDead);
+        kit.Capture(Shot("hadric-standard"));
+
+        hadric.Creature.SetHitPoints(hadric.Creature.Stats.HitPoints / 4);
+        kit.Play(1.0);
+        Assert.Equal(2, hadric.BossPhase);
+        kit.Capture(Shot("hadric-unarmoured"));
+    }
 }

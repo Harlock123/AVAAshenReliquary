@@ -4,7 +4,7 @@
 # The road runs north (low y) from Ironhold's north gate at the south end, through five stretches: the graveward gate,
 # the mound field (open barrows that send up the dead), the legion's field (graves in ranks), the barracks road (the
 # walled compound of the Old Barracks to the east, zone 2.3) and the hound hill, to the siege road at the north end,
-# barred until the Siege Walls (zone 2.4, step 4). The Widow's Yew, a quiet glade to the west, holds Edith Hadric's
+# which leads on to the Siege Walls (zone 2.4). The Widow's Yew, a quiet glade to the west, holds Edith Hadric's
 # grave (Hadric's Oath); a broken shrine on the hound hill holds a part of the Clockwork Confessor.
 #
 # Act 2's mechanic here: the barrow dead, legionaries, hounds and knights rise again unless their bodies are destroyed
@@ -13,7 +13,7 @@
 # Bump REVISION whenever the layout changes: saves made on another revision start the zone again at its entrance.
 import json, math, sys
 
-REVISION = 1
+REVISION = 2
 W, H = 72, 170
 grid = [['.'] * W for _ in range(H)]
 seed = 8642097
@@ -177,8 +177,8 @@ for x in range(2, W - 2):
     grid[3][x] = 'T'
 for x in range(nx - 6, nx + 7):
     grid[3][x] = 'v'
-for x in range(nx - 1, nx + 2):
-    grid[3][x] = 'G'
+for x in range(nx - 1, nx + 2):                         # the siege road runs on through the old gate (revision 2: it stood shut)
+    grid[3][x] = '='
 exit_north = [nx, 5]
 for (dx, y) in [(-6, 10), (6, 10)]:
     put(nx + dx, y, 'B')
@@ -258,7 +258,7 @@ spawns = [
     pack((KNIGHT, N, 1), (WIGHT, N, 1), (DEAD, N, 2), at=P(8, 5), level=8),
 ]
 zone = {
-    "id": "barrow_fields", "name": "The Barrow Fields", "level": 7, "act": 2, "revision": REVISION, "tileset": "tileset_ironhold",
+    "id": "barrow_fields", "name": "The Barrow Fields", "level": 7, "act": 2, "revision": REVISION, "xpScale": 0.85, "tileset": "tileset_ironhold",
     "tagline": "The Iron Legion was buried with honours. It did not stay buried.",
     "darkness": 0.74,
     "rows": rows,
@@ -297,9 +297,8 @@ zone = {
          "arrive": [sx, 160]},
         {"id": "barracks", "label": "The Old Barracks", "at": barracks_exit, "radius": 1.2, "to": "old_barracks", "toExit": "stair",
          "arrive": [bx - 1, by]},
-        {"id": "siege_walls", "label": "The Siege Walls", "at": exit_north, "radius": 1.5,
-         "requires": {"act2.siege_road": "open"},
-         "sealedText": "Hadric's banners stand on the broken walls beyond. (The Siege Walls are still being written.)"},
+        {"id": "siege_walls", "label": "The Siege Walls", "at": exit_north, "radius": 1.5, "to": "siege_walls",
+         "toExit": "barrow_fields", "arrive": [nx, 9]},
     ],
     "caches": caches,
     "interactables": [

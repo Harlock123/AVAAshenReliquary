@@ -640,5 +640,113 @@
    "Mental"
   ],
   "voice": "grave"
+ },
+ {
+  "id": "ser_hadric",
+  "name": "Ser Hadric the Unburied",
+  "sprite": "avatar",
+  "damageType": "Slashing",
+  "attacksPerSecond": 0.75,
+  "moveSpeed": 2.3,
+  "aggroRadius": 11,
+  "attackRange": 1.6,
+  "damage": "1d10",
+  "scale": 1.35,
+  "tint": "#cdd8e6",
+  "hitPointsScale": 0.18,
+  "weaknesses": {
+   "Vitality": 5
+  },
+  "resistances": {
+   "Piercing": 5,
+   "Slashing": 3,
+   "Void": 5
+  },
+  "immunities": [
+   "Poison"
+  ],
+  "undead": true,
+  "voice": "skeleton",
+  "look": {
+   "head": "plate_helm",
+   "chest": "plate_cuirass",
+   "hands": "plate_gauntlets",
+   "legs": "plate_greaves",
+   "feet": "plate_boots",
+   "main": "longsword",
+   "off": "kite_shield"
+  },
+  "boss": {
+   "arenaRadius": 11,
+   "deathFlag": "act2.hadric",
+   "deathLine": "\"Edith... I held the gate. I held it as long as they asked...\"",
+   "journal": {
+    "id": "act2_hadric",
+    "title": "Ser Hadric the Unburied",
+    "kind": "main",
+    "text": "I put down Ser Hadric on Ironhold's broken walls. The Herald of Iron died asking after his wife and the gate he was sworn to hold. The Order sent his legion to guard a road to Mount Cindral; whatever lies at its end, the road north is open now."
+   },
+   "phases": [
+    {
+     "below": 1.0,
+     "name": "Ser Hadric holds the wall",
+     "acShift": 2,
+     "chargeEverySeconds": 9,
+     "chargeDamage": "2d10",
+     "summonEverySeconds": 20,
+     "summons": "barrow_legionary",
+     "summonCount": 1,
+     "summonCap": 2
+    },
+    {
+     "below": 0.65,
+     "name": "The Iron Legion's standard is raised",
+     "acShift": 0,
+     "chargeEverySeconds": 11,
+     "chargeDamage": "2d10",
+     "banner": "legion_standard",
+     "summonEverySeconds": 16,
+     "summons": "barrow_legionary",
+     "summonCount": 2,
+     "summonCap": 3
+    },
+    {
+     "below": 0.3,
+     "name": "He casts off his armour",
+     "acShift": -5,
+     "speedScale": 1.3,
+     "attackRateScale": 1.2,
+     "chargeEverySeconds": 9,
+     "chargeDamage": "2d10",
+     "look": {
+      "hands": "plate_gauntlets",
+      "legs": "plate_greaves",
+      "feet": "plate_boots",
+      "main": "greatsword"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "id": "legion_standard",
+  "name": "The Iron Legion's standard",
+  "sprite": "cursed_grave",
+  "tile": 1293,
+  "damageType": "Bludgeoning",
+  "aggroRadius": 12,
+  "attackRange": 0,
+  "stationary": true,
+  "rallies": true,
+  "hitPointsScale": 0.7,
+  "tint": "#ffc080",
+  "resistances": {
+   "Piercing": 3
+  },
+  "immunities": [
+   "Poison",
+   "Mental"
+  ],
+  "voice": "grave"
  }
 ]

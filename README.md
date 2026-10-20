@@ -187,7 +187,12 @@ Explosion at one). Under the fields lie the **Old Barracks** (levels 8-9), dark 
 and a Perception check may spot it; step on one and it goes off; a hero trained in Thievery can click a spotted rune to
 disarm it. Two side stories run through them: **Hadric's Oath** (his empty tomb, his sword, his wife's grave) and the
 **Clockwork Confessor** (three brass parts in three zones, and an automaton in Ironhold that remembers what the founders
-confessed). Next: the Siege Walls and Ser Hadric.
+confessed). Step 4 finished Act 2: north of the fields the **Siege Walls** (levels 9-10) climb to the broken wall-top
+where **Ser Hadric the Unburied**, Herald of Iron, holds the breach. He fights behind a shield wall and charges down a
+lane he marks on the ground first (Step out of it), raises the Iron Legion's standard to rally his dead (break it), and
+at the last casts off his armour, faster but far easier to hit. In the ruined gatehouse below, **Red Mirella** waits to
+see whose side you are on: talk her into the Guard's hands or join her outlaws. Back in Ironhold, Ysolde's cure (if
+Sallow's relic went to her) has saved the refugees. Acts 3 and 4 come after a check-in.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

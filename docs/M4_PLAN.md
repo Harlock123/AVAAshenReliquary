@@ -96,7 +96,7 @@ Hadric's Oath (return the sword to Edith's grave for a boon, or break it for a u
 Confessor (three parts in three zones; mend it for a boon and Act 2's revelation, or strip it for materials). See the
 spec, section 16, "The Barrow Fields and the Old Barracks".
 
-### 4. The Siege Walls (2.4) and Ser Hadric
+### 4. The Siege Walls (2.4) and Ser Hadric (done)
 
 - **The fight on the broken walls, in three phases:**
   1. A shield wall and a charge.
@@ -104,6 +104,12 @@ spec, section 16, "The Barrow Fields and the Old Barracks".
   3. He sheds his armour: faster, but easier to hit.
 - **The Outlaw Queen**, the faction story: it picks Act 2's faction, which changes allies later.
 - **The Herald gate** to Act 3. The Act 1 relic choice pays off: a cure saves the refugees.
+
+*Done (2026-10-20):* the Siege Walls (levels 9-10) and Ser Hadric on the boss framework (stances: AC shift, speed,
+attack rate and look; a telegraphed charge; a rallying standard), Red Mirella's choice (Guard or outlaws, with
+Thale's answer), Sister Hale and Ysolde's cure, the Herald gate to Act 3, and `CampaignReport`'s Act 2 leg: all twelve
+subclasses kill Hadric at level 10. Act 2 is whole; Acts 3-4 wait on the check-in (decision 1). See the spec, section
+16, "The Siege Walls and Ser Hadric".
 
 ### 5. Levels 11–15 and Saint Oriel's Rest
 

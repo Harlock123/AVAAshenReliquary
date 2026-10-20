@@ -279,7 +279,7 @@ spawns = [
 ]
 FLAG = [1024, 1025, 1026, 1027, 1028, 1029, 1030, 1031]
 zone = {
-    "id": "iron_march", "name": "The Iron March", "level": 6, "act": 2, "revision": REVISION, "tileset": "tileset_ironhold",
+    "id": "iron_march", "name": "The Iron March", "level": 6, "act": 2, "revision": REVISION, "xpScale": 0.75, "tileset": "tileset_ironhold",
     "tagline": "The dead of a forgotten war still march.",
     "rows": rows,
     "legend": {

@@ -358,4 +358,15 @@ public class BarrowTests
         Say(mended, "What did the founders confess?");
         Assert.Equal("heard", mended.Flags["act2.revelation"]);
     }
+
+    [Fact]
+    public void A_disarmed_trap_stays_disarmed_after_a_load_in_its_zone()
+    {
+        var world = new GameWorld(Content.Zone("old_barracks"), Content.Creatures, TestCharacters.Rogue(), 3, Content.AbilityBar("rogue"),
+            Content.Loot, Content.Zones, Content.Dialogues, Content.Abilities);
+        var trap = world.ZoneTraps.First();
+        world.SetFlag($"trap.old_barracks.{trap.Definition.Id}", "disarmed");
+        var loaded = Saving.SaveGame.FromJson(Saving.SaveGame.Capture(world, "barracks", 3, null).ToJson()).Restore(Content);
+        Assert.Equal(TrapState.Disarmed, loaded.ZoneTraps.First().State);
+    }
 }

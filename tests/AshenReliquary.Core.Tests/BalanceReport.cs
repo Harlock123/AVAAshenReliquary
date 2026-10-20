@@ -336,9 +336,28 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("necromancer plaguebringer")]
     public void Old_Barracks_at_level_8(string kit) => ReportZone(kit, "old_barracks", "stair", 8, "the Old Barracks and back up the stair");
 
-    private void ReportZone(string kit, string zoneId, string exitId, int level, string what)
+    /// <summary>
+    /// The Siege Walls (M4 step 4): every pack, then Ser Hadric on his wall, to the Herald gate; a level-9 hero in the
+    /// starting kit with +2 runes on the weapon.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Siege_Walls_at_level_9(string kit) => ReportZone(kit, "siege_walls", "heights", 9, "the Siege Walls and Ser Hadric", runes: 2);
+
+    private void ReportZone(string kit, string zoneId, string exitId, int level, string what, int runes = 1)
     {
-        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: 1)).ToList();
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: runes)).ToList();
         output.WriteLine($"{kit}: {what}, every pack, {runs.Count} runs");
         foreach (var r in runs)
             output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "finished" : "did not finish")}");
@@ -481,6 +500,8 @@ public class BalanceReport(ITestOutputHelper output)
     internal static Hazard? StepOutOfPool(GameWorld world, ref double nextDodge)
     {
         var pool = world.Hazards.FirstOrDefault(h => h.Covers(world.Hero.X, world.Hero.Y) && world.Time < h.EndsAt);
+        if (pool is null && StepOutOfLane(world, ref nextDodge) is { } lane)
+            return lane;
         if (pool is null || world.Time < nextDodge)
             return pool;
         var (dx, dy) = (world.Hero.X - pool.X, world.Hero.Y - pool.Y);
@@ -490,6 +511,39 @@ public class BalanceReport(ITestOutputHelper output)
         world.MoveTo(pool.X + dx / d * (pool.Radius + 1.2), pool.Y + dy / d * (pool.Radius + 1.2));
         nextDodge = world.Time + 0.8;
         return pool;
+    }
+
+    /// <summary>
+    /// A boss's charge lane marked over the hero (Ser Hadric): walk out of it sideways, as from a rot pool. Returns a
+    /// stand-in hazard for the lane while the hero is in it.
+    /// </summary>
+    internal static Hazard? StepOutOfLane(GameWorld world, ref double nextDodge)
+    {
+        var hero = world.Hero;
+        foreach (var m in world.Monsters)
+        {
+            if (m.Charge is not { } c || m.IsDead || world.Time >= c.RushAt)
+                continue;
+            var (dx, dy) = (c.ToX - c.FromX, c.ToY - c.FromY);
+            var length = Math.Max(1e-6, Math.Sqrt(dx * dx + dy * dy));
+            var t = Math.Clamp(((hero.X - c.FromX) * dx + (hero.Y - c.FromY) * dy) / (length * length), 0, 1);
+            var (px, py) = (c.FromX + dx * t, c.FromY + dy * t);
+            var off = Math.Sqrt((hero.X - px) * (hero.X - px) + (hero.Y - py) * (hero.Y - py));
+            if (off > GameWorld.ChargeReach + 0.6)
+                continue;
+            var lane = new Hazard(px, py, GameWorld.ChargeReach, c.RushAt, c.RushAt, new Rules.Dice(0, 1), 0);
+            if (world.Time < nextDodge)
+                return lane;
+            // Sideways, away from the lane's line (either side when right on it).
+            var (sx, sy) = off > 0.05 ? ((hero.X - px) / off, (hero.Y - py) / off) : (-dy / length, dx / length);
+            var (gx, gy) = (hero.X + sx * 2.6, hero.Y + sy * 2.6);
+            if (!world.Map.IsWalkable(gx, gy))
+                (gx, gy) = (hero.X - sx * 2.6, hero.Y - sy * 2.6);
+            world.MoveTo(gx, gy);
+            nextDodge = world.Time + 0.6;
+            return lane;
+        }
+        return null;
     }
 
     /// <summary>
@@ -571,28 +625,59 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// Ser Hadric (M4 step 4) alone on his wall at level 10, a level 9 hero a level under, with the runes a player would
+    /// have by then (+2 potency and striking on the weapon, +1 armour) or in the starting kit.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Ser_Hadric_at_levels_9_and_10(string kit)
+    {
+        foreach (var (level, runed) in new[] { (9, true), (10, false), (10, true) })
+        {
+            var fights = Enumerable.Range(1, Math.Max(Seeds, 6))
+                .Select(seed => BossFight(kit, seed, runed, level, "siege_walls", "ser_hadric", potency: 2)).ToList();
+            output.WriteLine($"{kit} at level {level}{(runed ? " with a +2 striking weapon and +1 armour" : " in the starting kit")}: Ser Hadric, {fights.Count} fights");
+            foreach (var f in fights)
+                output.WriteLine($"  {(f.Won ? "won " : "lost")}  {f.Seconds,5:0} s  potions {f.Potions}  reached phase {f.Phase + 1}  his HP left {f.BossHpLeft:0%}");
+            output.WriteLine($"  won {fights.Count(f => f.Won)} of {fights.Count}, average {fights.Average(f => f.Seconds):0} s");
+        }
+    }
+
+    /// <summary>
     /// One try at Mother Sallow: a hero of <paramref name="level"/> walks into her clearing and fights to the end (no respawn). The bot
     /// steps out of rot pools and their warning rings, drinks at 45% and otherwise fights as everywhere else.
     /// </summary>
-    public static BossResult BossFight(string kit, int seed, bool runed, int level = 5)
+    public static BossResult BossFight(string kit, int seed, bool runed, int level = 5, string zoneId = "sallows_mire",
+        string bossId = "mother_sallow", int potency = 1)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
-        var mire = content.Zone("sallows_mire");
-        var zone = mire with { Spawns = [mire.Spawns.Single(s => s.Pack.Any(m => m.Creature == "mother_sallow"))] };
+        var arena = content.Zone(zoneId);
+        var zone = arena with { Spawns = [arena.Spawns.Single(s => s.Pack.Any(m => m.Creature == bossId))] };
         var hero = TestCharacters.ForKit(kit);
         var bar = content.AbilityBar(classId);
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         foreach (var id in Kits[kit])
         {
             var definition = content.Item(id);
-            var item = runed && definition.IsWeapon ? new Items.Item(definition, Items.Rarity.Common, 5, potency: 1, striking: 1)
-                : runed && definition.IsBodyArmor ? new Items.Item(definition, Items.Rarity.Common, 5, potency: 1)
+            var item = runed && definition.IsWeapon ? new Items.Item(definition, Items.Rarity.Common, Math.Max(5, level), potency: potency, striking: 1)
+                : runed && definition.IsBodyArmor ? new Items.Item(definition, Items.Rarity.Common, Math.Max(5, level), potency: 1)
                 : new Items.Item(definition, Items.Rarity.Common, 1);
             world.Hero.Equipment.Equip(item);
         }
         LevelTo(world, level);
-        var sallow = world.Monsters.Single(m => m.Definition.Id == "mother_sallow");
+        var sallow = world.Monsters.Single(m => m.Definition.Id == bossId);
         (world.Hero.X, world.Hero.Y) = (sallow.HomeX, sallow.HomeY - 9);
         int potions = 0;
         double start = world.Time, nextDodge = 0;

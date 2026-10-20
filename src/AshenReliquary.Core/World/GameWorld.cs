@@ -1756,8 +1756,13 @@ public sealed partial class GameWorld
     }
 
     /// <summary>A monster's Vengeance: to-hit, damage share and speed share.</summary>
-    private static (int Attack, double Damage, double Speed) VengeanceBonus(MonsterActor m) =>
-        (m.Vengeance, 1 + 0.1 * m.Vengeance, 1 + 0.05 * m.Vengeance);
+    /// <remarks>Under a standing standard (Hadric's banner) it also has +2 to hit and a fifth more damage; a boss's phase may quicken it.</remarks>
+    private (int Attack, double Damage, double Speed) VengeanceBonus(MonsterActor m)
+    {
+        var rallied = Rallied(m);
+        var phaseSpeed = m.Definition.Boss is { } b ? b.Phases[m.BossPhase].SpeedScale : 1;
+        return (m.Vengeance + (rallied ? 2 : 0), (1 + 0.1 * m.Vengeance) * (rallied ? 1.2 : 1), (1 + 0.05 * m.Vengeance) * phaseSpeed);
+    }
 
     /// <summary>
     /// Pathfinder's flanking (spec, section 9): a monster in melee reach of the hero, with another monster in melee
@@ -1935,8 +1940,8 @@ public sealed partial class GameWorld
             m.Play("stance");
             return;
         }
-        if (def.Boss is not null)
-            UpdateBoss(m, dt);
+        if (def.Boss is not null && UpdateBoss(m, dt))
+            return;
         UpdateAffixes(m, dt);
         if (m.IsDead || hero.IsDead)
             return;
@@ -1948,6 +1953,12 @@ public sealed partial class GameWorld
             UpdateSpawner(m, dt);
             return;
         }
+        // A standard only stands there, rallying its legion, until it is broken.
+        if (def.Rallies)
+        {
+            m.Play("stance");
+            return;
+        }
 
         if (m.AttackCooldown > 0)
             m.AttackCooldown -= dt;
@@ -1957,7 +1968,7 @@ public sealed partial class GameWorld
         var victimDistance = m.DistanceTo(victim);
         if (m.AttackElapsed >= 0)
         {
-            var interval = 1.0 / m.Creature.AttacksPerSecond;
+            var interval = 1.0 / (m.Creature.AttacksPerSecond * BossAttackRate(m));
             var windup = Math.Min(0.6, interval * 0.6);
             m.AttackElapsed += dt;
             if (!m.AttackLanded && m.AttackElapsed >= windup * 0.6)
@@ -2038,7 +2049,7 @@ public sealed partial class GameWorld
                 var anim = def.Ranged ? (def.Caster || def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";
                 if (def.Ranged)
                     Sound(anim == "cast" ? SoundCue.WitchCast : SoundCue.Bow, m);
-                var windup = Math.Min(0.6, 0.6 / m.Creature.AttacksPerSecond);
+                var windup = Math.Min(0.6, 0.6 / (m.Creature.AttacksPerSecond * BossAttackRate(m)));
                 m.Play(anim, 0.5 / windup, restart: true);
             }
             else if (m.Animation is not ("swing" or "shoot" or "cast") || m.AnimationTime > 1)
@@ -2069,7 +2080,7 @@ public sealed partial class GameWorld
     }
 
     /// <summary>A monster's walking speed: slowed by the Slowed condition, quickened by Vengeance and Haste.</summary>
-    private static double MonsterSpeed(MonsterActor m)
+    private double MonsterSpeed(MonsterActor m)
     {
         var slowed = m.Creature.Conditions.ActionTimeMultiplier;
         return m.Definition.MoveSpeed * (slowed > 1 ? 1 / slowed : 1) * VengeanceBonus(m).Speed * (m.Has(MonsterAffix.Hasted) ? HasteSpeed : 1);

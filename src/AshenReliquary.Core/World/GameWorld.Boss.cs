@@ -25,8 +25,20 @@ public sealed partial class GameWorld
     /// <summary>Raised when a boss falls (its death line goes up as a banner).</summary>
     public event Action<MonsterActor>? BossSlain;
 
-    /// <summary>A boss's own turn before its ordinary attack: phase changes, pools, summons, flooding, the deluge.</summary>
-    private void UpdateBoss(MonsterActor m, double dt)
+    /// <summary>How fast a boss rushes down its charge lane, in tiles a second.</summary>
+    public const double ChargeSpeed = 12;
+
+    /// <summary>How close to the lane's runner the hero must be to be caught in a charge.</summary>
+    public const double ChargeReach = 1.2;
+
+    /// <summary>How far a standard's rally reaches.</summary>
+    public const double RallyRadius = 14;
+
+    /// <summary>
+    /// A boss's own turn before its ordinary attack: phase changes, pools, summons, flooding, the deluge, its charge.
+    /// True while it is busy charging (no ordinary attack this tick).
+    /// </summary>
+    private bool UpdateBoss(MonsterActor m, double dt)
     {
         var boss = m.Definition.Boss!;
         var share = (double)m.Creature.HitPoints / m.Creature.Stats.HitPoints;
@@ -36,6 +48,7 @@ public sealed partial class GameWorld
             EnterPhase(m, boss.Phases[m.BossPhase]);
         }
         var phase = boss.Phases[m.BossPhase];
+        m.Creature.ArmorClassShift = phase.AcShift;
 
         if (phase.PoolEverySeconds > 0)
         {
@@ -83,7 +96,81 @@ public sealed partial class GameWorld
                 }
             }
         }
+        if (phase.ChargeEverySeconds > 0 && !m.Fused && m.Creature.Conditions.CanMove)
+        {
+            if (m.Charge is { } charge)
+                return Rush(m, phase, charge, dt);
+            m.ChargeIn -= dt;
+            var d = m.DistanceTo(Hero);
+            if (m.ChargeIn <= 0 && m.AttackElapsed < 0 && d >= 2.5 && d <= 12 && Map.HasLineOfSight(m.X, m.Y, Hero.X, Hero.Y))
+            {
+                // Mark the lane: from where it stands, through the hero, on as far as the ground runs (2.5 tiles beyond).
+                var (dx, dy) = ((Hero.X - m.X) / d, (Hero.Y - m.Y) / d);
+                var reach = 0.0;
+                while (reach < d + 2.5 && Map.IsWalkable(m.X + dx * (reach + 0.25), m.Y + dy * (reach + 0.25)))
+                    reach += 0.25;
+                m.Charge = new BossCharge(m.X, m.Y, m.X + dx * reach, m.Y + dy * reach, Time + phase.ChargeWindup);
+                m.Path.Clear();
+                m.Face(Hero.X, Hero.Y);
+                m.Play("stance");
+                Float(m, "CHARGE!", FloatingTextKind.Critical, 0.8);
+                Sound(SoundCue.MonsterAggro, m, m.Definition.Voice);
+                return true;
+            }
+        }
+        return false;
     }
+
+    /// <summary>A charge: braced while the lane shows, then a rush down it; the hero caught in it is trampled once.</summary>
+    private bool Rush(MonsterActor m, BossPhase phase, BossCharge charge, double dt)
+    {
+        if (Time < charge.RushAt)
+            return true;
+        var (tx, ty) = (charge.ToX, charge.ToY);
+        var d = m.DistanceTo(tx, ty);
+        var step = ChargeSpeed * dt;
+        var done = d <= step;
+        if (done)
+            (m.X, m.Y) = (tx, ty);
+        else
+        {
+            m.X += (tx - m.X) / d * step;
+            m.Y += (ty - m.Y) / d * step;
+            m.Face(tx, ty);
+            m.Play("run");
+        }
+        if (!charge.Struck && !Hero.IsDead && m.DistanceTo(Hero) <= ChargeReach)
+        {
+            charge.Struck = true;
+            if (Time < Hero.InvulnerableUntil)
+                Float(Hero, "dodged", FloatingTextKind.Miss, 0.3);
+            else
+            {
+                var degree = Check.Roll(Random, Hero.Character.Save(StatisticKind.Reflex).Total, m.Creature.Stats.SaveDc).Degree;
+                var dealt = DamageCalculator.BasicSave(Dice.Parse(phase.ChargeDamage).Roll(Random), degree, m.Creature.StrikeDamageType,
+                    Hero.Character.Defenses);
+                Sound(SoundCue.Crit, Hero);
+                if (dealt > 0 && HurtHero(dealt) && degree <= DegreeOfSuccess.Failure)
+                {
+                    Hero.Character.Conditions.Apply(ConditionKind.Prone, 1, 1.0);
+                    Float(Hero, "knocked down", FloatingTextKind.Critical, 0.6);
+                }
+            }
+        }
+        if (done)
+        {
+            m.Charge = null;
+            m.ChargeIn = phase.ChargeEverySeconds;
+        }
+        return true;
+    }
+
+    /// <summary>A monster fights under a standing standard of its pack (Hadric's banner): +2 to hit and a fifth more damage.</summary>
+    internal bool Rallied(MonsterActor m) =>
+        !m.Definition.Rallies && _monsters.Any(s => s.Definition.Rallies && !s.IsDead && s.PackId == m.PackId && s.DistanceTo(m) <= RallyRadius);
+
+    /// <summary>A boss's attack rate in its phase (Hadric strikes faster with his armour off).</summary>
+    private static double BossAttackRate(MonsterActor m) => m.Definition.Boss is { } b ? b.Phases[m.BossPhase].AttackRateScale : 1;
 
     /// <summary>
     /// A rot pool's Fortitude DC: 14 + the boss's level (19 for Mother Sallow), the hazard's own number rather than her
@@ -98,6 +185,17 @@ public sealed partial class GameWorld
         m.PoolIn = Math.Min(m.PoolIn, 2.0);
         m.SummonIn = 1.0;
         m.FloodRadius = m.Definition.Boss!.ArenaRadius;
+        m.Creature.ArmorClassShift = phase.AcShift;
+        m.Charge = null;
+        m.ChargeIn = phase.ChargeEverySeconds / 2;
+        if (phase.Banner is { } banner)
+        {
+            // The standard goes up beside the boss's home; it rallies the legion until it is broken.
+            var standard = SpawnNear(banner, CreatureRank.Normal, m.HomeX + 2, m.HomeY - 2, 1.0, m.PackId, m.Creature.Stats.Level);
+            standard.SummonedBy = m;
+            Aggro(standard);
+            Float(standard, "RALLY!", FloatingTextKind.Critical, 1.0);
+        }
         if (phase.Fuses)
         {
             // She goes back to her cauldron and roots there; the race begins.
@@ -175,6 +273,9 @@ public sealed partial class GameWorld
             m.EnrageIn = 0;
             m.DelugeIn = 0;
             m.FloodRadius = m.Definition.Boss.ArenaRadius;
+            m.Creature.ArmorClassShift = 0;
+            m.Charge = null;
+            m.ChargeIn = m.Definition.Boss.Phases[0].ChargeEverySeconds;
             _monsters.RemoveAll(x => x.SummonedBy == m);
         }
         ClearBossAftermath();
