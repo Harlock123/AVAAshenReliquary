@@ -65,7 +65,7 @@ public sealed partial class GameWorld
             else if (victim is AllyActor ally)
                 MonsterBitesAlly(shot.Shooter, ally);
             else
-                MonsterStrike(shot.Shooter);
+                MonsterStrike(shot.Shooter, shot: true);
         }
     }
 }

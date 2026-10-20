@@ -9,7 +9,7 @@
       "licence": "CC-BY-SA 3.0",
       "licenceFile": "src/AshenReliquary.App/Assets/Flare/LICENSE.txt",
       "authors": "The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt",
-      "changes": "None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt).",
+      "changes": "None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt), and the skeleton knight (Centurion Varro) from mods/empyrean_campaign/.",
       "files": [
         "Flare/animations/avatar/male/greatstaff.txt",
         "Flare/animations/avatar/male/plate_boots.txt",
@@ -85,6 +85,7 @@
         "animations/enemies/cursed_grave.txt",
         "animations/enemies/skeleton.txt",
         "animations/enemies/skeleton_archer.txt",
+        "animations/enemies/skeleton_knight_boss.txt",
         "animations/enemies/skeleton_mage.txt",
         "animations/enemies/skeleton_weak.txt",
         "animations/enemies/zombie.txt",
@@ -172,6 +173,7 @@
         "images/enemies/cursed_grave.png",
         "images/enemies/skeleton.png",
         "images/enemies/skeleton_archer.png",
+        "images/enemies/skeleton_knight_boss.png",
         "images/enemies/skeleton_mage.png",
         "images/enemies/skeleton_weak.png",
         "images/enemies/zombie.png",
@@ -347,6 +349,20 @@
       "files": [
         "Flare/animations/enemies/wolf.txt",
         "Flare/images/enemies/wolf.png"
+      ]
+    },
+    {
+      "id": "flare-ruins",
+      "title": "Old Ruins tileset, as extended in Flare's Empyrean Campaign (mods/empyrean_campaign/images/tilesets/tileset_ruins.png)",
+      "url": "https://opengameart.org/content/old-ruins-tileset",
+      "retrieved": "2026-10-20",
+      "licence": "CC-BY-SA 3.0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Flare/LICENSE.txt",
+      "authors": "rubberduck (Old Ruins tileset, OpenGameArt); extended with stairs, gates, pits, objects and plants by Justin Jacobs for Flare (https://github.com/flareteam/flare-game)",
+      "changes": "The image is copied unmodified. tilesetdefs/tileset_ironhold.txt joins Flare's grassland definition with the ruins definition, its tile ids moved up by 1000, so Act 2's zones can use both.",
+      "files": [
+        "Flare/images/tilesets/tileset_ruins.png",
+        "Flare/tilesetdefs/tileset_ironhold.txt"
       ]
     },
     {

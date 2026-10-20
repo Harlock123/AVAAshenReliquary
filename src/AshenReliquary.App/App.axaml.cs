@@ -32,6 +32,7 @@ public partial class App : Application
                 var (classId, subclass) = GameSession.QuickStart(args);
                 var zone = battle + 1 < args.Length && !args[battle + 1].StartsWith("--") ? args[battle + 1] : "rotwater_fens";
                 window.Session = GameSession.NewGame(classId, seed: Environment.TickCount, zoneId: zone, subclass: subclass);
+                window.Session.World.TrainTo(window.Session.World.Zone.Level);
                 window.Demo = new Services.BattleDemo(window.Session.World, classId);
             }
             else if (new[] { "--wizard", "--fighter", "--rogue", "--ranger", "--vanguard", "--bulwark", "--pyromancer", "--stormcaller",

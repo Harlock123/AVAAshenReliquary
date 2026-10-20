@@ -62,7 +62,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
 
         // Zone name and level, top left.
         canvas.DrawText(world.Zone.Name, 22, 34, SKTextAlign.Left, big, ink);
-        canvas.DrawText($"Act 1  ·  Level {world.Zone.Level} area", 22, 54, SKTextAlign.Left, small, dim);
+        canvas.DrawText($"Act {world.Zone.Act}  ·  Level {world.Zone.Level} area", 22, 54, SKTextAlign.Left, small, dim);
 
         // Health orb.
         const float orbRadius = 58f;

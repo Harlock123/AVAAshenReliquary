@@ -9,10 +9,12 @@ namespace AshenReliquary.Core.World;
 /// one of <see cref="Objects"/> at random, or all of them layered when <see cref="Stack"/> is set (a gate's cross brace).
 /// <see cref="Tiles"/> names the ground tiles outright (another tileset's floors) while <see cref="Ground"/> still says
 /// what kind of ground it is ("bog" for flooded flagstones). <see cref="Light"/> makes the cell a light (a torch, a
-/// brazier, a shaft of moonlight) of that radius in tiles, in <see cref="LightColor"/>.
+/// brazier, a shaft of moonlight) of that radius in tiles, in <see cref="LightColor"/>. <see cref="Cover"/>: a low
+/// wall, a cart or a barricade, seen over but not shot through cleanly: a ranged attack across it at someone close behind
+/// it is against cover (see <see cref="TileMap.InCover"/>).
 /// </summary>
 public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false,
-    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null);
+    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null, bool Cover = false);
 
 /// <summary>One monster in a pack: a creature id, its rank and any monster affixes ("vengeful").</summary>
 public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null);
@@ -63,8 +65,12 @@ public sealed record ZoneDefinition(
     IReadOnlyList<InteractableDefinition>? Interactables = null,
     double? Darkness = null,
     double HeroLight = 6.5,
-    double XpScale = 1.0)
+    double XpScale = 1.0,
+    int Act = 1)
 {
+    /// <summary>Under the open sky (Flare's grassland, or Act 2's grassland-and-ruins set): trees fringe the map, campfires glow.</summary>
+    public bool Outdoors => Tileset is "tileset_grassland" or "tileset_ironhold";
+
     // XpScale: the share of monster XP the zone pays, Act 1's curve tuned so a hero leaves each zone about a level up.
 
     /// <summary>How dark the zone is, 0 to 1 (the night outdoors is 0.66); see <see cref="IsDark"/>.</summary>
@@ -119,9 +125,11 @@ public sealed record CreatureDefinition(
     double HitPointsScale = 1.0,
     bool Named = false,
     bool RareDrop = false,
-    bool Undead = false)
+    bool Undead = false,
+    bool Kites = false)
 {
     // Undead: the walking dead (the Lanternbearer's undead bane and holy light burn them with vitality).
+    // Kites: a ranged monster that keeps its distance, falling back when the hero closes (Act 2's AI behaviour).
 
     [JsonIgnore]
     public bool IsSpawner => Summons is not null;

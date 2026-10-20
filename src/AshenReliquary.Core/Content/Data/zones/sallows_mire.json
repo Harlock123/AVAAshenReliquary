@@ -727,7 +727,12 @@
     "act1.sallow": "slain"
    },
    "sealedText": "Black water stands across the road east. It will not fall while Mother Sallow lives.",
-   "openText": "The road east to Ironhold lies open. (Act 2 is still being written.)"
+   "to": "iron_march",
+   "toExit": "mire",
+   "arrive": [
+    69,
+    121
+   ]
   }
  ],
  "caches": [

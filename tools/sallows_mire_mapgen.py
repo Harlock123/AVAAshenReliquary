@@ -283,7 +283,7 @@ zone = {
         {"id": "iron_march", "label": "The Iron March", "at": gate_at, "radius": 2.0,
          "requires": {"act1.sallow": "slain"},
          "sealedText": "Black water stands across the road east. It will not fall while Mother Sallow lives.",
-         "openText": "The road east to Ironhold lies open. (Act 2 is still being written.)"},
+         "to": "iron_march", "toExit": "mire", "arrive": [gate_at[0] - 3, gate_at[1] + 1]},
     ],
     "caches": caches,
     # The Well-Keeper's Daughter (M2 step 9): the hearth by her hut, where her Cinder Relic lies.

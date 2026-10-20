@@ -1108,5 +1108,280 @@
         "text": "The Prior's book lies open where you left it. The last line is only her name, written over and over: Sallow."
       }
     }
+  },
+  {
+    "id": "ironhold_thale",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act2.thale": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A knight in dented plate stands inside the gate, a dozen tired spearmen at his back. \"Captain Oswin Thale, Ironhold Guard. You came up the March? Through Hadric's legion?\" His eyes go to the rope scar on your neck. \"Whatever you are, you're the first thing up that road in a month that wasn't dead.\"",
+        "effects": [
+          {
+            "flag": "act2.thale",
+            "value": "met"
+          },
+          {
+            "journal": {
+              "id": "act2_ironhold",
+              "title": "Ironhold",
+              "kind": "main",
+              "text": "I reached Ironhold, the last city of the Iron March. Ser Hadric the Unburied, the second Herald, besieges it with the dead of a war the province forgot. Captain Oswin Thale of the Ironhold Guard holds the walls."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Centurion Varro is dead. His line before your gate is broken.\"",
+            "requires": {
+              "act2.varro": "slain",
+              "act2.thale_reward": ""
+            },
+            "to": "thanks"
+          },
+          {
+            "text": "\"Who is Hadric?\"",
+            "to": "hadric"
+          },
+          {
+            "text": "\"What does the Guard need?\"",
+            "to": "need"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "hadric": {
+        "text": "\"Knight-commander of the Iron Legion, three hundred years dead. The Order buried his legion in the Barrow Fields north of the city after the war, with every honour. Now they've stood up out of the mounds and he marches them back on the city they died for.\" Thale's jaw tightens. \"He wants in. I don't know why.\""
+      },
+      "need": {
+        "text": "\"Hadric's centurions hold the March. One of them, Varro, sits on the siege line before our outer gate: no cart gets in or out while he stands. Break him, and I'll owe you more than thanks.\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act2_varro",
+              "title": "The siege line",
+              "kind": "side",
+              "text": "Captain Thale wants Centurion Varro dead. Varro holds Hadric's siege line before Ironhold's outer gate, at the north end of the Iron March."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Centurion Varro is dead. His line before your gate is broken.\"",
+            "requires": {
+              "act2.varro": "slain",
+              "act2.thale_reward": ""
+            },
+            "to": "thanks"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "thanks": {
+        "text": "Thale lets out a breath he seems to have held for a month. \"Varro. Then the carts can come up the March again, and the Guard can stop counting arrows.\" He presses a heavy purse into your hand. \"From the city. Hilde at the forge will want to see you. Sable too, if you've the stomach for him.\"",
+        "effects": [
+          {
+            "flag": "act2.thale_reward",
+            "value": "given"
+          },
+          {
+            "xp": 400
+          },
+          {
+            "gold": 300
+          },
+          {
+            "journal": {
+              "id": "act2_varro",
+              "title": "The siege line",
+              "kind": "side",
+              "text": "I broke Centurion Varro's siege line before Ironhold's outer gate. Captain Thale paid me from the city's purse."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "Thale nods. \"Still standing. Good.\"",
+        "choices": [
+          {
+            "text": "\"Centurion Varro is dead. His line before your gate is broken.\"",
+            "requires": {
+              "act2.varro": "slain",
+              "act2.thale_reward": ""
+            },
+            "to": "thanks"
+          },
+          {
+            "text": "\"Who is Hadric?\"",
+            "to": "hadric"
+          },
+          {
+            "text": "\"What news?\"",
+            "to": "news"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "news": {
+        "text": "\"The dead come up out of the Barrow Fields every night, beyond the north gate. Until we know how he raises them, that gate stays barred.\""
+      }
+    }
+  },
+  {
+    "id": "ironhold_pell",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "act2.pell": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "An old man copies names from a crumbling roll onto fresh vellum. \"Pell. I keep the founders' rolls. Somebody should, now the founders' heirs are all up on the walls.\"",
+        "effects": [
+          {
+            "flag": "act2.pell",
+            "value": "met"
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Who founded Ironhold?\"",
+            "to": "founders"
+          },
+          {
+            "text": "\"What are you copying?\"",
+            "to": "rolls"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "founders": {
+        "text": "\"Knights of the Pale Lantern, after the war against Ashur.\" He nods at the three stone figures. \"These three held the road to the Reliquary. The Order gave them this land and asked one thing in return: that Ironhold's gates never open to anyone who comes down from Mount Cindral.\" He frowns at his pen. \"An odd thing to ask of a city.\""
+      },
+      "rolls": {
+        "text": "\"The muster of the Iron Legion, the year it was buried. Hadric's name stands first. Somebody scratched it out, long ago.\" He turns the roll to the light. \"And somebody else wrote it back in.\"",
+        "effects": [
+          {
+            "flag": "act2.rolls",
+            "value": "read"
+          }
+        ]
+      },
+      "again": {
+        "text": "Pell looks up from the rolls. \"Back again?\"",
+        "choices": [
+          {
+            "text": "\"Who founded Ironhold?\"",
+            "to": "founders"
+          },
+          {
+            "text": "\"What are you copying?\"",
+            "to": "rolls"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "ironhold_altar",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A founders' altar of dressed stone, a lantern's iron cage set in it, cold. Kneeling here, you feel the choices of your road loosen, as if they could be made again.",
+        "choices": [
+          {
+            "text": "Let go of what I have chosen, and choose again (free, once this act).",
+            "requires": {
+              "act2.respec": ""
+            },
+            "effects": [
+              {
+                "respec": true
+              },
+              {
+                "flag": "act2.respec",
+                "value": "used"
+              }
+            ]
+          },
+          {
+            "text": "Let go of what I have chosen, and choose again ({cost} gold).",
+            "requires": {
+              "act2.respec": "used"
+            },
+            "effects": [
+              {
+                "payPerLevel": 20
+              },
+              {
+                "respec": true
+              }
+            ]
+          },
+          {
+            "text": "Rise and leave."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "march_poster",
+    "start": "start",
+    "openings": [
+      {
+        "node": "seen",
+        "requires": {
+          "act2.poster": "seen"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A wanted poster nailed to a post by the road, weathered pale: RED MIRELLA, OUTLAW. FOR THEFT FROM THE CITY STORES, ARSON AT THE TOLL BRIDGE AND THE MURDER OF A SERGEANT OF THE GUARD. 200 CROWNS, ALIVE. Under it, in charcoal: SHE FEEDS THE REFUGEES. THE GUARD DOESN'T.",
+        "effects": [
+          {
+            "flag": "act2.poster",
+            "value": "seen"
+          },
+          {
+            "xp": 60
+          },
+          {
+            "journal": {
+              "id": "act2_mirella",
+              "title": "The Outlaw Queen",
+              "kind": "side",
+              "text": "Wanted posters along the Iron March name Red Mirella, an outlaw, for theft from Ironhold's stores and the murder of a Guard sergeant. Under one, someone has written that she feeds the refugees and the Guard doesn't."
+            }
+          }
+        ]
+      },
+      "seen": {
+        "text": "The poster still hangs there: RED MIRELLA, 200 CROWNS, ALIVE. SHE FEEDS THE REFUGEES."
+      }
+    }
   }
 ]

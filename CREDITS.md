@@ -7,8 +7,8 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Source: [https://github.com/flareteam/flare-game](https://github.com/flareteam/flare-game) at commit `af6eee6d339a` (retrieved 2026-10-18)
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt
-- Changes: None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt).
-- Files: 201 (listed in `assets.manifest.json`)
+- Changes: None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt), and the skeleton knight (Centurion Varro) from mods/empyrean_campaign/.
+- Files: 203 (listed in `assets.manifest.json`)
 
 ## Flare character portraits (mods/fantasycore/images/portraits)
 
@@ -48,6 +48,14 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC-BY-SA 4.0 (also CC-BY-SA 3.0) (`src/AshenReliquary.App/Assets/Flare/README-wolf.txt`)
 - Authors: Danimal (rig, animation, Flare sprites), from Micket's CC0 "wolf 1" mesh with Poss's fur textures (OpenGameArt)
 - Changes: The grey wolf only, re-rendered from Danimal's Wolf.blend with Blender 2.79 and its own 8-direction set-up at twice the published resolution (256-px frames), each frame trimmed and packed into Flare's packed format by tools/build_wolf.py.
+- Files: 2 (listed in `assets.manifest.json`)
+
+## Old Ruins tileset, as extended in Flare's Empyrean Campaign (mods/empyrean_campaign/images/tilesets/tileset_ruins.png)
+
+- Source: [https://opengameart.org/content/old-ruins-tileset](https://opengameart.org/content/old-ruins-tileset) (retrieved 2026-10-20)
+- Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
+- Authors: rubberduck (Old Ruins tileset, OpenGameArt); extended with stairs, gates, pits, objects and plants by Justin Jacobs for Flare (https://github.com/flareteam/flare-game)
+- Changes: The image is copied unmodified. tilesetdefs/tileset_ironhold.txt joins Flare's grassland definition with the ruins definition, its tile ids moved up by 1000, so Act 2's zones can use both.
 - Files: 2 (listed in `assets.manifest.json`)
 
 ## game-icons.net

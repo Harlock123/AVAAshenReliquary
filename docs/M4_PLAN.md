@@ -64,7 +64,7 @@ ranks were already in place. With no Act 2 zone yet, the bots' check is `Balance
 levels 6, 8 and 10 (every subclass through, one Stormcaller death in two); the campaign's Act 2 leg comes with the
 zones (step 4). See the spec, section 16, "Levels 6–10".
 
-### 2. Ironhold and the Iron March (2.1)
+### 2. Ironhold and the Iron March (2.1) (done)
 
 - **The hub, Ironhold:**
   - the Guard;
@@ -74,6 +74,13 @@ zones (step 4). See the spec, section 16, "Levels 6–10".
   - Cover: ranged shots lose to walls and carts in their way, a concealment check as the dark has.
   - The AI's second behaviour: ranged monsters keep their distance (kiting).
   - Art: skeleton legionaries and crossbowmen from Flare's skeletons and Clint Bellanger's Skeleton Warrior; outlaw raiders as avatar recolours.
+
+*Done (2026-10-20):* the ruins tileset (rubberduck's Old Ruins, from Flare's Empyrean Campaign) joined to the grassland
+as `tileset_ironhold`; the Iron March (27 packs, cover, kiting crossbowmen and bowmen, Centurion Varro at the gate) from
+Sallow's Mire to Ironhold; Ironhold with Captain Thale, Archivist Pell, Hilde the smith, Sable the fence (his terms
+follow the ferry choice), the stash, the altar and the Ward Shrine; zones carry their act (drop shares, the HUD, the
+Rift). The survey's gaps: no town buildings (Ironhold is a walled ward), no crossbow art (recoloured skeleton archers),
+no Act 2 colour grade. See the spec, section 16, "Ironhold and the Iron March".
 
 ### 3. The Barrow Fields (2.2) and the Old Barracks (2.3)
 

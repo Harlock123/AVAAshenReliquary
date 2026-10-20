@@ -182,7 +182,8 @@ public class BossTests
         Run(world, 3);
         world.MoveTo(gate.At[0] + 0.5, gate.At[1] + 0.5);
         Run(world, 3);
-        Assert.True(world.ZoneComplete);
-        Assert.Contains("Ironhold", world.Arrival?.Subtitle);
+        // Act 2 lies beyond: the road east is the Iron March.
+        Assert.Equal("iron_march", world.Zone.Id);
+        Assert.Equal("The Iron March", world.Arrival?.Title);
     }
 }

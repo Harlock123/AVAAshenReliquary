@@ -684,7 +684,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1480,6 +1480,66 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   Mire with its monsters raised to the hero's level (runes +1 at 6 and 8, +2 at 10): every subclass reaches the gate in
   2.5-6.5 minutes, and only the level-6 Stormcaller died (twice). Act 1's campaign is unchanged (all twelve kill
   Mother Sallow at level 5, in 15-22 minutes).
+
+### Ironhold and the Iron March (M4 step 2)
+
+- **The art survey** (M4's decision 3: survey first, report each gap, recolour where nothing is found):
+  - **Found:**
+    - rubberduck's Old Ruins tileset, as Justin Jacobs extended it in Flare's Empyrean Campaign: stone walls and pillars, gates, rubble heaps, crates and barrels, a well, tables, statues, iron fences, and flagstone and dirt floors.
+    - Flare's skeleton knight, for Centurion Varro.
+    - Flare's avatar layers, for the outlaws (leather, hand axes and short bows).
+  - **Gaps:**
+    - No town buildings: Flare's timber-house tiles in `art_src` are its old low-resolution art, in pieces. Ironhold is a walled ward of stone, statues, market stalls and refugee tents instead.
+    - No crossbow art: the crossbowmen are Flare's skeleton archers, recoloured, and their bolts fly as arrows.
+    - No Act 2 colour grade: Act 1's grade is baked into the sprite cache.
+- **The tileset** `tileset_ironhold`:
+  - Flare's grassland definition, then the ruins image with its tile ids moved up by 1000, so ruins tile 223 is 1223.
+  - It counts as outdoors (`ZoneDefinition.Outdoors`): trees fringe the map and campfires glow.
+  - The minimap draws its walls pale and its flagstones grey.
+  - Ruins tiles 153–166 are wall tops, drawn raised, so the floors are 24–31 and 74–78.
+- **Zones carry an act** (`act` in the zone file; the HUD says "Act 2"):
+  - Drops roll on the act's rarity shares (`LootGenerator.RarityShares`); until now every zone had rolled on Act 1's.
+  - The Rift lists other zones by act, then level.
+- **The road between the acts:** Sallow's Mire's Herald gate (open once Mother Sallow is slain) leads into the Iron March. The March's north end is Ironhold's outer gate.
+- **The Iron March** (`tools/iron_march_mapgen.py`, 64×200, levels 6–7, 27 packs, three shrines, eight chests and a reliquary). The war road runs north through six stretches:
+  1. The Mire causeway.
+  2. The old battlefield: three broken walls across the field, crossbow squads behind them, legionaries holding the gaps.
+  3. The watchtower ruin.
+  4. The legion's siege camp: barricades of crates, barrels and rubble across the road.
+  5. The hollow road: outlaw ambushes.
+  6. The siege line before the gate, held by **Centurion Varro**. He is a named champion with a rare drop, and his pack's fall sets `act2.varro`.
+
+  Side glades hold the outlaws' lookout and a broken Lantern shrine. A **wanted poster** for Red Mirella starts the Outlaw Queen's journal entry (the story itself is step 4).
+- **Monsters** (`creatures.json`):
+  - Legionaries: skeletons recoloured to old iron, with resistance 4 to piercing behind their shields.
+  - Legion crossbowmen: skeleton archers at 8 tiles, 1d10.
+  - Outlaw raiders: avatar-drawn flankers with hand axes.
+  - Outlaw bowmen: avatar-drawn.
+  - Centurion Varro: Flare's skeleton knight, 2d6, 1.6× hit points.
+- **Cover** (`LegendEntry.Cover`, `TileMap.InCover`, `GameWorld.CoverAgainst`):
+  - The March's rubble heaps, low walls, crates and barrels block movement but not sight.
+  - A ranged attack whose line crosses one within 2 tiles of its target is against Pathfinder's standard cover: +2 AC. This covers a monster's arrow or bolt, the hero's bow Strikes and spell attacks.
+  - An attacker within 2.5 tiles shoots over the cover. A miss behind cover says "cover".
+- **Kiting** (`CreatureDefinition.Kites`, Act 2's AI behaviour):
+  - Crossbowmen and bowmen fall back 3 tiles, turning up to 90° round walls, when the hero comes within 3.5 tiles.
+  - They do so for up to 2.5 s, then stand and fight. Their will to run returns at half a second a second while the hero keeps away. A melee hero can still corner them.
+- **Ironhold** (`tools/ironhold_mapgen.py`, the Act 2 hub, level 6): a ward of flagstones inside a ring of stone, the gate south to the March, and the north gate to the Barrow Fields (barred until step 3). Its people:
+  - **Captain Oswin Thale** of the Ironhold Guard. He tells of Hadric's legion and asks for Varro; with Varro slain he pays 400 XP and 300 gold, once.
+  - **Archivist Pell**, by the founders' statues. He seeds Act 2's revelation: the founders were Lantern knights sworn to keep Ironhold's gates shut to anyone coming down from Mount Cindral.
+  - **Hilde the smith:** arms, armour, rune work and crafting.
+  - **Sable**, the Brothers of the Ferry's fence: Act 1's ferry choice pays off at his table.
+  - The stash, the Founders' altar (respec, free once in Act 2) and the Ward Shrine.
+- **Traders' terms** (`VendorDefinition.Terms`, `GameWorld.TermsOf`): the first set of terms whose world flags hold sets the trader's price scale (items, supplies and potion charges), how many of the stock are rare when it is rolled, and the greeting. Sable's terms follow the ferry choice:
+
+  | Ferry choice | Price | Stock | Greeting |
+  | --- | --- | --- | --- |
+  | Brothers | ×0.8 | 2 rares | a friend's welcome |
+  | Lantern | ×1.25 | as usual | "The Lantern's dog" |
+  | Neither | list price | as usual | his usual greeting |
+- **Balance** (`BalanceReport.Iron_March_at_level_6`: the whole zone, every pack, a level-6 hero in the starting kit with +1 runes):
+  - Every subclass reaches Ironhold in 4.6–9.6 bot minutes, about 20–35 minutes of a player's play (decision 2), and leaves at level 7 (decision 5).
+  - Deaths run 0–2 a run, mostly to the champion packs.
+  - Act 1's campaign is unchanged.
 
 ### The arsenal (M2, after step 10)
 

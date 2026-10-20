@@ -7,11 +7,12 @@ namespace AshenReliquary.Core.World;
 /// hands, legs, feet, main); <see cref="Facing"/> is the sprite direction they stand in. <see cref="Sells"/> narrows
 /// the stock to "weapons", "armour" and/or "jewellery" (a smith); null sells anything. <see cref="Runework"/>: the
 /// trader also etches and moves runes (<see cref="Items.Runework"/>). <see cref="Supplies"/>: belt items (bombs,
-/// elixirs) always for sale, as many as the hero can pay for.
+/// elixirs) always for sale, as many as the hero can pay for. <see cref="Terms"/>: how the trader deals with the hero
+/// as world flags stand (the first whose flags hold applies): a price, rares on the table, a greeting.
 /// </summary>
 public sealed record VendorDefinition(string Id, string Name, string Title, int[] At, IReadOnlyDictionary<string, string> Look,
     int Facing = 6, int StockSize = 12, string Greeting = "Coin for kit, kit for coin.", IReadOnlyList<string>? Sells = null,
-    bool Runework = false, IReadOnlyList<string>? Supplies = null)
+    bool Runework = false, IReadOnlyList<string>? Supplies = null, IReadOnlyList<VendorTerms>? Terms = null)
 {
     /// <summary>Whether this trader stocks items like <paramref name="item"/>.</summary>
     public bool Stocks(Items.ItemDefinition item) => Sells is null || Sells.Any(kind => kind switch
@@ -23,6 +24,13 @@ public sealed record VendorDefinition(string Id, string Name, string Title, int[
         _ => false,
     });
 }
+
+/// <summary>
+/// A trader's dealings with the hero while <see cref="Requires"/> holds (world flags, "" for unset): their prices
+/// times <see cref="PriceScale"/>, <see cref="Rares"/> of the stock rolled rare, and their own <see cref="Greeting"/>.
+/// Act 1's ferry choice sets the Brothers' fence's terms in Ironhold.
+/// </summary>
+public sealed record VendorTerms(IReadOnlyDictionary<string, string> Requires, double PriceScale = 1.0, int Rares = 0, string? Greeting = null);
 
 /// <summary>A trader in play: what is on the table, and what you sold this visit (buy it back at the price you got).</summary>
 public sealed class Vendor

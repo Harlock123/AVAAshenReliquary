@@ -271,6 +271,34 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// The Iron March (M4 step 2): the whole zone, every pack in order, from the Mire causeway to Ironhold's gate, for a
+    /// level-6 hero (Act 1 ends at 5-6) in the starting kit with +1 runes. Its deaths and minutes measure Act 2's
+    /// squads, cover and kiting crossbowmen.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Iron_March_at_level_6(string kit)
+    {
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun("iron_march", "ironhold", kit, seed, 6, runes: 1)).ToList();
+        output.WriteLine($"{kit}: the Iron March from the causeway to Ironhold's gate, every pack, {runs.Count} runs");
+        foreach (var r in runs)
+            output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "reached Ironhold" : "did not finish")}");
+        foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(4))
+            output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+    }
+
+    /// <summary>
     /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTo"/> makes them): every pack
     /// in the zone file's order (in the Fens the main route, then the Sunken Road, then back for the Old Dyke), then the
     /// exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.

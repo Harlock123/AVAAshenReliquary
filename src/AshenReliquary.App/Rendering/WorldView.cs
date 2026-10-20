@@ -1283,7 +1283,7 @@ public sealed class WorldView : Control
         using var rim = Shade(0.8f, 0.8f);
         using var fringe = Shade(0.4f, 0.3f);
         var map = world.Map;
-        var outdoors = world.Zone.Tileset == "tileset_grassland";
+        var outdoors = world.Zone.Outdoors;
         int WetNeighbours(int x, int y) =>
             (map.IsBog(x + 1, y) ? 1 : 0) + (map.IsBog(x - 1, y) ? 1 : 0) + (map.IsBog(x, y + 1) ? 1 : 0) + (map.IsBog(x, y - 1) ? 1 : 0);
         for (var y = y0; y <= y1; y++)
@@ -1498,7 +1498,7 @@ public sealed class WorldView : Control
         for (var x = x0; x <= x1; x++)
         {
             IReadOnlyList<int> objects = world.Map.InBounds(x, y) ? world.Map.Objects(x, y)
-                : world.Zone.Tileset == "tileset_grassland" && OutsideTree(x, y) is { } tree ? [tree] : [];
+                : world.Zone.Outdoors && OutsideTree(x, y) is { } tree ? [tree] : [];
             foreach (var id in objects)
             {
                 if (!tileset.Tiles.TryGetValue(id, out var tile))
@@ -2148,7 +2148,7 @@ public sealed class WorldView : Control
             lights.Add((ToScreen(l.X, l.Y), (float)l.Radius + flicker, glow));
         }
         // Outdoors, Flare's grassland campfire and shrine tiles give light of themselves.
-        for (var y = world.Zone.Tileset == "tileset_grassland" ? y0 : y1 + 1; y <= y1; y++)
+        for (var y = world.Zone.Outdoors ? y0 : y1 + 1; y <= y1; y++)
         for (var x = x0; x <= x1; x++)
         {
             foreach (var id in world.Map.Objects(x, y))

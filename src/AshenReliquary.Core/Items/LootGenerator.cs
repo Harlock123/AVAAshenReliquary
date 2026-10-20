@@ -18,7 +18,7 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
 {
     public IReadOnlyDictionary<string, ItemDefinition> Items { get; } = items;
 
-    public IReadOnlyList<LootDrop> Roll(CreatureRank rank, int level, IRandomSource random, bool spawner = false)
+    public IReadOnlyList<LootDrop> Roll(CreatureRank rank, int level, IRandomSource random, bool spawner = false, int act = 1)
     {
         var drops = new List<LootDrop>();
         var (itemChance, items, goldChance, goldMultiplier) = rank switch
@@ -38,7 +38,7 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             if (random.Roll(1, 100) <= (i == 0 ? itemChance : 50))
             {
                 // A Herald's first drop is always rare.
-                var rarity = i == 0 && rank >= CreatureRank.Herald ? Rarity.Rare : RollRarity(rank, random);
+                var rarity = i == 0 && rank >= CreatureRank.Herald ? Rarity.Rare : RollRarity(rank, random, act);
                 drops.Add(new LootDrop(Generate(Math.Max(1, level), rarity, random)));
             }
         }
@@ -66,14 +66,14 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
     /// uncommon, 10% rare), 3 to 18 x (1 + level) gold and a 30% chance of a healing draught; a reliquary holds two items,
     /// the first at least uncommon (25% rare), triple the gold and a 60% chance of a draught.
     /// </summary>
-    public IReadOnlyList<LootDrop> RollCache(World.CacheKind kind, int level, IRandomSource random)
+    public IReadOnlyList<LootDrop> RollCache(World.CacheKind kind, int level, IRandomSource random, int act = 1)
     {
         level = Math.Max(1, level);
         var drops = new List<LootDrop>();
         if (kind == World.CacheKind.Reliquary)
         {
             drops.Add(new LootDrop(Generate(level, random.Roll(1, 100) <= 25 ? Rarity.Rare : Rarity.Uncommon, random)));
-            drops.Add(new LootDrop(Generate(level, RollRarity(CreatureRank.Champion, random), random)));
+            drops.Add(new LootDrop(Generate(level, RollRarity(CreatureRank.Champion, random, act), random)));
         }
         else
         {

@@ -42,8 +42,8 @@ public static class Pricing
         return factor;
     }
 
-    /// <summary>What a trader asks for the item.</summary>
-    public static int BuyPrice(Item item, Character c) => Math.Max(1, (int)Math.Ceiling(Value(item) * SellMarkup * Haggle(c)));
+    /// <summary>What a trader asks for the item; <paramref name="scale"/> is the trader's own terms (1 at list price).</summary>
+    public static int BuyPrice(Item item, Character c, double scale = 1) => Math.Max(1, (int)Math.Ceiling(Value(item) * SellMarkup * Haggle(c) * scale));
 
     /// <summary>What a trader pays for the item; selling something back costs the same within a visit (buyback).</summary>
     public static int SellPrice(Item item) => Math.Max(1, (int)Math.Floor(Value(item) * BuyRate));
@@ -52,9 +52,9 @@ public static class Pricing
     /// One belt item from a trader's supplies: its price, more as the hero's level heightens what it does (a bomb's dice
     /// grow every two levels), through the haggle.
     /// </summary>
-    public static int SupplyPrice(ItemDefinition item, Character c) =>
-        Math.Max(1, (int)Math.Ceiling(item.Price * SellMarkup * (1 + 0.5 * (Abilities.AbilityDefinition.SpellRank(c.Level) - 1)) * Haggle(c)));
+    public static int SupplyPrice(ItemDefinition item, Character c, double scale = 1) =>
+        Math.Max(1, (int)Math.Ceiling(item.Price * SellMarkup * (1 + 0.5 * (Abilities.AbilityDefinition.SpellRank(c.Level) - 1)) * Haggle(c) * scale));
 
     /// <summary>One healing potion charge from a trader.</summary>
-    public static int PotionPrice(Character c) => Math.Max(1, (int)Math.Ceiling((10 + 5 * c.Level) * Haggle(c)));
+    public static int PotionPrice(Character c, double scale = 1) => Math.Max(1, (int)Math.Ceiling((10 + 5 * c.Level) * Haggle(c) * scale));
 }

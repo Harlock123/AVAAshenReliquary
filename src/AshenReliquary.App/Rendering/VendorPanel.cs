@@ -231,7 +231,7 @@ internal sealed class VendorPanel
             if (i < vendor.Stock.Count)
             {
                 var item = vendor.Stock[i];
-                DrawItem(canvas, rect, item, Pricing.BuyPrice(item, c), gear.Gold, small, gold, poor);
+                DrawItem(canvas, rect, item, world.BuyPrice(item), gear.Gold, small, gold, poor);
             }
             else
             {
@@ -243,7 +243,7 @@ internal sealed class VendorPanel
 
         // A potion charge.
         var button = PotionButton;
-        var price = Pricing.PotionPrice(c);
+        var price = world.PotionPrice;
         var full = c.Potion.Charges >= HealingPotion.MaxCharges;
         using (var buttonBack = new SKPaint { Color = hoverPotion && !full ? new SKColor(60, 40, 34, 240) : new SKColor(34, 26, 22, 240) })
             canvas.DrawRect(button, buttonBack);
@@ -263,7 +263,7 @@ internal sealed class VendorPanel
                 canvas.DrawRect(rect, cellBack);
                 _drawIcon(canvas, supplies[i], SKRect.Inflate(rect, -4, -4));
                 canvas.DrawRect(rect, faint);
-                var cost = Pricing.SupplyPrice(supplies[i], c);
+                var cost = world.SupplyPrice(supplies[i]);
                 canvas.DrawText($"{cost}", rect.MidX, rect.Bottom + 13, SKTextAlign.Center, small, gear.Gold >= cost ? gold : poor);
                 var held = gear.CountOf(supplies[i]);
                 if (held > 0)
@@ -299,11 +299,11 @@ internal sealed class VendorPanel
             Item? hovered = null;
             string? where = null;
             if (hoverWare is { } w && w < vendor.Stock.Count)
-                (hovered, where) = (vendor.Stock[w], $"Costs {Pricing.BuyPrice(vendor.Stock[w], c)} gold");
+                (hovered, where) = (vendor.Stock[w], $"Costs {world.BuyPrice(vendor.Stock[w])} gold");
             else if (hoverBuyback is { } b && b < vendor.Buyback.Count)
                 (hovered, where) = (vendor.Buyback[b], $"Buy back for {Pricing.SellPrice(vendor.Buyback[b])} gold");
             else if (hoverSupply is { } s && s < supplies.Count)
-                (hovered, where) = (new Item(supplies[s], Rarity.Common, c.Level), $"Costs {Pricing.SupplyPrice(supplies[s], c)} gold · you have {gear.CountOf(supplies[s])}");
+                (hovered, where) = (new Item(supplies[s], Rarity.Common, c.Level), $"Costs {world.SupplyPrice(supplies[s])} gold · you have {gear.CountOf(supplies[s])}");
             if (hovered is not null)
             {
                 var worn = gear.SlotFor(hovered) is { } slot ? gear.In(slot) : null;

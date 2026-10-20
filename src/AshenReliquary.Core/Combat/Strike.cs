@@ -120,9 +120,9 @@ public static class Strike
     /// degree multiplier and the target's defences. Spell damage adds no attribute, as in the Remaster.
     /// </summary>
     public static StrikeResult ResolveSpellAttack(Character caster, IDefender target, Dice damage, DamageType type,
-        IRandomSource random)
+        IRandomSource random, int targetAc = 0)
     {
-        var check = Check.Roll(random, caster.SpellAttack().Total, target.ArmorClass().Total);
+        var check = Check.Roll(random, caster.SpellAttack().Total, target.ArmorClass().Total + targetAc);
         var dealt = DamageCalculator.DegreeMultiplier(check.Degree) > 0
             ? DamageCalculator.Compute(damage.RollDiceOnly(random), damage.Bonus, check.Degree, type, target.Defenses)
             : 0;

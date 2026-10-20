@@ -205,10 +205,15 @@ internal sealed class Minimap
             return new SKColor(40, 62, 70);
         if (map.IsBog(x, y))
             return new SKColor(62, 74, 34);
+        // Act 2's ruins (tile ids from 1000): stone walls pale, so the walls of Ironhold and the March read.
         if (map.IsBlocked(x, y))
-            return map.Objects(x, y).Any(id => id >= 240) ? new SKColor(28, 40, 26) : new SKColor(70, 64, 56);
+            return map.Objects(x, y).Any(id => id >= 1000) ? (map.BlocksSight(x, y) ? new SKColor(128, 116, 98) : new SKColor(92, 84, 72))
+                : map.Objects(x, y).Any(id => id >= 240) ? new SKColor(28, 40, 26) : new SKColor(70, 64, 56);
         if (ground is >= 32 and <= 47)
             return new SKColor(120, 104, 80);
+        // Flagstones (the ruins' floors): grey stone.
+        if (ground >= 1000)
+            return new SKColor(96, 92, 84);
         return new SKColor(56, 64, 40);
     }
 }

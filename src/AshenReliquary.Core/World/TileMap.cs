@@ -24,6 +24,7 @@ public sealed class TileMap
     private readonly bool[,] _blocksSight;
     private readonly bool[,] _water;
     private readonly bool[,] _bog;
+    private readonly bool[,] _cover;
 
     /// <summary>What a step onto a bog cell costs the pathfinder: walkers go round a pool when the way round is short.</summary>
     public const double BogStepCost = 3.0;
@@ -38,6 +39,7 @@ public sealed class TileMap
         _blocksSight = new bool[Width, Height];
         _water = new bool[Width, Height];
         _bog = new bool[Width, Height];
+        _cover = new bool[Width, Height];
 
         for (var y = 0; y < Height; y++)
         {
@@ -56,6 +58,7 @@ public sealed class TileMap
                 _bog[x, y] = entry.Ground == "bog";
                 _blocked[x, y] = entry.Blocks || _water[x, y];
                 _blocksSight[x, y] = entry.BlocksSight;
+                _cover[x, y] = entry.Cover;
                 if (entry.Light > 0)
                     _lights.Add(new MapLight(x + 0.5, y + 0.5, entry.Light, entry.LightColor));
             }
@@ -172,6 +175,36 @@ public sealed class TileMap
                 return false;
         }
         return true;
+    }
+
+    /// <summary>True for a low wall, cart or barricade: something to shelter behind from arrows and bolts.</summary>
+    public bool IsCover(int x, int y) => InBounds(x, y) && _cover[x, y];
+
+    /// <summary>How close behind cover a target must stand for it to shelter them.</summary>
+    public const double CoverReach = 2.0;
+
+    /// <summary>
+    /// Whether a ranged attack from (x0, y0) at (x1, y1) is against cover: its line crosses a cover cell within
+    /// <see cref="CoverReach"/> tiles of the target (not the target's own cell). An attacker that close itself shoots
+    /// past the cover, as it would lean over a wall.
+    /// </summary>
+    public bool InCover(double x0, double y0, double x1, double y1)
+    {
+        var distance = Math.Sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+        if (distance <= CoverReach + 0.5)
+            return false;
+        int tx = (int)Math.Floor(x1), ty = (int)Math.Floor(y1);
+        var steps = Math.Max(1, (int)(distance * 4));
+        for (var i = 1; i < steps; i++)
+        {
+            var t = (double)i / steps;
+            if (distance * (1 - t) > CoverReach)
+                continue;
+            int cx = (int)Math.Floor(x0 + (x1 - x0) * t), cy = (int)Math.Floor(y0 + (y1 - y0) * t);
+            if ((cx, cy) != (tx, ty) && IsCover(cx, cy))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>A stable pseudo-random pick per cell, so the same zone always looks the same.</summary>

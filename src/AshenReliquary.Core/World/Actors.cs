@@ -333,6 +333,9 @@ public sealed class MonsterActor : Actor
     /// <summary>Seconds spent circling for a flank before it gives up and strikes from where it is.</summary>
     internal double FlankTime { get; set; }
 
+    /// <summary>How long a kiting monster has been falling back (it stands its ground after <see cref="GameWorld.KiteSeconds"/>, until rested).</summary>
+    internal double KiteTime { get; set; }
+
     /// <summary>Who it is fighting: the hero, or an ally that is nearer (chosen again every second).</summary>
     internal Actor? Victim { get; set; }
     internal double VictimIn { get; set; }

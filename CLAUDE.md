@@ -101,8 +101,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   at 6 on key 6, subclass abilities at 8 via the subclass feat and the ability's `level`, 36 feats at 6/8/10; new
   ability fields `hideSeconds`, `retaliate`, `cleansesTaint`, `count` for timed summons; `GameWorld.UseAbility` for
   bots; plate, war hammer, reinforced club, great staff, five Uniques, the Ironhold Guard set;
-  `BalanceReport.Sallows_Mire_raised_to_levels_6_8_and_10`). Next: step 2, Ironhold and the Iron March (art survey
-  first).
+  `BalanceReport.Sallows_Mire_raised_to_levels_6_8_and_10`). Step 2 done: Ironhold and the Iron March
+  (`tools/ironhold_mapgen.py`, `tools/iron_march_mapgen.py`; `tileset_ironhold` = grassland + rubberduck's Old Ruins with
+  ruins ids +1000, ruins 153-166 are raised wall tops; zones' `act` drives drop shares, the HUD and the Rift order;
+  cover cells `cover` and `TileMap.InCover`, +2 AC; `kites` monsters; `VendorDefinition.Terms` (Sable follows
+  `act1.ferry`); Captain Thale, Pell, Hilde, Sable; Centurion Varro sets `act2.varro`; the Mire's Herald gate travels
+  to the March; `BalanceReport.Iron_March_at_level_6`). Next: step 3, the Barrow Fields and the Old Barracks.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

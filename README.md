@@ -35,7 +35,7 @@ dotnet run --project src/AshenReliquary.App -- --vanguard # or any subclass: --b
                                                           # --cutthroat, --trickster, --marksman, --beastmaster,
                                                           # --lanternbearer, --oathbreaker, --bonelord, --plaguebringer
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
-dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id, or --wizard)
+dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id such as iron_march, or --wizard; the hero starts at the zone's level)
 ```
 
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
@@ -173,7 +173,14 @@ M4, Acts 2-4 (`docs/M4_PLAN.md`), has begun with step 1, **levels 6-10**: each c
 (Whirlwind Strike, Shield Slam, Beacon of Hope, Dread Harvest, Fan of Knives, Smoke Bomb, Deadeye, Call of the Pack,
 Fireball, Chain Lightning, Raise Bone Knight, Plague Cloud), with class feats at 6, 8 and 10. Loot reaches level 10:
 full plate and its helm, gauntlets, greaves and boots, the war hammer, reinforced club and great staff, five new
-Uniques and the Ironhold Guard's Plate set. Act 2's zones come next.
+Uniques and the Ironhold Guard's Plate set. Step 2 opened Act 2: with Mother Sallow dead, the black water across the
+Mire's east road falls and the **Iron March** (levels 6-7) leads north to **Ironhold**. Hadric's dead hold the old war
+road in squads: legionaries in the gaps of broken walls, crossbowmen behind them who fall back when you close in, and
+outlaw raiders and bowmen in the woods; rubble, crates and low walls are **cover** (+2 AC against a shot across them),
+for you and for them. Centurion Varro holds the siege line at Ironhold's gate. In the city, Captain Thale of the Guard,
+Archivist Pell, Hilde the smith and Sable the fence (whose prices and stock remember whose side you took on the
+Rotwater ferry) wait with a stash, an altar and a Rift Shrine. Act 2's walls are rubberduck's Old Ruins tileset, from
+Flare's Empyrean Campaign. Next: the Barrow Fields and the Old Barracks.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

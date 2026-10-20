@@ -427,7 +427,7 @@ public sealed partial class GameWorld
 
     /// <summary>Every woken shrine the open Rift can reach: (zone, shrine), this zone's first, then by zone order.</summary>
     public IReadOnlyList<(ZoneDefinition Zone, ShrineDefinition Shrine)> RiftDestinations =>
-        new[] { Zone }.Concat(_zones.Values.Where(z => z.Id != Zone.Id))
+        new[] { Zone }.Concat(_zones.Values.Where(z => z.Id != Zone.Id).OrderBy(z => z.Act).ThenBy(z => z.Level))
             .SelectMany(z => z.Shrines.Where(s => _activatedShrines.Contains(s.Id) && s != OpenShrine).Select(s => (z, s)))
             .ToList();
 
@@ -651,7 +651,7 @@ public sealed partial class GameWorld
         Say($"You open the {cache.Name.ToLowerInvariant()}.");
         if (_loot is null)
             return;
-        var drops = _loot.RollCache(cache.Definition.Kind, Math.Max(Hero.Character.Level, Zone.Level), Random);
+        var drops = _loot.RollCache(cache.Definition.Kind, Math.Max(Hero.Character.Level, Zone.Level), Random, Zone.Act);
         Spill(cache.X, cache.Y, drops);
         Sound(SoundCue.LootDrop, cache.X, cache.Y);
     }
@@ -710,8 +710,23 @@ public sealed partial class GameWorld
         OpenVendor = vendor;
         vendor.ClearBuyback();
         Hero.Face(vendor.X, vendor.Y);
-        Say($"{vendor.Definition.Name}: \"{vendor.Definition.Greeting}\"");
+        Say($"{vendor.Definition.Name}: \"{TermsOf(vendor)?.Greeting ?? vendor.Definition.Greeting}\"");
     }
+
+    /// <summary>The terms <paramref name="vendor"/> deals on as the world's flags stand: the first that holds, or none.</summary>
+    public VendorTerms? TermsOf(Vendor vendor) => vendor.Definition.Terms?.FirstOrDefault(t => Holds(t.Requires));
+
+    /// <summary>The open trader's price scale (1 at list price, or with no trader open).</summary>
+    private double TradeScale => OpenVendor is { } vendor ? TermsOf(vendor)?.PriceScale ?? 1 : 1;
+
+    /// <summary>What the open trader asks for <paramref name="item"/>, on its terms.</summary>
+    public int BuyPrice(Item item) => Pricing.BuyPrice(item, Hero.Character, TradeScale);
+
+    /// <summary>What one of a belt item costs at the open trader.</summary>
+    public int SupplyPrice(ItemDefinition item) => Pricing.SupplyPrice(item, Hero.Character, TradeScale);
+
+    /// <summary>What a potion charge costs at the open trader.</summary>
+    public int PotionPrice => Pricing.PotionPrice(Hero.Character, TradeScale);
 
     /// <summary>Raised when the hero leaves a trader (Esc or walking away): an autosave moment.</summary>
     public event Action<Vendor>? TradeClosed;
@@ -730,7 +745,8 @@ public sealed partial class GameWorld
         if (OpenVendor is not { } vendor || index < 0 || index >= vendor.Stock.Count)
             return false;
         var item = vendor.Stock[index];
-        if (!Pay(Pricing.BuyPrice(item, Hero.Character)) || !GiveOrRefund(item, Pricing.BuyPrice(item, Hero.Character)))
+        var cost = BuyPrice(item);
+        if (!Pay(cost) || !GiveOrRefund(item, cost))
             return false;
         vendor.Take(item);
         Say($"Bought {item.Name}.");
@@ -785,7 +801,7 @@ public sealed partial class GameWorld
             Say("Your potion charges are already full.");
             return false;
         }
-        if (!Pay(Pricing.PotionPrice(Hero.Character)))
+        if (!Pay(PotionPrice))
             return false;
         Hero.Character.Potion.AddCharge();
         Sound(SoundCue.Potion, Hero);
@@ -804,7 +820,7 @@ public sealed partial class GameWorld
     {
         if (OpenVendor is null || !Supplies.Contains(item))
             return false;
-        var price = Pricing.SupplyPrice(item, Hero.Character);
+        var price = SupplyPrice(item);
         if (!Pay(price) || !GiveOrRefund(new Item(item, Rarity.Common, Hero.Character.Level), price))
             return false;
         Say($"Bought {item.Name.ToLowerInvariant()}.");
@@ -893,8 +909,11 @@ public sealed partial class GameWorld
         var itemLevel = Math.Max(Zone.Level, level);
         var count = vendor.Definition.StockSize;
         var uncommon = count / 3;
+        // Terms with rares (the Brothers' fence for one of their own) put that many on the table in place of commons.
+        var rares = Math.Min(TermsOf(vendor)?.Rares ?? 0, count - uncommon);
         var items = Enumerable.Range(0, count)
-            .Select(i => _loot.Generate(itemLevel, i < count - uncommon ? Rarity.Common : Rarity.Uncommon, random, vendor.Definition.Stocks))
+            .Select(i => _loot.Generate(itemLevel, i < rares ? Rarity.Rare : i < count - uncommon ? Rarity.Common : Rarity.Uncommon,
+                random, vendor.Definition.Stocks))
             .OrderBy(i => i.Definition.Slot)
             .ThenBy(i => i.Rarity)
             .ToList();
@@ -1241,7 +1260,7 @@ public sealed partial class GameWorld
     {
         if (_loot is null)
             return;
-        var drops = _loot.Roll(monster.Creature.Stats.Rank, monster.Creature.Stats.EffectiveLevel, Random, monster.Definition.IsSpawner).ToList();
+        var drops = _loot.Roll(monster.Creature.Stats.Rank, monster.Creature.Stats.EffectiveLevel, Random, monster.Definition.IsSpawner, Zone.Act).ToList();
         if (monster.Definition.RareDrop)
             drops.Insert(0, new LootDrop(_loot.Generate(Math.Max(1, monster.Creature.Stats.EffectiveLevel), Rarity.Rare, Random)));
         Spill(monster.X, monster.Y, drops);
@@ -1515,7 +1534,8 @@ public sealed partial class GameWorld
                 Chain(p);
                 return;
             }
-            var result = Strike.ResolveSpellAttack(Hero.Character, target.Creature, dice, ability.DamageType, Random);
+            var cover = CoverAgainst(Hero.X, Hero.Y, target);
+            var result = Strike.ResolveSpellAttack(Hero.Character, target.Creature, dice, ability.DamageType, Random, cover);
             critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
             damage = result.Damage;
             if (critical)
@@ -1524,7 +1544,7 @@ public sealed partial class GameWorld
             SpellSplash(ability, target, p.Rank);
             if (damage == 0)
             {
-                Float(target, result.Label, FloatingTextKind.Miss);
+                Float(target, cover > 0 ? "cover" : result.Label, FloatingTextKind.Miss);
                 Aggro(target);
                 return;
             }
@@ -1613,9 +1633,10 @@ public sealed partial class GameWorld
             return;
         var c = Hero.Character;
         var (offGuard, sneak) = SneakAttack(target, fromHiding || feint);
+        var cover = Shoots ? CoverAgainst(Hero.X, Hero.Y, target) : 0;
         var result = Strike.Resolve(c, target.Creature, Hero.Cadence, Time, Random, graze: GrazeEffect.Near,
             attackSpeedBonus: c.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks,
-            targetAc: offGuard, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit,
+            targetAc: offGuard + cover, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit,
             preyDice: target == Hero.Prey ? c.PreyDice : 0);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
         if (critical && Shoots && c.CritResourceBonus > 0)
@@ -1646,7 +1667,7 @@ public sealed partial class GameWorld
         }
         else
         {
-            Float(target, result.Label, FloatingTextKind.Miss);
+            Float(target, cover > 0 ? "cover" : result.Label, FloatingTextKind.Miss);
         }
         if (result.AttackerStaggered)
             Hero.StaggerRemaining = ActionTiming.CritFailStaggerSeconds;
@@ -1738,6 +1759,35 @@ public sealed partial class GameWorld
     }
 
     /// <summary>Where a flanker wants to stand: across the hero from an ally already in melee, on open ground.</summary>
+    /// <summary>A kiting monster falls back when the hero comes within this many tiles.</summary>
+    public const double KiteTiles = 3.5;
+
+    /// <summary>How long it falls back before it stands its ground.</summary>
+    public const double KiteSeconds = 2.5;
+
+    /// <summary>How fast its will to fall back returns while the hero keeps away (seconds of kiting per second).</summary>
+    public const double KiteRestRate = 0.5;
+
+    /// <summary>
+    /// Where a kiting monster falls back to: 3 tiles straight away from the hero, or turned up to 90 degrees either way
+    /// when a wall is behind it; null when it is cornered.
+    /// </summary>
+    private (double X, double Y)? KiteSpot(MonsterActor m)
+    {
+        var (dx, dy) = (m.X - Hero.X, m.Y - Hero.Y);
+        var length = Math.Sqrt(dx * dx + dy * dy);
+        if (length < 1e-6)
+            (dx, dy, length) = (1, 0, 1);
+        var angle = Math.Atan2(dy, dx);
+        foreach (var turn in new[] { 0.0, 0.5, -0.5, 1.0, -1.0, 1.5, -1.5 })
+        {
+            var (x, y) = (m.X + Math.Cos(angle + turn) * 3, m.Y + Math.Sin(angle + turn) * 3);
+            if (Map.IsWalkable(x, y) && Map.HasLineOfSight(m.X, m.Y, x, y))
+                return (x, y);
+        }
+        return null;
+    }
+
     private (double X, double Y)? FlankSpot(MonsterActor m)
     {
         if (FlankPartner(m, requireFlank: false) is not { } ally)
@@ -1766,6 +1816,16 @@ public sealed partial class GameWorld
         CreatureRank.Herald or CreatureRank.Prophet => 10.0,
         _ => Encounter.RankWeight(rank),
     };
+
+    /// <summary>
+    /// Raises the hero to <paramref name="level"/> at once, the levels' picks left waiting for the level-up screen: the
+    /// battle demo's hero at a zone's level ("--battle iron_march" fights at 6).
+    /// </summary>
+    public void TrainTo(int level)
+    {
+        while (Hero.Character.Level < Math.Min(level, 20))
+            GainXp(Experience.XpPerLevel, Hero);
+    }
 
     internal void GainXp(int xp, Actor at)
     {
@@ -1892,6 +1952,31 @@ public sealed partial class GameWorld
             return;
         }
 
+        // A kiting archer falls back when the hero closes in, for a while; then it stands and fights until rested.
+        if (def.Kites && victim == hero && !def.Stationary && !m.Fused && m.Creature.Conditions.CanMove)
+        {
+            if (victimDistance < KiteTiles && m.KiteTime < KiteSeconds && KiteSpot(m) is { } away)
+            {
+                m.KiteTime += dt;
+                m.State = MonsterState.Chase;
+                m.RepathIn -= dt;
+                if (m.Path.Count == 0 || m.RepathIn <= 0)
+                {
+                    PlanPath(m, away.X, away.Y);
+                    m.RepathIn = 0.4;
+                }
+                if (FollowPath(m, MonsterSpeed(m), dt, null))
+                {
+                    m.Play("run");
+                    return;
+                }
+            }
+            else if (victimDistance >= KiteTiles + 1)
+            {
+                m.KiteTime = Math.Max(0, m.KiteTime - dt * KiteRestRate);
+            }
+        }
+
         var inRange = victimDistance <= def.AttackRange + victim.Radius
             && (!def.Ranged || Map.HasLineOfSight(m.X, m.Y, victim.X, victim.Y));
         // A flanker in reach but not yet flanking circles round for up to 3 s while an ally holds the hero's attention.
@@ -1983,7 +2068,14 @@ public sealed partial class GameWorld
         m.Play("spawn", restart: true);
     }
 
-    private void MonsterStrike(MonsterActor m)
+    /// <summary>Standard cover (Pathfinder): +2 AC against a ranged attack across a low wall, cart or barricade.</summary>
+    public const int CoverAcBonus = 2;
+
+    /// <summary>The AC a ranged attack from (x, y) at <paramref name="target"/> must also beat for cover (0 in the open).</summary>
+    internal int CoverAgainst(double x, double y, Actor target) => Map.InCover(x, y, target.X, target.Y) ? CoverAcBonus : 0;
+
+    /// <param name="shot">The blow is a shot arriving (an arrow or bolt): cover between the shooter and the hero counts.</param>
+    private void MonsterStrike(MonsterActor m, bool shot = false)
     {
         if (Time < Hero.InvulnerableUntil)
         {
@@ -1998,8 +2090,9 @@ public sealed partial class GameWorld
             Float(Hero, "flanked", FloatingTextKind.Info, 0.5);
         }
         var (attack, damage, _) = VengeanceBonus(m);
+        var cover = shot ? CoverAgainst(m.X, m.Y, Hero) : 0;
         var result = Strike.Resolve(m.Creature, Hero.Character, m.Cadence, Time, Random,
-            targetAc: flanked ? -ConditionSet.OffGuardAcPenalty : 0, attackBonus: attack, damageScale: damage);
+            targetAc: (flanked ? -ConditionSet.OffGuardAcPenalty : 0) + cover, attackBonus: attack, damageScale: damage);
         if (result.Damage > 0)
         {
             if (result.Degree == DegreeOfSuccess.CriticalSuccess)
@@ -2020,7 +2113,7 @@ public sealed partial class GameWorld
         }
         else
         {
-            Float(Hero, "miss", FloatingTextKind.Miss);
+            Float(Hero, cover > 0 ? "cover" : "miss", FloatingTextKind.Miss);
         }
     }
 
