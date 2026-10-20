@@ -82,12 +82,19 @@ follow the ferry choice), the stash, the altar and the Ward Shrine; zones carry 
 Rift). The survey's gaps: no town buildings (Ironhold is a walled ward), no crossbow art (recoloured skeleton archers),
 no Act 2 colour grade. See the spec, section 16, "Ironhold and the Iron March".
 
-### 3. The Barrow Fields (2.2) and the Old Barracks (2.3)
+### 3. The Barrow Fields (2.2) and the Old Barracks (2.3) (done)
 
 - **The Barrow Fields:** undead that rise again unless their bodies are destroyed: a corpse to burn, hallow or smash. A Necromancer's Corpse Explosion uses them too.
 - **Grave hounds:** the wolf, recoloured.
 - **The Old Barracks (a dungeon):** traps found with Perception and disarmed with Thievery, in the dark.
 - **Two side stories:** Hadric's Oath (his journal in the barracks crypt) and The Clockwork Confessor (parts across three zones).
+
+*Done (2026-10-20):* the Barrow Fields (levels 7-8; barrow dead, legionaries, grave hounds and knights rise again unless
+smashed, burned, hallowed, crushed or exploded; open barrows) through Ironhold's north gate once Varro falls; the Old
+Barracks (levels 8-9, dark, sixteen traps found with Perception and disarmed with Thievery, Quartermaster Corvin);
+Hadric's Oath (return the sword to Edith's grave for a boon, or break it for a unique greatsword) and the Clockwork
+Confessor (three parts in three zones; mend it for a boon and Act 2's revelation, or strip it for materials). See the
+spec, section 16, "The Barrow Fields and the Old Barracks".
 
 ### 4. The Siege Walls (2.4) and Ser Hadric
 

@@ -684,7 +684,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1539,6 +1539,78 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 - **Balance** (`BalanceReport.Iron_March_at_level_6`: the whole zone, every pack, a level-6 hero in the starting kit with +1 runes):
   - Every subclass reaches Ironhold in 4.6–9.6 bot minutes, about 20–35 minutes of a player's play (decision 2), and leaves at level 7 (decision 5).
   - Deaths run 0–2 a run, mostly to the champion packs.
+  - Act 1's campaign is unchanged.
+
+### The Barrow Fields and the Old Barracks (M4 step 3)
+
+- **The road on:** Ironhold's north gate opens once Centurion Varro has fallen (`act2.varro`) and leads to the Barrow
+  Fields. The Old Barracks lie under a walled compound off the fields' east side. The fields' north road, toward the
+  Siege Walls, stays barred until step 4.
+- **The rising dead** (`CreatureDefinition.Revives`, `GameWorld.Barrows.cs`):
+  - A reviver's corpse lies glowing and rises again that many seconds after it falls (6–9 s), at half its health. It
+    gives no XP or loot the second time, and a body rises at most three times (`MaxRises`).
+  - Its body is destroyed for good by:
+    - a click, which walks the hero over to smash it (`SmashCorpse`);
+    - fire, vitality, bludgeoning or force from a burst, a bomb's splash or an aura's pulse (burned, hallowed or
+      crushed; a holy aura hallows);
+    - Corpse Explosion aimed at it (the Plaguebringer blows it apart);
+    - a critical hit as it falls ("shattered").
+  - On screen a rising corpse glows a sickly green that quickens as its time runs out, drawn over the dark like the
+    target ring. The one under the pointer, or else the nearest, shows "Rises in N" and "Click to smash it".
+  - The bots (`Tactics.Tidy`) smash rising corpses between fights.
+- **Traps** (`TrapDefinition` in the zone file, `Trap`, `GameWorld.Traps.cs`): pressure runes under the flagstones.
+  - **Spotting:** the hero gets one Perception check against the trap's DC (the zone level's, by Pathfinder's
+    level-based table: 24 at level 8) on coming within 3.5 tiles. A spotted trap shows the dungeon's rune plate under a
+    pulsing red edge, drawn over walls and the dark, with its name and how to disarm it.
+  - **Springing:** stepping on a trap, spotted or not, springs it unless a Step or Tumble is under way. It deals
+    (1 + level / 2)d6 against a basic Reflex save: spikes (piercing), flame (fire), or poison (and persistent poison
+    on a failed save).
+  - **Disarming:** a click walks the hero over for a Thievery check (trained only). A success disarms it for
+    10 × level XP (double on a critical success), a failure can be tried again, and a critical failure springs it.
+  - **Bookkeeping:** states live in world flags (`trap.<zone>.<id>`), and the pathfinder steps well round spotted
+    traps (`TileMap.SetAvoid`). The bots disarm with Thievery (three tries) and otherwise walk round.
+- **The Barrow Fields** (`tools/barrow_fields_mapgen.py`, 72×170, levels 7–8, 24 packs including three open barrows
+  that send up the dead, three shrines, eight chests). From the graveward gate the road crosses:
+  - the mound field;
+  - the legion's field, with its graves in ranks;
+  - the barracks road;
+  - the hound hill;
+  - the siege road.
+
+  The Widow's Yew, a quiet glade to the west, holds Edith Hadric's grave. Its creatures:
+  - barrow dead, recoloured zombies;
+  - barrow legionaries;
+  - grave hounds, the wolf recoloured: flankers, as the plan had it;
+  - barrow wights, casters of cold;
+  - barrow knights.
+
+  All but the wights rise again.
+- **The Old Barracks** (`tools/old_barracks_mapgen.py`, 60×80, levels 8–9, the dungeon tileset, dark):
+  - **Rooms:** the stair hall; the drill hall; dormitories (beds; their sleepers rise); the mess hall and kitchen; the
+    officers' hall; the armoury, where Quartermaster Corvin (named, with a rare drop) guards the reliquary; a west vault;
+    and, down a trapped passage, the officers' crypt with Ser Hadric's empty tomb.
+  - **Traps:** sixteen, thickest on the way down.
+- **Hadric's Oath** (the Herald Remnant story):
+  - His tomb gives his journal (to the journal) and **Hadric's Oath-Sword** (a key item).
+  - At Edith's grave the sword can be laid down (the boon **The Widow's Vigil**: resistance 3 void, +1 Fortitude;
+    `act2.hadric_relic` = returned, which will remove his Echo in M5), or broken across the headstone (the unique
+    greatsword **Hadric's Severed Oath**; `broken`).
+- **The Clockwork Confessor** (the hidden story):
+  - Its three parts lie in three zones: a mainspring in the Iron March's watchtower, a governor cog on the Barrow Fields'
+    hound hill, and a speaking-grille in the barracks armoury.
+  - The automaton sits silent in Ironhold's founders' corner. With all three parts it can be mended (a Crafting check,
+    DC 22, that can be retried): the boon **The Confessor's Absolution** (+1 Will, +2 Crafting and Religion), and it
+    speaks.
+  - Mended, it tells what Hadric and the founders confessed. This is Act 2's revelation, that the Order killed Ashur
+    and the founders helped (`act2.revelation`).
+  - Or it can be stripped for 60 dust, 15 fragments and 150 gold. Dialogue effects can now give crafting materials
+    (`dust`, `fragments`).
+- **Icons:** four new glyphs from game-icons.net for the key items: sword-in-stone, cog, spring and robot-helmet.
+- **Balance** (`BalanceReport.Barrow_Fields_at_level_7`, `Old_Barracks_at_level_8`: each whole zone, a hero in the
+  starting kit with +1 runes):
+  - **The Barrow Fields:** every subclass finishes in 3–8 bot minutes and leaves at level 8.
+  - **The Old Barracks:** 3–6.5 bot minutes, leaving at level 9; most deaths come near Corvin.
+  - **Deaths:** 0–2 a run in either zone.
   - Act 1's campaign is unchanged.
 
 ### The arsenal (M2, after step 10)

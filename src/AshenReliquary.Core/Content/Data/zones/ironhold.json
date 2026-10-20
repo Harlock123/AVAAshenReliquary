@@ -359,6 +359,26 @@
    }
   },
   {
+   "id": "confessor",
+   "name": "The Clockwork Confessor",
+   "title": "Silent",
+   "at": [
+    12,
+    15
+   ],
+   "facing": 2,
+   "still": true,
+   "dialogue": "ironhold_confessor",
+   "look": {
+    "head": "plate_helm",
+    "chest": "plate_cuirass",
+    "hands": "plate_gauntlets",
+    "legs": "mage_skirt",
+    "feet": "plate_boots",
+    "main": "rod"
+   }
+  },
+  {
    "id": "pell",
    "name": "Archivist Pell",
    "title": "Keeper of the founders' rolls",
@@ -497,9 +517,15 @@
    ],
    "radius": 1.5,
    "requires": {
-    "act2.north_gate": "open"
+    "act2.varro": "slain"
    },
-   "sealedText": "The Guard keeps the north gate barred. (The Barrow Fields are still being written.)"
+   "sealedText": "The Guard keeps the north gate barred while Varro's siege line still holds the March.",
+   "to": "barrow_fields",
+   "toExit": "ironhold",
+   "arrive": [
+    20,
+    7
+   ]
   }
  ]
 }

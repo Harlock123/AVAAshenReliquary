@@ -66,7 +66,8 @@ public sealed record ZoneDefinition(
     double? Darkness = null,
     double HeroLight = 6.5,
     double XpScale = 1.0,
-    int Act = 1)
+    int Act = 1,
+    IReadOnlyList<TrapDefinition>? Traps = null)
 {
     /// <summary>Under the open sky (Flare's grassland, or Act 2's grassland-and-ruins set): trees fringe the map, campfires glow.</summary>
     public bool Outdoors => Tileset is "tileset_grassland" or "tileset_ironhold";
@@ -126,8 +127,10 @@ public sealed record CreatureDefinition(
     bool Named = false,
     bool RareDrop = false,
     bool Undead = false,
-    bool Kites = false)
+    bool Kites = false,
+    double Revives = 0)
 {
+    // Revives: seconds after it falls before its corpse rises again (the Barrow Fields' dead), unless destroyed.
     // Undead: the walking dead (the Lanternbearer's undead bane and holy light burn them with vitality).
     // Kites: a ranged monster that keeps its distance, falling back when the hero closes (Act 2's AI behaviour).
 

@@ -322,7 +322,12 @@ zone = {
     ],
     "caches": caches,
     # The Outlaw Queen (Act 2's faction story, step 4) begins with her wanted poster by the road.
-    "interactables": [{"id": "wanted_poster", "name": "Wanted poster", "at": poster, "tile": 139, "dialogue": "march_poster"}],
+    "interactables": [
+        {"id": "wanted_poster", "name": "Wanted poster", "at": poster, "tile": 139, "dialogue": "march_poster"},
+        # The Clockwork Confessor (M4 step 3): its mainspring lies in the watchtower's rubble.
+        {"id": "brass_mainspring", "name": "Brass in the rubble", "at": [tx + 1, ty - 2], "tile": 1271, "blocks": False,
+         "dialogue": "march_spring"},
+    ],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)
 print("\n".join(rows))

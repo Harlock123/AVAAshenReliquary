@@ -1464,5 +1464,78 @@
    "maxHitPoints": 6
   },
   "description": "The Guard's own plate, the city's hammer on every piece."
+ },
+ {
+  "id": "hadrics_oath_sword",
+  "name": "Hadric's Oath-Sword",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "greatsword",
+  "glyph": "oath_sword",
+  "description": "Ser Hadric's own blade, left in his empty tomb under the barracks. The oath of the Iron Legion is cut into the fuller: TO HOLD THE GATE, AND COME HOME TO HER."
+ },
+ {
+  "id": "confessor_mainspring",
+  "name": "Brass mainspring",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "gem",
+  "glyph": "spring",
+  "description": "A coiled brass spring as long as your forearm, still tight. Some great clockwork wanted it badly."
+ },
+ {
+  "id": "confessor_governor",
+  "name": "Governor cog",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "gem",
+  "glyph": "cog",
+  "description": "A toothed brass wheel stamped with the Lantern Order's sign. It turns smoothly, as if oiled yesterday."
+ },
+ {
+  "id": "confessor_grille",
+  "name": "Speaking-grille",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "gem",
+  "glyph": "grille",
+  "description": "A brass face-plate pierced like a confessional screen. Behind it, a tiny bellows and a reed."
+ },
+ {
+  "id": "hadrics_severed_oath",
+  "name": "Hadric's Severed Oath",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 99,
+  "loot": "greatsword",
+  "gfx": "greatsword",
+  "damageDie": 12,
+  "damageType": "Slashing",
+  "attacksPerSecond": 0.9,
+  "traits": [
+   "TwoHand",
+   "Versatile"
+  ],
+  "versatile": "Piercing",
+  "minLevel": 8,
+  "unique": true,
+  "potency": 1,
+  "striking": 1,
+  "trait": "No Gate Held",
+  "traitText": "+2 damage on every hit, and 6 more on a critical hit.",
+  "effects": [
+   {
+    "statistic": "Damage",
+    "value": 2
+   },
+   {
+    "critDamage": 6
+   }
+  ],
+  "description": "You broke it across his wife's headstone. The oath went out of the steel, and the blade that is left holds nothing back."
  }
 ]

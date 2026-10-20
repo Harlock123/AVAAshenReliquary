@@ -180,7 +180,14 @@ outlaw raiders and bowmen in the woods; rubble, crates and low walls are **cover
 for you and for them. Centurion Varro holds the siege line at Ironhold's gate. In the city, Captain Thale of the Guard,
 Archivist Pell, Hilde the smith and Sable the fence (whose prices and stock remember whose side you took on the
 Rotwater ferry) wait with a stash, an altar and a Rift Shrine. Act 2's walls are rubberduck's Old Ruins tileset, from
-Flare's Empyrean Campaign. Next: the Barrow Fields and the Old Barracks.
+Flare's Empyrean Campaign. Step 3 went on north: once Varro falls, Ironhold's north gate opens on the **Barrow
+Fields** (levels 7-8), where the Iron Legion's dead rise again a few seconds after they fall unless you destroy the body:
+click a glowing corpse to smash it, or burn, hallow or crush it with an area attack (a Necromancer can aim Corpse
+Explosion at one). Under the fields lie the **Old Barracks** (levels 8-9), dark and trapped: come near a pressure rune
+and a Perception check may spot it; step on one and it goes off; a hero trained in Thievery can click a spotted rune to
+disarm it. Two side stories run through them: **Hadric's Oath** (his empty tomb, his sword, his wife's grave) and the
+**Clockwork Confessor** (three brass parts in three zones, and an automaton in Ironhold that remembers what the founders
+confessed). Next: the Siege Walls and Ser Hadric.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 
 namespace AshenReliquary.App.Tests;
@@ -49,5 +51,50 @@ public class ActTwoZoneTests
         kit.Play(0.6);
         kit.Capture(Shot("march-varro"));
         Assert.Equal("Centurion Varro", varro.Name);
+    }
+
+    [AvaloniaFact]
+    public void The_barrow_fields_rising_dead_glow_and_a_click_smashes_one()
+    {
+        var kit = TestKit.Open(zoneId: "barrow_fields");
+        var world = kit.World;
+        var corpse = world.Monsters.First(m => m.Definition.Revives > 0 && m.DistanceTo(world.Hero) < 20);
+        TestHooks.Place(world, corpse.X - 2, corpse.Y + 1);
+        foreach (var m in world.Monsters.Where(m => m != corpse && m.DistanceTo(world.Hero) < 12).ToList())
+            TestHooks.Slay(world, m);
+        TestHooks.Slay(world, corpse);
+        kit.Play(1.5);
+        Assert.True(corpse.IsRising);
+        var at = kit.Window.View.ScreenOf(corpse.X, corpse.Y);
+        kit.Window.MouseMove(at);
+        kit.Play(0.1);
+        Assert.Equal(corpse, kit.Window.View.CorpseUnder(at));
+        kit.Capture(Shot("barrow-rising"));
+        kit.Click(at);
+        kit.Play(2);
+        Assert.False(corpse.IsRising);
+        kit.Capture(Shot("barrow-smashed"));
+    }
+
+    [AvaloniaFact]
+    public void The_old_barracks_show_a_spotted_trap_with_how_to_disarm_it()
+    {
+        var kit = TestKit.Open("rogue", zoneId: "old_barracks");
+        var world = kit.World;
+        var trap = world.ZoneTraps.First(t => t.Definition.Id == "stair_passage");
+        TestHooks.Place(world, trap.X, trap.Y - 2.5);
+        foreach (var m in world.Monsters.ToList())
+            TestHooks.Slay(world, m);
+        for (var i = 0; i < 20 && trap.State == Core.World.TrapState.Hidden; i++)
+        {
+            TestHooks.Reveal(world, trap);
+            kit.Play(0.1);
+        }
+        Assert.Equal(Core.World.TrapState.Found, trap.State);
+        var at = kit.Window.View.ScreenOf(trap.X, trap.Y);
+        kit.Window.MouseMove(at);
+        kit.Play(0.3);
+        Assert.Equal(trap, kit.Window.View.TrapUnder(at));
+        kit.Capture(Shot("barracks-trap"));
     }
 }

@@ -4,9 +4,9 @@
 # Its people: Captain Oswin Thale of the Ironhold Guard by the south gate, Hilde the smith (arms, armour, rune work
 # and crafting), Sable the Brothers of the Ferry's fence (whose prices and stock follow Act 1's ferry choice, the
 # "Brothers of the Ferry" payoff) and Archivist Pell by the founders' statues; the stash, the Founders' altar (respec)
-# and the Ward Shrine (a Rift Shrine). Refugee tents fill the west yard. The north gate, to the Barrow Fields, is barred
-# for now (M4 step 3). The tileset is tileset_ironhold: Flare's grassland plus rubberduck's Old Ruins (ruins tile n is
-# n + 1000).
+# and the Ward Shrine (a Rift Shrine). Refugee tents fill the west yard. The north gate, to the Barrow Fields (M4 step
+# 3), stays barred until Centurion Varro falls. The tileset is tileset_ironhold: Flare's grassland plus rubberduck's Old
+# Ruins (ruins tile n is n + 1000).
 #
 # Deterministic. Bump REVISION whenever the layout changes.
 import json, sys
@@ -124,6 +124,11 @@ zone = {
          "portrait": "flare/male07", "dialogue": "ironhold_thale",
          "look": {"head": "plate_helm", "chest": "plate_cuirass", "hands": "plate_gauntlets", "legs": "plate_greaves",
                   "feet": "plate_boots", "main": "longsword", "off": "kite_shield"}},
+        # The Clockwork Confessor (a side story, M4 step 3): a brass automaton slumped in the founders' corner.
+        {"id": "confessor", "name": "The Clockwork Confessor", "title": "Silent", "at": [cx - 8, my - 2], "facing": 2,
+         "still": True, "dialogue": "ironhold_confessor",
+         "look": {"head": "plate_helm", "chest": "plate_cuirass", "hands": "plate_gauntlets", "legs": "mage_skirt", "feet": "plate_boots",
+                  "main": "rod"}},
         {"id": "pell", "name": "Archivist Pell", "title": "Keeper of the founders' rolls", "at": [cx - 6, my - 4], "facing": 3,
          "portrait": "flare/male03", "dialogue": "ironhold_pell",
          "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "mage_sleeves", "legs": "mage_skirt", "feet": "mage_boots",
@@ -155,8 +160,9 @@ zone = {
         {"id": "march_gate", "label": "The Iron March", "at": gate, "radius": 1.5, "to": "iron_march", "toExit": "ironhold",
          "arrive": [cx, H - 7]},
         {"id": "north_gate", "label": "The Barrow Fields", "at": [cx, y0 + 1], "radius": 1.5,
-         "requires": {"act2.north_gate": "open"},
-         "sealedText": "The Guard keeps the north gate barred. (The Barrow Fields are still being written.)"},
+         "requires": {"act2.varro": "slain"},
+         "sealedText": "The Guard keeps the north gate barred while Varro's siege line still holds the March.",
+         "to": "barrow_fields", "toExit": "ironhold", "arrive": [cx, y0 + 4]},
     ],
 }
 json.dump(zone, open(sys.argv[1], "w"), indent=1)

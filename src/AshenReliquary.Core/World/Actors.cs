@@ -89,6 +89,12 @@ public sealed class HeroActor : Actor
     internal GroundItem? PickupTarget { get; set; }
     internal Vendor? TalkTarget { get; set; }
     internal Cache? CacheTarget { get; set; }
+
+    /// <summary>A rising corpse the hero is walking over to smash.</summary>
+    internal MonsterActor? CorpseTarget { get; set; }
+
+    /// <summary>A found trap the hero is walking over to disarm.</summary>
+    internal Trap? TrapTarget { get; set; }
     internal ShrineDefinition? ShrineTarget { get; set; }
     internal Interactive? InteractTarget { get; set; }
     internal double DodgeRemaining { get; set; }
@@ -332,6 +338,15 @@ public sealed class MonsterActor : Actor
 
     /// <summary>Seconds spent circling for a flank before it gives up and strikes from where it is.</summary>
     internal double FlankTime { get; set; }
+
+    /// <summary>Seconds until this corpse rises again (0 when it won't): a Barrow Fields reviver, see <see cref="GameWorld.MaxRises"/>.</summary>
+    public double RisesIn { get; internal set; }
+
+    /// <summary>How many times it has risen; a risen monster gives no XP or loot again.</summary>
+    public int Rises { get; internal set; }
+
+    /// <summary>A corpse that will stand again unless it is destroyed.</summary>
+    public bool IsRising => IsDead && RisesIn > 0;
 
     /// <summary>How long a kiting monster has been falling back (it stands its ground after <see cref="GameWorld.KiteSeconds"/>, until rested).</summary>
     internal double KiteTime { get; set; }

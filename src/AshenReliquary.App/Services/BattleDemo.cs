@@ -45,6 +45,11 @@ public sealed class BattleDemo(GameWorld world, string classId)
                 Tactics.Act(world, classId, target);
             return;
         }
+        if (Tactics.Tidy(world))
+        {
+            _walkingTo = null;
+            return;
+        }
         // Nothing near: walk to the closest pack still standing (planning again now and then, as monsters wander).
         if (living.MinBy(m => m.DistanceTo(world.Hero)) is { } next && (next != _walkingTo || _replanIn <= 0))
         {

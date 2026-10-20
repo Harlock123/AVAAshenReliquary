@@ -29,6 +29,10 @@ internal static class TestHooks
         readyAt[abilityId] = world.Time + seconds;
     }
 
+    /// <summary>Marks a trap spotted, as a good Perception check would.</summary>
+    public static void Reveal(GameWorld world, Trap trap) =>
+        typeof(GameWorld).GetMethod("SetTrapState", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(world, [trap, TrapState.Found]);
+
     /// <summary>Moves the hero to a map point at once.</summary>
     public static void Place(GameWorld world, double x, double y)
     {

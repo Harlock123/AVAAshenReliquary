@@ -25,6 +25,7 @@ public sealed class TileMap
     private readonly bool[,] _water;
     private readonly bool[,] _bog;
     private readonly bool[,] _cover;
+    private readonly bool[,] _avoid;
 
     /// <summary>What a step onto a bog cell costs the pathfinder: walkers go round a pool when the way round is short.</summary>
     public const double BogStepCost = 3.0;
@@ -40,6 +41,7 @@ public sealed class TileMap
         _water = new bool[Width, Height];
         _bog = new bool[Width, Height];
         _cover = new bool[Width, Height];
+        _avoid = new bool[Width, Height];
 
         for (var y = 0; y < Height; y++)
         {
@@ -108,8 +110,18 @@ public sealed class TileMap
             _bog[x, y] = bog;
     }
 
+    /// <summary>What a step onto a spotted trap costs the pathfinder: walkers go well round one.</summary>
+    public const double AvoidStepCost = 25.0;
+
+    /// <summary>Marks a cell to walk round (a spotted trap), or clears it.</summary>
+    internal void SetAvoid(int x, int y, bool avoid)
+    {
+        if (InBounds(x, y))
+            _avoid[x, y] = avoid;
+    }
+
     /// <summary>The pathfinder's cost multiplier for stepping onto a cell.</summary>
-    public double StepCost(int x, int y) => IsBog(x, y) ? BogStepCost : 1.0;
+    public double StepCost(int x, int y) => InBounds(x, y) && _avoid[x, y] ? AvoidStepCost : IsBog(x, y) ? BogStepCost : 1.0;
 
     /// <summary>
     /// Flare's water lies a level below the ground, so a pond needs its banks: cliff tiles whose grass top covers the

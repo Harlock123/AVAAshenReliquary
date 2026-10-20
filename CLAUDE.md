@@ -106,7 +106,13 @@ implementation decisions made so far). `README.md` has the run commands and cont
   ruins ids +1000, ruins 153-166 are raised wall tops; zones' `act` drives drop shares, the HUD and the Rift order;
   cover cells `cover` and `TileMap.InCover`, +2 AC; `kites` monsters; `VendorDefinition.Terms` (Sable follows
   `act1.ferry`); Captain Thale, Pell, Hilde, Sable; Centurion Varro sets `act2.varro`; the Mire's Herald gate travels
-  to the March; `BalanceReport.Iron_March_at_level_6`). Next: step 3, the Barrow Fields and the Old Barracks.
+  to the March; `BalanceReport.Iron_March_at_level_6`). Step 3 done: the Barrow
+  Fields and the Old Barracks (`tools/barrow_fields_mapgen.py`, `tools/old_barracks_mapgen.py`; risers via
+  `CreatureDefinition.Revives` and `GameWorld.Barrows.cs`: smash, scour by fire/vitality/bludgeoning/force, Corpse
+  Explosion, crits; traps via the zone's `traps`, `Trap`, `GameWorld.Traps.cs` with states in `trap.<zone>.<id>` flags;
+  the rogue's own set traps are `Traps`, these are `ZoneTraps`; `Tactics.Tidy` for the bots; Hadric's Oath and the
+  Clockwork Confessor dialogues; dialogue effects `dust`/`fragments`; `BalanceReport.Barrow_Fields_at_level_7`,
+  `Old_Barracks_at_level_8`). Next: step 4, the Siege Walls and Ser Hadric.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

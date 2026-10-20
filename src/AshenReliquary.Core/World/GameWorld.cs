@@ -226,6 +226,7 @@ public sealed partial class GameWorld
         _hazards.Clear();
         _flooded.Clear();
         PopulateInteractives(zone);
+        PopulateTraps(zone);
 
         var packId = 0;
         foreach (var spawn in zone.Spawns)
@@ -293,6 +294,8 @@ public sealed partial class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         RespawnPoint = (x, y);
@@ -391,6 +394,8 @@ public sealed partial class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         if (!_activatedShrines.Contains(shrine.Id))
@@ -517,6 +522,8 @@ public sealed partial class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         Hero.Goal = (x, y);
@@ -550,7 +557,8 @@ public sealed partial class GameWorld
             UseOnSelf(ability, toward ?? (target is not null ? (target.X, target.Y) : null));
             return;
         }
-        if (target is null || target.IsDead)
+        // Corpse Explosion (a blast) may be aimed at a rising corpse: it blows the body apart before it stands.
+        if (target is null || (target.IsDead && !(target.IsRising && ability.Kind == AbilityKind.Blast)))
         {
             Say($"{ability.Name} needs a target.");
             return;
@@ -569,6 +577,8 @@ public sealed partial class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         Hero.Goal = null;
@@ -583,6 +593,8 @@ public sealed partial class GameWorld
         Hero.Order = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         Hero.PickupTarget = item;
@@ -641,6 +653,8 @@ public sealed partial class GameWorld
     private void Loot(Cache cache)
     {
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         Hero.Goal = null;
@@ -666,6 +680,8 @@ public sealed partial class GameWorld
         Hero.Order = null;
         Hero.PickupTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         if (vendor.DistanceTo(Hero.X, Hero.Y) <= Vendor.TalkRadius)
@@ -701,6 +717,8 @@ public sealed partial class GameWorld
     {
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         Hero.Goal = null;
@@ -1002,7 +1020,7 @@ public sealed partial class GameWorld
         foreach (var monster in _monsters.ToList())
             UpdateMonster(monster, dt);
         Separate();
-        _monsters.RemoveAll(m => m.IsDead && m.DeadFor > CorpseSeconds);
+        _monsters.RemoveAll(m => m.IsDead && !m.IsRising && m.DeadFor > CorpseSeconds);
         _texts.RemoveAll(t => Time - t.BornAt > FloatingText.Lifetime);
         _impacts.RemoveAll(i => Time - i.At > Impact.Lifetime);
         UpdateBursts();
@@ -1090,6 +1108,9 @@ public sealed partial class GameWorld
             Open(talk);
         if (hero.CacheTarget is { } chest && chest.DistanceTo(hero.X, hero.Y) <= Cache.OpenRadius)
             Loot(chest);
+        UpdateCorpseTarget();
+        UpdateTrapTarget();
+        UpdateZoneTraps();
         if (OpenVendor is { } open && open.DistanceTo(hero.X, hero.Y) > Vendor.TalkRadius + 2.5)
             CloseVendor();
 
@@ -1116,7 +1137,7 @@ public sealed partial class GameWorld
         if (hero.Order is { } order)
         {
             var target = order.Target;
-            if (target.IsDead)
+            if (target.IsDead && !(target.IsRising && order.Ability.Kind == AbilityKind.Blast))
             {
                 hero.Order = null;
                 hero.Play("stance");
@@ -1458,8 +1479,13 @@ public sealed partial class GameWorld
                 Burst(ability, target, (Hero.X, Hero.Y));
                 break;
             case AbilityKind.Blast:
-                if (!target.IsDead)
+                if (!target.IsDead || target.IsRising)
+                {
+                    var corpse = target.IsRising;
                     Burst(ability, null, (target.X, target.Y));
+                    if (corpse)
+                        DestroyCorpse(target, "blown apart");
+                }
                 break;
             case AbilityKind.Missiles:
                 var count = ability.MissilesAt(rank);
@@ -1688,7 +1714,8 @@ public sealed partial class GameWorld
         monster.Path.Clear();
         Sound(SoundCue.MonsterDeath, monster, monster.Definition.Voice);
         monster.Play(critical && HasAnimation(monster, "critdie") ? "critdie" : "die", restart: true);
-        if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
+        // A risen corpse paid out the first time it fell.
+        if ((monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion) && monster.Rises == 0)
         {
             var xp = (int)Math.Round(Encounter.CreatureXp(monster.Creature.Stats.Level, Hero.Character.Level)
                 * RankXpWeight(monster.Creature.Stats.Rank) * Zone.XpScale);
@@ -1697,8 +1724,9 @@ public sealed partial class GameWorld
         }
         if (Hero.Order?.Target == monster)
             Hero.Order = null;
-        if (monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion)
+        if ((monster.SummonedBy is null || monster.Creature.Stats.Rank != CreatureRank.Minion) && monster.Rises == 0)
             DropLoot(monster);
+        LayToRise(monster, critical);
         Avenge(monster);
         GatherGraveCharge(monster);
         if (monster.Has(MonsterAffix.Tainted))
@@ -1853,6 +1881,8 @@ public sealed partial class GameWorld
         if (m.IsDead)
         {
             m.DeadFor += dt;
+            if (m.RisesIn > 0)
+                UpdateRising(m, dt);
             return;
         }
         m.Creature.Conditions.Update(dt);
@@ -2249,6 +2279,8 @@ public sealed partial class GameWorld
         Hero.PickupTarget = null;
         Hero.TalkTarget = null;
         Hero.CacheTarget = null;
+        Hero.CorpseTarget = null;
+        Hero.TrapTarget = null;
         Hero.ShrineTarget = null;
         Hero.InteractTarget = null;
         OpenVendor = null;

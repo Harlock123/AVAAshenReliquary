@@ -665,6 +665,34 @@
   "licence": "CC BY 3.0"
  },
  {
+  "id": "oath_sword",
+  "file": "oath_sword.png",
+  "source": "https://game-icons.net/1x1/lorc/sword-in-stone.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "cog",
+  "file": "cog.png",
+  "source": "https://game-icons.net/1x1/lorc/cog.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "spring",
+  "file": "spring.png",
+  "source": "https://game-icons.net/1x1/delapouite/spring.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "grille",
+  "file": "grille.png",
+  "source": "https://game-icons.net/1x1/delapouite/robot-helmet.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
   "id": "pauldrons",
   "file": "pauldrons.png",
   "source": "https://game-icons.net/1x1/skoll/pauldrons.html",

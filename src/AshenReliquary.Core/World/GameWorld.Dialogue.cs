@@ -269,6 +269,11 @@ public sealed partial class GameWorld
                 _ground.Add(new GroundItem(Hero.X, Hero.Y, new LootDrop(item), Time));
             Float(Hero, item.Name, FloatingTextKind.Info, 1.2);
         }
+        if (effect.Dust > 0 || effect.Fragments > 0)
+        {
+            Hero.Equipment.AddMaterials(effect.Dust, effect.Fragments);
+            Float(Hero, $"+{effect.Dust} dust, +{effect.Fragments} fragments", FloatingTextKind.Info, 1.0);
+        }
         if (effect.TakeItem is { } takeId)
         {
             var index = Hero.Equipment.Bag.ToList().FindIndex(i => i?.Definition.Id == takeId);

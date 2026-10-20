@@ -178,6 +178,8 @@ public sealed partial class GameWorld
                 else if (degree <= DegreeOfSuccess.Failure)
                     OnHit(ability, m, degree == DegreeOfSuccess.CriticalFailure);
             }
+            // A holy aura hallows the rising dead within it.
+            ScourCorpses(Hero.X, Hero.Y, ability.Radius, ability.Holy ? DamageType.Vitality : ability.DamageType);
             if (ability.Drain > 0 && (int)Math.Round(drained * ability.Drain) is > 0 and var back && c.HitPoints < c.MaxHitPoints)
             {
                 c.Heal(back);

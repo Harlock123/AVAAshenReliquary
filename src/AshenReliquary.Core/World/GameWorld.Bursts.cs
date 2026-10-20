@@ -109,6 +109,9 @@ public sealed partial class GameWorld
             c.Heal(drained);
             Float(Hero, $"+{drained}", FloatingTextKind.Heal, 0.3);
         }
+        // Fire, vitality, a blow or force: the burst breaks the rising dead it covers (those it just felled too).
+        if (ability.WeaponDamage || ability.Dice is not null)
+            ScourCorpses(at.X, at.Y, ability.Radius, ability.WeaponDamage ? c.Weapon.Definition.DamageType : ability.DamageType);
         // A weapon burst that lands on anything feeds Fury once, like a sweep's first hit.
         if (ability.WeaponDamage && caught.Count > 0)
             Hero.Resource.OnCombat(false, builds: true);

@@ -576,6 +576,16 @@ public sealed class WorldView : Control
             world.Attack(monster);
             _holding = false;
         }
+        else if (CorpseUnder(p) is { } corpse)
+        {
+            world.SmashCorpse(corpse);
+            _holding = false;
+        }
+        else if (TrapUnder(p) is { } trap)
+        {
+            world.Disarm(trap);
+            _holding = false;
+        }
         else if (VendorUnder(p) is { } vendor)
         {
             world.TalkTo(vendor);
@@ -809,6 +819,9 @@ public sealed class WorldView : Control
             return;
         var point = at ?? _pointer;
         var target = point is { } p ? (AttackOnly ? AttackTarget(p) : MonsterUnder(p) ?? NearestTo(p)) : null;
+        // Corpse Explosion can be aimed at a rising corpse.
+        if (target is null && point is { } q && world.Bar.GetValueOrDefault(slot) is { Kind: Core.Abilities.AbilityKind.Blast })
+            target = CorpseUnder(q);
         world.UseSlot(slot, target, point is { } aim ? ToMap(aim) : null);
     }
 
@@ -853,6 +866,41 @@ public sealed class WorldView : Control
             }
         }
         return best;
+    }
+
+    /// <summary>Where a map point is on screen (for tests that click on things).</summary>
+    public Point ScreenOf(double x, double y)
+    {
+        var p = ToScreen(x, y);
+        return new Point(p.X, p.Y);
+    }
+
+    /// <summary>A rising corpse (one that will stand again) under a screen point: a click smashes it.</summary>
+    public MonsterActor? CorpseUnder(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        var z = (float)Zoom;
+        return world.RisingCorpses.Where(m => world.IsLit(m.X, m.Y))
+            .Select(m => (m, foot: ToScreen(m.X, m.Y)))
+            .Where(c => Math.Abs(p.X - c.foot.X) <= 55 * z && p.Y >= c.foot.Y - 50 * z && p.Y <= c.foot.Y + 25 * z)
+            .OrderBy(c => Math.Abs(p.X - c.foot.X) + Math.Abs(p.Y - c.foot.Y))
+            .Select(c => c.m).FirstOrDefault();
+    }
+
+    /// <summary>A spotted trap under a screen point (its floor diamond): a click walks over to disarm it.</summary>
+    public Trap? TrapUnder(Point p)
+    {
+        if (World is not { } world)
+            return null;
+        var z = (float)Zoom;
+        foreach (var trap in world.ZoneTraps.Where(t => t.State == TrapState.Found))
+        {
+            var c = ToScreen(trap.X, trap.Y);
+            if (Math.Abs(p.X - c.X) / (96 * z) + Math.Abs(p.Y - c.Y) / (48 * z) <= 1)
+                return trap;
+        }
+        return null;
     }
 
     /// <summary>The trader whose sprite is under a screen point.</summary>
@@ -1044,6 +1092,9 @@ public sealed class WorldView : Control
         DrawLootLabels(canvas, world);
         DrawVendorLabels(canvas, world);
         DrawCacheLabels(canvas, world);
+        DrawRisingMarks(canvas, world, FixedTime ?? world.Time);
+        DrawTrapEdges(canvas, world, FixedTime ?? world.Time);
+        DrawTrapLabels(canvas, world);
         DrawInteractiveLabels(canvas, world);
         WorldOverlay.DrawFloatingText(this, canvas, world);
         var pointer = _pointer is { } pt ? new SKPoint((float)pt.X, (float)pt.Y) : (SKPoint?)null;
@@ -1203,6 +1254,7 @@ public sealed class WorldView : Control
         DrawHazards(canvas, world);
         DrawAuras(canvas, world, time);
         DrawTargetMarks(canvas, world, time);
+        DrawZoneTraps(canvas, world, time);
         DrawBursts(canvas, world);
         DrawTraps(canvas, world);
         Stats.Mark("ground");
@@ -1867,6 +1919,125 @@ public sealed class WorldView : Control
             canvas.DrawText(who.Name, foot.X, top + 14, SKTextAlign.Center, nameFont, ink);
             if (who.Title is { } title)
                 canvas.DrawText(title, foot.X, top + 27, SKTextAlign.Center, small, dim);
+        }
+    }
+
+    /// <summary>
+    /// Traps on the floor once known: a spotted pressure rune (the dungeon's dim rune plates, 56-59, under a pulsing red
+    /// edge), one disarmed (greyed), one sprung (it glows, 60-63, for a moment, then lies dark).
+    /// </summary>
+    private void DrawZoneTraps(SKCanvas canvas, GameWorld world, double time)
+    {
+        if (world.ZoneTraps.Count == 0)
+            return;
+        var tiles = _assets.Tileset(world.Zone.Tileset).Tiles;
+        using var grey = new SKPaint { ColorFilter = SKColorFilter.CreateLighting(new SKColor(110, 110, 110), SKColors.Black) };
+        foreach (var trap in world.ZoneTraps)
+        {
+            if (trap.State == TrapState.Hidden || !world.IsLit(trap.X, trap.Y))
+                continue;
+            var kind = trap.Definition.Kind switch { "flame" => 1, "poison" => 2, _ => 0 };
+            var glowing = trap.State == TrapState.Sprung && time - trap.SprungAt < 1.2;
+            var at = ToScreen(trap.X, trap.Y);
+            if (tiles.TryGetValue(glowing ? 60 + kind : 56 + kind, out var tile))
+                DrawTile(canvas, tile, at, time, trap.State is TrapState.Disarmed or TrapState.Sprung && !glowing ? grey : null);
+        }
+    }
+
+    /// <summary>
+    /// A spotted trap's pulsing red edge, drawn over the walls and the dark like the target ring, so a trap known is
+    /// never lost behind a corridor wall.
+    /// </summary>
+    private void DrawTrapEdges(SKCanvas canvas, GameWorld world, double time)
+    {
+        var z = (float)Zoom;
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2.5f * z };
+        foreach (var trap in world.ZoneTraps)
+        {
+            if (trap.State != TrapState.Found)
+                continue;
+            var at = ToScreen(trap.X, trap.Y);
+            var pulse = (float)(0.5 + 0.5 * Math.Sin(time * 4));
+            edge.Color = new SKColor(230, 60, 40, (byte)(120 + 100 * pulse));
+            using var diamond = new SKPath();
+            diamond.MoveTo(at.X, at.Y - 44 * z);
+            diamond.LineTo(at.X + 88 * z, at.Y);
+            diamond.LineTo(at.X, at.Y + 44 * z);
+            diamond.LineTo(at.X - 88 * z, at.Y);
+            diamond.Close();
+            canvas.DrawPath(diamond, edge);
+        }
+    }
+
+    /// <summary>
+    /// Over a corpse that will rise again, a sickly glow that quickens as its time runs out, so the player sees which
+    /// bodies to smash (drawn after the dark, like the target ring).
+    /// </summary>
+    private void DrawRisingMarks(SKCanvas canvas, GameWorld world, double time)
+    {
+        var z = (float)Zoom;
+        foreach (var m in world.RisingCorpses)
+        {
+            if (!world.IsLit(m.X, m.Y))
+                continue;
+            var foot = ToScreen(m.X, m.Y);
+            var urgency = (float)Math.Clamp(1 - m.RisesIn / Math.Max(1, m.Definition.Revives), 0, 1);
+            var pulse = (float)(0.5 + 0.5 * Math.Sin(time * (3 + 9 * urgency)));
+            var r = 46 * z * (float)m.Definition.Scale;
+            using var glow = new SKPaint
+            {
+                IsAntialias = true,
+                Shader = SKShader.CreateRadialGradient(new SKPoint(foot.X, foot.Y), r,
+                    [new SKColor(160, 235, 120, (byte)(90 + 110 * pulse)), new SKColor(160, 235, 120, 0)], SKShaderTileMode.Clamp),
+            };
+            canvas.Save();
+            canvas.Translate(foot.X, foot.Y);
+            canvas.Scale(1, 0.5f);
+            canvas.Translate(-foot.X, -foot.Y);
+            canvas.DrawCircle(foot, r, glow);
+            canvas.Restore();
+        }
+    }
+
+    /// <summary>A spotted trap's name and what a click does, when near or hovered; a rising corpse's countdown.</summary>
+    private void DrawTrapLabels(SKCanvas canvas, GameWorld world)
+    {
+        using var font = new SKFont(WorldOverlay.Serif, 13);
+        using var small = new SKFont(WorldOverlay.Serif, 11);
+        using var red = new SKPaint { IsAntialias = true, Color = new SKColor(240, 120, 100) };
+        using var dim = new SKPaint { IsAntialias = true, Color = Palette.Dim };
+        using var green = new SKPaint { IsAntialias = true, Color = new SKColor(170, 230, 150) };
+        using var back = new SKPaint { Color = new SKColor(0, 0, 0, 160) };
+        var trained = world.Hero.Character.SkillRank("Thievery") > Core.Rules.ProficiencyRank.Untrained;
+        foreach (var trap in world.ZoneTraps)
+        {
+            var hovered = _pointer is { } p && TrapUnder(p) == trap;
+            if (trap.State != TrapState.Found || (!hovered && world.Hero.DistanceTo(trap.X, trap.Y) > 6))
+                continue;
+            var at = ToScreen(trap.X, trap.Y);
+            var hint = trained ? $"Click to disarm · Thievery DC {world.TrapDc(trap)}" : "Step round it (disarming needs Thievery)";
+            var width = Math.Max(font.MeasureText(trap.Definition.Name), small.MeasureText(hint)) + 14;
+            var top = at.Y - 30 * (float)Zoom - 34;
+            canvas.DrawRect(SKRect.Create(at.X - width / 2, top, width, 32), back);
+            canvas.DrawText(trap.Definition.Name, at.X, top + 14, SKTextAlign.Center, font, red);
+            canvas.DrawText(hint, at.X, top + 27, SKTextAlign.Center, small, dim);
+        }
+        // One countdown at a time: the corpse under the pointer, or else the nearest within 7 tiles (several lying
+        // together would pile their labels up).
+        var shown = (_pointer is { } pointer ? CorpseUnder(pointer) : null)
+            ?? world.RisingCorpses.Where(c => world.IsLit(c.X, c.Y) && world.Hero.DistanceTo(c) <= 7).MinBy(c => world.Hero.DistanceTo(c));
+        foreach (var m in shown is null ? [] : new[] { shown })
+        {
+            var hovered = _pointer is { } p && CorpseUnder(p) == m;
+            var at = ToScreen(m.X, m.Y);
+            var text = $"Rises in {Math.Ceiling(m.RisesIn):0}";
+            var hint = hovered ? "Click to smash it" : null;
+            var width = Math.Max(font.MeasureText(text), hint is null ? 0 : small.MeasureText(hint)) + 14;
+            var top = at.Y - 60 * (float)Zoom - (hint is null ? 20 : 34);
+            canvas.DrawRect(SKRect.Create(at.X - width / 2, top, width, hint is null ? 20 : 32), back);
+            canvas.DrawText(text, at.X, top + 14, SKTextAlign.Center, font, green);
+            if (hint is not null)
+                canvas.DrawText(hint, at.X, top + 27, SKTextAlign.Center, small, dim);
         }
     }
 

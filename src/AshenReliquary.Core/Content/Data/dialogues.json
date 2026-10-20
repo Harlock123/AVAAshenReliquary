@@ -1236,7 +1236,7 @@
         ]
       },
       "news": {
-        "text": "\"The dead come up out of the Barrow Fields every night, beyond the north gate. Until we know how he raises them, that gate stays barred.\""
+        "text": "\"The dead come up out of the Barrow Fields every night, beyond the north gate. With Varro gone the Guard will open it for you, but no one else. Hadric's legion lies buried out there, and his old barracks under it.\""
       }
     }
   },
@@ -1381,6 +1381,461 @@
       },
       "seen": {
         "text": "The poster still hangs there: RED MIRELLA, 200 CROWNS, ALIVE. SHE FEEDS THE REFUGEES."
+      }
+    }
+  },
+  {
+    "id": "march_spring",
+    "start": "start",
+    "openings": [
+      {
+        "node": "taken",
+        "requires": {
+          "act2.part_spring": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "Under the watchtower's fallen stones, something glints: a coiled brass mainspring, as long as your forearm and still wound tight. The legion's crossbows use nothing like it.",
+        "effects": [
+          {
+            "flag": "act2.part_spring",
+            "value": "found"
+          },
+          {
+            "item": "confessor_mainspring"
+          },
+          {
+            "xp": 80
+          },
+          {
+            "journal": {
+              "id": "act2_confessor",
+              "title": "The Clockwork Confessor",
+              "kind": "side",
+              "text": "I have found parts of some great brass clockwork: a mainspring, a governor cog stamped with the Lantern's sign, a speaking-grille. Whatever they came out of, it was made by the Order, and it was made to listen. Archivist Pell keeps the founders' corner in Ironhold; he may know what they belong to."
+            }
+          }
+        ]
+      },
+      "taken": {
+        "text": "Only rubble now, where the mainspring lay."
+      }
+    }
+  },
+  {
+    "id": "barrow_cog",
+    "start": "start",
+    "openings": [
+      {
+        "node": "taken",
+        "requires": {
+          "act2.part_cog": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "Among the hounds' bones lies a toothed brass wheel stamped with the Pale Lantern. It turns as smoothly as if it were oiled yesterday.",
+        "effects": [
+          {
+            "flag": "act2.part_cog",
+            "value": "found"
+          },
+          {
+            "item": "confessor_governor"
+          },
+          {
+            "xp": 80
+          },
+          {
+            "journal": {
+              "id": "act2_confessor",
+              "title": "The Clockwork Confessor",
+              "kind": "side",
+              "text": "I have found parts of some great brass clockwork: a mainspring, a governor cog stamped with the Lantern's sign, a speaking-grille. Whatever they came out of, it was made by the Order, and it was made to listen. Archivist Pell keeps the founders' corner in Ironhold; he may know what they belong to."
+            }
+          }
+        ]
+      },
+      "taken": {
+        "text": "Bones, and the print in the earth where the cog lay."
+      }
+    }
+  },
+  {
+    "id": "barracks_grille",
+    "start": "start",
+    "openings": [
+      {
+        "node": "taken",
+        "requires": {
+          "act2.part_grille": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "In a crate of the quartermaster's brass, wrapped in oilcloth, lies a face-plate pierced like a confessional screen. Behind it a tiny bellows and a reed: a voice, waiting for breath.",
+        "effects": [
+          {
+            "flag": "act2.part_grille",
+            "value": "found"
+          },
+          {
+            "item": "confessor_grille"
+          },
+          {
+            "xp": 80
+          },
+          {
+            "journal": {
+              "id": "act2_confessor",
+              "title": "The Clockwork Confessor",
+              "kind": "side",
+              "text": "I have found parts of some great brass clockwork: a mainspring, a governor cog stamped with the Lantern's sign, a speaking-grille. Whatever they came out of, it was made by the Order, and it was made to listen. Archivist Pell keeps the founders' corner in Ironhold; he may know what they belong to."
+            }
+          }
+        ]
+      },
+      "taken": {
+        "text": "The crate is empty but for straw."
+      }
+    }
+  },
+  {
+    "id": "ironhold_confessor",
+    "start": "start",
+    "openings": [
+      {
+        "node": "speaks",
+        "requires": {
+          "act2.confessor": "repaired"
+        }
+      },
+      {
+        "node": "stripped",
+        "requires": {
+          "act2.confessor": "scrapped"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A brass automaton in a confessor's stole sits slumped in the founders' corner, its chest open and empty, its face a blank plate. Pell looks up from his rolls: \"The Clockwork Confessor. The Order built it to hear the Iron Legion's confessions before they marched. It stopped the night Hadric fell, and nobody has known how to wake it since.\" Three things are missing from it: a mainspring, a governor cog and a speaking-grille.",
+        "effects": [
+          {
+            "journal": {
+              "id": "act2_confessor",
+              "title": "The Clockwork Confessor",
+              "kind": "side",
+              "text": "In Ironhold's founders' corner sits the Clockwork Confessor, a brass automaton the Order built to hear the Iron Legion's confessions. It stopped the night Hadric fell. It is missing its mainspring, its governor cog and its speaking-grille."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Fit the parts and try to wind it. (Crafting)",
+            "requires": {
+              "act2.part_spring": "found",
+              "act2.part_cog": "found",
+              "act2.part_grille": "found"
+            },
+            "check": {
+              "skill": "Crafting",
+              "dc": 22,
+              "success": "repaired",
+              "failure": "jammed"
+            }
+          },
+          {
+            "text": "Strip it for its brass and gears instead.",
+            "requires": {
+              "act2.part_spring": "found",
+              "act2.part_cog": "found",
+              "act2.part_grille": "found"
+            },
+            "to": "scrap"
+          },
+          {
+            "text": "Leave it."
+          }
+        ]
+      },
+      "jammed": {
+        "text": "The spring slips its catch with a crack like a whip and unwinds itself across the bench. Nothing broken, but nothing wound either. It will take a steadier hand, or another try."
+      },
+      "scrap": {
+        "text": "Pell watches you take up the tools and says nothing. Gears, brass, a heart of fine springs: Hilde could do a great deal with it.",
+        "choices": [
+          {
+            "text": "Strip it.",
+            "to": "scrapped"
+          },
+          {
+            "text": "No. Leave it be."
+          }
+        ]
+      },
+      "scrapped": {
+        "text": "It comes apart easily, as if it had been waiting to. You leave the empty stole folded on the bench.",
+        "effects": [
+          {
+            "takeItem": "confessor_mainspring"
+          },
+          {
+            "takeItem": "confessor_governor"
+          },
+          {
+            "takeItem": "confessor_grille"
+          },
+          {
+            "flag": "act2.confessor",
+            "value": "scrapped"
+          },
+          {
+            "dust": 60,
+            "fragments": 15
+          },
+          {
+            "gold": 150
+          },
+          {
+            "xp": 500
+          },
+          {
+            "journal": {
+              "id": "act2_confessor",
+              "title": "The Clockwork Confessor",
+              "kind": "side",
+              "text": "I stripped the Clockwork Confessor for parts: brass, gears and fine springs enough for a great deal of crafting. Its stole lies folded on the bench in Ironhold."
+            }
+          }
+        ]
+      },
+      "repaired": {
+        "text": "The mainspring bites, the governor catches, and somewhere in the brass chest a bellows draws breath. The face-plate turns to you. \"Kneel, soldier. Say it, and be light.\" The voice is a reed and a whisper. \"I have heard three hundred years of nothing. Before that, I heard the Iron Legion. I heard Ser Hadric.\"",
+        "effects": [
+          {
+            "takeItem": "confessor_mainspring"
+          },
+          {
+            "takeItem": "confessor_governor"
+          },
+          {
+            "takeItem": "confessor_grille"
+          },
+          {
+            "flag": "act2.confessor",
+            "value": "repaired"
+          },
+          {
+            "xp": 600
+          },
+          {
+            "boon": "confessors_absolution"
+          },
+          {
+            "journal": {
+              "id": "act2_confessor",
+              "title": "The Clockwork Confessor",
+              "kind": "side",
+              "text": "I mended the Clockwork Confessor. It speaks again, in a voice like a reed, and it remembers the Iron Legion's last confessions, Ser Hadric's among them."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"What did Hadric confess?\"",
+            "to": "hadric"
+          },
+          {
+            "text": "Rise."
+          }
+        ]
+      },
+      "speaks": {
+        "text": "The Confessor's face-plate turns to you. \"Kneel, and be light.\"",
+        "choices": [
+          {
+            "text": "\"What did Hadric confess?\"",
+            "to": "hadric"
+          },
+          {
+            "text": "\"What did the founders confess?\"",
+            "to": "founders"
+          },
+          {
+            "text": "Rise."
+          }
+        ]
+      },
+      "hadric": {
+        "text": "\"He was not ashamed of the war. He was ashamed of the vault. The Order sent the legion to guard a road to Mount Cindral, and at the end of the road was a god they had killed. Hadric said: we were not guarding the world from it. We were guarding them from what they did.\"",
+        "choices": [
+          {
+            "text": "\"What did the founders confess?\"",
+            "to": "founders"
+          },
+          {
+            "text": "Rise."
+          }
+        ]
+      },
+      "founders": {
+        "text": "\"That they held the god down while the Lantern put out its light. That they were paid in land for it. That they built this city's gates to keep the mountain's road shut, and called it piety.\" The bellows sighs. \"Confessions are sealed. But the dead have no seal, and neither have I.\"",
+        "effects": [
+          {
+            "flag": "act2.revelation",
+            "value": "heard"
+          }
+        ]
+      },
+      "stripped": {
+        "text": "Only the Confessor's stole remains on the bench, folded."
+      }
+    }
+  },
+  {
+    "id": "barracks_tomb",
+    "start": "start",
+    "openings": [
+      {
+        "node": "empty",
+        "requires": {
+          "act2.oath": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "Ser Hadric's tomb. The lid has been pushed aside from within, and the stone shelf is empty but for a journal and a greatsword laid where his hands would have been. The last page of the journal is in a careful hand: \"The Order asks me to hold the road to the mountain until the end of days. I swore to hold Ironhold's gate and come home to Edith. If I cannot do both, let the sword go back to her, and let her keep me.\"",
+        "effects": [
+          {
+            "flag": "act2.oath",
+            "value": "found"
+          },
+          {
+            "item": "hadrics_oath_sword"
+          },
+          {
+            "xp": 200
+          },
+          {
+            "journal": {
+              "id": "act2_oath",
+              "title": "Hadric's Oath",
+              "kind": "side",
+              "text": "In the Old Barracks' crypt, Ser Hadric's tomb lies open and empty. His journal asks that his sword go back to his wife, Edith. I have the sword. Her grave should be in the Barrow Fields; or the sword could be broken, and the oath with it."
+            }
+          }
+        ]
+      },
+      "empty": {
+        "text": "The tomb lies open and empty."
+      }
+    }
+  },
+  {
+    "id": "barrow_edith",
+    "start": "start",
+    "openings": [
+      {
+        "node": "returned",
+        "requires": {
+          "act2.hadric_relic": "returned"
+        }
+      },
+      {
+        "node": "broken",
+        "requires": {
+          "act2.hadric_relic": "broken"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A plain stone under a black yew: EDITH HADRIC. SHE KEPT THE HEARTH. The grass round it is untouched; the dead of the fields do not come here.",
+        "choices": [
+          {
+            "text": "Lay Hadric's sword on her grave.",
+            "requires": {
+              "act2.oath": "found",
+              "act2.hadric_relic": ""
+            },
+            "to": "return"
+          },
+          {
+            "text": "Break the sword across her headstone.",
+            "requires": {
+              "act2.oath": "found",
+              "act2.hadric_relic": ""
+            },
+            "to": "break"
+          },
+          {
+            "text": "Leave her in peace."
+          }
+        ]
+      },
+      "return": {
+        "text": "You lay the greatsword along the grave. For a moment the wind drops, and somewhere north, on the walls, something very old stops pacing.",
+        "effects": [
+          {
+            "takeItem": "hadrics_oath_sword"
+          },
+          {
+            "flag": "act2.hadric_relic",
+            "value": "returned"
+          },
+          {
+            "xp": 500
+          },
+          {
+            "boon": "widows_vigil"
+          },
+          {
+            "journal": {
+              "id": "act2_oath",
+              "title": "Hadric's Oath",
+              "kind": "side",
+              "text": "I laid Ser Hadric's sword on Edith's grave, as his journal asked. Whatever holds him to the walls now, it is not that oath."
+            }
+          }
+        ]
+      },
+      "break": {
+        "text": "The blade rings once against the stone and snaps. The oath goes out of the steel like heat; what is left in your hands is lighter, and hungrier.",
+        "effects": [
+          {
+            "takeItem": "hadrics_oath_sword"
+          },
+          {
+            "flag": "act2.hadric_relic",
+            "value": "broken"
+          },
+          {
+            "xp": 500
+          },
+          {
+            "item": "hadrics_severed_oath"
+          },
+          {
+            "journal": {
+              "id": "act2_oath",
+              "title": "Hadric's Oath",
+              "kind": "side",
+              "text": "I broke Ser Hadric's sword across his wife's headstone. The oath is gone from it, and the blade that is left holds nothing back."
+            }
+          }
+        ]
+      },
+      "returned": {
+        "text": "Hadric's sword lies along Edith's grave, rusting gently in the grass."
+      },
+      "broken": {
+        "text": "A crack runs down Edith's headstone where the sword broke against it."
       }
     }
   }

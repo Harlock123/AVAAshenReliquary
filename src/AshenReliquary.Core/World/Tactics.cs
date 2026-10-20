@@ -30,6 +30,35 @@ public static class Tactics
             world.UseBelt(antidote, null);
     }
 
+    /// <summary>How many tries a bot gives a trap before it walks round it.</summary>
+    public const int DisarmTries = 3;
+
+    /// <summary>
+    /// Between fights: smash a rising corpse near at hand before it stands, and, trained in Thievery, disarm a spotted trap
+    /// (three tries). Never with a foe within 3 tiles. True when it gave an order (the caller then lets it play out).
+    /// </summary>
+    public static bool Tidy(GameWorld world)
+    {
+        var hero = world.Hero;
+        if (hero.IsSwinging || hero.CorpseTarget is not null || hero.TrapTarget is not null)
+            return hero.CorpseTarget is not null || hero.TrapTarget is not null;
+        if (world.Monsters.Any(m => !m.IsDead && m.DistanceTo(hero) < 3))
+            return false;
+        if (world.RisingCorpses.Where(c => c.DistanceTo(hero) < 8).MinBy(c => c.DistanceTo(hero)) is { } corpse)
+        {
+            world.SmashCorpse(corpse);
+            return true;
+        }
+        if (hero.Character.SkillRank("Thievery") > Rules.ProficiencyRank.Untrained
+            && world.ZoneTraps.Where(t => t.State == TrapState.Found && t.Attempts < DisarmTries && t.DistanceTo(hero.X, hero.Y) < 6)
+                .MinBy(t => t.DistanceTo(hero.X, hero.Y)) is { } trap)
+        {
+            world.Disarm(trap);
+            return true;
+        }
+        return false;
+    }
+
     public static void Act(GameWorld world, string classId, MonsterActor target)
     {
         var hero = world.Hero;

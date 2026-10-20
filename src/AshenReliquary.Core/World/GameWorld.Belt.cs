@@ -189,5 +189,6 @@ public sealed partial class GameWorld
             if (other.IsDead)
                 Kill(other, false);
         }
+        ScourCorpses(target.X, target.Y, SplashRadius, ability.DamageType);
     }
 }

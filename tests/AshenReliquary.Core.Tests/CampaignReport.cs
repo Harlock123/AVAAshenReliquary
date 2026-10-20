@@ -182,6 +182,12 @@ public class CampaignReport(ITestOutputHelper output)
                 world.Update(Tick);
                 return true;
             }
+            if (Tactics.Tidy(world))
+            {
+                _route = null;
+                world.Update(Tick);
+                return true;
+            }
             if (world.Hero.PickupTarget is not null && world.Time < _pickupUntil)
             {
                 world.Update(Tick);

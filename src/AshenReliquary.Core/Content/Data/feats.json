@@ -2316,5 +2316,43 @@
     "minions": 1
    }
   ]
+ },
+ {
+  "id": "widows_vigil",
+  "name": "The Widow's Vigil",
+  "type": "Boon",
+  "level": 1,
+  "description": "You laid Hadric's oath on Edith's grave. Resistance 3 to void, and +1 to Fortitude saves.",
+  "effects": [
+   {
+    "resist": "Void",
+    "value": 3
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "confessors_absolution",
+  "name": "The Confessor's Absolution",
+  "type": "Boon",
+  "level": 1,
+  "description": "The Clockwork Confessor heard you out. +1 to Will saves, and +2 to Crafting and Religion checks.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "skill": "Crafting",
+    "value": 2
+   },
+   {
+    "skill": "Religion",
+    "value": 2
+   }
+  ]
  }
 ]

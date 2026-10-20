@@ -299,6 +299,54 @@ public class BalanceReport(ITestOutputHelper output)
     }
 
     /// <summary>
+    /// The Barrow Fields (M4 step 3): every pack, the open barrows and the rising dead, then down into the Old Barracks;
+    /// a level-7 hero in the starting kit with +1 runes. The bot smashes rising corpses between fights (Tactics.Tidy).
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Barrow_Fields_at_level_7(string kit) => ReportZone(kit, "barrow_fields", "barracks", 7, "the Barrow Fields to the barracks door");
+
+    /// <summary>
+    /// The Old Barracks (M4 step 3): every pack, in the dark, past sixteen traps it must spot or spring (a rogue disarms
+    /// what it spots), and back up the stair; a level-8 hero in the starting kit with +1 runes.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Old_Barracks_at_level_8(string kit) => ReportZone(kit, "old_barracks", "stair", 8, "the Old Barracks and back up the stair");
+
+    private void ReportZone(string kit, string zoneId, string exitId, int level, string what)
+    {
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: 1)).ToList();
+        output.WriteLine($"{kit}: {what}, every pack, {runs.Count} runs");
+        foreach (var r in runs)
+            output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "finished" : "did not finish")}");
+        foreach (var g in runs.SelectMany(r => r.Killers).GroupBy(k => k).OrderByDescending(g => g.Count()).Take(4))
+            output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+    }
+
+    /// <summary>
     /// A whole zone from a hero of <paramref name="level"/> (picks made as <see cref="LevelTo"/> makes them): every pack
     /// in the zone file's order (in the Fens the main route, then the Sunken Road, then back for the Old Dyke), then the
     /// exit <paramref name="exitId"/>. Like <see cref="RoadRun"/> otherwise.
@@ -378,6 +426,10 @@ public class BalanceReport(ITestOutputHelper output)
                 {
                     if (!world.Hero.IsSwinging && world.Time >= nextDodge)
                         Act(world, bar, classId, target);
+                    route = null;
+                }
+                else if (Tactics.Tidy(world))
+                {
                     route = null;
                 }
                 else if (hero.HitPoints < hero.MaxHitPoints * 0.8)

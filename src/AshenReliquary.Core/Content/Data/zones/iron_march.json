@@ -1043,6 +1043,17 @@
    ],
    "tile": 139,
    "dialogue": "march_poster"
+  },
+  {
+   "id": "brass_mainspring",
+   "name": "Brass in the rubble",
+   "at": [
+    43,
+    124
+   ],
+   "tile": 1271,
+   "blocks": false,
+   "dialogue": "march_spring"
   }
  ]
 }
