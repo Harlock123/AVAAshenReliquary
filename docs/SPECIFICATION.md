@@ -767,7 +767,7 @@ Building the rules core and the vertical slice settled these. Where a number her
 
 ### Loot and inventory (M1)
 
-- **Drops by rank:** Minion 4% (1 roll), Normal 14% (1), Champion 100% + a 50% second roll, Elite 100% + two 50% rolls; spawners (cursed graves) always drop one item. Gold: Minion 15%, Normal 35%, Champion and Elite always, amount 2–6 × (1 + level) × the rank's multiplier. Healing draughts (+1 potion charge): 5% from non-minions.
+- **Drops by rank:** Minion 4% (1 roll), Normal 14% (1), Champion 100% + a 50% second roll, Elite 100% + two 50% rolls; spawners (cursed graves) always drop one item. Gold: Minion 15%, Normal 35%, Champion and Elite always, amount 2–6 × (1 + level) × the rank's multiplier. Healing draughts (+1 potion charge): 2% from non-minions (5% before the draught case).
 - **Rarity (Act 1):** 70% Common, 25% Uncommon, 4.5% Rare, 0.4% Unique, 0.1% Set (section 11's table; M3 step 7); champions and better lift half of Common drops to Uncommon. Commons never roll jewellery.
 - **Runes by item level:** weapon potency +1 from 2 (30%, 50% on Uncommon+), striking from 4 (20% / 40%); armour potency from 5, resilient from 8.
 - **Affixes:** Uncommon 1–2 (at most one prefix and one suffix), Rare 3–4 (at most two of each), never two of the same stat. 18 affixes in `affixes.json`: max HP, movement, attack and cast speed, weapon damage, Fury per hit, resource regeneration, resistances (fire, cold, void, poison, Taint) and +1 Fortitude, Reflex or Will.
@@ -1845,6 +1845,23 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **The woods at 12:** no deaths; a hero point now and then to a Mirrored cultist.
   - **The catacombs at 13:** at most one death a run (turned wolves, the Hollow Abbot, Mirrored cultists).
 
+### The draught case (after M4 step 6)
+
+Asked for: somewhere to keep healing draughts, and fewer of them dropping.
+
+- **The case** (`HealingPotion.Spares`, up to `CaseCapacity` 6) sits beside the three flasks.
+  - A draught picked up or bought fills an empty flask first, else goes into the case; with both full it stays on the
+    ground (or the trader's button reads "full").
+  - Out of combat (the same calm as HP recovery: no monster awake and no attack for 4 s) the case pours a spare into an
+    empty flask every 2 s, so a fight still has at most three drinks.
+  - Shrines refill the flasks, never the case.
+  - The HUD shows the spares as "+N" under the last flask, with the case in the flasks' tooltip. The trader's button
+    says where a bought draught goes.
+  - Saved as `SpareDraughts`.
+- **Fewer drops** (`LootGenerator.DraughtChance`, `CacheDraughtChance`, `ReliquaryDraughtChance`): with nothing wasted
+  any more, a draught drops from 2% of monsters that aren't minions (was 5%), 15% of chests (was 30%) and 35% of
+  reliquaries (was 60%). All 24 campaign runs still pass.
+
 ### Frame time at full screen (after M4 step 6)
 
 Asked for: the game held only 43–47 fps in a fight on this machine's full 3000×2000 screen, on either GPU. The GPU
@@ -1979,7 +1996,7 @@ human play-through.
 
 - **What:** chests placed in a zone file (`caches`: id, tile, kind, facing) hold loot of their own, so exploring pays as well as fighting. A **cache** is Flare's wooden chest (dimmed once opened, as the art has no open one); a **reliquary** is the spiked skull chest, whose lid opens, rarer and richer and usually guarded.
 - **Opening:** click a chest and the hero walks over and opens it (within 1.6 tiles); its loot spills onto the ground around it, to be picked up like any drop. A chest opens once; saves remember which (`OpenedCaches`).
-- **Contents, rolled when opened at the hero's level (never below the zone's):** a cache holds one item (45% common, 45% uncommon, 10% rare, against 70/25/5 from a monster), 3–18 × (1 + level) gold and a 30% chance of a healing draught. A reliquary holds two items, the first at least uncommon (25% rare) and the second rolled like a Champion's, triple the gold and a 60% chance of a draught.
+- **Contents, rolled when opened at the hero's level (never below the zone's):** a cache holds one item (45% common, 45% uncommon, 10% rare, against 70/25/5 from a monster), 3–18 × (1 + level) gold and a 15% chance of a healing draught (30% before the draught case). A reliquary holds two items, the first at least uncommon (25% rare) and the second rolled like a Champion's, triple the gold and a 35% chance of a draught (was 60%).
 - **Finding them:** a shut chest gives off a faint glint (warm for a cache, violet for a reliquary), shows its name when the hero is within 6 tiles or the pointer is on it, and the minimap marks explored chests (gold, violet, or grey once opened). Opening plays Flare's wooden chest creak and the loot-drop sound.
 - **Gallows Road:** eight, mostly in the side glades: the graveyard's far corner, the poachers' glade, the hanging tree, the farmstead, the drowned cottage, the barrow field and the refugee camp hold caches, and the grave knight Champion guards a reliquary in its barrow. They are placed by `tools/gallows_road_mapgen.py` on open ground after the map is drawn, so adding them changed no tile.
 

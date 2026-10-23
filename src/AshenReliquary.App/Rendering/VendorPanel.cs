@@ -244,11 +244,13 @@ internal sealed class VendorPanel
         // A potion charge.
         var button = PotionButton;
         var price = world.PotionPrice;
-        var full = c.Potion.Charges >= HealingPotion.MaxCharges;
+        var full = c.Potion.Full;
         using (var buttonBack = new SKPaint { Color = hoverPotion && !full ? new SKColor(60, 40, 34, 240) : new SKColor(34, 26, 22, 240) })
             canvas.DrawRect(button, buttonBack);
         canvas.DrawRect(button, hoverPotion ? frame : faint);
-        canvas.DrawText($"Healing potion charge  ({c.Potion.Charges} / {HealingPotion.MaxCharges})", button.Left + 12, button.MidY + 5, SKTextAlign.Left, font, full ? dim : ink);
+        var into = c.Potion.Charges < HealingPotion.MaxCharges ? $"{c.Potion.Charges} / {HealingPotion.MaxCharges}"
+            : $"case {c.Potion.Spares} / {HealingPotion.CaseCapacity}";
+        canvas.DrawText($"Healing draught  ({into})", button.Left + 12, button.MidY + 5, SKTextAlign.Left, font, full ? dim : ink);
         canvas.DrawText(full ? "full" : $"{price} gold", button.Right - 12, button.MidY + 5, SKTextAlign.Right, font, full ? dim : gear.Gold >= price ? gold : poor);
 
         // Supplies: belt items, never sold out, priced by the hero's level.

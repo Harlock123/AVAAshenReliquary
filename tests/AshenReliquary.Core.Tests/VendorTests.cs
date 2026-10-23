@@ -147,15 +147,20 @@ public class VendorTests
     }
 
     [Fact]
-    public void Potion_charges_can_be_bought_up_to_the_maximum()
+    public void Draughts_can_be_bought_into_the_flasks_then_the_case_until_both_are_full()
     {
-        var (world, _) = AtTheTable(gold: 1000);
+        var (world, _) = AtTheTable(gold: 5000);
         var potion = world.Hero.Character.Potion;
-        Assert.False(world.BuyPotion());
         potion.Drink(0, 1, world.Random);
         Assert.True(world.BuyPotion());
         Assert.Equal(HealingPotion.MaxCharges, potion.Charges);
-        Assert.Equal(1000 - Pricing.PotionPrice(world.Hero.Character), world.Hero.Equipment.Gold);
+        Assert.Equal(5000 - Pricing.PotionPrice(world.Hero.Character), world.Hero.Equipment.Gold);
+        for (var i = 0; i < HealingPotion.CaseCapacity; i++)
+            Assert.True(world.BuyPotion());
+        Assert.Equal(HealingPotion.CaseCapacity, potion.Spares);
+        Assert.Equal("Bought a healing draught for the case.", world.LastMessage);
+        Assert.False(world.BuyPotion());
+        Assert.True(potion.Full);
     }
 
     [Fact]

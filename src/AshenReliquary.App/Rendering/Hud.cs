@@ -111,11 +111,19 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         }
         ReadyFlash(canvas, "potion", flasks, c.Potion.Charges > 0 ? potionWait : 0, world.Time);
         canvas.DrawText(potionWait > 0 && c.Potion.Charges > 0 ? SweepText(potionWait) : "Q", flaskLeft + 33, rowBase - 26, SKTextAlign.Center, small, dim);
+        // The draught case's spares, under the last flask.
+        if (c.Potion.Spares > 0)
+        {
+            using var spare = new SKPaint { IsAntialias = true, Color = new SKColor(230, 120, 105) };
+            canvas.DrawText($"+{c.Potion.Spares}", flaskLeft + HealingPotion.MaxCharges * 22 - 6, rowBase - 26, SKTextAlign.Right, small, spare);
+        }
         Region(SKRect.Create(flaskLeft - 4, rowBase - 68, 70, 46), () =>
         [
             new("Healing potion", Ink, $"{c.Potion.Charges} / {HealingPotion.MaxCharges}", true),
             new($"Q: heals 1d8 + {2 * c.Level} over 2 s; 8 s cooldown.", Dim),
-            new("Charges refill at shrines; healing draughts add one.", Dim),
+            new("Flasks refill at shrines; a healing draught fills one.", Dim),
+            new($"Draught case: {c.Potion.Spares} / {HealingPotion.CaseCapacity} spares. Draughts found with the flasks", Dim),
+            new("full go in the case; out of combat it refills empty flasks.", Dim),
             .. (c.Conditions.PotionsBlocked ? [new TipLine("Sickened: you can't drink!", Bad)] : Array.Empty<TipLine>()),
         ], new SKColor(200, 60, 50));
         // Hero Points above the potions, or after the Step in the narrow row.

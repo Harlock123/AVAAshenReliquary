@@ -24,7 +24,9 @@ public sealed class HeroPoints
 
 /// <summary>
 /// Healing potions run on charges rather than a stack: 3 charges refilled at shrines, an 8 s cooldown,
-/// and each drink heals 1d8 + 2 x level over 2 s. Sickened creatures can't drink.
+/// and each drink heals 1d8 + 2 x level over 2 s. Sickened creatures can't drink. A draught picked up (or bought) with
+/// the flasks full goes into the draught case, which holds <see cref="CaseCapacity"/> spares; out of combat a spare
+/// refills an empty flask (<see cref="TopUp"/>), so a fight still has at most three drinks.
 /// </summary>
 public sealed class HealingPotion
 {
@@ -32,9 +34,15 @@ public sealed class HealingPotion
     public const double CooldownSeconds = 8.0;
     public const double HealDurationSeconds = 2.0;
 
+    /// <summary>How many spare draughts the case holds.</summary>
+    public const int CaseCapacity = 6;
+
     private double _readyAt = double.NegativeInfinity;
 
     public int Charges { get; private set; } = MaxCharges;
+
+    /// <summary>Spare draughts in the case (shrines refill the flasks, never the case).</summary>
+    public int Spares { get; private set; }
 
     public bool CanDrink(double now, ConditionSet? conditions = null) =>
         Charges > 0 && now >= _readyAt && conditions?.PotionsBlocked != true;
@@ -54,13 +62,36 @@ public sealed class HealingPotion
 
     public void Refill() => Charges = MaxCharges;
 
-    internal void Restore(int charges) => Charges = Math.Clamp(charges, 0, MaxCharges);
+    internal void Restore(int charges, int spares = 0)
+    {
+        Charges = Math.Clamp(charges, 0, MaxCharges);
+        Spares = Math.Clamp(spares, 0, CaseCapacity);
+    }
 
-    /// <summary>A healing draught picked up: one more charge, up to the maximum. False when already full.</summary>
+    /// <summary>True when the flasks and the case are both full: a draught has nowhere to go.</summary>
+    public bool Full => Charges >= MaxCharges && Spares >= CaseCapacity;
+
+    /// <summary>
+    /// A healing draught picked up or bought: a flask if one is empty, else the case. False when both are full (it stays
+    /// where it lies).
+    /// </summary>
     public bool AddCharge()
     {
-        if (Charges >= MaxCharges)
+        if (Charges < MaxCharges)
+            Charges++;
+        else if (Spares < CaseCapacity)
+            Spares++;
+        else
             return false;
+        return true;
+    }
+
+    /// <summary>Pours a spare from the case into an empty flask. False when there is no spare or no empty flask.</summary>
+    public bool TopUp()
+    {
+        if (Spares == 0 || Charges >= MaxCharges)
+            return false;
+        Spares--;
         Charges++;
         return true;
     }

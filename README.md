@@ -50,7 +50,7 @@ where you choose what goes on the bar (click an ability, then a slot on the bar,
 1 to 6; right-click a slot to empty it; abilities on no slot wait in the list); without the panel, **right-click any
 slot** on the bar (LMB, RMB, 1 to 6) for a list of every ability you have and pick one to bind there, even one already
 on another key (both keys then use it, with one cooldown), or empty the slot, **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
-**Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
+**Q** drinks a potion (three flasks refilled at shrines; draughts found with the flasks full go into a draught case of six, shown as "+N", which refills empty flasks between fights), **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
 items (right-click bag items to stash them), **J** the journal, in the bag **Sort** orders it for your class (a green ▲ marks an upgrade, a red ▼ a downgrade, red
 tint gear your class can't use well), **Ctrl-click** marks an item junk then locked, **Drop junk** / **Sell junk** clears

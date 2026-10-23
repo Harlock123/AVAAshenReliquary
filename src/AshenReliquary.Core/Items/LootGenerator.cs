@@ -18,6 +18,12 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
 {
     public IReadOnlyDictionary<string, ItemDefinition> Items { get; } = items;
 
+    /// <summary>
+    /// The chance (percent) of a healing draught from a monster that isn't a minion, a plain chest and a reliquary. They
+    /// were 5, 30 and 60 before the draught case kept spares, so fewer are needed.
+    /// </summary>
+    public const int DraughtChance = 2, CacheDraughtChance = 15, ReliquaryDraughtChance = 35;
+
     public IReadOnlyList<LootDrop> Roll(CreatureRank rank, int level, IRandomSource random, bool spawner = false, int act = 1)
     {
         var drops = new List<LootDrop>();
@@ -44,7 +50,7 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         }
         if (random.Roll(1, 100) <= goldChance)
             drops.Add(new LootDrop(null, Gold: (int)Math.Max(1, random.Roll(2, 6) * (1 + level) * goldMultiplier)));
-        if (rank != CreatureRank.Minion && random.Roll(1, 100) <= 5)
+        if (rank != CreatureRank.Minion && random.Roll(1, 100) <= DraughtChance)
             drops.Add(new LootDrop(null, Draught: true));
         if (rank != CreatureRank.Minion && random.Roll(1, 100) <= (rank >= CreatureRank.Champion ? 30 : 6) && BeltItem(level, random) is { } belt)
             drops.Add(new LootDrop(belt));
@@ -63,8 +69,9 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
 
     /// <summary>
     /// A chest's contents at <paramref name="level"/> (the hero's): a plain cache holds one item (45% common, 45%
-    /// uncommon, 10% rare), 3 to 18 x (1 + level) gold and a 30% chance of a healing draught; a reliquary holds two items,
-    /// the first at least uncommon (25% rare), triple the gold and a 60% chance of a draught.
+    /// uncommon, 10% rare), 3 to 18 x (1 + level) gold and a <see cref="CacheDraughtChance"/>% chance of a healing draught;
+    /// a reliquary holds two items, the first at least uncommon (25% rare), triple the gold and a
+    /// <see cref="ReliquaryDraughtChance"/>% chance of a draught.
     /// </summary>
     public IReadOnlyList<LootDrop> RollCache(World.CacheKind kind, int level, IRandomSource random, int act = 1)
     {
@@ -82,7 +89,7 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         }
         var gold = random.Roll(3, 18) * (1 + level) * (kind == World.CacheKind.Reliquary ? 3 : 1);
         drops.Add(new LootDrop(null, Gold: gold));
-        if (random.Roll(1, 100) <= (kind == World.CacheKind.Reliquary ? 60 : 30))
+        if (random.Roll(1, 100) <= (kind == World.CacheKind.Reliquary ? ReliquaryDraughtChance : CacheDraughtChance))
             drops.Add(new LootDrop(null, Draught: true));
         if (random.Roll(1, 100) <= 35 && BeltItem(level, random) is { } belt)
             drops.Add(new LootDrop(belt));

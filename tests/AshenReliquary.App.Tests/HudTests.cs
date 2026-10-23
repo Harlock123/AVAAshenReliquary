@@ -175,4 +175,16 @@ public class HudTests
         wide.Play(0.1);
         Assert.Equal(770 - 68, wide.Window.View.HudRowTop);   // a wide window keeps them beside the orb
     }
+
+    [AvaloniaFact]
+    public void The_draught_case_shows_its_spares_under_the_flasks()
+    {
+        var kit = TestKit.Open(width: 1288, height: 770);
+        var potion = kit.World.Hero.Character.Potion;
+        for (var i = 0; i < 4; i++)
+            potion.AddCharge();                                                // flasks full: all four into the case
+        Assert.Equal(4, potion.Spares);
+        kit.Play(0.2);
+        kit.Capture(Shot("hud-draught-case"));
+    }
 }

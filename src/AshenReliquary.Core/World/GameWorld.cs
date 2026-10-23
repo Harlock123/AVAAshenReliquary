@@ -809,21 +809,22 @@ public sealed partial class GameWorld
         return true;
     }
 
-    /// <summary>Buys one healing potion charge from the open trader.</summary>
+    /// <summary>Buys one healing draught from the open trader: into an empty flask, else the draught case.</summary>
     public bool BuyPotion()
     {
         if (OpenVendor is null)
             return false;
-        if (Hero.Character.Potion.Charges >= HealingPotion.MaxCharges)
+        if (Hero.Character.Potion.Full)
         {
-            Say("Your potion charges are already full.");
+            Say("Your flasks and your draught case are full.");
             return false;
         }
         if (!Pay(PotionPrice))
             return false;
+        var toCase = Hero.Character.Potion.Charges >= HealingPotion.MaxCharges;
         Hero.Character.Potion.AddCharge();
         Sound(SoundCue.Potion, Hero);
-        Say("Bought a potion charge.");
+        Say(toCase ? "Bought a healing draught for the case." : "Bought a healing draught.");
         return true;
     }
 
@@ -1193,6 +1194,10 @@ public sealed partial class GameWorld
 
     private double _healCarry;
     private double _calmSince;
+    private double _topUpAt;
+
+    /// <summary>Out of combat, how often the draught case refills an empty flask.</summary>
+    public const double TopUpSeconds = 2.0;
 
     /// <summary>True while the hero is recovering HP out of combat (the HUD shows it as a buff).</summary>
     public bool Regenerating { get; private set; }
@@ -1207,6 +1212,12 @@ public sealed partial class GameWorld
         var c = Hero.Character;
         if (Hero.Action is not null || _projectiles.Count > 0 || _monsters.Any(m => !m.IsDead && m.State != MonsterState.Idle))
             _calmSince = Time;
+        // Out of combat, the draught case refills an empty flask every couple of seconds.
+        if (Time - _calmSince >= RegenDelaySeconds && Time >= _topUpAt && !Hero.IsDead && c.Potion.TopUp())
+        {
+            _topUpAt = Time + TopUpSeconds;
+            Float(Hero, "flask refilled", FloatingTextKind.Heal, 0.4);
+        }
         Regenerating = Time - _calmSince >= RegenDelaySeconds && c.HitPoints < c.MaxHitPoints;
         if (!Regenerating)
             return;
@@ -1250,13 +1261,14 @@ public sealed partial class GameWorld
             }
             else if (g.Drop.Draught)
             {
+                var flasksFull = hero.Character.Potion.Charges >= HealingPotion.MaxCharges;
                 if (!hero.Character.Potion.AddCharge())
                 {
                     if (wanted)
-                        Say("Your potion charges are already full.");
+                        Say("Your flasks and your draught case are full.");
                     continue;
                 }
-                Float(hero, "+1 potion", FloatingTextKind.Heal, 0.6);
+                Float(hero, flasksFull ? "+1 draught (case)" : "+1 potion", FloatingTextKind.Heal, 0.6);
                 Sound(SoundCue.Potion, hero);
             }
             else

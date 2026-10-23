@@ -135,7 +135,8 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (`Rendering/BindMenu.cs`, `GameWorld.BindAbility`: one ability may be bound to several slots, sharing its cooldown;
   `SlotsOf`); then frame time at full screen (spec section 16): the ground cached in chunks (`WorldView.Ground.cs`,
   `CacheGround`), the darkness mask on a GPU surface, the depth pass culled and sorted in place; `ASHEN_STATS=1` logs the
-  F3 line to stdout. Next: step 7, the Bell Tower and the Choir of Whispers.
+  F3 line to stdout; then the draught case (`HealingPotion.Spares`/`TopUp`, saved `SpareDraughts`; draught drops cut to
+  2/15/35%). Next: step 7, the Bell Tower and the Choir of Whispers.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

@@ -62,6 +62,9 @@ public sealed record SaveGame
     public double Taint { get; init; }
     public int HeroPoints { get; init; }
     public int PotionCharges { get; init; }
+
+    /// <summary>Spare draughts in the draught case (0 in saves from before it).</summary>
+    public int SpareDraughts { get; init; }
     public double Resource { get; init; }
     public Dictionary<EquipSlot, SavedItem> Worn { get; init; } = [];
     public List<SavedItem?> Bag { get; init; } = [];
@@ -171,6 +174,7 @@ public sealed record SaveGame
             Taint = c.Taint.Value,
             HeroPoints = c.HeroPoints.Count,
             PotionCharges = c.Potion.Charges,
+            SpareDraughts = c.Potion.Spares,
             Resource = hero.Resource.Current,
             Worn = gear.Worn.ToDictionary(kv => kv.Key, kv => Save(kv.Value)),
             Bag = gear.Bag.Select(i => i is null ? null : Save(i)).ToList(),
@@ -269,7 +273,7 @@ public sealed record SaveGame
         character.RestoreHitPoints(HitPoints);
         character.Taint.Restore(Taint);
         character.HeroPoints.Restore(HeroPoints);
-        character.Potion.Restore(PotionCharges);
+        character.Potion.Restore(PotionCharges, SpareDraughts);
         world.Hero.Resource.Restore(Resource);
         if (CompanionHitPoints is { } companion)
             world.RestoreCompanion(companion);

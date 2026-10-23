@@ -43,6 +43,7 @@ public class SaveTests
         hero.TakeDamage(9);
         hero.Taint.Add(37);
         hero.Potion.Drink(0, hero.Level, new SeededRandom(1));
+        hero.Potion.Restore(2, 4);                                              // four spares in the draught case
         world.Hero.Resource.OnCombat();
         // World: two monsters slain, loot on the ground.
         foreach (var m in world.Monsters.Take(2).ToList())
@@ -64,6 +65,7 @@ public class SaveTests
         Assert.Equal(hero.Defenses.Resistances[DamageType.Fire], c.Defenses.Resistances[DamageType.Fire]);
         Assert.Equal(hero.Taint.Value, c.Taint.Value, 6); // 37 slowed by the dwarf's CON
         Assert.Equal(2, c.Potion.Charges);
+        Assert.Equal(4, c.Potion.Spares);
         Assert.Equal(world.Hero.Resource.Current, loaded.Hero.Resource.Current);
         var sword = loaded.Hero.Equipment.In(EquipSlot.MainHand)!;
         Assert.Equal(("Ashbite Longsword", 1, 1, 2), (sword.Name, sword.Potency, sword.Striking, sword.Affixes.Count));
