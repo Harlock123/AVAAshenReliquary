@@ -76,15 +76,18 @@ internal sealed class AbilitiesPanel(IconStore icons)
             icons.Draw(canvas, a.Id, SKRect.Inflate(icon, -3, -3), Palette.Ink);
             canvas.DrawText(a.Name, icon.Right + 10, row.Top + 17, SKTextAlign.Left, nameFont, ink);
             canvas.DrawText(Facts(world, a), icon.Right + 10, row.Top + 33, SKTextAlign.Left, textFont, dim);
-            var slot = world.SlotOf(a.Id);
-            canvas.DrawText(slot is null ? "not on the bar" : SlotLabel(slot), row.Right - 8, row.Top + 24, SKTextAlign.Right, textFont,
-                slot is null ? dim : gold);
+            var slots = SlotsLabel(world, a.Id);
+            canvas.DrawText(slots ?? "not on the bar", row.Right - 8, row.Top + 24, SKTextAlign.Right, textFont, slots is null ? dim : gold);
             var ability = a;
-            addRegion(row, () => Hud.AbilityTip(world, ability, slot is null ? "" : SlotLabel(slot)), Palette.Gold);
+            addRegion(row, () => Hud.AbilityTip(world, ability, slots ?? ""), Palette.Gold);
             y += RowHeight;
         }
         canvas.Restore();
     }
+
+    /// <summary>Every slot an ability is bound to ("RMB, Key 3"), or null when it is on none.</summary>
+    public static string? SlotsLabel(GameWorld world, string abilityId) =>
+        world.SlotsOf(abilityId) is { Count: > 0 } slots ? string.Join(", ", slots.Select(SlotLabel)) : null;
 
     /// <summary>"LMB", "RMB" or "Key 3".</summary>
     public static string SlotLabel(string slot) => slot switch { "lmb" => "LMB", "rmb" => "RMB", var n => $"Key {n}" };

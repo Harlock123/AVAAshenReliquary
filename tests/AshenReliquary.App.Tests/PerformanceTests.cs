@@ -63,4 +63,48 @@ public class PerformanceTests(ITestOutputHelper output)
         // 1x was used just before the last new scale arrived, so 1.1x was the stalest and went instead.
         Assert.Same(first, cache.Get(FlareAssets.IconSheet, 0, 0, FlareAssets.IconSize, FlareAssets.IconSize, 1f));
     }
+
+    /// <summary>
+    /// The ground drawn from cached chunks looks as it does drawn tile by tile, the Fens' live bog shading included,
+    /// and the chunks are built once and reused.
+    /// </summary>
+    [AvaloniaTheory]
+    [InlineData("gallows_road")]
+    [InlineData("rotwater_fens")]
+    [InlineData("catacombs_of_oriel")]
+    public void Cached_ground_matches_the_ground_drawn_tile_by_tile(string zone)
+    {
+        var kit = TestKit.Open(zoneId: zone, width: 1288, height: 770);
+        var view = kit.Window.View;
+        kit.Play(0.1);
+        view.CacheGround = false;
+        var tiled = Pixels(kit.Capture());
+        view.CacheGround = true;
+        var cached = Pixels(kit.Capture());
+        Assert.True(view.GroundChunks > 0);
+        var chunks = view.GroundChunks;
+        kit.Capture();
+        Assert.Equal(chunks, view.GroundChunks);                                // nothing rebuilt
+        var differ = tiled.Zip(cached).Count(p => Math.Abs(p.First - p.Second) > 24);
+        output.WriteLine($"{zone}: {differ} of {tiled.Length} channel values differ, {chunks} chunks");
+        Assert.True(differ < tiled.Length / 200, $"{differ} values differ");
+
+        // At another zoom the chunks are rebuilt for it, and still match.
+        view.ZoomLevel = 0;
+        kit.Play(0.1);
+        view.CacheGround = false;
+        tiled = Pixels(kit.Capture());
+        view.CacheGround = true;
+        cached = Pixels(kit.Capture());
+        Assert.NotEqual(chunks, view.GroundChunks);
+        Assert.True(tiled.Zip(cached).Count(p => Math.Abs(p.First - p.Second) > 24) < tiled.Length / 200);
+    }
+
+    private static byte[] Pixels(Avalonia.Media.Imaging.WriteableBitmap frame)
+    {
+        using var buffer = frame.Lock();
+        var bytes = new byte[buffer.RowBytes * buffer.Size.Height];
+        System.Runtime.InteropServices.Marshal.Copy(buffer.Address, bytes, 0, bytes.Length);
+        return bytes;
+    }
 }

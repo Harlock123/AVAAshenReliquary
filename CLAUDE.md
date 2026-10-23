@@ -131,7 +131,11 @@ implementation decisions made so far). `README.md` has the run commands and cont
   the Library of Ash (`act3.page.N`, `ReadLibraryPage`, boon `ashurs_chronicle`) and the Penitent (`act3.penitent`
   forgiven/banished, boon `penitents_grace`; Caddoc's NPC entries hang on flags); `Tactics.WarmUp`;
   `BalanceReport.Frostbitten_Pass_at_level_11`, `Hollow_Woods_at_level_12`, `Catacombs_of_Oriel_at_level_13`. The
-  campaign's Act 3 leg waits for the Choir (step 7). Next: step 7, the Bell Tower and the Choir of Whispers.
+  campaign's Act 3 leg waits for the Choir (step 7). After step 6, asked for: the bar's right-click menu
+  (`Rendering/BindMenu.cs`, `GameWorld.BindAbility`: one ability may be bound to several slots, sharing its cooldown;
+  `SlotsOf`); then frame time at full screen (spec section 16): the ground cached in chunks (`WorldView.Ground.cs`,
+  `CacheGround`), the darkness mask on a GPU surface, the depth pass culled and sorted in place; `ASHEN_STATS=1` logs the
+  F3 line to stdout. Next: step 7, the Bell Tower and the Choir of Whispers.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -158,6 +162,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   holds `WorldView.Gate`, as the draw does; a race there froze the picture once.
 - **.NET SDK:** `global.json` asks for 10.0.400+, and Arch's source-built `dotnet-sdk` is stuck in the 10.0.1xx band,
   so SDK 10.0.402 comes from mise (`mise use -g dotnet@10.0.402`). Plain `dotnet build` in the repo uses it.
+- **Measuring fullscreen:** F3 can't be toggled through Hyprland once the window is fullscreen; start with
+  `ASHEN_STATS=1` (the stats line goes to stdout) and `--battle <zone>`, then make it fullscreen. The game runs on the
+  Intel GPU by default; `__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia` puts it on the GTX 1650 (when the
+  card is present: check `ls /sys/class/drm`).
 - **Seeing the real window:** `hyprctl dispatch 'hl.dsp.send_shortcut({ mods = "", key = "F3", window = "class:AVAAshenReliquary" })'`
   toggles the stats, `hyprctl clients -j` gives the window's position and size for `grim -g`. Close the game by its
   PID; `pkill -f` with its name also matches the calling shell. For headless frames, `TestKit.Capture(path)`.

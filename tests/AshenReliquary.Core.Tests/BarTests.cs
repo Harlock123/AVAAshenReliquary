@@ -8,7 +8,8 @@ namespace AshenReliquary.Core.Tests;
 
 /// <summary>
 /// M3 step 2: choosing the bar. Any ability the hero has goes in any of the eight slots; the rest wait in the list; a
-/// new ability goes into a free slot once; the layout is saved.
+/// new ability goes into a free slot once; the layout is saved. One ability may be bound to several slots (the bar's
+/// right-click menu).
 /// </summary>
 public class BarTests
 {
@@ -152,5 +153,35 @@ public class BarTests
         Assert.DoesNotContain(world.KnownAbilities, a => a.Id is "swipe" or "intimidating_strike");
         Assert.False(world.Bar.ContainsKey("1") && world.Bar["1"].Id == "swipe");
         Assert.NotNull(world.SlotOf("brutish_shove"));
+    }
+
+    [Fact]
+    public void An_ability_bound_to_a_second_slot_stays_on_its_first_and_shares_its_cooldown()
+    {
+        var world = CrowdedFighter(Field(new SpawnDefinition([9, 6], [new PackMember("fen_zombie")], Radius: 0, Level: 1)));
+        var charge = world.Bar["1"];
+        var rmb = world.Bar["rmb"].Id;
+        Assert.True(world.BindAbility(charge.Id, "rmb"));
+        Assert.Equal(charge.Id, world.Bar["rmb"].Id);
+        Assert.Equal(charge.Id, world.Bar["1"].Id);
+        Assert.Equal(["rmb", "1"], world.SlotsOf(charge.Id));
+        Assert.Equal("rmb", world.SlotOf(charge.Id));
+        Assert.Contains(rmb, world.AbilitiesOffBar.Select(a => a.Id));          // what was on RMB waits in the list
+        Assert.False(world.BindAbility(charge.Id, "7"));
+        Assert.False(world.BindAbility("fireball", "2"));
+
+        // One cooldown, whichever slot used it.
+        world.UseAbility(charge.Id, world.Monsters.Single());
+        Run(world, 0.1);
+        Assert.True(world.CooldownRemaining(world.Bar["1"]) > 0);
+        Assert.Equal(world.CooldownRemaining(world.Bar["rmb"]), world.CooldownRemaining(world.Bar["1"]));
+
+        // Saved and loaded with both bindings; clearing one leaves the other.
+        var fort = CrowdedFighter(Content.Zone("fort_gallowmere"));
+        fort.BindAbility(charge.Id, "rmb");
+        var loaded = SaveGame.FromJson(SaveGame.Capture(fort, "bar", 3, null).ToJson()).Restore(Content);
+        Assert.Equal(["rmb", "1"], loaded.SlotsOf(charge.Id));
+        Assert.True(loaded.ClearSlot("rmb"));
+        Assert.Equal(["1"], loaded.SlotsOf(charge.Id));
     }
 }

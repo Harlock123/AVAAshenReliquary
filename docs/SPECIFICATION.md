@@ -1077,6 +1077,13 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   cantrip wherever it sits.
 - **Saved** as the layout (slot to ability) and the abilities already placed (`Bar`, `BarOffered`); a save from before
   this gets the automatic layout. The bots (`Tactics`) find abilities by id, so they play whatever the layout.
+- **The bar's right-click menu** (asked for after M4 step 6): with the panel closed, a right click on any slot opens a
+  list above it of every ability the hero has, each with the slots it is already on. Choosing one binds it to that slot
+  as well (`GameWorld.BindAbility`), so one ability may sit on several slots (say Sudden Charge on both 1 and RMB) and
+  share its cooldown; what was in the slot goes to the list unless it is bound elsewhere too. "Empty this slot" clears
+  it. A click anywhere else or Escape closes the menu, and a right click on another slot moves it there; no click on
+  the menu reaches the world. The slot's tooltip says so, and the Abilities panel lists every slot an ability is on.
+  The layout saves duplicates as it is (slot to ability).
 
 ### The Rogue (M3 step 2)
 
@@ -1837,6 +1844,40 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **The pass at 11:** everyone through, in 2.5–4.4 bot minutes; the Cutthroat dies most (two a run, to wraith packs).
   - **The woods at 12:** no deaths; a hero point now and then to a Mirrored cultist.
   - **The catacombs at 13:** at most one death a run (turned wolves, the Hollow Abbot, Mirrored cultists).
+
+### Frame time at full screen (after M4 step 6)
+
+Asked for: the game held only 43–47 fps in a fight on this machine's full 3000×2000 screen, on either GPU. The GPU
+was mostly idle: the frame was bound by the CPU issuing draws. `ASHEN_STATS=1` now starts with the F3 overlay shown
+and also writes its line to standard output every 60 frames, to measure from a script. Three changes, measured
+fullscreen in `--battle` on the Intel GPU:
+
+- **The ground is cached in chunks** (`WorldView.Ground.cs`). It had been over a thousand small tile draws a frame,
+  about 7 ms. The static ground is drawn once into 4×4-cell chunks (GPU textures on the GPU renderer), and a frame
+  draws a few dozen chunk images: about 0.3 ms.
+  - Bog cells (their shade swells) and animated tiles stay live, drawn over their chunk.
+  - Every ground tile sits at its own whole-pixel place relative to the map plus the camera's whole-pixel offset, so
+    the chunks meet without seams. A test finds the cached ground pixel-identical to the tile-by-tile ground in three
+    zones.
+  - Chunks are built as they come into view, dropped two seconds after they leave it, and rebuilt on a new zone,
+    zoom or pixel density. While the zoom glides the ground is drawn tile by tile, as before.
+- **The darkness mask is a GPU surface** on the GPU renderer. A dungeon's dozens of torch gradients had been painted
+  on the CPU, about 6 ms a frame; they now take about 0.5 ms. Outdoor campfires and shrines that glow are found once
+  per map, not by scanning every cell in view each frame.
+- **The depth-sorted pass culls first.** Objects out of view and actors outside the cells in view are skipped before
+  sorting, map objects are drawn without a closure each, and the sort is one in-place `List.Sort`. In the Fens this
+  pass fell from 5–8 ms to 2–4 ms.
+
+**Results:**
+
+| Zone | Before | After |
+| --- | --- | --- |
+| The Frostbitten Pass | 43–47 fps (17.5 ms of drawing) | 60 fps (about 8 ms) |
+| The Catacombs of Oriel | 58–60 fps (10 ms) | 60 fps (6 ms) |
+| Gallows Road | | 60 fps (5 ms) |
+| The Rotwater Fens | | 55–60 fps on the Intel GPU (7–9 ms of drawing; the rest is the GPU's own fill), 59–60 on the GTX 1650 |
+
+The display refreshes at 60 Hz, which caps the rate.
 
 ### The arsenal (M2, after step 10)
 

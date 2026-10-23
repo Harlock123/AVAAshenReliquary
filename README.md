@@ -47,7 +47,9 @@ Disengage on 2, which springs toward the cursor; the champion's Lay on Hands on 
 subclass's aura on 3; the necromancer's Raise Bones on the right mouse button, Siphon Life on 1, its subclass's
 ability on 2 and, from level 2, Bone Rush on 4), **K** opens the Abilities panel,
 where you choose what goes on the bar (click an ability, then a slot on the bar, or drag it there, or hover it and press
-1 to 6; right-click a slot to empty it; abilities on no slot wait in the list), **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
+1 to 6; right-click a slot to empty it; abilities on no slot wait in the list); without the panel, **right-click any
+slot** on the bar (LMB, RMB, 1 to 6) for a list of every ability you have and pick one to bind there, even one already
+on another key (both keys then use it, with one cooldown), or empty the slot, **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
 **Q** drinks a potion, **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
 items (right-click bag items to stash them), **J** the journal, in the bag **Sort** orders it for your class (a green ▲ marks an upgrade, a red ▼ a downgrade, red
@@ -59,7 +61,8 @@ common gear, **L** the level-up screen (when a level is waiting), **Shift** step
 shows on the title screen as a save of its own, numbered: Elirk-2, Elirk-3; Save a copy in the Escape menu does the
 same),
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
-**Space** pauses, the mouse wheel (or a touchpad's two-finger scroll) zooms through five steps and the game remembers the step, the monster you are attacking has an ember-red ring with turning brackets on the ground under it (the one under the pointer a thin pale ring), **F3** shows the frame rate, render timings and the GPU's texture cache. You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
+**Space** pauses, the mouse wheel (or a touchpad's two-finger scroll) zooms through five steps and the game remembers the step, the monster you are attacking has an ember-red ring with turning brackets on the ground under it (the one under the pointer a thin pale ring), **F3** shows the frame rate, render timings and the GPU's texture cache (`ASHEN_STATS=1` starts with it shown and
+also prints it to the terminal every 60 frames). You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
 through the refugee camp, to the gate of
 Fort Gallowmere, where Sergeant Brask asks your business.

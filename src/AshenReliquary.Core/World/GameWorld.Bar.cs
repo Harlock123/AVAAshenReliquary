@@ -6,7 +6,8 @@ namespace AshenReliquary.Core.World;
 /// The ability bar (spec, section 9: two mouse buttons and keys 1 to 6) and the abilities the hero has. The player puts
 /// any ability into any slot (the Abilities panel, K); an ability not on the bar waits in the list. A newly gained
 /// ability goes into its class slot if that is free, else the first free number slot, else the list; after that it
-/// stays where the player puts it. The layout is saved; a save from before it gets the automatic layout.
+/// stays where the player puts it. The layout is saved; a save from before it gets the automatic layout. One ability
+/// may be bound to several slots (<see cref="BindAbility"/>, the bar's right-click menu): they share its cooldown.
 /// </summary>
 public sealed partial class GameWorld
 {
@@ -40,8 +41,11 @@ public sealed partial class GameWorld
     /// <summary>The abilities already placed once (saved with the layout, so one the player took off stays off).</summary>
     public IReadOnlyCollection<string> BarOffered => _offered;
 
-    /// <summary>The slot an ability is in, or null when it waits in the list.</summary>
-    public string? SlotOf(string abilityId) => _layout.FirstOrDefault(kv => kv.Value == abilityId).Key;
+    /// <summary>The slot an ability is in (the first, in bar order, when it is bound to several), or null when it waits in the list.</summary>
+    public string? SlotOf(string abilityId) => SlotsOf(abilityId).FirstOrDefault();
+
+    /// <summary>Every slot an ability is bound to, in bar order.</summary>
+    public IReadOnlyList<string> SlotsOf(string abilityId) => BarSlots.Where(s => _layout.GetValueOrDefault(s) == abilityId).ToList();
 
     /// <summary>
     /// The basic attack, which a left click falls back on and every one-off ability is followed by: the "lmb" slot's
@@ -125,6 +129,20 @@ public sealed partial class GameWorld
     }
 
     /// <summary>
+    /// Binds an ability the hero has to a slot as well as wherever else it is (the bar's right-click menu): whatever was
+    /// in the slot goes to the list unless it is bound elsewhere too. False for an unknown slot or an ability the hero
+    /// lacks.
+    /// </summary>
+    public bool BindAbility(string abilityId, string slot)
+    {
+        if (!BarSlots.Contains(slot) || KnownAbilities.All(a => a.Id != abilityId))
+            return false;
+        _layout[slot] = abilityId;
+        RefreshBar();
+        return true;
+    }
+
+    /// <summary>
     /// Uses an ability the hero knows by its id, on the bar or waiting in the list (the bots: a player would put it on
     /// the bar). False when the hero doesn't know it.
     /// </summary>
@@ -152,7 +170,7 @@ public sealed partial class GameWorld
         _offered.Clear();
         foreach (var (slot, id) in layout)
         {
-            if (BarSlots.Contains(slot) && !_layout.ContainsValue(id))
+            if (BarSlots.Contains(slot))
                 _layout[slot] = id;
         }
         _offered.UnionWith(offered);

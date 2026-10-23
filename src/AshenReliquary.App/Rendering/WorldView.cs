@@ -18,7 +18,7 @@ namespace AshenReliquary.App.Rendering;
 /// depth, then the act's colour grade, darkness with light pools, drifting ash, a vignette, floating combat
 /// text and the HUD. Pure view: it reads the world and turns clicks into world commands.
 /// </summary>
-public sealed class WorldView : Control
+public sealed partial class WorldView : Control
 {
     public const float HalfTileWidth = 96f;
     public const float HalfTileHeight = 48f;
@@ -58,12 +58,32 @@ public sealed class WorldView : Control
         {
             _abilitiesOpen = value;
             AbilitiesView.Held = null;
+            if (value && _bindMenu is not null)
+                _bindMenu.Slot = null;
         }
     }
 
     private bool _abilitiesOpen;
     private AbilitiesPanel? _abilitiesPanel;
     private AbilitiesPanel AbilitiesView => _abilitiesPanel ??= new AbilitiesPanel(_icons);
+
+    private BindMenu? _bindMenu;
+    private BindMenu BindView => _bindMenu ??= new BindMenu(_icons);
+
+    /// <summary>The bar slot whose right-click menu is open (choose what the slot does), or null.</summary>
+    public string? BindMenuSlot => BindView.Slot;
+
+    /// <summary>Opens the right-click menu for a bar slot ("lmb", "rmb", "1".."6").</summary>
+    public void OpenBindMenu(string slot)
+    {
+        AbilitiesOpen = false;
+        BindView.Slot = GameWorld.BarSlots.Contains(slot) ? slot : null;
+    }
+
+    public void CloseBindMenu() => BindView.Slot = null;
+
+    /// <summary>Where a row of the bar's right-click menu is, as last drawn (tests click it; "" is "Empty this slot").</summary>
+    public Point BindMenuRow(string id) => BindView.RowRect(id) is var r ? new Point(r.MidX, r.MidY) : default;
 
     /// <summary>The Abilities panel, as last drawn (tests read its rows).</summary>
     internal AbilitiesPanel Abilities => AbilitiesView;
@@ -330,6 +350,24 @@ public sealed class WorldView : Control
     private SKImage? _vignette;
     private bool _worldOnGpu;
     private SKSurface? _darknessSurface;
+    private bool _darknessOnGpu;
+
+    /// <summary>The map's campfire (102) and shrine (265) objects, which glow outdoors: found once per map.</summary>
+    private (TileMap Map, List<(int X, int Y, int Id)> Found)? _glowing;
+
+    private List<(int X, int Y, int Id)> GlowingObjects(TileMap map)
+    {
+        if (_glowing is { } known && known.Map == map)
+            return known.Found;
+        var found = new List<(int X, int Y, int Id)>();
+        for (var y = 0; y < map.Height; y++)
+        for (var x = 0; x < map.Width; x++)
+            foreach (var id in map.Objects(x, y))
+                if (id is 102 or 265)
+                    found.Add((x, y, id));
+        _glowing = (map, found);
+        return found;
+    }
     private float _deviceScale = 1f;
     private int _zoomIndex = DefaultZoomLevel;
     private double _zoom = ZoomSteps[DefaultZoomLevel], _zoomFrom = ZoomSteps[DefaultZoomLevel], _zoomStarted = double.NegativeInfinity;
@@ -481,6 +519,25 @@ public sealed class WorldView : Control
         var sp = new SKPoint((float)p.X, (float)p.Y);
         if (LevelUpOpen && props.IsLeftButtonPressed && _levelUp.Click(sp, world))
         {
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
+        if (BindView.Slot is not null && (props.IsLeftButtonPressed || props.IsRightButtonPressed))
+        {
+            // The bar's right-click menu: a row binds; any other click closes it (a right click on another slot
+            // opens that slot's menu instead), and never reaches the world.
+            var other = props.IsRightButtonPressed ? HudLayer.SlotAt(sp) : null;
+            if (props.IsLeftButtonPressed)
+                BindView.Choose(sp, world);
+            BindView.Slot = other;
+            e.Handled = true;
+            InvalidateVisual();
+            return;
+        }
+        if (!AbilitiesOpen && props.IsRightButtonPressed && HudLayer.SlotAt(sp) is { } bindSlot)
+        {
+            OpenBindMenu(bindSlot);
             e.Handled = true;
             InvalidateVisual();
             return;
@@ -1161,6 +1218,11 @@ public sealed class WorldView : Control
             _dialogue.Draw(canvas, size, talk, PortraitImage(talk.Portrait), pointer);
             hud.Block(_dialogue.Bounds);
         }
+        if (BindView.Slot is { } bindFor)
+        {
+            BindView.Draw(canvas, size, world, HudLayer.SlotRect(bindFor), pointer, hud.AddRegion);
+            hud.Block(BindView.Bounds);
+        }
         var overPanel = pointer is { } over && ((InventoryOpen && Inventory.Bounds.Contains(ToPanel(over))) || (world.OpenVendor is not null && Trade.Bounds.Contains(ToPanel(over)))
             || (world.OpenShrine is not null && _rift.Bounds.Contains(over)) || (world.Dialogue is not null && _dialogue.Bounds.Contains(over))
             || (JournalOpen && _journal.Bounds.Contains(over)) || (world.StashOpen && StashView.Bounds.Contains(ToPanel(over)))
@@ -1183,6 +1245,8 @@ public sealed class WorldView : Control
             _statsLine = $"{(gpu ? "GPU" : "CPU")} renderer, world at {scale:0.##}x of {deviceScale:0.##}x  ·  draw {Stats}"
                 + (GpuCacheLine() is { } cache ? $"  ·  {cache}" : "");
             Stats.Reset();
+            if (LogStats)
+                Console.WriteLine($"{(_frameIntervals.Count > 0 ? 1000 / _frameIntervals.Average() : 0):0} fps at {size.Width:0}x{size.Height:0}  ·  {_statsLine}");
         }
         if (ShowStats)
         {
@@ -1200,8 +1264,11 @@ public sealed class WorldView : Control
         }
     }
 
-    /// <summary>F3: frame rate and where the frame time goes.</summary>
-    public bool ShowStats { get; set; }
+    /// <summary>F3: frame rate and where the frame time goes. <c>ASHEN_STATS=1</c> starts with it shown.</summary>
+    public bool ShowStats { get; set; } = LogStats;
+
+    /// <summary><c>ASHEN_STATS=1</c>: the stats line is also written to standard output every 60 frames (for measuring).</summary>
+    private static readonly bool LogStats = Environment.GetEnvironmentVariable("ASHEN_STATS") is { Length: > 0 } v && v != "0";
 
     private readonly Queue<double> _frameIntervals = new();
     private long _lastPresent;
@@ -1322,7 +1389,6 @@ public sealed class WorldView : Control
 
     private void DrawGround(SKCanvas canvas, SKSize size, GameWorld world, double time)
     {
-        var tileset = _assets.Tileset(world.Zone.Tileset);
         VisibleCells(size, world, out var x0, out var y0, out var x1, out var y1, clampToMap: false);
         // Poison bog: the grass darkened to a wet, rotten olive, with a sickly green that slowly swells and fades.
         var swell = (float)(0.5 + 0.5 * Math.Sin(time * 0.9));
@@ -1337,20 +1403,20 @@ public sealed class WorldView : Control
         using var bog = Shade(1, 1);
         using var rim = Shade(0.8f, 0.8f);
         using var fringe = Shade(0.4f, 0.3f);
-        var map = world.Map;
-        var outdoors = world.Zone.Outdoors;
-        int WetNeighbours(int x, int y) =>
-            (map.IsBog(x + 1, y) ? 1 : 0) + (map.IsBog(x - 1, y) ? 1 : 0) + (map.IsBog(x, y + 1) ? 1 : 0) + (map.IsBog(x, y - 1) ? 1 : 0);
+        SKPaint? PaintFor(GroundKind kind) => kind switch { GroundKind.Bog => bog, GroundKind.Rim => rim, GroundKind.Fringe => fringe, _ => null };
+        if (!Zooming && CacheGround)
+        {
+            // Settled: the static ground comes from cached chunks (WorldView.Ground.cs); only the bog and animated
+            // tiles are drawn tile by tile.
+            DrawGroundChunks(canvas, world, time, x0, y0, x1, y1, PaintFor);
+            return;
+        }
+        var tileset = _assets.Tileset(world.Zone.Tileset);
         for (var y = y0; y <= y1; y++)
         for (var x = x0; x <= x1; x++)
         {
-            // Beyond the map's edge the forest simply carries on, so the view never shows a void.
-            var id = map.InBounds(x, y) ? map.Ground(x, y) : outdoors ? OutsideGround(x, y) : -1;
-            if (id < 0 || !tileset.Tiles.TryGetValue(id, out var tile))
-                continue;
-            var paint = map.IsBog(x, y) ? (WetNeighbours(x, y) < 4 ? rim : bog)
-                : map.InBounds(x, y) && !map.IsWater(x, y) && WetNeighbours(x, y) > 0 ? fringe : null;
-            DrawTile(canvas, tile, ToScreen(x + 0.5, y + 0.5), time, paint);
+            if (GroundAt(world, tileset, x, y, out var kind) is { } tile)
+                DrawTile(canvas, tile, ToScreen(x + 0.5, y + 0.5), time, PaintFor(kind));
         }
     }
 
@@ -1541,67 +1607,100 @@ public sealed class WorldView : Control
         canvas.Restore();
     }
 
+    /// <summary>
+    /// One thing to draw in depth order: a map object (its tile, where and how) or anything else (<see cref="Draw"/>).
+    /// <see cref="Order"/> keeps equal keys in the order they were added, as a stable sort would.
+    /// </summary>
+    private readonly record struct DepthItem(double Key, double X, int Order, FlareTile? Tile, SKPoint At, SKPaint? Paint, Action? Draw);
+
+    private readonly List<DepthItem> _depthItems = [];
+
+    private static readonly Comparison<DepthItem> DepthOrder = (a, b) =>
+        a.Key != b.Key ? a.Key.CompareTo(b.Key) : a.X != b.X ? a.X.CompareTo(b.X) : a.Order.CompareTo(b.Order);
+
     private void DrawDepthSorted(SKCanvas canvas, SKSize size, GameWorld world)
     {
         var tileset = _assets.Tileset(world.Zone.Tileset);
         VisibleCells(size, world, out var x0, out var y0, out var x1, out var y1, clampToMap: false);
-        var items = new List<(double Key, double X, Action Draw)>();
+        var items = _depthItems;
+        items.Clear();
         var heroKey = world.Hero.X + world.Hero.Y;
         var heroFoot = ToScreen(world.Hero.X, world.Hero.Y);
-        var heroTorso = SKRect.Create(heroFoot.X - 22 * (float)Zoom, heroFoot.Y - 130 * (float)Zoom, 44 * (float)Zoom, 130 * (float)Zoom);
+        var z = (float)Zoom;
+        var heroTorso = SKRect.Create(heroFoot.X - 22 * z, heroFoot.Y - 130 * z, 44 * z, 130 * z);
         for (var y = y0; y <= y1; y++)
         for (var x = x0; x <= x1; x++)
         {
             IReadOnlyList<int> objects = world.Map.InBounds(x, y) ? world.Map.Objects(x, y)
                 : world.Zone.Outdoors && OutsideTree(x, y) is { } tree ? [world.Zone.Snowy ? tree - 4 : tree] : [];   // snow: dead trees 244-247
+            if (objects.Count == 0)
+                continue;
+            var at = ToScreen(x + 0.5, y + 0.5);
             foreach (var id in objects)
             {
                 if (!tileset.Tiles.TryGetValue(id, out var tile))
                     continue;
-                int cx = x, cy = y;
+                // Out of view: never sorted or drawn.
+                if (!SKRect.Create(at.X - tile.OffsetX * z, at.Y - tile.OffsetY * z, tile.Width * z, tile.Height * z).IntersectsWith(_viewport))
+                    continue;
                 // Flat things on the ground (the shrine circle) sort under everything standing on them.
                 var flat = tile.Height <= 110;
-                var key = cx + cy + (flat ? 0.0 : 1.0);
-                var paint = !flat && key > heroKey && Occludes(tile, ToScreen(cx + 0.5, cy + 0.5), heroTorso) ? _seeThrough : null;
-                items.Add((key, cx, () => DrawTile(canvas, tile, ToScreen(cx + 0.5, cy + 0.5), world.Time, paint)));
+                var key = x + y + (flat ? 0.0 : 1.0);
+                var paint = !flat && key > heroKey && Occludes(tile, at, heroTorso) ? _seeThrough : null;
+                items.Add(new DepthItem(key, x, items.Count, tile, at, paint, null));
             }
         }
+        // Actors and things out of the cells in view are skipped too.
+        bool InView(double x, double y) => x >= x0 - 2 && x <= x1 + 2 && y >= y0 - 2 && y <= y1 + 2;
+        void Add(double key, double x, Action draw) => items.Add(new DepthItem(key, x, items.Count, null, default, null, draw));
         foreach (var m in world.Monsters)
         {
+            if (!InView(m.X, m.Y))
+                continue;
             var monster = m;
-            items.Add((m.IsDead ? m.X + m.Y - 0.6 : m.X + m.Y, m.X, () => DrawMonster(canvas, monster, world)));
+            Add(m.IsDead ? m.X + m.Y - 0.6 : m.X + m.Y, m.X, () => DrawMonster(canvas, monster, world));
         }
-        items.Add((world.Hero.X + world.Hero.Y, world.Hero.X, () => DrawHero(canvas, world)));
+        Add(world.Hero.X + world.Hero.Y, world.Hero.X, () => DrawHero(canvas, world));
         foreach (var a in world.Allies)
         {
             var ally = a;
             // A fallen ally lies for a moment, then is gone until it comes back.
-            if (!a.IsDead || a.ReturnIn > GameWorld.AllyReturnSeconds - 2)
-                items.Add((a.IsDead ? a.X + a.Y - 0.6 : a.X + a.Y, a.X, () => DrawAlly(canvas, ally)));
+            if (InView(a.X, a.Y) && (!a.IsDead || a.ReturnIn > GameWorld.AllyReturnSeconds - 2))
+                Add(a.IsDead ? a.X + a.Y - 0.6 : a.X + a.Y, a.X, () => DrawAlly(canvas, ally));
         }
         foreach (var v in world.Vendors)
         {
             var vendor = v;
-            items.Add((v.X + v.Y, v.X, () => DrawVendor(canvas, vendor)));
+            if (InView(v.X, v.Y))
+                Add(v.X + v.Y, v.X, () => DrawVendor(canvas, vendor));
         }
         foreach (var c in world.Caches)
         {
             var cache = c;
-            items.Add((c.X + c.Y, c.X, () => DrawCache(canvas, cache, tileset, world.Time)));
+            if (InView(c.X, c.Y))
+                Add(c.X + c.Y, c.X, () => DrawCache(canvas, cache, tileset, world.Time));
         }
         foreach (var i in world.Interactives)
         {
             var who = i;
-            items.Add((i.X + i.Y, i.X, () => DrawInteractive(canvas, who, tileset, world.Time)));
+            if (InView(i.X, i.Y))
+                Add(i.X + i.Y, i.X, () => DrawInteractive(canvas, who, tileset, world.Time));
         }
         foreach (var g in world.GroundItems)
         {
             var ground = g;
-            items.Add((g.X + g.Y - 0.8, g.X, () => DrawGroundItem(canvas, ground, world)));
+            if (InView(g.X, g.Y))
+                Add(g.X + g.Y - 0.8, g.X, () => DrawGroundItem(canvas, ground, world));
         }
 
-        foreach (var item in items.OrderBy(i => i.Key).ThenBy(i => i.X))
-            item.Draw();
+        items.Sort(DepthOrder);
+        foreach (var item in items)
+        {
+            if (item.Tile is { } tile)
+                DrawTile(canvas, tile, item.At, world.Time, item.Paint);
+            else
+                item.Draw!();
+        }
     }
 
     /// <summary>Trees and buildings in front of the hero fade so the hero is never lost behind them.</summary>
@@ -2381,18 +2480,16 @@ public sealed class WorldView : Control
             var glow = fire ? new SKColor(255, 140, 50, 70) : SKColor.Parse(l.Color).WithAlpha(60);
             lights.Add((ToScreen(l.X, l.Y), (float)l.Radius + flicker, glow));
         }
-        // Outdoors, Flare's grassland campfire and shrine tiles give light of themselves.
-        for (var y = world.Zone.Outdoors ? y0 : y1 + 1; y <= y1; y++)
-        for (var x = x0; x <= x1; x++)
+        // Outdoors, Flare's grassland campfire and shrine tiles give light of themselves (found once per map).
+        foreach (var (x, y, id) in world.Zone.Outdoors ? GlowingObjects(world.Map) : [])
         {
-            foreach (var id in world.Map.Objects(x, y))
-            {
-                var flicker = (float)(Math.Sin(time * 9.1 + x * 3.7) * 0.25 + Math.Sin(time * 13.3 + y) * 0.15);
-                if (id == 102)
-                    lights.Add((ToScreen(x + 0.5, y + 0.5), 5.5f + flicker, new SKColor(255, 140, 50, 70)));
-                else if (id == 265)
-                    lights.Add((ToScreen(x + 0.5, y + 0.5), 3.5f + flicker * 0.3f, new SKColor(110, 170, 255, 60)));
-            }
+            if (x < x0 || x > x1 || y < y0 || y > y1)
+                continue;
+            var flicker = (float)(Math.Sin(time * 9.1 + x * 3.7) * 0.25 + Math.Sin(time * 13.3 + y) * 0.15);
+            if (id == 102)
+                lights.Add((ToScreen(x + 0.5, y + 0.5), 5.5f + flicker, new SKColor(255, 140, 50, 70)));
+            else
+                lights.Add((ToScreen(x + 0.5, y + 0.5), 3.5f + flicker * 0.3f, new SKColor(110, 170, 255, 60)));
         }
         // A faint glint on a shut chest, so it can be found in the dark.
         foreach (var c in world.Caches)
@@ -2425,13 +2522,19 @@ public sealed class WorldView : Control
         foreach (var impact in world.Impacts)
             lights.Add((ToScreen(impact.X, impact.Y), 3.0f, SpellColor(impact.Type).WithAlpha(70)));
 
-        // The darkness mask is all soft gradients, so it is drawn at a quarter of the resolution and stretched.
+        // The darkness mask is all soft gradients, so it is drawn at a quarter of the resolution and stretched. On the
+        // GPU renderer the mask is a GPU surface: a dungeon's dozens of torch gradients painted on the CPU had cost
+        // about 6 ms a frame.
         const float Down = 4f;
         int mw = Math.Max(1, (int)Math.Ceiling(size.Width / Down)), mh = Math.Max(1, (int)Math.Ceiling(size.Height / Down));
-        if (_darknessSurface is null || _darknessSurface.Canvas.DeviceClipBounds.Width != mw || _darknessSurface.Canvas.DeviceClipBounds.Height != mh)
+        var onGpu = _worldOnGpu && _gpuContext is not null;
+        if (_darknessSurface is null || _darknessOnGpu != onGpu
+            || _darknessSurface.Canvas.DeviceClipBounds.Width != mw || _darknessSurface.Canvas.DeviceClipBounds.Height != mh)
         {
             _darknessSurface?.Dispose();
-            _darknessSurface = SKSurface.Create(new SKImageInfo(mw, mh, SKColorType.Rgba8888, SKAlphaType.Premul));
+            var info = new SKImageInfo(mw, mh, SKColorType.Rgba8888, SKAlphaType.Premul);
+            _darknessSurface = (onGpu ? SKSurface.Create(_gpuContext!, false, info) : null) ?? SKSurface.Create(info);
+            _darknessOnGpu = onGpu;
         }
         var mask = _darknessSurface.Canvas;
         mask.Clear(new SKColor(6, 5, 12, (byte)Math.Round(255 * world.Zone.DarknessLevel)));

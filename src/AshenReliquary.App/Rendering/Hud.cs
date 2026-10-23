@@ -645,8 +645,10 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 if (ability.Id == active)
                     frame.Color = new SKColor(255, 210, 120);
                 var a = ability;
-                Region(rect, () => AbilityTip(world, a, label), AbilityTint(a));
+                Region(rect, () => [.. AbilityTip(world, a, label), new("Right-click to choose what this slot does.", Dim)], AbilityTint(a));
             }
+            else
+                Region(rect, () => [new($"{label}: empty", Gold, null, true), new("Right-click to choose what this slot does.", Dim)], Gold);
             if (Placing is not null)
                 frame.Color = Gold;
             canvas.DrawRect(rect, frame);

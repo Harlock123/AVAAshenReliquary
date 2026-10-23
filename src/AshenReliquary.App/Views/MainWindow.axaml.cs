@@ -289,6 +289,7 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
         {
             if (GameMenu.IsVisible) CloseMenu();
+            else if (World.BindMenuSlot is not null) World.CloseBindMenu();
             else if (World.LevelUpOpen) World.LevelUpOpen = false;
             else if (World.AbilitiesOpen) World.AbilitiesOpen = false;
             else if (world.Dialogue is not null) world.EndDialogue();
