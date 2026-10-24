@@ -87,7 +87,7 @@ public sealed partial class GameWorld
                 RaisedAt = Time,
                 ExpiresAt = timed ? Time + ability.BuffSeconds : double.PositiveInfinity,
             };
-            var (x, y) = OpenNear(Hero.X + i * 0.6, Hero.Y - i * 0.6);
+            var (x, y) = SummonSpot();
             (minion.X, minion.Y) = (x, y);
             minion.Face(Hero.X, Hero.Y);
             _allies.Add(minion);
@@ -98,6 +98,37 @@ public sealed partial class GameWorld
             Hero.Play("cast", 1.5, restart: true);
         Sound(timed ? SoundCue.MonsterAggro : SoundCue.GraveRise, sx, sy, timed ? definition.Voice : "grave");
     }
+
+    /// <summary>
+    /// Where a summon climbs out: of the walkable spots on a ring round the hero (<see cref="SummonRing"/> tiles out),
+    /// the one farthest from the allies already standing, so a raised pack spreads out instead of stacking on one spot.
+    /// </summary>
+    private (double X, double Y) SummonSpot()
+    {
+        var others = _allies.Where(a => !a.IsDead).ToList();
+        (double X, double Y)? best = null;
+        var bestRoom = double.MinValue;
+        var turn = Random.Roll(0, SummonDirections - 1);
+        for (var k = 0; k < SummonDirections; k++)
+        {
+            var angle = (k + turn) * 2 * Math.PI / SummonDirections;
+            foreach (var ring in new[] { SummonRing, SummonRing * 0.6 })
+            {
+                double x = Hero.X + Math.Cos(angle) * ring, y = Hero.Y + Math.Sin(angle) * ring;
+                if (!Map.IsWalkable(x, y))
+                    continue;
+                var room = others.Count == 0 ? ring : others.Min(a => Math.Sqrt((a.X - x) * (a.X - x) + (a.Y - y) * (a.Y - y)));
+                if (room > bestRoom)
+                    (best, bestRoom) = ((x, y), room);
+                break;
+            }
+        }
+        return best ?? OpenNear(Hero.X, Hero.Y);
+    }
+
+    /// <summary>How far from the hero summons rise, and how many directions round it are tried.</summary>
+    private const double SummonRing = 1.4;
+    private const int SummonDirections = 12;
 
     /// <summary>A skeleton falls apart (made room for, or its master fell).</summary>
     private void Crumble(AllyActor minion)

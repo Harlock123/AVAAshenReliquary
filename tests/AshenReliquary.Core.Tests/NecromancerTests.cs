@@ -86,6 +86,22 @@ public class NecromancerTests
     }
 
     [Fact]
+    public void Raised_skeletons_rise_apart_and_keep_apart_as_they_follow()
+    {
+        var world = World(TestCharacters.Necromancer());
+        world.UseSlot("rmb", null);
+        Run(world, 1.1);
+        world.UseSlot("rmb", null);
+        var (a, b) = (world.Minions.First(), world.Minions.Last());
+        static double Apart(AllyActor a, AllyActor b) => Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y));
+        Assert.True(Apart(a, b) >= 1.0, $"rose {Apart(a, b):0.00} apart");
+        world.MoveTo(20.5, 8.5);
+        Run(world, 6);
+        Assert.True(world.Hero.X > 18);
+        Assert.True(Apart(a, b) >= a.Radius + b.Radius, $"stood {Apart(a, b):0.00} apart after following");
+    }
+
+    [Fact]
     public void Skeletons_fight_for_the_necromancer_and_crumble_when_it_falls()
     {
         var world = World(TestCharacters.Necromancer(), At(11, 8));

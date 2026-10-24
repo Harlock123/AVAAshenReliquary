@@ -2586,7 +2586,10 @@ public sealed partial class GameWorld
         return moved || actor.Path.Count > 0;
     }
 
-    /// <summary>Soft separation so monsters crowd around the hero instead of stacking on one spot.</summary>
+    /// <summary>The extra gap (tiles) allies keep from one another beyond their radii.</summary>
+    private const double AllyRoom = 0.3;
+
+    /// <summary>Soft separation so monsters crowd around the hero instead of stacking on one spot, and allies spread out.</summary>
     private void Separate()
     {
         var living = _monsters.Where(m => !m.IsDead).ToList();
@@ -2602,14 +2605,26 @@ public sealed partial class GameWorld
             for (var j = i + 1; j < living.Count; j++)
                 Push(a, living[j], onlyFirst: false);
         }
+        // Allies keep a little room between them too, so a pack of skeletons reads as a pack, not one stacked figure.
+        var allies = _allies.Where(a => !a.IsDead).ToList();
+        for (var i = 0; i < allies.Count; i++)
+        for (var j = i + 1; j < allies.Count; j++)
+            Push(allies[i], allies[j], onlyFirst: false, room: AllyRoom);
 
-        void Push(Actor a, Actor b, bool onlyFirst)
+        void Push(Actor a, Actor b, bool onlyFirst, double room = 0)
         {
             double dx = a.X - b.X, dy = a.Y - b.Y;
             var d = Math.Sqrt(dx * dx + dy * dy);
-            var min = a.Radius + b.Radius;
-            if (d >= min || d < 1e-6)
+            var min = a.Radius + b.Radius + room;
+            if (d >= min || d < 1e-6 && room == 0)
                 return;
+            if (d < 1e-6)
+            {
+                // Allies exactly on top of each other: part them along a fixed slant.
+                (dx, dy, d) = (0.6, 0.8, 1e-3);
+                dx *= d;
+                dy *= d;
+            }
             var push = (min - d) * (onlyFirst ? 1.0 : 0.5);
             double nx = dx / d * push, ny = dy / d * push;
             TryShift(a, nx, ny);

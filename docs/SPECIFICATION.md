@@ -1250,7 +1250,8 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   above the Taint bar. An ability's `charges` are spent as well as its Mana; Raise Bones (`chargeInstead`) takes a
   charge in place of its Mana when there is one.
 - **Minions** on the ally framework (`AllyActor.IsMinion`): a raised skeleton (`raised_skeleton`: Flare's weak skeleton,
-  tinted bone-blue) climbs out of the ground beside the hero and fights as the wolf does (follows, falls on what the
+  tinted bone-blue) climbs out of the ground beside the hero (on a ring 1.4 tiles out, at the spot farthest from the
+  allies already standing, so a raised pack spreads out; allies also keep 0.3 tiles between them as they follow) and fights as the wolf does (follows, falls on what the
   hero fights, draws blows). Its numbers follow the hero's level: AC 13 + level, attack +5 + level, (6 + 5 × level)
   HP, 1d6 + half the level; a step of growth adds half its HP again, 1 to AC and attack, and a die. The hero holds 2
   (3 from level 5, more with feats); raising one more makes the oldest crumble. One that falls is gone after a moment,
