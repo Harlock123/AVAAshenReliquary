@@ -320,6 +320,9 @@ public partial class MainWindow : Window
             case Key.S:
                 world.Stop();
                 break;
+            case Key.R:
+                world.Reload();
+                break;
             case Key.F5:
                 SaveNow();
                 break;

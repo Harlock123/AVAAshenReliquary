@@ -5,7 +5,7 @@ namespace AshenReliquary.Core.World;
 /// <summary>
 /// A trader placed in a zone. <see cref="Look"/> is the paper doll (Flare avatar layer per slot: head, chest,
 /// hands, legs, feet, main); <see cref="Facing"/> is the sprite direction they stand in. <see cref="Sells"/> narrows
-/// the stock to "weapons", "armour" and/or "jewellery" (a smith); null sells anything. <see cref="Runework"/>: the
+/// the stock to "weapons" (no guns), "firearms", "armour" and/or "jewellery" (a smith); null sells anything. <see cref="Runework"/>: the
 /// trader also etches and moves runes (<see cref="Items.Runework"/>). <see cref="Supplies"/>: belt items (bombs,
 /// elixirs) always for sale, as many as the hero can pay for. <see cref="Terms"/>: how the trader deals with the hero
 /// as world flags stand (the first whose flags hold applies): a price, rares on the table, a greeting.
@@ -17,7 +17,8 @@ public sealed record VendorDefinition(string Id, string Name, string Title, int[
     /// <summary>Whether this trader stocks items like <paramref name="item"/>.</summary>
     public bool Stocks(Items.ItemDefinition item) => Sells is null || Sells.Any(kind => kind switch
     {
-        "weapons" => item.IsWeapon,
+        "weapons" => item.IsWeapon && !item.IsFirearm,
+        "firearms" => item.IsFirearm,
         "armour" => item.Category == Items.ItemCategory.Armor,
         "jewellery" => item.IsJewelry,
         "shields" => item.IsShield,

@@ -237,18 +237,32 @@ public sealed partial class GameWorld
 
     private double _retaliateReadyAt;
 
+    /// <summary>How often the Paladin's reaction strikes back without an aura that retaliates (one makes it every second).</summary>
+    public const double RetributionSeconds = 3.0;
+
+    /// <summary>How near the hero an ally must stand for the Paladin's reaction to answer a blow at it.</summary>
+    public const double RetributionGuardTiles = 1.5;
+
     /// <summary>
-    /// Retributive Strike: while an aura that retaliates is up, a monster that lands a blow on the hero from within reach
-    /// is struck back at once (at most once a second).
+    /// The champion's reaction. While an aura that retaliates is up (Retributive Strike, the Paladin's Aura of Justice),
+    /// a monster that lands a blow on the hero, or on an ally within the aura, from within the hero's reach is struck back
+    /// at once, at most once a second, with the aura's extra dice. The Paladin's Oath of Justice keeps it ready without
+    /// one, for blows at the hero or an ally beside them, at most once every <see cref="RetributionSeconds"/>.
     /// </summary>
-    private void Retaliate(MonsterActor attacker)
+    private void Retaliate(MonsterActor attacker, Actor? victim = null)
     {
-        if (Time < _retaliateReadyAt || attacker.IsDead || !_auras.Any(a => a.Ability.Retaliate)
-            || Hero.DistanceTo(attacker) > MeleeReach + Hero.Character.ReachBonus + attacker.Radius + 0.3 || Shoots)
+        victim ??= Hero;
+        if (Time < _retaliateReadyAt || attacker.IsDead || Hero.IsDead || Shoots
+            || Hero.DistanceTo(attacker) > MeleeReach + Hero.Character.ReachBonus + attacker.Radius + 0.3)
             return;
-        _retaliateReadyAt = Time + 1;
+        var aura = _auras.Where(a => a.Ability.Retaliate && (victim == Hero || victim.DistanceTo(Hero) <= a.Ability.Radius))
+            .MaxBy(a => a.Ability.ExtraDice);
+        var oath = Hero.Character.Retribution && (victim == Hero || victim.DistanceTo(Hero) <= RetributionGuardTiles);
+        if (aura is null && !oath)
+            return;
+        _retaliateReadyAt = Time + (aura is not null ? 1 : RetributionSeconds);
         Float(Hero, "retribution", FloatingTextKind.Info, 0.8);
-        HeroStrike(attacker, BasicAbility);
+        HeroStrike(attacker, BasicAbility, aura?.Ability.ExtraDiceAt(Hero.Character.Level) ?? 0);
     }
 
     /// <summary>The Taint meter fills; at 100 the whispers take the hero's feet.</summary>

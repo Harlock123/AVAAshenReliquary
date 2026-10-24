@@ -43,6 +43,9 @@ public sealed class Item
     public int Striking { get; private set; }
     public int Resilient { get; private set; }
 
+    /// <summary>A gun's refits at the forge: each holds one round more (at most <see cref="Crafting.MaxRefits"/>). Saved.</summary>
+    public int Refits { get; internal set; }
+
     /// <summary>How many are stacked in this one (consumables; 1 for everything else).</summary>
     public int Count { get; internal set; }
 
@@ -119,6 +122,13 @@ public sealed class Item
                 yield return text;
             yield break;
         }
+        if (d.IsMaterial)
+        {
+            yield return Count > 1 ? $"Gunsmith's material · {Count} of {d.Stack}" : "Gunsmith's material";
+            if (d.Description is { } use)
+                yield return use;
+            yield break;
+        }
         if (d.Category == ItemCategory.Consumable)
         {
             yield return Count > 1 ? $"Consumable · {Count} of {d.Stack}" : "Consumable";
@@ -146,6 +156,13 @@ public sealed class Item
             yield return $"{dice} {d.DamageType.ToString().ToLowerInvariant()} · {d.AttacksPerSecond:0.0#} attacks/s";
             if (d.Traits is { Count: > 0 } traits)
                 yield return string.Join(", ", traits);
+            if (d.IsFirearm)
+            {
+                yield return $"Gun · {d.Range:0} tiles · {d.Capacity + Refits} round{(d.Capacity + Refits == 1 ? "" : "s")} · reload {d.ReloadSeconds:0.0#} s"
+                    + (Refits > 0 ? $" · refitted {(Refits == 1 ? "once" : "twice")}" : "");
+                if (d.IsPistol)
+                    yield return "One-handed: a second pistol fits the off hand.";
+            }
             if (Potency > 0)
                 yield return $"+{Potency} item bonus to attack (potency rune)";
             if (Striking > 0)

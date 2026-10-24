@@ -17,9 +17,13 @@ namespace AshenReliquary.Core.World;
 /// spends Focus on Piercing Shot into a crowd, Aimed Shot or Twin Shot. The casters (wizard and necromancer) Step clear of
 /// anything in melee when the Step is ready. The champion keeps Shield of Faith up in a fight,
 /// lays on hands when hurt, raises its subclass's aura with enemies close (the Oathbreaker's too when its Taint runs
-/// high, to spend it before the whispers), and Smites with what Devotion is left over. The necromancer keeps its
+/// high, to spend it before the whispers), brings the Paladin's Blade of Justice down on anything tough, and Smites with
+/// what Devotion is left over. The necromancer keeps its
 /// skeletons raised, puts on Bone Armor with something close, blasts a crowd with Corpse Explosion, rushes its bones at
-/// a champion, siphons life when hurt and otherwise casts Grave Bolt.
+/// a champion, siphons life when hurt and otherwise casts Grave Bolt. The gunslinger keeps its distance as the ranger
+/// does (Hit the Dirt! out of melee, loading the gun as it lands), fires Risky Reload when its gun is empty, Headshots
+/// anything tough, fans the hammer with two rounds or more loaded, scatters shot into a crowd and Crack Shots with Grit
+/// to spare.
 /// </summary>
 public static class Tactics
 {
@@ -76,8 +80,15 @@ public static class Tactics
             return hero.Cold > 2 || world.Blizzard;
         if (hero.Cold < (world.Blizzard ? 33 : 50) || world.Monsters.Any(m => !m.IsDead && m.State != MonsterState.Idle && m.DistanceTo(hero) < 6))
             return false;
-        var d = Math.Max(0.1, hero.DistanceTo(fire.X, fire.Y));
-        var (x, y) = (fire.X + (hero.X - fire.X) / d * 1.6, fire.Y + (hero.Y - fire.Y) / d * 1.6);
+        // The open spot round the fire nearest the hero: the one on its own side may be a rock or an ice spire, and a walk
+        // to it went nowhere (a frozen gunslinger once waited there for an hour).
+        var spots = Enumerable.Range(0, 16).Select(i => i * Math.PI / 8)
+            .SelectMany(a => new[] { 1.6, 1.1, 2.0 }.Select(r => (X: fire.X + Math.Cos(a) * r, Y: fire.Y + Math.Sin(a) * r)))
+            .Where(p => world.Map.IsWalkable(p.X, p.Y))
+            .ToList();
+        if (spots.Count == 0)
+            return false;
+        var (x, y) = spots.MinBy(p => hero.DistanceTo(p.X, p.Y));
         if (hero.Path is not [.., var end] || Math.Abs(end.X - x) + Math.Abs(end.Y - y) > 2)
             world.MoveTo(x, y);
         return true;
@@ -155,16 +166,20 @@ public static class Tactics
                 ("shield_rush", distance > 2.5 && distance < 7 && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true }, target, null),
                 ("dawnbreak", Within(4) >= 2 || (health < 0.5 && Within(4) >= 1), null, null),
                 ("ruinous_blow", distance < 1.8 && (tough || hero.Character.Taint.Value > 60), target, null),
+                ("final_judgment", distance < 1.8 && (Within(2.2) >= 2 || tough), target, null),
                 ("assassinate", distance < 1.8 && tough, target, null),
                 ("caltrops", Within(2.5) >= 2, null, null),
                 ("killshot", tough && distance < 10, target, null),
                 ("hunt_as_one", tough && world.Allies.Any(a => !a.IsDead), target, null),
                 ("meteor", distance < 10 && Near(target, 3.5) >= 2, target, null),
                 ("ball_lightning", distance < 9 && Near(target, 2.5) >= 2, target, null),
+                ("one_shot_one_kill", tough && distance < 13, target, null),
+                ("twin_thunder", tough, target, null),
                 ("bone_colossus", (tough || Within(8) >= 3) && world.Allies.All(a => a.IsDead || a.Definition.Id != "bone_colossus"), null, null),
                 ("blight", distance < 9 && Near(target, 3) >= 2, target, null),
                 ("sundering_blow", distance < 1.8 && tough, target, null),
                 ("divine_wrath", Within(3) >= 2, null, null),
+                ("hail_of_lead", distance < 10 && Near(target, 2.5) >= 2, target, null),
                 ("crippling_strike", distance < 1.8 && target.Creature.Stats.Rank >= CreatureRank.Normal, target, null),
                 ("pinning_shot", distance < 10 && distance > 2 && !target.Definition.Ranged, target, null),
                 ("cone_of_cold", Within(5) >= 2, target, null),
@@ -175,6 +190,10 @@ public static class Tactics
                 ("retributive_strike", distance < 2 && !AuraUp("retributive_strike"), null, null),
                 ("beacon_of_hope", health < 0.5 || hero.Character.Taint.Value > 60, null, null),
                 ("dread_harvest", distance < 7 && Near(target, 3) >= 2, target, null),
+                ("aura_of_justice", distance < 2.5 && !AuraUp("aura_of_justice"), null, null),
+                ("dead_mans_hand", Within(6) >= 3, target, null),
+                ("vital_shot", target.Creature.Stats.Rank >= CreatureRank.Normal && distance < 12, target, null),
+                ("penetrating_shot", distance < 10 && Near(target, 4) >= 2, target, null),
                 ("shadowstep", !hero.IsHidden && distance > 3 && distance < 7, target, (target.X, target.Y)),
                 ("fan_of_knives", Within(2.8) >= 2, null, null),
                 ("smoke_bomb", health < 0.4 && Within(3) >= 1 && !hero.IsHidden, null, null),
@@ -269,6 +288,9 @@ public static class Tactics
                 world.UseAbility(slot, null);
             else if ((!Up("aura_of_dread") && Within(2.8) >= 1 || c.Taint.Value >= 80) && Ready("aura_of_dread", out slot))
                 world.UseAbility(slot, null);
+            // The Paladin's Blade of Justice on anything tough, or with Devotion to spare.
+            else if (Ready("blade_of_justice", out slot) && distance < 1.6 && (tough || resource.Current >= 45))
+                world.UseAbility(slot, target);
             // Devotion is kept for Lay on Hands and the auras; what is over goes on Smite.
             else if (Ready("smite", out slot) && distance < 1.6 && resource.Current >= 50)
                 world.UseAbility(slot, target);
@@ -288,6 +310,29 @@ public static class Tactics
             else if (Ready("bone_rush", out slot) && standing >= 2 && target.Creature.Stats.Rank >= CreatureRank.Champion)
                 world.UseAbility(slot, target);
             else if (Ready("siphon_life", out slot) && c.HitPoints < c.MaxHitPoints * 0.7)
+                world.UseAbility(slot, target);
+            else if (hero.CurrentTarget != target)
+                world.Attack(target);
+        }
+        else if (classId == "gunslinger")
+        {
+            // Keep the gun's distance as the ranger does, and load it on the way out of trouble.
+            var pressing = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(hero) < 1.8).MinBy(m => m.DistanceTo(hero));
+            if (pressing is not null && world.Shoots && Ready("hit_the_dirt", out slot))
+            {
+                var d = Math.Max(0.01, pressing.DistanceTo(hero));
+                world.UseAbility(slot, null, (hero.X + (hero.X - pressing.X) / d * 4, hero.Y + (hero.Y - pressing.Y) / d * 4));
+                return;
+            }
+            if (hero.Loaded <= 0 && Ready("risky_reload", out slot))
+                world.UseAbility(slot, target);
+            else if (Ready("headshot", out slot) && (tough || resource.Current >= 40))
+                world.UseAbility(slot, target);
+            else if (Ready("fan_the_hammer", out slot) && hero.Loaded >= 2)
+                world.UseAbility(slot, target);
+            else if (Ready("scattershot", out slot) && Near(target, 2.5) >= 2)
+                world.UseAbility(slot, target);
+            else if (Ready("crack_shot", out slot) && resource.Current >= 30)
                 world.UseAbility(slot, target);
             else if (hero.CurrentTarget != target)
                 world.Attack(target);

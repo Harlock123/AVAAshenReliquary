@@ -31,9 +31,11 @@ dotnet run --project src/AshenReliquary.App -- --rogue    # skip creation: a rec
 dotnet run --project src/AshenReliquary.App -- --ranger   # skip creation: a recommended Human Ranger
 dotnet run --project src/AshenReliquary.App -- --champion # skip creation: a recommended Human Champion
 dotnet run --project src/AshenReliquary.App -- --necromancer # skip creation: a recommended Human Necromancer
+dotnet run --project src/AshenReliquary.App -- --gunslinger # skip creation: a recommended Human Gunslinger
 dotnet run --project src/AshenReliquary.App -- --vanguard # or any subclass: --bulwark, --pyromancer, --stormcaller,
                                                           # --cutthroat, --trickster, --marksman, --beastmaster,
-                                                          # --lanternbearer, --oathbreaker, --bonelord, --plaguebringer
+                                                          # --lanternbearer, --oathbreaker, --paladin, --bonelord, --plaguebringer,
+                                                          # --pistolero, --sniper
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id such as iron_march, or --wizard; the hero starts at the zone's level)
 ```
@@ -44,13 +46,15 @@ monster for your right-mouse ability; hold **Ctrl** and a click attacks the mons
 (the fighter's Cleave on 2, Raise a Shield on 3 and, from level 2, Finishing Blow on 4; the wizard's Shield cantrip on
 2; the rogue's Tumble on 1, which rolls toward the cursor, and Hide in Shadows on 2; the ranger's Hunt Prey on 1 and
 Disengage on 2, which springs toward the cursor; the champion's Lay on Hands on 1, Shield of Faith on 2 and its
-subclass's aura on 3; the necromancer's Raise Bones on the right mouse button, Siphon Life on 1, its subclass's
+subclass's aura on 3 (the Paladin's Blade of Justice); the gunslinger's Crack Shot on the right mouse button, Risky
+Reload on 1, Hit the Dirt! on 2, which dives toward the cursor, its subclass's Fan the Hammer or Headshot on 3 and, from
+level 2, Scattershot on 4; the necromancer's Raise Bones on the right mouse button, Siphon Life on 1, its subclass's
 ability on 2 and, from level 2, Bone Rush on 4), **K** opens the Abilities panel,
 where you choose what goes on the bar (click an ability, then a slot on the bar, or drag it there, or hover it and press
 1 to 6; right-click a slot to empty it; abilities on no slot wait in the list); without the panel, **right-click any
 slot** on the bar (LMB, RMB, 1 to 6) for a list of every ability you have and pick one to bind there, even one already
 on another key (both keys then use it, with one cooldown), or empty the slot, **7** to **0** throw or drink what is on your belt (a bomb at the monster under the cursor, an antidote at once),
-**Q** drinks a potion (three flasks refilled at shrines; draughts found with the flasks full go into a draught case of six, shown as "+N", which refills empty flasks between fights), **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
+**R** loads a gun early, **Q** drinks a potion (three flasks refilled at shrines; draughts found with the flasks full go into a draught case of six, shown as "+N", which refills empty flasks between fights), **I** (or Tab) opens the inventory, **C** the character sheet, click a loot label to pick it up, click a trader to trade, click a person or a notice to talk or look (answer with a click
 or the number keys), click a woken shrine to open its Rift (travel to any other woken shrine), click the stash chest in the fort to store
 items (right-click bag items to stash them), **J** the journal, in the bag **Sort** orders it for your class (a green ▲ marks an upgrade, a red ▼ a downgrade, red
 tint gear your class can't use well), **Ctrl-click** marks an item junk then locked, **Drop junk** / **Sell junk** clears
@@ -143,7 +147,21 @@ for as long. The **Lanternbearer** carries a brighter lantern, its Strikes burn 
 Radiance** sears the enemies round it (vitality to the dead, fire to the living) while healing it. The **Oathbreaker**
 feeds on the Taint: its hits fill its own Taint meter, its Strikes drain life by how full it is, and **Aura of Dread**,
 paid for out of the meter, frightens and drains everything near; at 100 the whispers still turn its feet.
-Step 5 is done: the **Necromancer**, the last of the six classes. It casts **Grave Bolt** with Mana and gathers
+The Champion is Pathfinder's paladin (listed as "Champion (paladin)"), and the **Paladin** is its third subclass, the oath
+of justice. Its reaction is always ready: a monster that hits it, or an ally beside it, is struck back (once every 3 s).
+**Blade of Justice** is a Strike two dice heavier that enfeebles; at level 8 **Aura of Justice** answers every blow at
+it or its allies within, and at 13 **Final Judgment** sweeps everything in front of it.
+A seventh class came after: the **Gunslinger**, with Ironhold's guns. A gun holds a few rounds (brass pips above the Grit
+orb), fires one a shot, and loads itself again when empty (**R** loads early); a natural 1 is a misfire. **Grit** builds
+from hits and pays for its deeds: Crack Shot, Risky Reload, Hit the Dirt!, Scattershot. It uses DEX, has 8 HP a level,
+wears light or medium armour and is trained in Crafting; **Singular Expertise** adds +2 damage with a gun (+3 from level
+7, +4 from 15). Every gun holds two rounds (the twin-barrel musket three) and loads in 1.1-1.6 s; two
+pistols fire a quarter faster but take half as long again to load. The **Pistolero** carries two
+pistols and can **Fan the Hammer**; the **Sniper** carries a long gun, hits harder from 6 tiles off and lands a stunning
+**Headshot**. Black powder, lead shot and gun parts drop (rarely in Act 1, often after); any forge casts them into
+incendiary, silvered and scatter rounds for the belt, and refits a gun to hold more. Ironhold's gunsmith, Ottilie Vance,
+sells guns, rounds and materials.
+Step 5 is done: the **Necromancer**, the last of the first six classes. It casts **Grave Bolt** with Mana and gathers
 **Grave Charges** from every monster that dies near it (the pale diamonds above the Taint bar). **Raise Bones** lifts a
 skeleton out of the ground to fight beside it (two at once, three from level 5), paid with a Grave Charge when it has
 one; **Siphon Life** drains an enemy to heal it, and from level 2 **Bone Rush** sends every skeleton at one monster.

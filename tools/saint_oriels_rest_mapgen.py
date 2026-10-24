@@ -149,13 +149,14 @@ zone = {
     ],
     "vendors": [
         {"id": "halvard", "name": "Halvard", "title": "Smith", "at": [x1 - 4, y1 - 5], "facing": 5, "stockSize": 12,
-         "sells": ["weapons", "armour"], "runework": True,
+         "sells": ["weapons", "firearms", "armour"], "runework": True,
          "greeting": "Cold steel's the only kind up here. I can etch it, and I can strip the runes off your old one.",
          "look": {"head": "chain_coif", "chest": "leather_chest", "hands": "leather_gloves", "legs": "leather_pants", "feet": "leather_boots",
                   "main": "war_hammer"}},
         {"id": "mora", "name": "Sister Mora", "title": "Cellarer", "at": [x0 + 4, y1 - 5], "facing": 6, "stockSize": 12,
          "greeting": "Bread, salt, bombs and blessings. The pass takes all four.",
-         "supplies": ["alchemists_fire", "frost_vial", "bottled_lightning", "acid_flask", "antidote"],
+         "supplies": ["alchemists_fire", "frost_vial", "bottled_lightning", "acid_flask", "antidote", "incendiary_round", "silver_round",
+                      "black_powder", "lead_shot", "gun_parts"],
          "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "cloth_gloves", "legs": "mage_skirt", "feet": "cloth_sandals", "main": "rod"}},
     ],
     "exits": [

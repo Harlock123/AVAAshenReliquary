@@ -36,6 +36,9 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Act_1_from_the_gallows_to_Mother_Sallow(string kit)
@@ -72,6 +75,9 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Acts_1_and_2_to_Ser_Hadric(string kit)
@@ -307,8 +313,9 @@ public class CampaignReport(ITestOutputHelper output)
                 if (gear.Bag[i] is not { Definition.Slot: not null } item || item.Definition.Category == ItemCategory.Key)
                     continue;
                 var d = item.Definition;
-                if (d.IsWeapon && (classId is "wizard" or "necromancer" ? !d.CasterFocus : classId == "ranger" ? !d.Ranged : d.CasterFocus || d.Ranged))
-                    continue; // a ranger keeps to bows
+                if (d.IsWeapon && (classId is "wizard" or "necromancer" ? !d.CasterFocus : classId == "ranger" ? !d.Ranged || d.IsFirearm
+                        : classId == "gunslinger" ? !d.IsFirearm || d.IsPistol != (Subclass == "pistolero") : d.CasterFocus || d.Ranged))
+                    continue; // a ranger keeps to bows, a Pistolero to pistols and a Sniper to long guns
                 if (d.IsShield && classId is not ("fighter" or "champion") || d.IsShield && Subclass == "vanguard")
                     continue; // a shield would take the staff (or the Vanguard's greatsword) out of both hands; a rogue never raises one
                 if (d.IsWeapon && classId == "rogue" && d.Traits?.Contains(WeaponTrait.Finesse) != true)

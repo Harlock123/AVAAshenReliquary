@@ -48,7 +48,7 @@ public class DedicationTests
         var fighter = TestCharacters.Fighter();
         fighter.LevelUp();
         var offered = fighter.FeatOptions(FeatType.Class, 2).Where(f => f.Dedication is not null).Select(f => f.Dedication).ToList();
-        Assert.Equal(["wizard", "rogue", "ranger", "champion", "necromancer"], offered);   // never its own
+        Assert.Equal(["wizard", "rogue", "ranger", "champion", "necromancer", "gunslinger"], offered);   // never its own
         var world = World(TestCharacters.Fighter());
         Dedicate(world, "wizard_dedication");
         var hero = world.Hero.Character;

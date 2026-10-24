@@ -221,16 +221,17 @@ A background gives **2 ability boosts** (one from a set of two, one free), **1 t
 
 ## 7. Classes
 
-There are six classes. Each has a key attribute, Pathfinder-style hit points per level, a resource bar that suits an action game, and a choice of two subclasses at level 1. Classes cover melee, ranged and caster roles, plus a summoner, which is a core Grim Dawn fantasy.
+There are six classes (a seventh, the Gunslinger, was added after M4 step 6). Each has a key attribute, Pathfinder-style hit points per level, a resource bar that suits an action game, and a choice of two subclasses at level 1. Classes cover melee, ranged and caster roles, plus a summoner, which is a core Grim Dawn fantasy.
 
 | Class | Role | Key attribute | HP per level | Resource | Armour proficiency | Subclass A | Subclass B |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **Fighter** | Melee weapon master | STR or DEX | 10 | **Fury**: builds on hit, decays out of combat | All armour, shields | *Vanguard*: two-handed weapons, cleaves, knockback | *Bulwark*: sword and shield, block, counter, taunt |
-| **Champion** | Holy tank / support | STR, CHA secondary | 10 | **Devotion**: builds while hit; spent on auras | All armour, shields | *Lanternbearer*: light auras, healing, undead bane | *Oathbreaker*: Taint-fuelled, life drain, fear |
+| **Champion** | Holy tank / support | STR, CHA secondary | 10 | **Devotion**: builds while hit; spent on auras | All armour, shields | *Lanternbearer*: light auras, healing, undead bane | *Oathbreaker*: Taint-fuelled, life drain, fear; *Paladin* (added after M4 step 6): the oath of justice, retribution |
 | **Rogue** | Agile striker | DEX | 8 | **Momentum**: builds from movement and crits | Light | *Cutthroat*: sneak attack, poison, stealth | *Trickster*: traps, decoys, shadow-step |
 | **Ranger** | Ranged hunter | DEX | 10 | **Focus**: regenerates; Hunt Prey marks one target | Light, medium | *Marksman*: bows, piercing shots, crit chains | *Beastmaster*: an animal companion with its own feat line |
 | **Wizard** | Arcane caster | INT | 6 | **Mana**: spell rank sets the cost | None | *Pyromancer*: fire, burn damage over time, area effects | *Stormcaller*: lightning chains, cold, crowd control |
 | **Necromancer** | Summoner / curser | INT | 6 | **Mana + Grave Charges** (gained from corpses) | None | *Bonelord*: skeleton army, bone armour | *Plaguebringer*: curses, rot clouds, corpse explosions |
+| **Gunslinger** (after M4 step 6) | Ironhold's guns | DEX | 8 | **Grit**: builds on hits and crits; guns load and reload | Light, medium | *Pistolero*: pistols, two at once, Fan the Hammer | *Sniper*: long guns, distant damage, Headshot |
 
 ### Class features (shared)
 
@@ -1198,7 +1199,8 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 
 - **The class** (section 7): STR, 10 HP a level, all armour and shields, trained in Religion, Fortitude and Will at
   expert. Starts with the fighter's longsword, wooden shield and chain mail; the quick-start background is the Lantern
-  Acolyte; quick start `--champion` (a Lanternbearer), `--lanternbearer`, `--oathbreaker`.
+  Acolyte; quick start `--champion` (a Lanternbearer), `--lanternbearer`, `--oathbreaker`, `--paladin` (the third
+  subclass, below).
 - **Devotion** (0-100, starts empty): +10 for every blow the hero takes, blocked or soaked to nothing included, +4 a hit
   they land, +8 a critical hit (feats' and gear's "per hit" add to their own hits); it drains 5 a second once 6 s have
   passed without a blow. Drawn as a gold orb.
@@ -1845,6 +1847,146 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **The pass at 11:** everyone through, in 2.5–4.4 bot minutes; the Cutthroat dies most (two a run, to wraith packs).
   - **The woods at 12:** no deaths; a hero point now and then to a Mirrored cultist.
   - **The catacombs at 13:** at most one death a run (turned wolves, the Hollow Abbot, Mirrored cultists).
+
+### The Gunslinger (after M4 step 6)
+
+Asked for: a gunslinger class, with drops that give it raw materials. The four choices, taken with the suggestions: plain
+shot is free and the materials make special rounds and gun refits; the Pistolero and the Sniper; gun art painted from
+the existing layers; guns are Ironhold's make, rare in Act 1.
+
+- **The class** (`classes.json`): DEX, 8 HP a level, light and medium armour, trained in Crafting; attack proficiency
+  as the fighter's (expert, master at 5, legendary at 13), Fortitude, Reflex and Perception expert. **Singular
+  Expertise** (`ClassDefinition.GunDamage`): +2 damage with a gun, +3 from level 7, +4 from 15 (it was DEX to damage at
+  first, which the balance pass below cut). The quick-start background is the new **Ironhold
+  Gunhand** (DEX or INT, Crafting, Gunsmithing Lore, the skill feat **Powder Hand**: +2 Crafting, +1 Reflex); quick start
+  `--gunslinger` (a Pistolero), `--pistolero`, `--sniper`. Starting kit: two flintlock pistols (the second goes to the off
+  hand by itself) or an arquebus, in leathers.
+- **Grit** (`ResourceKind.Grit`): 0-100, starts empty; +8 a hit, +20 a critical hit (feats' and gear's "per hit" add),
+  nothing from blows taken; drains 6 a second after 5 s out of a fight. Drawn as a gunmetal-and-brass orb.
+- **Guns** (`ItemDefinition.Capacity`, `ReloadSeconds`; `World/GameWorld.Gunslinger.cs`). A gun holds its capacity in
+  rounds, one more for each forge refit, the off-hand pistol's beside it, and feats' (Bandolier). Every Strike fires one
+  (Twin Thunder two, Fan the Hammer all of them). An empty gun loads by itself once the shot is done; **R** loads early;
+  the hero can walk while it loads but not fire, and waits on it facing the target. A gun newly in hand comes loaded. A
+  natural 1 is a misfire, Pathfinder's: the rest of the load is fouled. Shots fly three times as fast as arrows, drawn as
+  a short hot tracer with a flash at the muzzle; the report is `gunshot` (`gunshot-heavy` for a long gun). Two pistols
+  fire a quarter faster than one and take half as long again to load. The HUD shows a brass pip a round above the
+  resource orb, and a bar while loading.
+
+| Gun | Dice | Rounds | Reload | Attacks/s | Range | Level |
+| --- | --- | --- | --- | --- | --- | --- |
+| Flintlock pistol | 1d8 piercing (or bludgeoning), fatal d12 | 2 | 1.2 s | 1.1 | 7 | 0 |
+| Dueling pistol | 1d8, fatal d12 | 2 | 1.1 s | 1.25 | 8 | 4 |
+| Arquebus (two hands) | 1d10, fatal d12 | 2 | 1.3 s | 0.85 | 11 | 0 |
+| Twin-barrel musket (two hands) | 1d10, fatal d12 | 3 | 1.6 s | 0.9 | 9 | 3 |
+| Ironhold long rifle (two hands) | 1d12, fatal d12 | 2 | 1.3 s | 0.8 | 13 | 6 |
+
+| Slot | Ability | Numbers |
+| --- | --- | --- |
+| LMB | Shoot | A Strike, one round |
+| RMB | Crack Shot | 12 Grit: one more weapon die (any weapon: the dedication's ability) |
+| 1 | Risky Reload | 5 s cooldown: load in an instant and fire |
+| 2 | Hit the Dirt! | 7 s cooldown: a 3-tile Tumble, untouchable, loading the gun on the way |
+| 4 | Scattershot (level 2) | 20 Grit, 4 s: the target and two more within 30°, one round |
+| 6 | Penetrating Shot (level 6) | 20 Grit, 6 s: a die more, through 3 enemies behind |
+| (list) | Hail of Lead (level 11) | 25 Grit, 8 s: the gun's damage on everything within 2.5 tiles of a monster 10 tiles off, basic Reflex |
+
+- **Pistolero:** a second pistol fits the off hand (`Equipment.EquipFromBag` and `SlotFor`; drawn as `pistol_offhand`);
+  +3 Grit a hit, loads a quarter faster, and a critical hit with a gun puts a round back (`CritReload`). **Fan the
+  Hammer** (15 Grit, 6 s: a Strike for every round loaded, a beat apart), **Dead Man's Hand** at 8 (25 Grit: a die more at
+  the target and up to four more all round), **Twin Thunder** at 13 (35 Grit: two Strikes, three dice more each).
+- **Sniper:** guns reach 2 tiles further, and a gun's Strike at a target 6 tiles off or more deals 3 more damage
+  (`DistantDamage`). **Headshot** (20 Grit, 2 actions: two dice more, stunned 1 s), **Vital Shot** at 8 (25 Grit: three
+  dice more, 2d6 persistent bleed), **One Shot, One Kill** at 13 (40 Grit, 3 actions: five dice more, through one more).
+- **Feats** (as the other classes' counts): 2 Munitions Crafter (a round more a casting, +2 Crafting) or Fast Hands
+  (loads a fifth faster), Pistol Twirl / Steady Aim; 4 Gunsmoke and Grit, Defensive Armaments, Bandolier (a round more);
+  6 Ricochet, Gunslinger's Hide; 8 Dead Man's Draw / Lethal Aim; 10 Crack Shot Mastery, Bottomless Bandolier; 12 Storm of
+  Lead, Deadeye Gunslinger; 14 Thunder and Lightning / One in the Chamber. **Gunslinger Dedication** grants Crack Shot.
+- **Raw materials** (`ItemCategory.Material`: black powder, lead shot, gun parts; stack 99, picked up by walking over
+  them like belt items, their labels never hidden by the loot filter). They drop on a roll of their own
+  (`LootGenerator.MaterialChances`): in Act 1 from 3% of monsters (15% of champions or better), 10% of chests and 25% of
+  reliquaries; from Act 2, 10%, 40%, 35% and 60%; one or two a time (two to four from a champion). In Act 1 a gun is a
+  quarter as likely as its weight says (`Generate`'s `act`).
+- **Special rounds** (belt items, keys 7-0: `AbilityDefinition.Round`, used up as fired): **incendiary** (a die more and
+  1d6 persistent fire), **silvered** (2d6 vitality more against the undead) and **scatter** (the target and up to three
+  more within 35°). They never drop. Any forge casts them (the Crafting tab's "Cast rounds", shown with a gun in hand or
+  materials in the bag): 2 black powder, 2 lead shot and 4 gold, a Crafting check against the round's level, three a
+  casting (four on a critical success, one more with Munitions Crafter).
+- **Refits** (`CraftRecipe.Refit`, `Item.Refits`, saved): 2 gun parts, 1 black powder and the smith's fee: the gun holds
+  one round more, at most twice (a critical success refits it twice).
+- **Traders:** Ironhold's gunsmith **Ottilie Vance** (beside Hilde) sells guns only (`Sells` "firearms"; "weapons" no
+  longer includes guns), has a forge, and supplies the three rounds and the three materials. The Rest's smith sells guns
+  too, and its trader rounds and materials.
+- **Art and sound** (`tools/build_guns.py`, `tools/build_gun_sounds.py`): `pistol`, `pistol_offhand` and `long_gun` avatar
+  layers posed frame by frame from the wand, staff, buckler and bow layers (the `shoot` poses are the bow's, so its
+  raise and lower frames are a little awkward), ground sprites `pistol` and `long_gun`, and synthesized shots, a reload
+  and a misfire click (CC0, the project's own). Icons from game-icons.net.
+- **The bots** keep their distance as the ranger does (Hit the Dirt! out of melee), fire Risky Reload with an empty gun,
+  Headshot anything tough, fan the hammer with two rounds or more, scatter shot into a crowd, and Crack Shot with Grit
+  to spare; the campaign's gunslingers keep to pistols (Pistolero) or long guns (Sniper).
+- **Balance.** The first tuning was made while the campaign bot was swapping the gunslinger's guns for swords (its
+  `WearUpgrades` now keeps a Pistolero to pistols and a Sniper to long guns), and came out too strong: Ser Hadric in
+  32-36 minutes, never a death. Singular Expertise was then cut from DEX to the flat +1/+2/+3, and the guns to two rounds
+  (the twin-barrel musket three) with slower reloads. Against the Ranger, five runs a row:
+
+| | Pistolero | Sniper | Marksman | Beastmaster |
+| --- | --- | --- | --- | --- |
+| Campaign: Mother Sallow / Ser Hadric (one run) | 19 / 38 min, no deaths | 23 / 41 min, no deaths | 19 / 49 min, no deaths | 20 / 40 min, no deaths |
+| Gallows Road at level 1, deaths a run | 5.4 | 5.8 | 1.4 | 0.0 |
+| Mother Sallow at level 4 / 5, starting kit, fights won of 6 | 1 / 6 | 1 / 5 | 6 / 6 | 4 / 6 |
+| Ser Hadric at level 10, starting kit, won of 6 | 4 | 5 | 0 | 6 |
+| The Iron March, deaths a run / minutes | 0.2 / 5.2 | 0.0 / 5.1 | 2.2 / 9.2 | 0.4 / 7.7 |
+| The Siege Walls raised to 13, minutes | 2.6 | 3.2 | 4.1 | 3.4 |
+
+  From Act 2 on it matched or beat the Ranger; at levels 1-4 it was weaker, where the Ranger's Hunt Prey (a d8) outweighs
+  a +1. So Singular Expertise now starts at +2 (+3 at 7, +4 at 15). The gunslinger's rows again (the campaign five runs,
+  averaged):
+
+| | Pistolero | Sniper |
+| --- | --- | --- |
+| Campaign: Mother Sallow / Ser Hadric | 18 / 38 min, no deaths | 22 / 43 min, no deaths |
+| Gallows Road at level 1, deaths a run | 3.0 (one run of 10) | 1.2 |
+| Mother Sallow at level 4 / 5, starting kit, fights won of 6 | 2 / 2 | 2 / 4 |
+| Ser Hadric at level 10, starting kit, won of 6 | 6 | 5 |
+| The Iron March, deaths a run / minutes | 0.0 / 4.9 | 0.0 / 5.2 |
+| The Siege Walls raised to 13, minutes | 2.7 | 3.1 |
+
+  Gallows Road is now about the Marksman's; Mother Sallow in the starting kit is still hard for it (with Act 1's +1 gear
+  it wins every fight, as the Ranger does), and Act 2 on is a little quicker than before.
+- **Two bot fixes the runs turned up**, for every class: a roll (the Step, Tumble, Hit the Dirt!) no longer slips
+  diagonally between two blocked corners, which had left a gunslinger in a pocket of trees no path led out of; and
+  `Tactics.WarmUp` walks to the open spot round a fire nearest the hero, not the one on its own side, which may be an
+  ice spire (a frozen gunslinger had waited there an hour). The balance report now says where an unfinished run stopped.
+
+### The Paladin (after M4 step 6)
+
+Asked for: the classic paladin among the classes. Pathfinder 2e has no paladin class: it is a Champion of a righteous
+cause (the Remaster's Justice). Ours is the Champion's third subclass, and the creation list names the class "Champion
+(paladin)" (`ClassDefinition.Also`) so a player looking for the paladin finds it. The other classes keep two subclasses.
+
+- **Oath of Justice** (the subclass's feature): the champion's reaction is always ready (`FeatEffect.Retribution`,
+  `Character.Retribution`). A monster that lands a blow on the paladin, or on an ally within 1.5 tiles of them
+  (`RetributionGuardTiles`), from within the paladin's reach is struck back at once with a plain Strike, at most once
+  every 3 s (`RetributionSeconds`). Smite costs 5 Devotion less.
+- **Retributive Strike** (every champion's level-6 aura) and **Aura of Justice** make that answer every second, and
+  now also answer blows at an ally within the aura's radius (`GameWorld.Retaliate(attacker, victim)`); the strongest
+  aura's `extraDice` are added to the answering Strike.
+
+| Level | Ability | Numbers |
+| --- | --- | --- |
+| 1 | **Blade of Justice** | 20 Devotion, 2 actions, 6 s cooldown: a Strike with two weapon dice more (3 at 10, 4 at 18), enfeebled 1 for 6 s on a hit |
+| 8 | **Aura of Justice** (aura) | 30 Devotion, 15 s, 3 tiles: retaliation for the paladin and every ally within, a weapon die more on each answer, and 1 off every blow at them (one more every two spell ranks) |
+| 13 | **Final Judgment** | 35 Devotion, 2 actions, 10 s cooldown: Strike the target and up to five more within reach and 90° of it, each three weapon dice more |
+
+- **Feats:** level 2 **Zealous Verdict** (Blade of Justice 5 cheaper, knocks back a tile), level 8 **Justice Unbound**
+  (Aura of Justice 2 tiles wider, 10 cheaper), level 14 **Hammer of Heaven** (Final Judgment 10 cheaper, +2 damage on
+  every hit).
+- **Quick start** `--paladin`; the starting kit is the champion's sword, shield and mail. Icons: game-icons.net's
+  winged sword, justice star and banging gavel.
+- **The bots** bring Blade of Justice down on a champion or better, or with 45 Devotion in hand; raise Aura of Justice
+  with an enemy within 2.5 tiles; and sweep with Final Judgment into two or more enemies, or at anything tough.
+- **Balance:** the campaign's paladin kills Mother Sallow at level 5 in 19 minutes and Ser Hadric at level 10 in 39,
+  without a death (the Lanternbearer 15 and 31, the Oathbreaker 17 and 34). It is the slowest of the three and as
+  safe. Every balance row it was added to passes.
 
 ### The draught case (after M4 step 6)
 

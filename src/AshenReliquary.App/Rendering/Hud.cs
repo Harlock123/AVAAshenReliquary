@@ -187,6 +187,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             ResourceKind.Momentum => (new SKColor(14, 80, 64), new SKColor(90, 230, 170)),
             ResourceKind.Focus => (new SKColor(60, 80, 20), new SKColor(190, 225, 90)),
             ResourceKind.Devotion => (new SKColor(84, 60, 12), new SKColor(205, 160, 52)),
+            ResourceKind.Grit => (new SKColor(70, 54, 40), new SKColor(214, 176, 128)),
             _ => (new SKColor(20, 40, 130), new SKColor(90, 150, 255)),
         };
         Orb(canvas, res, orbRadius, (float)(resource.Current / resource.Max), deep, bright);
@@ -215,6 +216,13 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 new("Spent on Lay on Hands, Smite and your auras.", Dim),
                 new($"Drains {ClassResource.DevotionDecayPerSecond:0} a second after {ClassResource.DevotionDecayDelay:0} s out of a fight.", Dim),
             ],
+            ResourceKind.Grit =>
+            [
+                new("Grit", bright, $"{resource.Current:0} / {resource.Max:0}", true),
+                new($"+{ClassResource.GritPerHit + perHit:0} per hit, +{ClassResource.GritPerCrit + perHit:0} per critical hit.", Dim),
+                new("Spent on your deeds: Crack Shot, Fan the Hammer, Headshot and the rest.", Dim),
+                new($"Drains {ClassResource.GritDecayPerSecond:0} a second after {ClassResource.GritDecayDelay:0} s out of a fight.", Dim),
+            ],
             _ =>
             [
                 new(resource.Name, bright, $"{resource.Current:0} / {resource.Max:0}", true),
@@ -233,6 +241,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             DrawDedicationPool(canvas, pool, SKRect.Create(taintBar.Left, taintBar.Top - 24, taintBar.Width, 5), small);
         if (world.MaxGraveCharges > 0)
             DrawGraveCharges(canvas, world, new SKPoint(res.X, taintBar.Top - (hero.Dedication is null ? 30 : 54)));
+        else if (world.WieldsFirearm)
+            DrawLoad(canvas, world, new SKPoint(res.X, taintBar.Top - (hero.Dedication is null ? 30 : 54)));
         Region(SKRect.Create(taintBar.Left, taintBar.Top - 18, taintBar.Width, 26), () =>
         [
             new("Taint", new SKColor(160, 220, 90), $"{c.Taint.Value:0}%", true),
@@ -516,6 +526,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             ResourceKind.Momentum => new SKColor(90, 230, 170),
             ResourceKind.Focus => new SKColor(190, 225, 90),
             ResourceKind.Devotion => new SKColor(205, 160, 52),
+            ResourceKind.Grit => new SKColor(214, 176, 128),
             _ => new SKColor(90, 150, 255),
         };
         using var back = new SKPaint { Color = new SKColor(20, 18, 16, 220) };
@@ -558,6 +569,39 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             new("Grave Charges", new SKColor(196, 220, 255), $"{world.GraveCharges} / {world.MaxGraveCharges}", true),
             .. Wrap($"Every monster that dies within {GameWorld.GraveReach:0} tiles of you leaves one{(world.Hero.Character.ChargesPerCorpseBonus > 0 ? $" ({1 + world.Hero.Character.ChargesPerCorpseBonus} for you)" : "")}. Raise Bones takes one in place of its Mana; Bone Rush, Bone Armor and Corpse Explosion need them. Lost if you fall.", Dim),
         ], new SKColor(150, 170, 220));
+    }
+
+    /// <summary>
+    /// The gun's load: a brass pip for each round loaded, dark for each fired; while it loads, a bar fills under them.
+    /// </summary>
+    private void DrawLoad(SKCanvas canvas, GameWorld world, SKPoint centre)
+    {
+        const float r = 5, gap = 5;
+        var count = world.Capacity;
+        var width = count * r * 2 + (count - 1) * gap;
+        var left = centre.X - width / 2;
+        using var lit = new SKPaint { IsAntialias = true, Color = new SKColor(222, 180, 96) };
+        using var unlit = new SKPaint { IsAntialias = true, Color = new SKColor(60, 54, 48, 200) };
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.2f, Color = new SKColor(24, 20, 16) };
+        for (var i = 0; i < count; i++)
+        {
+            var x = left + i * (r * 2 + gap) + r;
+            canvas.DrawCircle(x, centre.Y, r, i < world.Hero.Loaded ? lit : unlit);
+            canvas.DrawCircle(x, centre.Y, r, edge);
+        }
+        if (world.ReloadProgress is { } progress)
+        {
+            var bar = SKRect.Create(centre.X - Math.Max(width, 40) / 2, centre.Y + r + 4, Math.Max(width, 40), 4);
+            using var back = new SKPaint { Color = new SKColor(20, 18, 16, 220) };
+            canvas.DrawRect(bar, back);
+            canvas.DrawRect(SKRect.Create(bar.Left, bar.Top, bar.Width * (float)progress, bar.Height), lit);
+        }
+        Region(SKRect.Create(left - 4, centre.Y - r - 2, width + 8, r * 2 + 12), () =>
+        [
+            new("Rounds loaded", new SKColor(222, 180, 96), $"{world.Hero.Loaded} / {count}", true),
+            .. Wrap($"Each shot fires one. An empty gun loads by itself in {world.ReloadSeconds:0.0} s; R loads it early. "
+                + "You can walk while it loads, but not fire. A natural 1 is a misfire: the rest of the load is fouled.", Dim),
+        ], new SKColor(190, 150, 90));
     }
 
     /// <summary>The Necromancer's skeletons: an icon and how many stand of how many it can hold.</summary>

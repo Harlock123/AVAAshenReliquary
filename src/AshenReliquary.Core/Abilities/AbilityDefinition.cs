@@ -129,6 +129,12 @@ public enum AbilityKind
 /// raises <see cref="Count"/> allies, and with <see cref="BuffSeconds"/> they last only that long and don't count
 /// against the hero's skeletons (Call of the Pack); <see cref="NeedsShield"/> on a Strike needs a shield in hand (Shield
 /// Slam).</item>
+/// <item>The Gunslinger's: <see cref="NeedsFirearm"/> (only with a gun in hand); <see cref="Reloads"/> (the gun is loaded
+/// in an instant first: Risky Reload, Hit the Dirt!); <see cref="SpendLoad"/> (one Strike for every round loaded: Fan
+/// the Hammer); <see cref="Round"/> (a special round from the belt, used up as it is fired: its <see cref="PersistentDice"/>
+/// of <see cref="DamageType"/>, its <see cref="Dice"/> of vitality against the undead when <see cref="Holy"/>, or a
+/// spread at <see cref="Targets"/> enemies within <see cref="Arc"/>). A gun's Strike at more than one target is a
+/// spread of shot, not a sweep.</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -196,7 +202,11 @@ public sealed record AbilityDefinition(
     double HideSeconds = 0,
     bool Retaliate = false,
     int CleansesTaint = 0,
-    int Count = 1)
+    int Count = 1,
+    bool NeedsFirearm = false,
+    bool Reloads = false,
+    bool SpendLoad = false,
+    bool Round = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 
@@ -221,7 +231,7 @@ public sealed record AbilityDefinition(
     public bool IsSpellBurst => Kind is AbilityKind.Burst or AbilityKind.Blast && Has("Spell");
 
     /// <summary>Thrown or drunk from the belt, using up one of the item.</summary>
-    public bool IsConsumable => Kind is AbilityKind.Bomb or AbilityKind.Elixir;
+    public bool IsConsumable => Kind is AbilityKind.Bomb or AbilityKind.Elixir || Round;
 
     /// <summary>A ward's hardness at a spell rank (the Shield cantrip's 5 grows by 5 every two ranks).</summary>
     public int HardnessAt(int rank) => WardHardness + HardnessPerTwoRanks * ((rank - 1) / 2);

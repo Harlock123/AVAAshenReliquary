@@ -838,6 +838,27 @@
   "description": "Your broken oath spills out for 12 s: every 2 s each enemy within 3 tiles takes 1d6 Taint (a die more every two spell ranks) against a basic Will save, frightened 1 on a failure (2 on a critical failure), and half of what it deals heals you. Paid with 20 of your Taint meter, not Devotion."
  },
  {
+  "id": "blade_of_justice",
+  "name": "Blade of Justice",
+  "class": "champion",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 20,
+  "cooldown": 6,
+  "extraDice": 2,
+  "onHit": "Enfeebled",
+  "onHitValue": 1,
+  "onHitSeconds": 6,
+  "traits": [
+   "Attack",
+   "Champion",
+   "Divine"
+  ],
+  "description": "Your oath's verdict in one blow: a Strike with two weapon dice more (3 at level 10, 4 at 18), and the target is enfeebled 1 for 6 s, its own blows weaker. 20 Devotion, 6 s cooldown."
+ },
+ {
   "id": "grave_bolt",
   "name": "Grave Bolt",
   "class": "necromancer",
@@ -1172,6 +1193,27 @@
    "Mental"
   ],
   "description": "Oathbreaker, level 8: reap the dread round a monster within 7 tiles: 2d6 Taint (+1d6 a rank above 1) to all within 3 tiles of it against a basic Will save, frightened 1 on a failure; half of all it deals heals you. Paid with 30 of your Taint meter."
+ },
+ {
+  "id": "aura_of_justice",
+  "name": "Aura of Justice",
+  "class": "champion",
+  "slot": "feat",
+  "feat": true,
+  "level": 8,
+  "kind": "Aura",
+  "actions": 1,
+  "cost": 30,
+  "buffSeconds": 15,
+  "radius": 3,
+  "soak": 1,
+  "retaliate": true,
+  "extraDice": 1,
+  "traits": [
+   "Aura",
+   "Champion"
+  ],
+  "description": "Paladin, level 8: for 15 s your oath guards everyone near you: a monster that strikes you, or an ally within 3 tiles, from within your reach takes a Strike back at once with a weapon die more (at most once a second), and every blow at you or them loses 1 damage (one more every two spell ranks). 30 Devotion."
  },
  {
   "id": "fan_of_knives",
@@ -1581,6 +1623,28 @@
   "description": "Oathbreaker, level 13: a Strike with three weapon dice more, frightened 2 on a hit. Paid with 25 of your Taint meter. 8 s cooldown."
  },
  {
+  "id": "final_judgment",
+  "name": "Final Judgment",
+  "class": "champion",
+  "slot": "feat",
+  "feat": true,
+  "level": 13,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 35,
+  "cooldown": 10,
+  "targets": 6,
+  "arc": 180,
+  "extraDice": 3,
+  "traits": [
+   "Attack",
+   "Champion",
+   "Divine",
+   "Sweep"
+  ],
+  "description": "Paladin, level 13: judgment falls on all before you: Strike your target and up to five more within reach and 90° of it, each with three weapon dice more. 35 Devotion, 10 s cooldown."
+ },
+ {
   "id": "assassinate",
   "name": "Assassinate",
   "class": "rogue",
@@ -1766,5 +1830,290 @@
    "Manipulate"
   ],
   "description": "Plaguebringer, level 13: rot blooms round a monster within 9 tiles: 3d6 poison (+1d6 a rank above 1) to all within 3 tiles against a basic Fortitude save, sickened 2 and 1d6 persistent poison on a failure. Two Grave Charges, 8 s cooldown."
+ },
+ {
+  "id": "gunslinger_strike",
+  "name": "Shoot",
+  "class": "gunslinger",
+  "slot": "lmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "repeat": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Attack with your weapon: a gun fires one round from its load at anything in range and in sight, and loads again by itself once it is empty (R to load early). Builds Grit on a hit, more on a critical hit."
+ },
+ {
+  "id": "crack_shot",
+  "name": "Crack Shot",
+  "class": "gunslinger",
+  "slot": "rmb",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cost": 12,
+  "extraDice": 1,
+  "traits": [
+   "Attack"
+  ],
+  "description": "A shot placed just so: one more weapon damage die (2 at level 10, 3 at 18). 12 Grit."
+ },
+ {
+  "id": "risky_reload",
+  "name": "Risky Reload",
+  "class": "gunslinger",
+  "slot": "1",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cooldown": 5,
+  "reloads": true,
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Flourish"
+  ],
+  "description": "Load in an instant and fire: your gun is full again and the Strike goes off at once. 5 s cooldown. Needs a gun."
+ },
+ {
+  "id": "hit_the_dirt",
+  "name": "Hit the Dirt!",
+  "class": "gunslinger",
+  "slot": "2",
+  "kind": "Tumble",
+  "actions": 1,
+  "range": 3,
+  "cooldown": 7,
+  "reloads": true,
+  "traits": [
+   "Move"
+  ],
+  "description": "Fling yourself up to 3 tiles toward the pointer, untouchable on the way, and load your gun as you land. 7 s cooldown."
+ },
+ {
+  "id": "scattershot",
+  "name": "Scattershot",
+  "class": "gunslinger",
+  "slot": "4",
+  "level": 2,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 20,
+  "cooldown": 4,
+  "targets": 3,
+  "arc": 60,
+  "needsFirearm": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Shot sprayed wide: a Strike at your target and up to two more within reach and 30° of it, for one round. 20 Grit, 4 s cooldown. Needs a gun. Joins the bar at level 2."
+ },
+ {
+  "id": "fan_the_hammer",
+  "name": "Fan the Hammer",
+  "class": "gunslinger",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "cost": 15,
+  "cooldown": 6,
+  "spendLoad": true,
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Pistolero"
+  ],
+  "description": "Empty your guns at one target: a Strike for every round loaded, a beat apart. 15 Grit, 6 s cooldown. Needs a gun."
+ },
+ {
+  "id": "headshot",
+  "name": "Headshot",
+  "class": "gunslinger",
+  "slot": "feat",
+  "feat": true,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 20,
+  "cooldown": 5,
+  "extraDice": 2,
+  "onHit": "Stunned",
+  "onHitValue": 1,
+  "onHitSeconds": 1,
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Sniper"
+  ],
+  "description": "A slow, sure aim: a Strike with two weapon dice more (3 at level 10, 4 at 18) that stuns the target for a second. 20 Grit, 5 s cooldown. Needs a gun."
+ },
+ {
+  "id": "penetrating_shot",
+  "name": "Penetrating Shot",
+  "class": "gunslinger",
+  "slot": "6",
+  "level": 6,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 20,
+  "cooldown": 6,
+  "extraDice": 1,
+  "pierce": 3,
+  "needsFirearm": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "A ball driven clean through: one more weapon damage die, and it flies on through up to 3 enemies behind its target, a Strike at each. 20 Grit, 6 s cooldown. Needs a gun. Joins the bar at level 6."
+ },
+ {
+  "id": "dead_mans_hand",
+  "name": "Dead Man's Hand",
+  "class": "gunslinger",
+  "slot": "feat",
+  "feat": true,
+  "level": 8,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 25,
+  "cooldown": 8,
+  "targets": 5,
+  "arc": 360,
+  "extraDice": 1,
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Pistolero"
+  ],
+  "description": "Pistolero, level 8: turn on your heel and shoot everything near: a Strike with a weapon die more at your target and up to four more within reach, all round you. 25 Grit, 8 s cooldown. Needs a gun."
+ },
+ {
+  "id": "vital_shot",
+  "name": "Vital Shot",
+  "class": "gunslinger",
+  "slot": "feat",
+  "feat": true,
+  "level": 8,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 25,
+  "cooldown": 8,
+  "extraDice": 3,
+  "damageType": "Bleed",
+  "persistentDice": "2d6",
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Sniper"
+  ],
+  "description": "Sniper, level 8: a shot through something that matters: three weapon dice more, and 2d6 persistent bleed on a hit (a die more at levels 10 and 15). 25 Grit, 8 s cooldown. Needs a gun."
+ },
+ {
+  "id": "hail_of_lead",
+  "name": "Hail of Lead",
+  "class": "gunslinger",
+  "slot": "11",
+  "level": 11,
+  "kind": "Blast",
+  "actions": 2,
+  "cost": 25,
+  "cooldown": 8,
+  "range": 10,
+  "radius": 2.5,
+  "weaponDamage": true,
+  "save": "Reflex",
+  "needsFirearm": true,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Fire, load and fire again into a crowd: a monster within 10 tiles and everything within 2.5 tiles of it take your gun's damage against a basic Reflex save. 25 Grit, 8 s cooldown. Needs a gun. Joins the bar at level 11."
+ },
+ {
+  "id": "twin_thunder",
+  "name": "Twin Thunder",
+  "class": "gunslinger",
+  "slot": "feat",
+  "feat": true,
+  "level": 13,
+  "kind": "WeaponStrike",
+  "actions": 2,
+  "cost": 35,
+  "cooldown": 10,
+  "strikes": 2,
+  "extraDice": 3,
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Pistolero"
+  ],
+  "description": "Pistolero, level 13: both barrels at once: two Strikes at your target, each with three weapon dice more, for two rounds. 35 Grit, 10 s cooldown. Needs a gun."
+ },
+ {
+  "id": "one_shot_one_kill",
+  "name": "One Shot, One Kill",
+  "class": "gunslinger",
+  "slot": "feat",
+  "feat": true,
+  "level": 13,
+  "kind": "WeaponStrike",
+  "actions": 3,
+  "cost": 40,
+  "cooldown": 12,
+  "extraDice": 5,
+  "pierce": 1,
+  "needsFirearm": true,
+  "traits": [
+   "Attack",
+   "Sniper"
+  ],
+  "description": "Sniper, level 13: the shot of a lifetime: five weapon dice more, flying on through an enemy behind. 40 Grit, 12 s cooldown. Needs a gun."
+ },
+ {
+  "id": "incendiary_round",
+  "name": "Incendiary round",
+  "class": "item",
+  "slot": "belt",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "round": true,
+  "needsFirearm": true,
+  "extraDice": 1,
+  "damageType": "Fire",
+  "persistentDice": "1d6",
+  "traits": [
+   "Attack",
+   "Fire"
+  ],
+  "description": "Load a round of fire and shoot: a Strike with a weapon die more, and 1d6 persistent fire on a hit (a die more at levels 5, 10 and 15)."
+ },
+ {
+  "id": "silver_round",
+  "name": "Silvered round",
+  "class": "item",
+  "slot": "belt",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "round": true,
+  "needsFirearm": true,
+  "holy": true,
+  "dice": "2d6",
+  "traits": [
+   "Attack"
+  ],
+  "description": "Load a silvered round and shoot: a Strike that burns the undead for 2d6 vitality more (doubled on a critical hit)."
+ },
+ {
+  "id": "scatter_round",
+  "name": "Scatter round",
+  "class": "item",
+  "slot": "belt",
+  "kind": "WeaponStrike",
+  "actions": 1,
+  "round": true,
+  "needsFirearm": true,
+  "targets": 4,
+  "arc": 70,
+  "traits": [
+   "Attack"
+  ],
+  "description": "Load a charge of shot and fire: a Strike at your target and up to three more within reach and 35° of it."
  }
 ]

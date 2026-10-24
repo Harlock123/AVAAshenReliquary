@@ -108,6 +108,21 @@ internal static class TestCharacters
         return hero;
     }
 
+    /// <summary>Human Ironhold Gunhand Gunslinger: STR +0, DEX +4, CON +2, INT +2, WIS +1, CHA +0.</summary>
+    public static Character Gunslinger(string? subclass = null)
+    {
+        var hero = CharacterBuilder.Create(Content, new CharacterChoices(
+            "Ashbound", "human", "ironhold-gunhand", "gunslinger", AttributeKind.Dexterity,
+            AncestryFreeBoosts: [AttributeKind.Dexterity, AttributeKind.Constitution],
+            BackgroundBoost: AttributeKind.Intelligence,
+            BackgroundFreeBoost: AttributeKind.Dexterity,
+            FreeBoosts: [AttributeKind.Dexterity, AttributeKind.Constitution, AttributeKind.Intelligence, AttributeKind.Wisdom],
+            AncestryFeat: "cooperative_nature"));
+        if (subclass is not null)
+            hero.ChooseSubclass(subclass);
+        return hero;
+    }
+
     /// <summary>
     /// The hero for a report's kit: "fighter", "wizard", "rogue", "ranger", "champion", "necromancer", or a class and a subclass ("fighter vanguard"), which
     /// is then taken as a new character would at creation.
@@ -115,7 +130,8 @@ internal static class TestCharacters
     public static Character ForKit(string kit)
     {
         var words = kit.Split(' ');
-        var hero = words[0] switch { "wizard" => Wizard(), "rogue" => Rogue(), "ranger" => Ranger(), "champion" => Champion(), "necromancer" => Necromancer(), _ => Fighter() };
+        var hero = words[0] switch { "wizard" => Wizard(), "rogue" => Rogue(), "ranger" => Ranger(), "champion" => Champion(), "necromancer" => Necromancer(),
+            "gunslinger" => Gunslinger(), _ => Fighter() };
         if (words.Length > 1 && hero.SubclassOptions.Any(s => s.Id == words[1]))
             hero.ChooseSubclass(words[1]);
         return hero;

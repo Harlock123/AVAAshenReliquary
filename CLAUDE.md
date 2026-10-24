@@ -136,7 +136,15 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `SlotsOf`); then frame time at full screen (spec section 16): the ground cached in chunks (`WorldView.Ground.cs`,
   `CacheGround`), the darkness mask on a GPU surface, the depth pass culled and sorted in place; `ASHEN_STATS=1` logs the
   F3 line to stdout; then the draught case (`HealingPotion.Spares`/`TopUp`, saved `SpareDraughts`; draught drops cut to
-  2/15/35%). Next: step 7, the Bell Tower and the Choir of Whispers.
+  2/15/35%); then summons rising apart (`GameWorld.SummonSpot`, allies keep `AllyRoom` between them); then the
+  **Paladin**, the Champion's third subclass (the class listed as "Champion (paladin)", `ClassDefinition.Also`; Oath of
+  Justice: `Retribution`, Retaliate answers blows at allies; Blade of Justice, Aura of Justice at 8, Final Judgment at
+  13; `--paladin`); then the **Gunslinger**, a seventh class (`World/GameWorld.Gunslinger.cs`: Grit, guns'
+  `capacity`/`reloadSeconds`, `HeroActor.Loaded`, R reloads, misfires on a natural 1, twin pistols in the off hand,
+  `GunDamage` Singular Expertise +2/+3/+4; Pistolero and Sniper; materials `ItemCategory.Material` dropping by act
+  (`LootGenerator.MaterialChances`), special rounds `AbilityDefinition.Round` cast at a forge, `CraftRecipe.Refit` and
+  `Item.Refits`; Ironhold's gunsmith Ottilie; art and sounds from `tools/build_guns.py` and `tools/build_gun_sounds.py`,
+  which need a venv with Pillow, numpy and scipy; `--gunslinger`, `--pistolero`, `--sniper`). Next: step 7, the Bell Tower and the Choir of Whispers.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -176,7 +184,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
 
 - They drive step by step ("commit it and move on to X", "run it"). **Commit only when asked**, on `main`.
 - "Run it" means: build Release, then start `dotnet src/AshenReliquary.App/bin/Release/net10.0/AVAAshenReliquary.dll`
-  in the background (`--fighter`, `--wizard`, `--rogue`, `--ranger`, `--champion`, `--necromancer` or a subclass flag skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
+  in the background (`--fighter`, `--wizard`, `--rogue`, `--ranger`, `--champion`, `--necromancer`, `--gunslinger` or a subclass flag skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
   itself, `Services/BattleDemo.cs`, saving to a temp folder: use it to watch or record fights, or measure fps in combat).
   To record: make the game fullscreen with `hyprctl dispatch 'hl.dsp.window.fullscreen({ window = "class:AVAAshenReliquary" })'`,
   then `gpu-screen-recorder -w region -region 1500x1000+0+0 -s 1920x1280 -f 60 -k h264 -cursor no -a default_output -o <file>`
@@ -185,6 +193,8 @@ implementation decisions made so far). `README.md` has the run commands and cont
   win/linux/osx on x64 and ARM; pushes to `main` refresh the `latest` pre-release.
 - Keep `docs/SPECIFICATION.md` (section 15's M1 status line and a section 16 subsection per feature) and the README
   in step with each feature, and add tests with each change (Core: xUnit; App: Avalonia headless, see `TestKit`).
+- The campaign bot's `WearUpgrades` keeps each class to its kind of weapon: add a rule there for a new class, or it
+  swaps that class's weapon for whatever is worth more (the Gunslinger once traded its guns for swords).
 - Every asset is in `assets.manifest.json`; `python3 tools/build_credits.py` regenerates `CREDITS.md`.
 - The asset build scripts in `tools/` take the downloaded source packs' folder as an argument; the packs are not in
   the repo (only the converted files are), so they only need re-downloading to rebuild assets.

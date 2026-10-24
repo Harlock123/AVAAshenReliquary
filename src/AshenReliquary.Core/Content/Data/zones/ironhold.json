@@ -467,6 +467,38 @@
    }
   },
   {
+   "id": "ottilie",
+   "name": "Ottilie Vance",
+   "title": "Gunsmith",
+   "at": [
+    31,
+    19
+   ],
+   "facing": 5,
+   "stockSize": 8,
+   "sells": [
+    "firearms"
+   ],
+   "runework": true,
+   "greeting": "Powder, shot and Ironhold steel. Bring me a gun and the parts, and I'll make it hold another round.",
+   "supplies": [
+    "incendiary_round",
+    "scatter_round",
+    "silver_round",
+    "black_powder",
+    "lead_shot",
+    "gun_parts"
+   ],
+   "look": {
+    "head": "leather_hood",
+    "chest": "leather_chest",
+    "hands": "leather_gloves",
+    "legs": "leather_pants",
+    "feet": "leather_boots",
+    "main": "pistol"
+   }
+  },
+  {
    "id": "sable",
    "name": "Sable",
    "title": "Fence",

@@ -31,7 +31,7 @@ public class DedicationUiTests
             Assert.True(rect.Left >= 0 && rect.Right <= 731 && rect.Bottom <= 946, $"{title} is drawn off the window: {rect}");
             kit.Click(new Point(rect.MidX, rect.MidY));
         }
-        Assert.Equal(5, panel.Options.Count(o => o.Title.EndsWith(" Dedication")));
+        Assert.Equal(6, panel.Options.Count(o => o.Title.EndsWith(" Dedication")));
         Assert.DoesNotContain(panel.Options, o => o.Title == "Fighter Dedication");
         Pick("Wizard Dedication");
         Pick(character.FeatOptions(FeatType.Skill, 2).First().Name);

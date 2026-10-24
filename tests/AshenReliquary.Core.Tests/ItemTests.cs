@@ -147,7 +147,7 @@ public class ItemTests
     {
         var random = new SeededRandom(21);
         double Items(CreatureRank rank) => Enumerable.Range(0, 2000)
-            .Average(_ => Content.Loot.Roll(rank, 1, random).Count(d => d.Item is { Definition.IsBeltItem: false }));
+            .Average(_ => Content.Loot.Roll(rank, 1, random).Count(d => d.Item is { Definition.IsBeltItem: false, Definition.IsMaterial: false }));
         Assert.InRange(Items(CreatureRank.Normal), 0.10, 0.18);
         Assert.InRange(Items(CreatureRank.Champion), 1.4, 1.6);
         Assert.True(Items(CreatureRank.Minion) < 0.07);
@@ -252,11 +252,16 @@ public class LootWorldTests
         for (var i = 0; i < 900 && !champion.IsDead; i++)
             world.Update(1 / 30.0);
         Assert.True(champion.IsDead);
-        var item = world.GroundItems.First(g => g.Drop.Item is not null);
+        var item = world.GroundItems.First(g => g.Drop.Item is { Definition.IsMaterial: false });
         world.PickUp(item);
         Run(world, 3);
         Assert.DoesNotContain(item, world.GroundItems);
         Assert.Contains(world.Hero.Equipment.Bag, b => b == item.Drop.Item);
+        if (world.GroundItems.FirstOrDefault(g => g.Drop.Gold > 0) is { } gold)
+        {
+            world.PickUp(gold);
+            Run(world, 3);
+        }
         Assert.True(world.Hero.Equipment.Gold > 0, "champions always drop gold, and walking over it collects it");
     }
 

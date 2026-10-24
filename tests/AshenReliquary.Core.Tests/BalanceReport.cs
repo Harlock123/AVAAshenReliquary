@@ -67,6 +67,10 @@ public class BalanceReport(ITestOutputHelper output)
         ["champion"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         ["champion lanternbearer"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
         ["champion oathbreaker"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
+        ["champion paladin"] = ["longsword", "wooden_shield", "chain_cuirass", "leather_pants", "leather_boots", "leather_gloves"],
+        // The Gunslinger (after M4 step 6): a brace of pistols or an arquebus, in leathers.
+        ["gunslinger pistolero"] = ["flintlock_pistol", "flintlock_pistol", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
+        ["gunslinger sniper"] = ["arquebus", "leather_chest", "leather_pants", "leather_boots", "leather_gloves", "leather_hood"],
         // The Necromancer (M3 step 5): the wizard's staff and robes.
         ["necromancer"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
         ["necromancer bonelord"] = ["staff", "mage_vest", "mage_skirt", "mage_boots", "mage_sleeves"],
@@ -83,6 +87,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void The_whole_road_at_level_1(string kit)
@@ -254,6 +261,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Sallows_Mire_raised_to_levels_6_8_and_10(string kit)
@@ -286,6 +296,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Iron_March_at_level_6(string kit)
@@ -313,6 +326,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Barrow_Fields_at_level_7(string kit) => ReportZone(kit, "barrow_fields", "barracks", 7, "the Barrow Fields to the barracks door");
@@ -332,6 +348,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Old_Barracks_at_level_8(string kit) => ReportZone(kit, "old_barracks", "stair", 8, "the Old Barracks and back up the stair");
@@ -351,6 +370,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Siege_Walls_at_level_9(string kit) => ReportZone(kit, "siege_walls", "heights", 9, "the Siege Walls and Ser Hadric", runes: 2);
@@ -370,6 +392,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Frostbitten_Pass_at_level_11(string kit) => ReportZone(kit, "frostbitten_pass", "rest", 11, "the Frostbitten Pass to the Rest", runes: 2);
@@ -389,6 +414,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Hollow_Woods_at_level_12(string kit) => ReportZone(kit, "hollow_woods", "catacombs", 12, "the Hollow Woods to the catacombs", runes: 2);
@@ -408,6 +436,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Catacombs_of_Oriel_at_level_13(string kit) => ReportZone(kit, "catacombs_of_oriel", "woods", 13, "the Catacombs of Oriel and back up the stair", runes: 2);
@@ -437,6 +468,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Siege_Walls_raised_to_levels_11_13_and_15(string kit)
@@ -580,7 +614,14 @@ public class BalanceReport(ITestOutputHelper output)
             world.Update(Tick);
         }
         // Walking into an exit that leads on travels (and the new zone starts incomplete), so leaving counts as finishing.
-        return new RoadResult(deaths, spent, potions, world.Time / 60, world.ZoneComplete || world.Zone.Id != zoneId, hero.Level, killers) { BossLevel = bossLevel };
+        var reached = world.ZoneComplete || world.Zone.Id != zoneId;
+        if (!reached)
+        {
+            var next = world.Monsters.Where(m => !m.IsDead && m.SpawnIndex >= 0).MinBy(m => m.SpawnIndex);
+            killers.Add($"STUCK at {world.Hero.X:0.0},{world.Hero.Y:0.0} (cold {world.Hero.Cold:0}), next {next?.Definition.Id} #{next?.SpawnIndex} "
+                + $"at {next?.X:0.0},{next?.Y:0.0} {next?.State}, path {(next is null ? "-" : Pathfinder.Find(world.Map, ((int)world.Hero.X, (int)world.Hero.Y), ((int)next.X, (int)next.Y), maxNodes: 60000)?.Count.ToString() ?? "none")}");
+        }
+        return new RoadResult(deaths, spent, potions, world.Time / 60, reached, hero.Level, killers) { BossLevel = bossLevel };
     }
 
 
@@ -703,6 +744,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Mother_Sallow_at_levels_4_and_5(string kit)
@@ -732,6 +776,9 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("ranger beastmaster")]
     [InlineData("champion lanternbearer")]
     [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
     public void Ser_Hadric_at_levels_9_and_10(string kit)

@@ -148,6 +148,13 @@ zone = {
          "greeting": "Ironhold steel. Bring me a blade and I'll etch it, or strip the runes off your old one.",
          "look": {"head": "chain_coif", "chest": "leather_chest", "hands": "leather_gloves", "legs": "leather_pants",
                   "feet": "leather_boots", "main": "war_hammer"}},
+        # Ironhold's gunsmith (after M4 step 6): guns, rounds and the raw materials, and her own forge for refits.
+        {"id": "ottilie", "name": "Ottilie Vance", "title": "Gunsmith", "at": [cx + 11, my + 2], "facing": 5, "stockSize": 8,
+         "sells": ["firearms"], "runework": True,
+         "greeting": "Powder, shot and Ironhold steel. Bring me a gun and the parts, and I'll make it hold another round.",
+         "supplies": ["incendiary_round", "scatter_round", "silver_round", "black_powder", "lead_shot", "gun_parts"],
+         "look": {"head": "leather_hood", "chest": "leather_chest", "hands": "leather_gloves", "legs": "leather_pants",
+                  "feet": "leather_boots", "main": "pistol"}},
         {"id": "sable", "name": "Sable", "title": "Fence", "at": [cx + 7, my - 3], "facing": 5, "stockSize": 12,
          "greeting": "I sell to anyone with coin. Don't ask where it came from.",
          "supplies": ["alchemists_fire", "frost_vial", "bottled_lightning", "acid_flask", "antidote"],

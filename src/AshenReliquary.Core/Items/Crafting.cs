@@ -12,8 +12,11 @@ public enum CraftRecipe
     /// <summary>One affix of an uncommon or rare piece is rolled again.</summary>
     Reroll,
 
-    /// <summary>A belt item (a bomb or an antidote), two at a time.</summary>
+    /// <summary>A belt item (a bomb or an antidote), two at a time; a gun's special rounds three at a time, from black powder and lead shot.</summary>
     Brew,
+
+    /// <summary>A gun is refitted to hold one round more (at most <see cref="Crafting.MaxRefits"/>), from gun parts and powder.</summary>
+    Refit,
 }
 
 /// <summary>
@@ -24,6 +27,27 @@ public enum CraftRecipe
 /// </summary>
 public static class Crafting
 {
+    /// <summary>The gunsmith's raw materials (items.json ids): they drop from monsters and chests, rarely in Act 1.</summary>
+    public const string BlackPowder = "black_powder", LeadShot = "lead_shot", GunParts = "gun_parts";
+
+    /// <summary>How many times a gun can be refitted.</summary>
+    public const int MaxRefits = 2;
+
+    /// <summary>Special rounds cast at once (a critical success casts one more).</summary>
+    public const int RoundsPerCasting = 3;
+
+    /// <summary>Whether a belt item is a gun's special round.</summary>
+    public static bool IsRound(ItemDefinition item, Func<string, Abilities.AbilityDefinition?> ability) =>
+        item.Ability is { } id && ability(id) is { Round: true };
+
+    /// <summary>The raw materials a recipe takes: black powder, lead shot and gun parts (a round, or a refit).</summary>
+    public static (int Powder, int Shot, int Parts) Materials(CraftRecipe recipe, bool round) => recipe switch
+    {
+        CraftRecipe.Refit => (1, 0, 2),
+        CraftRecipe.Brew when round => (2, 2, 0),
+        _ => (0, 0, 0),
+    };
+
     /// <summary>Most affixes a rarity holds.</summary>
     public static int MaxAffixes(Rarity rarity) => rarity switch { Rarity.Uncommon => 2, Rarity.Rare => 4, _ => 0 };
 
@@ -59,11 +83,13 @@ public static class Crafting
         : null;
 
     /// <summary>A recipe's cost on an item (or, brewing, at the hero's level): Dust, Fragments and the smith's fee in gold.</summary>
-    public static (int Dust, int Fragments, int Gold) Cost(CraftRecipe recipe, int itemLevel)
+    public static (int Dust, int Fragments, int Gold) Cost(CraftRecipe recipe, int itemLevel, bool round = false)
     {
         var level = Math.Max(1, itemLevel);
         return recipe switch
         {
+            CraftRecipe.Refit => (0, 0, 3 + 2 * level),
+            CraftRecipe.Brew when round => (0, 0, 4),
             CraftRecipe.Raise => (3 + level, 0, 3 + 2 * level),
             CraftRecipe.AddAffix => (5 + level, 1, 3 + 2 * level),
             CraftRecipe.Reroll => (2 + level, 1, 3 + 2 * level),
@@ -73,13 +99,15 @@ public static class Crafting
 
     /// <summary>Why a recipe can't be worked on an item, or null (brewing takes no item).</summary>
     public static string? CannotCraft(CraftRecipe recipe, Item item) => item.Definition.Slot is null ? "Only gear can be worked."
-        : item.Definition.IsSpecial ? $"{item.Name} is made as it is."
+        : item.Definition.IsSpecial && recipe != CraftRecipe.Refit ? $"{item.Name} is made as it is."
         : recipe switch
         {
             CraftRecipe.Raise when item.Rarity != Rarity.Common => "Only a common piece can be raised.",
             CraftRecipe.AddAffix when item.Rarity is not (Rarity.Uncommon or Rarity.Rare) => "Only uncommon and rare pieces take affixes.",
             CraftRecipe.AddAffix when item.Affixes.Count >= MaxAffixes(item.Rarity) => $"It holds all the affixes a{(item.Rarity == Rarity.Uncommon ? "n uncommon" : " rare")} piece can.",
             CraftRecipe.Reroll when item.Affixes.Count == 0 => "It has no affix to reroll.",
+            CraftRecipe.Refit when !item.Definition.IsFirearm => "Only a gun can be refitted.",
+            CraftRecipe.Refit when item.Refits >= MaxRefits => $"{item.Name} is refitted as far as it goes.",
             _ => null,
         };
 }

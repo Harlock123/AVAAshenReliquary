@@ -64,6 +64,16 @@ ICONS = {
     "killshot": "lorc/target-arrows", "hunt_as_one": "lorc/hound", "meteor": "lorc/meteor-impact", "ball_lightning": "lorc/ball-glow",
     "bone_colossus": "skoll/skeleton", "blight": "lorc/poison-gas",
     "pauldrons": "skoll/pauldrons", "cloak": "delapouite/cape",
+    # The Champion's Paladin (after M4 step 6): its signatures at 1, 8 and 13
+    "blade_of_justice": "lorc/winged-sword", "aura_of_justice": "lorc/justice-star", "final_judgment": "delapouite/banging-gavel",
+    # The Gunslinger (after M4 step 6): its abilities, the Pistolero's and the Sniper's, and the guns, rounds and materials
+    "gunslinger_strike": "lorc/gunshot", "crack_shot": "lorc/target-shot", "risky_reload": "delapouite/reload-gun-barrel",
+    "hit_the_dirt": "delapouite/evasion", "scattershot": "delapouite/flint-spark", "penetrating_shot": "lorc/supersonic-bullet",
+    "hail_of_lead": "delapouite/bullet-impacts", "fan_the_hammer": "lorc/bullets", "dead_mans_hand": "sbed/duel",
+    "twin_thunder": "lorc/crossed-pistols", "headshot": "lorc/headshot", "vital_shot": "sbed/targeted",
+    "one_shot_one_kill": "lorc/reticule", "flintlock": "lorc/blunderbuss", "musket": "skoll/musket",
+    "powder": "delapouite/powder-bag", "lead": "delapouite/heavy-bullets", "gears": "lorc/gears",
+    "round_fire": "lorc/ember-shot", "round_silver": "delapouite/silver-bullet", "round_scatter": "lorc/hydra-shot",
 }
 
 AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll",

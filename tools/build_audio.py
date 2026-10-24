@@ -104,6 +104,13 @@ def main():
     if only:
         with open(os.path.join(out, "audio.json")) as f:
             listing = json.load(f)
+    elif os.path.exists(os.path.join(out, "audio.json")):
+        # Keep the sounds synthesised by tools/build_gun_sounds.py: they come from no pack.
+        with open(os.path.join(out, "audio.json")) as f:
+            old = json.load(f)
+        made = {e["file"] for e in old["files"] if e["source"].startswith("Ashen Reliquary, synthesised")}
+        listing["files"] = [e for e in old["files"] if e["file"] in made]
+        listing["effects"] = {k: v for k, v in old["effects"].items() if v and all(f in made for f in v)}
     def convert(kind, group, items, args):
         os.makedirs(os.path.join(out, kind), exist_ok=True)
         files = []

@@ -135,4 +135,32 @@ public class FlareFormatTests
         Assert.True(grass.Tiles.Count > 200);
         Assert.Contains(265, grass.Tiles.Keys);
     }
+
+    [Theory]
+    [InlineData("pistol", "wand")]
+    [InlineData("pistol_offhand", "wand")]
+    [InlineData("long_gun", "staff")]
+    public void Generated_gun_layers_match_the_layers_they_are_posed_from(string gun, string source)
+    {
+        // tools/build_guns.py: the same animations, frame counts, timings and loops as Flare's own layer, and the
+        // gun drawn in nearly every frame (a hidden frame is a 1x1 blank).
+        var root = Path.Combine(AppContext.BaseDirectory, "Flare/animations/avatar/male");
+        var made = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, $"{gun}.txt")));
+        var from = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(root, $"{source}.txt")));
+        Assert.Equal($"images/avatar/male/{gun}.png", made.Image);
+        Assert.Equal(from.Animations.Keys.Order(), made.Animations.Keys.Order());
+        foreach (var (name, a) in from.Animations)
+        {
+            var b = made[name]!;
+            Assert.Equal((a.FrameCount, a.DurationMs, a.Loop), (b.FrameCount, b.DurationMs, b.Loop));
+        }
+        var drawn = made.Animations.Values.Sum(a => Enumerable.Range(0, a.FrameCount).Sum(f => Enumerable.Range(0, 8).Count(d => a.Frame(f, d).Width > 1)));
+        Assert.True(drawn > 230, $"{gun}: {drawn} frames drawn");
+        foreach (var loot in new[] { "pistol", "long_gun" })
+        {
+            var drop = FlareAnimationSet.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, $"Flare/animations/loot/{loot}.txt")));
+            Assert.Equal(6, drop["power"]!.FrameCount);
+            Assert.True(drop["power"]!.Frame(5, 0).Width > 10);
+        }
+    }
 }

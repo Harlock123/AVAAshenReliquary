@@ -45,7 +45,7 @@ public class ChampionTests
     public void The_champion_builds_devotion_from_the_blows_it_takes()
     {
         var champion = TestCharacters.Champion();
-        Assert.Equal(["lanternbearer", "oathbreaker"], champion.SubclassOptions.Select(s => s.Id));
+        Assert.Equal(["lanternbearer", "oathbreaker", "paladin"], champion.SubclassOptions.Select(s => s.Id));
         var world = World(champion);
         var devotion = world.Hero.Resource;
         Assert.Equal(ResourceKind.Devotion, devotion.Kind);

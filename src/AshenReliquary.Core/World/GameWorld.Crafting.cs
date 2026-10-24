@@ -53,11 +53,13 @@ public sealed partial class GameWorld
         if (!AtForge || _loot is null)
             return null;
         int level;
+        var round = false;
         if (recipe == CraftRecipe.Brew)
         {
             if (brew is not { IsBeltItem: true } || !Brewable.Contains(brew))
                 return null;
             level = Math.Max(1, brew.MinLevel);
+            round = IsRound(brew);
         }
         else
         {
@@ -70,10 +72,16 @@ public sealed partial class GameWorld
             }
             level = item.ItemLevel;
         }
-        var (dust, fragments, fee) = Crafting.Cost(recipe, level);
+        var (dust, fragments, fee) = Crafting.Cost(recipe, level, round);
         if (gear.Dust < dust || gear.Fragments < fragments)
         {
             Say($"You need {dust} Ashen Dust{(fragments > 0 ? $" and {fragments} Rune Fragment{(fragments == 1 ? "" : "s")}" : "")}.");
+            return null;
+        }
+        var needs = MaterialsNeeded(recipe, round);
+        if (needs.Any(n => gear.CountOf(n.Item) < n.Count))
+        {
+            Say($"You need {string.Join(" and ", needs.Select(n => $"{n.Count} {n.Item.Name.ToLowerInvariant()}"))}.");
             return null;
         }
         if (!Pay(fee))
@@ -88,21 +96,36 @@ public sealed partial class GameWorld
         {
             var lost = check.Degree == DegreeOfSuccess.CriticalFailure;
             if (lost)
+            {
                 gear.TrySpendMaterials(dust / 2, fragments / 2);
+                foreach (var (material, count) in needs)
+                    SpendMaterial(material, count / 2);
+            }
             Sound(SoundCue.Miss, Hero);
             return Done(check, lost ? $"{rolled}: a critical failure. The work is spoiled and half the materials with it."
                 : $"{rolled}: a failure. Nothing comes of it; you keep the materials.");
         }
         gear.TrySpendMaterials(dust, fragments);
+        foreach (var (material, count) in needs)
+            SpendMaterial(material, count);
         var critical = check.Degree == DegreeOfSuccess.CriticalSuccess;
         Sound(SoundCue.Ward, Hero, "shield");
+        if (recipe == CraftRecipe.Refit)
+        {
+            var refits = Math.Min(Crafting.MaxRefits, item!.Refits + (critical ? 2 : 1)) - item.Refits;
+            item.Refits += refits;
+            gear.Refresh();
+            return Done(check, $"{rolled}: {(critical ? "a critical success" : "a success")}. {item.Name} now holds "
+                + $"{item.Definition.Capacity + item.Refits} rounds{(refits > 1 ? " (refitted twice)" : "")}.");
+        }
         if (recipe == CraftRecipe.Brew)
         {
-            var made = new Item(brew!, Rarity.Common, Hero.Character.Level, count: critical ? 3 : 2);
+            var many = round ? Crafting.RoundsPerCasting + Hero.Character.RoundsBonus : 2;
+            var made = new Item(brew!, Rarity.Common, Hero.Character.Level, count: critical ? many + 1 : many);
             var count = made.Count;
             if (!gear.TryAdd(made))
                 Spill(Hero.X, Hero.Y, [new LootDrop(made)]);
-            return Done(check, $"{rolled}: {(critical ? "a critical success" : "a success")}. You brew {count} × {brew!.Name}.");
+            return Done(check, $"{rolled}: {(critical ? "a critical success" : "a success")}. You {(round ? "cast" : "brew")} {count} × {brew!.Name}.");
         }
         var affixes = item!.Affixes.ToList();
         var rarity = item.Rarity;
@@ -136,6 +159,27 @@ public sealed partial class GameWorld
         {
             Say(message);
             return new CraftOutcome(result, message);
+        }
+    }
+
+    /// <summary>Whether a belt item is a gun's special round (cast from powder and shot, not brewed with Dust).</summary>
+    public bool IsRound(ItemDefinition item) => Crafting.IsRound(item, id => _abilities.GetValueOrDefault(id));
+
+    /// <summary>The raw materials a recipe takes, as items and counts (none for most).</summary>
+    public IReadOnlyList<(ItemDefinition Item, int Count)> MaterialsNeeded(CraftRecipe recipe, bool round)
+    {
+        if (_loot is null)
+            return [];
+        var (powder, shot, parts) = Crafting.Materials(recipe, round);
+        return new[] { (Crafting.BlackPowder, powder), (Crafting.LeadShot, shot), (Crafting.GunParts, parts) }
+            .Where(m => m.Item2 > 0 && _loot.Items.ContainsKey(m.Item1))
+            .Select(m => (_loot.Items[m.Item1], m.Item2)).ToList();
+    }
+
+    private void SpendMaterial(ItemDefinition material, int count)
+    {
+        for (var i = 0; i < count && Hero.Equipment.ConsumeOne(material); i++)
+        {
         }
     }
 

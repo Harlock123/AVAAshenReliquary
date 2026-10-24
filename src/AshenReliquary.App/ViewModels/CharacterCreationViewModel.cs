@@ -14,7 +14,7 @@ namespace AshenReliquary.App.ViewModels;
 public sealed class ClassOption(ClassDefinition definition, bool playable)
 {
     public ClassDefinition Definition { get; } = definition;
-    public string Name => Definition.Name;
+    public string Name => Definition.Also is { } also ? $"{Definition.Name} ({also})" : Definition.Name;
     public bool Playable { get; } = playable;
     public string Detail => Playable
         ? $"{Definition.HitPointsPerLevel} HP per level · {Definition.Resource} · {string.Join(" / ", Definition.Subclasses)}"

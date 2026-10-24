@@ -45,7 +45,12 @@ public enum FeatType
 /// an animal companion (a creature id) fights beside the hero; <see cref="CompanionGrowth"/> makes it stronger.</item>
 /// <item>The Champion's: <see cref="UndeadBane"/> vitality damage on Strikes against the undead; <see cref="HealShare"/>:
 /// Lay on Hands heals that share more; <see cref="Light"/> tiles of light round the hero; <see cref="TaintFuel"/>: the
-/// Oathbreaker's hits fill the Taint meter, and its Strikes drain life by how full it is.</item>
+/// Oathbreaker's hits fill the Taint meter, and its Strikes drain life by how full it is; <see cref="Retribution"/>: the
+/// Paladin's reaction is always ready, striking back at a monster that hits the hero or an ally beside them.</item>
+/// <item>The Gunslinger's: <see cref="ReloadSpeed"/> (reloads take that share less time), <see cref="Capacity"/> (every
+/// gun holds that many rounds more), <see cref="CritReload"/> (a critical hit with a gun puts a round back),
+/// <see cref="DistantDamage"/> (more damage with a gun at a target 6 tiles off or more: the Sniper's), and
+/// <see cref="RoundsBonus"/> (one more special round from each casting at the forge).</item>
 /// <item>The Necromancer's: <see cref="Minions"/> more skeletons at once, <see cref="MinionGrowth"/> makes them sturdier,
 /// <see cref="GraveCharges"/> more Grave Charges held, <see cref="ChargesPerCorpse"/> more from each corpse.</item>
 /// </list>
@@ -92,10 +97,16 @@ public sealed record FeatEffect(
     double HealShare = 0,
     double Light = 0,
     bool TaintFuel = false,
+    bool Retribution = false,
     int Minions = 0,
     int MinionGrowth = 0,
     int GraveCharges = 0,
-    int ChargesPerCorpse = 0)
+    int ChargesPerCorpse = 0,
+    double ReloadSpeed = 0,
+    int Capacity = 0,
+    bool CritReload = false,
+    int DistantDamage = 0,
+    int RoundsBonus = 0)
 {
     /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
     public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0

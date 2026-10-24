@@ -69,7 +69,7 @@ public class CacheTests
         for (var seed = 1; seed <= 200; seed++)
         {
             var drops = Content.Loot.RollCache(CacheKind.Reliquary, 2, new SeededRandom(seed));
-            var items = drops.Where(d => d.Item is { Definition.IsBeltItem: false }).Select(d => d.Item!).ToList();
+            var items = drops.Where(d => d.Item is { Definition.IsBeltItem: false, Definition.IsMaterial: false }).Select(d => d.Item!).ToList();
             Assert.Equal(2, items.Count);
             Assert.True(items[0].Rarity >= Rarity.Uncommon);
             Assert.All(items, i => Assert.Equal(2, i.ItemLevel));
@@ -83,7 +83,7 @@ public class CacheTests
         var better = 0;
         for (var seed = 1; seed <= 400; seed++)
         {
-            var item = Content.Loot.RollCache(CacheKind.Cache, 1, new SeededRandom(seed)).Single(d => d.Item is { Definition.IsBeltItem: false }).Item!;
+            var item = Content.Loot.RollCache(CacheKind.Cache, 1, new SeededRandom(seed)).Single(d => d.Item is { Definition.IsBeltItem: false, Definition.IsMaterial: false }).Item!;
             if (item.Rarity >= Rarity.Uncommon)
                 better++;
         }

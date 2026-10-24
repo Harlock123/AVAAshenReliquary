@@ -831,5 +831,173 @@
   "source": "https://game-icons.net/1x1/delapouite/cape.html",
   "author": "Delapouite",
   "licence": "CC BY 3.0"
+ },
+ {
+  "id": "blade_of_justice",
+  "file": "blade_of_justice.png",
+  "source": "https://game-icons.net/1x1/lorc/winged-sword.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "aura_of_justice",
+  "file": "aura_of_justice.png",
+  "source": "https://game-icons.net/1x1/lorc/justice-star.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "final_judgment",
+  "file": "final_judgment.png",
+  "source": "https://game-icons.net/1x1/delapouite/banging-gavel.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "gunslinger_strike",
+  "file": "gunslinger_strike.png",
+  "source": "https://game-icons.net/1x1/lorc/gunshot.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "crack_shot",
+  "file": "crack_shot.png",
+  "source": "https://game-icons.net/1x1/lorc/target-shot.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "risky_reload",
+  "file": "risky_reload.png",
+  "source": "https://game-icons.net/1x1/delapouite/reload-gun-barrel.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hit_the_dirt",
+  "file": "hit_the_dirt.png",
+  "source": "https://game-icons.net/1x1/delapouite/evasion.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "scattershot",
+  "file": "scattershot.png",
+  "source": "https://game-icons.net/1x1/delapouite/flint-spark.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "penetrating_shot",
+  "file": "penetrating_shot.png",
+  "source": "https://game-icons.net/1x1/lorc/supersonic-bullet.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "hail_of_lead",
+  "file": "hail_of_lead.png",
+  "source": "https://game-icons.net/1x1/delapouite/bullet-impacts.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "fan_the_hammer",
+  "file": "fan_the_hammer.png",
+  "source": "https://game-icons.net/1x1/lorc/bullets.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "dead_mans_hand",
+  "file": "dead_mans_hand.png",
+  "source": "https://game-icons.net/1x1/sbed/duel.html",
+  "author": "Sbed",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "twin_thunder",
+  "file": "twin_thunder.png",
+  "source": "https://game-icons.net/1x1/lorc/crossed-pistols.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "headshot",
+  "file": "headshot.png",
+  "source": "https://game-icons.net/1x1/lorc/headshot.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "vital_shot",
+  "file": "vital_shot.png",
+  "source": "https://game-icons.net/1x1/sbed/targeted.html",
+  "author": "Sbed",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "one_shot_one_kill",
+  "file": "one_shot_one_kill.png",
+  "source": "https://game-icons.net/1x1/lorc/reticule.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "flintlock",
+  "file": "flintlock.png",
+  "source": "https://game-icons.net/1x1/lorc/blunderbuss.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "musket",
+  "file": "musket.png",
+  "source": "https://game-icons.net/1x1/skoll/musket.html",
+  "author": "Skoll",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "powder",
+  "file": "powder.png",
+  "source": "https://game-icons.net/1x1/delapouite/powder-bag.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "lead",
+  "file": "lead.png",
+  "source": "https://game-icons.net/1x1/delapouite/heavy-bullets.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "gears",
+  "file": "gears.png",
+  "source": "https://game-icons.net/1x1/lorc/gears.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "round_fire",
+  "file": "round_fire.png",
+  "source": "https://game-icons.net/1x1/lorc/ember-shot.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "round_silver",
+  "file": "round_silver.png",
+  "source": "https://game-icons.net/1x1/delapouite/silver-bullet.html",
+  "author": "Delapouite",
+  "licence": "CC BY 3.0"
+ },
+ {
+  "id": "round_scatter",
+  "file": "round_scatter.png",
+  "source": "https://game-icons.net/1x1/lorc/hydra-shot.html",
+  "author": "Lorc",
+  "licence": "CC BY 3.0"
  }
 ]

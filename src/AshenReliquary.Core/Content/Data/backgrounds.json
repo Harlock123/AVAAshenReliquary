@@ -6,5 +6,6 @@
   { "id": "lantern-acolyte", "name": "Lantern Acolyte", "boostChoices": ["Wisdom", "Charisma"], "skill": "Religion", "lore": "Order of the Pale Lantern Lore", "skillFeat": "Shrine Ward" },
   { "id": "hunter", "name": "Hunter", "boostChoices": ["Dexterity", "Wisdom"], "skill": "Survival", "lore": "Hunting Lore", "skillFeat": "Track Prey" },
   { "id": "street-urchin", "name": "Street Urchin", "boostChoices": ["Dexterity", "Intelligence"], "skill": "Stealth", "lore": "Ironhold Lore", "skillFeat": "Pickpocket" },
-  { "id": "noble-exile", "name": "Noble Exile", "boostChoices": ["Intelligence", "Charisma"], "skill": "Diplomacy", "lore": "Vardmoor Nobility Lore", "skillFeat": "Silver Tongue" }
+  { "id": "noble-exile", "name": "Noble Exile", "boostChoices": ["Intelligence", "Charisma"], "skill": "Diplomacy", "lore": "Vardmoor Nobility Lore", "skillFeat": "Silver Tongue" },
+  { "id": "ironhold-gunhand", "name": "Ironhold Gunhand", "boostChoices": ["Dexterity", "Intelligence"], "skill": "Crafting", "lore": "Gunsmithing Lore", "skillFeat": "Powder Hand" }
 ]

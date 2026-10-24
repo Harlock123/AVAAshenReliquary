@@ -42,6 +42,7 @@ public class LevelsSixToTenTests
     [InlineData("fighter vanguard", "intimidating_roar", "whirlwind_strike")]
     [InlineData("champion lanternbearer", "retributive_strike", "beacon_of_hope")]
     [InlineData("champion oathbreaker", "retributive_strike", "dread_harvest")]
+    [InlineData("champion paladin", "retributive_strike", "aura_of_justice")]
     [InlineData("rogue cutthroat", "shadowstep", "fan_of_knives")]
     [InlineData("rogue trickster", "shadowstep", "smoke_bomb")]
     [InlineData("ranger marksman", "rain_of_arrows", "deadeye")]

@@ -459,6 +459,7 @@
    "stockSize": 12,
    "sells": [
     "weapons",
+    "firearms",
     "armour"
    ],
    "runework": true,
@@ -488,7 +489,12 @@
     "frost_vial",
     "bottled_lightning",
     "acid_flask",
-    "antidote"
+    "antidote",
+    "incendiary_round",
+    "silver_round",
+    "black_powder",
+    "lead_shot",
+    "gun_parts"
    ],
    "look": {
     "head": "mage_hood",

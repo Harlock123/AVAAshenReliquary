@@ -135,6 +135,14 @@ public sealed class HeroActor : Actor
     /// <summary>A multiclass dedication's small pool of another class's resource, or null.</summary>
     public ClassResource? Dedication { get; internal set; }
 
+    /// <summary>Rounds left in the gun in hand (the Gunslinger's), and the seconds a reload still takes (0: not reloading).</summary>
+    public int Loaded { get; internal set; }
+    public double ReloadRemaining { get; internal set; }
+    internal double ReloadTotal { get; set; }
+
+    /// <summary>The gun <see cref="Loaded"/> counts for: a gun newly taken in hand comes loaded.</summary>
+    internal Items.Item? LoadedGun { get; set; }
+
     /// <summary>Until when an antidote's bonus against poison lasts (game time).</summary>
     public double AntidoteUntil { get; internal set; }
 
@@ -166,6 +174,9 @@ internal sealed class HeroAction(AbilityDefinition ability, MonsterActor target,
 
     /// <summary>Begun out of hiding: its blow finds the target off-guard.</summary>
     public bool FromHiding { get; init; }
+
+    /// <summary>Rounds a gun fires in this action (0: the ability's own count).</summary>
+    public int Shots { get; init; }
 }
 
 /// <summary>
@@ -194,7 +205,7 @@ public sealed class Projectile(AbilityDefinition ability, MonsterActor target, i
     /// <summary>How many more enemies this spell leaps to after it strikes (Electric Arc).</summary>
     public int ChainLeft { get; init; }
 
-    /// <summary>An arrow from the hero's bow: on arrival it is a weapon Strike (<see cref="Shot"/> says how).</summary>
+    /// <summary>An arrow from the hero's bow, or a gun's shot: on arrival it is a weapon Strike (<see cref="Shot"/> says how).</summary>
     public bool IsArrow => Shot is not null;
 
     public ArrowShot? Shot { get; init; }
@@ -204,7 +215,11 @@ public sealed class Projectile(AbilityDefinition ability, MonsterActor target, i
 /// What an arrow carries to its target: the Strike's extra dice and cadence, whether it builds the resource (only a
 /// volley's first does), whether it was loosed from hiding or is a feint, and how many more enemies it passes through.
 /// </summary>
-public sealed record ArrowShot(int ExtraDice, int CadenceAttacks, bool Builds, bool FromHiding, bool Feint, int PierceLeft);
+public sealed record ArrowShot(int ExtraDice, int CadenceAttacks, bool Builds, bool FromHiding, bool Feint, int PierceLeft)
+{
+    /// <summary>A gun's shot: it flies three times as fast as an arrow and is drawn as a tracer.</summary>
+    public bool Bullet { get; init; }
+}
 
 /// <summary>
 /// An ally fighting beside the hero (the Beastmaster's wolf; the Necromancer's minions to come): a creature with its

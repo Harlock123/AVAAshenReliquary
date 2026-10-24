@@ -32,7 +32,8 @@ public class ChampionUiTests
         vm.Choose("human", "lantern-acolyte", "champion", "lanternbearer");
         vm.RecommendCommand.Execute(null);
         kit.Pump();
-        Assert.Equal(["lanternbearer", "oathbreaker"], vm.Subclasses.Select(s => s.Id));
+        Assert.Equal(["lanternbearer", "oathbreaker", "paladin"], vm.Subclasses.Select(s => s.Id));
+        Assert.Contains(vm.Classes, c => c.Name == "Champion (paladin)");    // so a player looking for the paladin finds it
         Assert.True(vm.CanBegin, vm.Problem);
         Assert.Contains(vm.Preview, p => p == "Undead bane: +1 vitality");
         Assert.Contains(vm.Abilities, a => a.StartsWith("Lanternbearer  Lantern's Radiance"));
@@ -51,6 +52,7 @@ public class ChampionUiTests
         Assert.Equal(("champion", "lanternbearer"), GameSession.QuickStart(["--champion"]));
         Assert.Equal(("champion", "oathbreaker"), GameSession.QuickStart(["--oathbreaker", "--mute"]));
         Assert.Equal(("champion", "lanternbearer"), GameSession.QuickStart(["--lanternbearer"]));
+        Assert.Equal(("champion", "paladin"), GameSession.QuickStart(["--paladin"]));
     }
 
     [AvaloniaFact]

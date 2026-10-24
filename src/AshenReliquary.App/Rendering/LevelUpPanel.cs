@@ -224,7 +224,8 @@ internal sealed class LevelUpPanel
         canvas.DrawRect(Bounds, back);
         canvas.DrawRect(Bounds, frame);
         canvas.DrawText($"{c.Class.Name} subclass", Bounds.Left + Pad, Bounds.Top + 38, SKTextAlign.Left, titleFont, gold);
-        var intro = Wrap($"Every {c.Class.Name.ToLowerInvariant()} now walks one of two paths, chosen once (a respec keeps it). "
+        var paths = c.SubclassOptions.Count switch { 2 => "two", 3 => "three", var n => n.ToString() };
+        var intro = Wrap($"Every {c.Class.Name.ToLowerInvariant()} now walks one of {paths} paths, chosen once (a respec keeps it). "
             + "Its ability joins your bar. L or Esc to close.", small, Bounds.Width - 2 * Pad);
         for (var i = 0; i < intro.Count; i++)
             canvas.DrawText(intro[i], Bounds.Left + Pad, Bounds.Top + 62 + i * 15, SKTextAlign.Left, small, dim);

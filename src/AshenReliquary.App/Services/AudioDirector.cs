@@ -174,6 +174,9 @@ public sealed class AudioDirector
         SoundCue.Ward => sound.Variant == "shield" ? "ward-shield" : "ward-spell",
         SoundCue.Block => "block",
         SoundCue.RareDrop => "rare-drop",
+        SoundCue.Gunshot => sound.Variant == "heavy" ? "gunshot-heavy" : "gunshot",
+        SoundCue.Reload => "reload",
+        SoundCue.Misfire => "misfire",
         _ => "click",
     };
 

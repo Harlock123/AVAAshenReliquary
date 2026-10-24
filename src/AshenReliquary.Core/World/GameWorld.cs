@@ -368,10 +368,13 @@ public sealed partial class GameWorld
         Hero.DodgeRemaining -= step;
         var distance = Hero.DodgeSpeed * step;
         var (nx, ny) = (Hero.X + Hero.DodgeDirection.X * distance, Hero.Y + Hero.DodgeDirection.Y * distance);
-        if (Map.IsWalkable(nx, ny))
+        // Stopped by a wall or a tree, or by two blocked corners it would slip between (as walking never does: a roll
+        // once left a gunslinger in a pocket of trees that no path led out of).
+        if (Map.IsWalkable(nx, ny) && (Math.Floor(nx) == Math.Floor(Hero.X) || Math.Floor(ny) == Math.Floor(Hero.Y)
+                || Map.IsWalkable(nx, Hero.Y) && Map.IsWalkable(Hero.X, ny)))
             (Hero.X, Hero.Y) = (nx, ny);
         else
-            Hero.DodgeRemaining = 0; // stopped by a wall or a tree
+            Hero.DodgeRemaining = 0;
         FeintPassing();
         if (Hero.DodgeRemaining <= 0)
             Hero.Play("stance");
@@ -932,7 +935,7 @@ public sealed partial class GameWorld
         var rares = Math.Min(TermsOf(vendor)?.Rares ?? 0, count - uncommon);
         var items = Enumerable.Range(0, count)
             .Select(i => _loot.Generate(itemLevel, i < rares ? Rarity.Rare : i < count - uncommon ? Rarity.Common : Rarity.Uncommon,
-                random, vendor.Definition.Stocks))
+                random, vendor.Definition.Stocks, Zone.Act))
             .OrderBy(i => i.Definition.Slot)
             .ThenBy(i => i.Rarity)
             .ToList();
@@ -1060,6 +1063,7 @@ public sealed partial class GameWorld
         }
 
         Regenerate(dt);
+        UpdateReload(dt);
         if (!TickHeroPersistent(dt))
             return;
         Bog(dt);
@@ -1164,6 +1168,15 @@ public sealed partial class GameWorld
             }
             hero.Path.Clear();
 
+            // A gun empty or being loaded: the hero waits on it, facing the target.
+            if (HoldsFire(ability))
+            {
+                if (hero.ReloadRemaining <= 0)
+                    BeginReload();
+                hero.Face(target.X, target.Y);
+                hero.Play("stance");
+                return;
+            }
             if (WhyNot(ability) is { } problem)
             {
                 if (ability.Repeat)
@@ -1238,8 +1251,9 @@ public sealed partial class GameWorld
         {
             var near = hero.DistanceTo(g.X, g.Y);
             var wanted = hero.PickupTarget == g && near <= PickupRadius;
-            // Gold and belt items (bombs, antidotes) are always wanted: walking over them picks them up.
-            var magnet = (g.Drop.Gold > 0 || g.Drop.Item is { Definition.IsBeltItem: true }) && near <= GoldMagnetRadius && Time - g.DroppedAt > 0.6;
+            // Gold, belt items (bombs, antidotes) and the gunsmith's materials are always wanted: walking over them picks them up.
+            var magnet = (g.Drop.Gold > 0 || g.Drop.Item is { Definition.IsBeltItem: true } or { Definition.IsMaterial: true })
+                && near <= GoldMagnetRadius && Time - g.DroppedAt > 0.6;
             if (!wanted && !magnet)
                 continue;
             if (hero.PickupTarget == g)
@@ -1357,9 +1371,11 @@ public sealed partial class GameWorld
             return $"{ability.Name} needs a two-handed weapon.";
         if (ability.NeedsRanged && !Shoots)
             return $"{ability.Name} needs a bow.";
+        if (ability.NeedsFirearm && !WieldsFirearm)
+            return $"{ability.Name} needs a gun.";
         if (ability.NeedsShield && ability.Kind != AbilityKind.Ward && Hero.Equipment.In(EquipSlot.OffHand) is not { Definition.IsShield: true })
             return $"{ability.Name} needs a shield in your off hand.";
-        if (ability.IsSweep && Shoots)
+        if (ability.IsSweep && Shoots && !WieldsFirearm)
             return $"{ability.Name} needs a melee weapon.";
         return null;
     }
@@ -1383,8 +1399,9 @@ public sealed partial class GameWorld
         if (ability.IsFlourish)
             hero.FlourishReadyAt = Time + FlourishLockoutSeconds;
 
+        var shots = ability.UsesWeapon && WieldsFirearm ? FireRounds(ability) : 0;
         var slowed = c.Conditions.ActionTimeMultiplier;
-        var swing = ActionTiming.AttackInterval(c.Weapon.Definition.AttacksPerSecond, c.Gear.AttackSpeed, slowed);
+        var swing = ActionTiming.AttackInterval(c.Weapon.Definition.AttacksPerSecond, c.Gear.AttackSpeed, slowed) / (TwinPistols ? TwinPistolSpeed : 1);
         var duration = ability.UsesWeapon
             ? Math.Max(swing, ability.Actions > 1 ? ActionTiming.CastTime(ability.Actions, c.Gear.AttackSpeed, slowed) : 0)
             : ActionTiming.CastTime(ability.Actions, ability.Kind == AbilityKind.Burst && !ability.IsSpellBurst ? c.Gear.AttackSpeed : c.Gear.CastSpeed, slowed);
@@ -1393,7 +1410,7 @@ public sealed partial class GameWorld
         var fromHiding = hero.IsHidden;
         if (fromHiding)
             Unhide(null);
-        hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing, ExtraDice = extraDice, FromHiding = fromHiding };
+        hero.Action = new HeroAction(ability, target, duration) { Dashing = dashing, ExtraDice = extraDice, FromHiding = fromHiding, Shots = shots };
         hero.Face(target.X, target.Y);
         if (dashing)
             hero.Play("run", 2.0, restart: true);
@@ -1440,18 +1457,24 @@ public sealed partial class GameWorld
         if (!action.Landed && action.Elapsed >= action.Duration * landsAt)
         {
             action.Landed = true;
-            ApplyAbility(action.Ability, target, action.ExtraDice, action.FromHiding);
+            ApplyAbility(action.Ability, target, action.ExtraDice, action.FromHiding, action.Shots);
         }
         return action.Elapsed < action.Duration;
     }
 
-    private void ApplyAbility(AbilityDefinition ability, MonsterActor target, int spentDice = 0, bool fromHiding = false)
+    private void ApplyAbility(AbilityDefinition ability, MonsterActor target, int spentDice = 0, bool fromHiding = false, int shots = 0)
     {
         var rank = AbilityDefinition.SpellRank(Hero.Character.Level);
         switch (ability.Kind)
         {
             case AbilityKind.WeaponStrike or AbilityKind.ChargeStrike:
                 var dice = ability.ExtraDiceAt(Hero.Character.Level) + spentDice;
+                if (Shoots && WieldsFirearm)
+                {
+                    if (!target.IsDead)
+                        FireGun(ability, target, dice, Math.Max(1, shots), fromHiding);
+                    break;
+                }
                 if (Shoots)
                 {
                     // A bow looses its arrows (Twin Shot two), a beat apart; each is a Strike when it lands.
@@ -1534,7 +1557,7 @@ public sealed partial class GameWorld
             }
             var (tx, ty) = (target.X, target.Y);
             var d = Math.Sqrt((tx - p.X) * (tx - p.X) + (ty - p.Y) * (ty - p.Y));
-            var step = ProjectileSpeed * dt;
+            var step = ProjectileSpeed * (p.Shot is { Bullet: true } ? BulletSpeedScale : 1) * dt;
             if (d > step + 0.25)
             {
                 // Missiles weave a little so a volley doesn't fly as one dot.
@@ -1696,7 +1719,8 @@ public sealed partial class GameWorld
         }
         if (result.Damage > 0)
         {
-            var damage = DamageMonster(target, result.Damage + (critical ? Hero.Character.CritDamageBonus : 0) + ChampionStrikeExtra(target, critical));
+            var damage = DamageMonster(target, result.Damage + (critical ? Hero.Character.CritDamageBonus : 0) + ChampionStrikeExtra(target, critical)
+                + GunStrikeExtra(ability, target, critical));
             Hero.Resource.OnCombat(critical, builds: buildsFury);
             if (critical)
                 HeroCrits++;
@@ -1710,6 +1734,8 @@ public sealed partial class GameWorld
         }
         if (result.AttackerStaggered)
             Hero.StaggerRemaining = ActionTiming.CritFailStaggerSeconds;
+        if (result.Check.Natural == 1)
+            Misfire();
         if (target.IsDead)
             Kill(target, critical);
         else if (result.Damage > 0 && ability is not null)

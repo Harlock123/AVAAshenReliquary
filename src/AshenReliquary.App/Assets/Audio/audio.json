@@ -183,6 +183,21 @@
   ],
   "ready": [
    "sfx/ready-inventory_gem.ogg"
+  ],
+  "gunshot": [
+   "sfx/gunshot-1.ogg",
+   "sfx/gunshot-2.ogg",
+   "sfx/gunshot-3.ogg"
+  ],
+  "gunshot-heavy": [
+   "sfx/gunshot-heavy-1.ogg",
+   "sfx/gunshot-heavy-2.ogg"
+  ],
+  "reload": [
+   "sfx/reload-1.ogg"
+  ],
+  "misfire": [
+   "sfx/misfire-1.ogg"
   ]
  },
  "music": {
@@ -906,6 +921,55 @@
    "url": "https://github.com/flareteam/flare-game",
    "original": "inventory_gem.ogg",
    "licence": "CC-BY-SA 3.0"
+  },
+  {
+   "file": "sfx/gunshot-1.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/gunshot-2.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/gunshot-3.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/gunshot-heavy-1.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/gunshot-heavy-2.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/reload-1.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
+  },
+  {
+   "file": "sfx/misfire-1.ogg",
+   "source": "Ashen Reliquary, synthesised by tools/build_gun_sounds.py",
+   "url": "https://github.com/Harlock123/AVAAshenReliquary",
+   "original": "tools/build_gun_sounds.py",
+   "licence": "CC0"
   }
  ]
 }

@@ -31,6 +31,9 @@ public enum ItemCategory
     Consumable,
     /// <summary>Kept and carried, never sold, dropped or rolled as loot (the pilgrim's lantern).</summary>
     Key,
+
+    /// <summary>A gunsmith's raw material (black powder, lead shot, gun parts): stacks in the bag, spent at the forge.</summary>
+    Material,
 }
 
 /// <summary>Pathfinder-style rarity tiers, shown in the spec's ARPG colours.</summary>
@@ -56,6 +59,9 @@ public enum Rarity
 /// does in <see cref="TraitText"/>) whose <see cref="Effects"/> are feat effects, in force while it is worn; its
 /// <see cref="Description"/> is a line of lore. A <see cref="Story"/> item comes only from its
 /// story, never as a drop.</para>
+/// <para>A firearm (Ironhold's make: <see cref="Capacity"/> above 0) holds that many rounds and takes
+/// <see cref="ReloadSeconds"/> to load again once they are fired. A <see cref="ItemCategory.Material"/> stacks and is
+/// spent at the forge on special rounds and gun refits.</para>
 /// </summary>
 public sealed record ItemDefinition(
     string Id,
@@ -99,8 +105,21 @@ public sealed record ItemDefinition(
     int Potency = 0,
     int Striking = 0,
     int Resilient = 0,
-    bool Story = false)
+    bool Story = false,
+    int Capacity = 0,
+    double ReloadSeconds = 0)
 {
+    /// <summary>A gun: it fires rounds from its load, then reloads (the Gunslinger's weapon).</summary>
+    [JsonIgnore]
+    public bool IsFirearm => IsWeapon && Capacity > 0;
+
+    /// <summary>A one-handed gun, which a second may join in the off hand.</summary>
+    [JsonIgnore]
+    public bool IsPistol => IsFirearm && !IsTwoHanded;
+
+    [JsonIgnore]
+    public bool IsMaterial => Category == ItemCategory.Material;
+
     [JsonIgnore]
     public bool IsWeapon => Category == ItemCategory.Weapon;
 
@@ -129,7 +148,7 @@ public sealed record ItemDefinition(
     private ArmorDefinition? _armor;
 
     public WeaponDefinition AsWeapon() => _weapon ??= new WeaponDefinition(Id, Name, DamageDie, DamageType, AttacksPerSecond, Ranged,
-        new HashSet<WeaponTrait>(Traits ?? []), DeadlyDie, FatalDie) { VersatileType = Versatile, Range = Range };
+        new HashSet<WeaponTrait>(Traits ?? []), DeadlyDie, FatalDie) { VersatileType = Versatile, Range = Range, Firearm = Capacity > 0 };
 
     public ArmorDefinition AsArmor() => _armor ??= new ArmorDefinition(Id, Name, ArmorCategory, AcBonus, DexCap, CheckPenalty, SpeedPenalty, Strength);
 }

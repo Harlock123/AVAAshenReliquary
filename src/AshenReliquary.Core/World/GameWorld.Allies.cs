@@ -432,6 +432,7 @@ public sealed partial class GameWorld
         ally.Creature.TakeDamage(dealt);
         ally.HitFlinch = 0.15;
         Float(ally, dealt.ToString(), FloatingTextKind.AllyHurt);
+        Retaliate(m, ally);
         if (!ally.IsDead)
             return;
         ally.ReturnIn = ally.IsMinion ? MinionCrumbleSeconds : AllyReturnSeconds;

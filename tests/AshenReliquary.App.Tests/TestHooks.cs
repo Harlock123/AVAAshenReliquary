@@ -40,6 +40,9 @@ internal static class TestHooks
         typeof(Actor).GetProperty(nameof(Actor.Y))!.SetValue(world.Hero, y);
     }
 
+    /// <summary>Takes every drop off the ground (so a click finds what lies under the loot labels).</summary>
+    public static void ClearGround(GameWorld world) => ((List<GroundItem>)GroundField.GetValue(world)!).Clear();
+
     /// <summary>Places drops on the ground around a point, as if a monster had died there.</summary>
     public static void Drop(GameWorld world, IEnumerable<LootDrop> drops, double x, double y)
     {

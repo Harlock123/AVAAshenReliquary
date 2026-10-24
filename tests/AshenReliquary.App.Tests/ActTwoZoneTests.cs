@@ -25,7 +25,7 @@ public class ActTwoZoneTests
         TestHooks.Place(world, 14.5, 15.5);
         kit.Play(0.3);
         kit.Capture(Shot("ironhold-statues"));
-        Assert.Equal(["hilde", "sable"], world.Vendors.Select(v => v.Definition.Id).Order());
+        Assert.Equal(["hilde", "ottilie", "sable"], world.Vendors.Select(v => v.Definition.Id).Order());
     }
 
     [AvaloniaFact]
@@ -63,6 +63,7 @@ public class ActTwoZoneTests
         foreach (var m in world.Monsters.Where(m => m != corpse && m.DistanceTo(world.Hero) < 12).ToList())
             TestHooks.Slay(world, m);
         TestHooks.Slay(world, corpse);
+        TestHooks.ClearGround(world);                                   // the loot's labels would take the click
         kit.Play(1.5);
         Assert.True(corpse.IsRising);
         var at = kit.Window.View.ScreenOf(corpse.X, corpse.Y);

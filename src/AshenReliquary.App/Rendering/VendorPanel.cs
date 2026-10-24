@@ -258,7 +258,8 @@ internal sealed class VendorPanel
         if (supplies.Count > 0)
         {
             canvas.DrawText("Supplies", Bounds.Left + Pad, _suppliesTop - 10, SKTextAlign.Left, font, ink);
-            canvas.DrawText("for the belt: keys 7 to 0", Bounds.Left + Pad + 64, _suppliesTop - 10, SKTextAlign.Left, small, dim);
+            canvas.DrawText(supplies.All(i => i.IsBeltItem) ? "for the belt: keys 7 to 0" : "for the belt (keys 7 to 0) and the forge",
+                Bounds.Left + Pad + 64, _suppliesTop - 10, SKTextAlign.Left, small, dim);
             for (var i = 0; i < supplies.Count; i++)
             {
                 var rect = SupplyRect(i);
@@ -454,7 +455,13 @@ internal sealed class VendorPanel
         using var small = new SKFont(WorldOverlay.Serif, 11);
 
         var crafting = c.Skill("Crafting").Total;
-        canvas.DrawText($"Ashen Dust {gear.Dust}   ·   Rune Fragments {gear.Fragments}", Bounds.Left + Pad, Bounds.Top + 112, SKTextAlign.Left, font, dust);
+        // The gunsmith's materials, shown once there are any or a gun is in hand.
+        var materials = world.MaterialsNeeded(CraftRecipe.Brew, round: true).Concat(world.MaterialsNeeded(CraftRecipe.Refit, round: false))
+            .Select(m => m.Item).Distinct().ToList();
+        var gunsmithing = world.WieldsFirearm || materials.Any(m => gear.CountOf(m) > 0);
+        var stock = gunsmithing ? "   ·   " + string.Join(" · ", materials.Select(m => $"{m.Name} {gear.CountOf(m)}")) : "";
+        canvas.DrawText(Fit($"Ashen Dust {gear.Dust}   ·   Rune Fragments {gear.Fragments}{stock}", font, Width - 2 * Pad), Bounds.Left + Pad, Bounds.Top + 112,
+            SKTextAlign.Left, font, dust);
         canvas.DrawText($"Your Crafting {crafting:+0;-0;+0} ({c.SkillRank("Crafting")})", Bounds.Left + Pad, Bounds.Top + 128, SKTextAlign.Left, small, dim);
 
         var cell = ForgeCell;
@@ -479,9 +486,14 @@ internal sealed class VendorPanel
         }
 
         var y = cell.Bottom + 16;
+        // Buttons shrink to fit a short window: the forge's work, the belt's brews and (for a gun) its rounds.
+        var rows = (_forged is { } onForge ? 3 + Math.Max(1, onForge.Affixes.Count) + (onForge.Definition.IsFirearm ? 1 : 0) : 0)
+            + world.Brewable.Count(b => !world.IsRound(b)) + (gunsmithing ? world.Brewable.Count(world.IsRound) : 0);
+        var headers = gunsmithing ? 2 : 1;
+        var step = Math.Clamp((Bounds.Bottom - 24 - y - headers * 24) / Math.Max(1, rows), 24f, 34f);
         void Button(string label, string? why, string cost, bool afford, Action act)
         {
-            var rect = SKRect.Create(Bounds.Left + Pad, y, Width - 2 * Pad, 30);
+            var rect = SKRect.Create(Bounds.Left + Pad, y, Width - 2 * Pad, step - 4);
             var over = pointer is { } p && rect.Contains(p);
             using var back = new SKPaint { Color = why is null && over ? new SKColor(60, 40, 34, 240) : new SKColor(34, 26, 22, 240) };
             canvas.DrawRect(rect, back);
@@ -493,9 +505,13 @@ internal sealed class VendorPanel
                 canvas.DrawText(cost, rect.Right - 12, rect.MidY + 4, SKTextAlign.Right, small, afford ? gold : poor);
             if (why is null)
                 _buttons.Add((rect, act));
-            y += 34;
+            y += step;
         }
         string Cost(int d, int f, int g) => $"{d} dust{(f > 0 ? $", {f} frag." : "")}, {g} gold";
+        string MaterialCost(IReadOnlyList<(Core.Items.ItemDefinition Item, int Count)> needs, int g) =>
+            string.Join(", ", needs.Select(n => $"{n.Count} {n.Item.Name.ToLowerInvariant()}")) + $", {g} gold";
+        bool AffordsMaterials(IReadOnlyList<(Core.Items.ItemDefinition Item, int Count)> needs, int g) =>
+            gear.Gold >= g && needs.All(n => gear.CountOf(n.Item) >= n.Count);
         bool Affords((int Dust, int Fragments, int Gold) cost) => gear.Dust >= cost.Dust && gear.Fragments >= cost.Fragments && gear.Gold >= cost.Gold;
 
         if (_forged is { } work)
@@ -519,17 +535,39 @@ internal sealed class VendorPanel
                 Button($"Reroll: {Fit(work.Affixes[i].Describe(), font, 200)}", null, Cost(reroll.Dust, reroll.Fragments, reroll.Gold), Affords(reroll),
                     () => world.Craft(CraftRecipe.Reroll, work, affix: index));
             }
+            if (work.Definition.IsFirearm)
+            {
+                var refit = Core.Items.Crafting.Cost(CraftRecipe.Refit, work.ItemLevel);
+                var needs = world.MaterialsNeeded(CraftRecipe.Refit, round: false);
+                Button("Refit: one round more", Core.Items.Crafting.CannotCraft(CraftRecipe.Refit, work), MaterialCost(needs, refit.Gold),
+                    AffordsMaterials(needs, refit.Gold), () => world.Craft(CraftRecipe.Refit, work));
+            }
         }
 
         y += 10;
         canvas.DrawText("Brew for the belt (two at a time)", Bounds.Left + Pad, y + 4, SKTextAlign.Left, font, ink);
         y += 14;
-        foreach (var brew in world.Brewable)
+        foreach (var brew in world.Brewable.Where(b => !world.IsRound(b)))
         {
             var b = brew;
             var cost = Core.Items.Crafting.Cost(CraftRecipe.Brew, brew.MinLevel);
             Button($"{brew.Name} · DC {Core.Items.Crafting.Dc(Math.Max(1, brew.MinLevel))}", null, Cost(cost.Dust, cost.Fragments, cost.Gold), Affords(cost),
                 () => world.Craft(CraftRecipe.Brew, brew: b));
+        }
+        if (gunsmithing)
+        {
+            y += 10;
+            var many = Core.Items.Crafting.RoundsPerCasting + c.RoundsBonus;
+            canvas.DrawText($"Cast rounds for your gun ({many} at a time)", Bounds.Left + Pad, y + 4, SKTextAlign.Left, font, ink);
+            y += 14;
+            var needs = world.MaterialsNeeded(CraftRecipe.Brew, round: true);
+            foreach (var round in world.Brewable.Where(world.IsRound))
+            {
+                var r = round;
+                var cost = Core.Items.Crafting.Cost(CraftRecipe.Brew, round.MinLevel, round: true);
+                Button($"{round.Name} · DC {Core.Items.Crafting.Dc(Math.Max(1, round.MinLevel))}", null, MaterialCost(needs, cost.Gold),
+                    AffordsMaterials(needs, cost.Gold), () => world.Craft(CraftRecipe.Brew, brew: r));
+            }
         }
 
         canvas.DrawText("Right-click gear to put it on the forge · a critical success adds an affix", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);

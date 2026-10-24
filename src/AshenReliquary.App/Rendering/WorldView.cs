@@ -2288,9 +2288,9 @@ public sealed partial class WorldView : Control
     /// <summary>Alt held: every label shows, filtered or not.</summary>
     public bool ShowAllLoot { get; set; }
 
-    /// <summary>Whether a ground item's label shows under the loot filter (gold, draughts and belt items always do).</summary>
+    /// <summary>Whether a ground item's label shows under the loot filter (gold, draughts, belt items and materials always do).</summary>
     public bool LabelShows(GroundItem g) =>
-        !HideCommonLoot || ShowAllLoot || g.Drop.Item is not { Rarity: Core.Items.Rarity.Common, Definition.IsBeltItem: false };
+        !HideCommonLoot || ShowAllLoot || g.Drop.Item is not { Rarity: Core.Items.Rarity.Common, Definition.IsBeltItem: false, Definition.IsMaterial: false };
 
     private void DrawLootLabels(SKCanvas canvas, GameWorld world)
     {
@@ -2392,6 +2392,24 @@ public sealed partial class WorldView : Control
         DrawFrame(canvas, set.Image, anim.Frame(anim.FrameAt(time), direction), new SKPoint(at.X, at.Y + 95 * (float)Zoom), 1f, null);
     }
 
+    /// <summary>A gun's shot at <paramref name="at"/> flying toward a map point: a short hot streak, brightest at its head.</summary>
+    private void DrawTracer(SKCanvas canvas, SKPoint at, double tx, double ty, float lift)
+    {
+        var z = (float)Zoom;
+        var target = ToScreen(tx, ty);
+        target.Y -= lift;
+        var dx = at.X - target.X;
+        var dy = at.Y - target.Y;
+        var len = MathF.Max(1, MathF.Sqrt(dx * dx + dy * dy));
+        var tail = new SKPoint(at.X + dx / len * 34 * z, at.Y + dy / len * 34 * z);
+        using var streak = new SKPaint
+        {
+            IsAntialias = true, StrokeWidth = 2.4f * z, StrokeCap = SKStrokeCap.Round, BlendMode = SKBlendMode.Plus,
+            Shader = SKShader.CreateLinearGradient(at, tail, [new SKColor(255, 240, 200, 240), new SKColor(255, 160, 60, 0)], SKShaderTileMode.Clamp),
+        };
+        canvas.DrawLine(at, tail, streak);
+    }
+
     /// <summary>A bolt at <paramref name="at"/> flying toward a map point: a glowing ball with a trail behind it.</summary>
     private void DrawBolt(SKCanvas canvas, SKPaint glow, SKPoint at, double tx, double ty, SKColor color, float lift)
     {
@@ -2427,6 +2445,11 @@ public sealed partial class WorldView : Control
                 continue;
             var at = ToScreen(p.X, p.Y);
             at.Y -= lift;
+            if (p.Shot is { Bullet: true })
+            {
+                DrawTracer(canvas, at, p.Target.X, p.Target.Y, lift);
+                continue;
+            }
             if (p.IsArrow)
             {
                 DrawArrow(canvas, p, at, world.Time);

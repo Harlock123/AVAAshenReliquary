@@ -8,11 +8,11 @@ public class ContentTests
     private static ContentDatabase Content => ContentDatabase.Embedded;
 
     [Fact]
-    public void Embedded_content_has_the_specs_six_ancestries_eight_backgrounds_and_six_classes()
+    public void Embedded_content_has_the_specs_six_ancestries_nine_backgrounds_and_seven_classes()
     {
         Assert.Equal(["ashborn", "dwarf", "elf", "halfling", "human", "orc"], Content.Ancestries.Keys.Order());
-        Assert.Equal(8, Content.Backgrounds.Count);
-        Assert.Equal(["champion", "fighter", "necromancer", "ranger", "rogue", "wizard"], Content.Classes.Keys.Order());
+        Assert.Equal(9, Content.Backgrounds.Count);
+        Assert.Equal(["champion", "fighter", "gunslinger", "necromancer", "ranger", "rogue", "wizard"], Content.Classes.Keys.Order());
     }
 
     [Theory]
@@ -40,8 +40,8 @@ public class ContentTests
         Assert.Equal(hp, Content.Class(id).HitPointsPerLevel);
 
     [Fact]
-    public void Every_class_has_two_subclasses() =>
-        Assert.All(Content.Classes.Values, c => Assert.Equal(2, c.Subclasses.Count));
+    public void Every_class_has_two_subclasses_and_the_champion_three() =>
+        Assert.All(Content.Classes.Values, c => Assert.Equal(c.Id == "champion" ? 3 : 2, c.Subclasses.Count));
 
     [Theory]
     [InlineData("fighter", ProficiencyTrack.Attack, 1, 5, 13)]

@@ -13,7 +13,7 @@ namespace AshenReliquary.Core.Saving;
 /// consumables) how many; older saves have no count, which reads as one.
 /// </summary>
 public sealed record SavedItem(string Base, Rarity Rarity, int ItemLevel, int Potency, int Striking, int Resilient,
-    IReadOnlyList<SavedAffix> Affixes, string? Name, int Count = 1, ItemMark Mark = ItemMark.None);
+    IReadOnlyList<SavedAffix> Affixes, string? Name, int Count = 1, ItemMark Mark = ItemMark.None, int Refits = 0);
 
 public sealed record SavedAffix(string Id, int Value);
 
@@ -218,7 +218,7 @@ public sealed record SaveGame
 
     private static SavedItem Save(Item item) => new(item.Definition.Id, item.Rarity, item.ItemLevel, item.Potency, item.Striking,
         item.Resilient, item.Affixes.Select(a => new SavedAffix(a.Definition.Id, a.Value)).ToList(),
-        item.Rarity == Rarity.Rare ? item.Name : null, item.Count, item.Mark);
+        item.Rarity == Rarity.Rare ? item.Name : null, item.Count, item.Mark, item.Refits);
 
     // ----- Restore ------------------------------------------------------------------------
 
@@ -305,6 +305,6 @@ public sealed record SaveGame
             .OfType<AffixRoll>()
             .ToList();
         return new Item(content.Item(saved.Base), saved.Rarity, saved.ItemLevel, affixes, saved.Potency, saved.Striking, saved.Resilient, saved.Name,
-            Math.Max(1, saved.Count)) { Mark = saved.Mark };
+            Math.Max(1, saved.Count)) { Mark = saved.Mark, Refits = Math.Clamp(saved.Refits, 0, Crafting.MaxRefits) };
     }
 }

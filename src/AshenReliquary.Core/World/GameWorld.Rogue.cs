@@ -157,6 +157,13 @@ public sealed partial class GameWorld
         // Shadowstep: the hero comes out of it hidden.
         if (ability.HideSeconds > 0)
             Hero.HiddenRemaining = ability.HideSeconds;
+        // Hit the Dirt!: the gun is loaded on the way down.
+        if (ability.Reloads && WieldsFirearm)
+        {
+            Hero.Loaded = Capacity;
+            Hero.ReloadRemaining = 0;
+            Sound(SoundCue.Reload, Hero);
+        }
         Hero.Face(tx, ty);
         Hero.Play("run", rate: 2.5, restart: true);
         Sound(SoundCue.Swing, Hero);

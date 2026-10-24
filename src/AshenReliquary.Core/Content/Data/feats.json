@@ -640,6 +640,24 @@
   "skill": "Survival"
  },
  {
+  "id": "powder_hand",
+  "name": "Powder Hand",
+  "type": "Skill",
+  "level": 1,
+  "description": "You grew up around Ironhold's powder mills: +2 to Crafting checks and +1 to Reflex saves.",
+  "effects": [
+   {
+    "skill": "Crafting",
+    "value": 2
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   }
+  ],
+  "skill": "Crafting"
+ },
+ {
   "id": "pickpocket",
   "name": "Pickpocket",
   "type": "Skill",
@@ -1438,6 +1456,32 @@
   ]
  },
  {
+  "id": "paladin",
+  "name": "Paladin",
+  "type": "Subclass",
+  "level": 1,
+  "class": "champion",
+  "description": "The oath of justice: a holy warrior who answers every blow. Blade of Justice: a Strike two dice heavier that enfeebles. Your champion's reaction is always ready: a monster that hits you, or an ally beside you, from within your reach is struck back (at most once every 3 s), and Smite costs 5 less Devotion.",
+  "effects": [
+   {
+    "ability": "blade_of_justice"
+   },
+   {
+    "retribution": true
+   },
+   {
+    "ability": "smite",
+    "cost": -5
+   },
+   {
+    "ability": "aura_of_justice"
+   },
+   {
+    "ability": "final_judgment"
+   }
+  ]
+ },
+ {
   "id": "fervor",
   "name": "Fervor",
   "type": "Class",
@@ -1501,6 +1545,22 @@
     "ability": "aura_of_dread",
     "radius": 1,
     "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "zealous_verdict",
+  "name": "Zealous Verdict",
+  "type": "Class",
+  "level": 2,
+  "class": "champion",
+  "subclass": "paladin",
+  "description": "Paladin: Blade of Justice costs 5 less Devotion and knocks the target back a tile.",
+  "effects": [
+   {
+    "ability": "blade_of_justice",
+    "cost": -5,
+    "knockback": 1
    }
   ]
  },
@@ -1930,6 +1990,22 @@
    }
   ],
   "subclass": "oathbreaker"
+ },
+ {
+  "id": "justice_unbound",
+  "name": "Justice Unbound",
+  "type": "Class",
+  "level": 8,
+  "class": "champion",
+  "description": "Paladin: Aura of Justice reaches 2 tiles further and costs 10 less Devotion.",
+  "effects": [
+   {
+    "ability": "aura_of_justice",
+    "radius": 2,
+    "cost": -10
+   }
+  ],
+  "subclass": "paladin"
  },
  {
   "id": "unbreakable_oath",
@@ -2669,6 +2745,25 @@
   "subclass": "oathbreaker"
  },
  {
+  "id": "hammer_of_heaven",
+  "name": "Hammer of Heaven",
+  "type": "Class",
+  "level": 14,
+  "class": "champion",
+  "description": "Paladin: Final Judgment costs 10 less Devotion, and +2 damage on every hit.",
+  "effects": [
+   {
+    "ability": "final_judgment",
+    "cost": -10
+   },
+   {
+    "statistic": "Damage",
+    "value": 2
+   }
+  ],
+  "subclass": "paladin"
+ },
+ {
   "id": "exsanguinate",
   "name": "Exsanguinate",
   "type": "Class",
@@ -2838,6 +2933,340 @@
    {
     "skill": "Occultism",
     "value": 2
+   }
+  ]
+ },
+ {
+  "id": "pistolero",
+  "name": "Pistolero",
+  "type": "Subclass",
+  "level": 1,
+  "class": "gunslinger",
+  "description": "Pistols, quick and close, two at once if you like (a second pistol fits the off hand). Fan the Hammer: empty your guns at one target. Your hits build 3 more Grit, your guns load a quarter faster, and a critical hit puts a round back.",
+  "effects": [
+   {
+    "ability": "fan_the_hammer"
+   },
+   {
+    "furyPerHit": 3,
+    "reloadSpeed": 0.25,
+    "critReload": true
+   },
+   {
+    "ability": "dead_mans_hand"
+   },
+   {
+    "ability": "twin_thunder"
+   }
+  ]
+ },
+ {
+  "id": "sniper",
+  "name": "Sniper",
+  "type": "Subclass",
+  "level": 1,
+  "class": "gunslinger",
+  "description": "A long gun and a long way off. Headshot: a slow, sure aim that stuns. Your guns reach 2 tiles further, and your Strikes with a gun at a target 6 tiles off or more deal 3 more damage.",
+  "effects": [
+   {
+    "ability": "headshot"
+   },
+   {
+    "weaponRange": 2,
+    "distantDamage": 3
+   },
+   {
+    "ability": "vital_shot"
+   },
+   {
+    "ability": "one_shot_one_kill"
+   }
+  ]
+ },
+ {
+  "id": "munitions_crafter",
+  "name": "Munitions Crafter",
+  "type": "Class",
+  "level": 2,
+  "class": "gunslinger",
+  "description": "You know your rounds: one more from every casting at the forge, and +2 to Crafting checks.",
+  "effects": [
+   {
+    "roundsBonus": 1
+   },
+   {
+    "skill": "Crafting",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "fast_hands",
+  "name": "Fast Hands",
+  "type": "Class",
+  "level": 2,
+  "class": "gunslinger",
+  "description": "Your guns load a fifth faster.",
+  "effects": [
+   {
+    "reloadSpeed": 0.2
+   }
+  ]
+ },
+ {
+  "id": "pistol_twirl",
+  "name": "Pistol Twirl",
+  "type": "Class",
+  "level": 2,
+  "class": "gunslinger",
+  "subclass": "pistolero",
+  "description": "Pistolero: Fan the Hammer costs 5 less Grit and knocks the target back a tile.",
+  "effects": [
+   {
+    "ability": "fan_the_hammer",
+    "cost": -5,
+    "knockback": 1
+   }
+  ]
+ },
+ {
+  "id": "steady_aim",
+  "name": "Steady Aim",
+  "type": "Class",
+  "level": 2,
+  "class": "gunslinger",
+  "subclass": "sniper",
+  "description": "Sniper: Headshot costs 5 less Grit, and your guns reach a tile further.",
+  "effects": [
+   {
+    "ability": "headshot",
+    "cost": -5
+   },
+   {
+    "weaponRange": 1
+   }
+  ]
+ },
+ {
+  "id": "gunsmoke_and_grit",
+  "name": "Gunsmoke and Grit",
+  "type": "Class",
+  "level": 4,
+  "class": "gunslinger",
+  "description": "Every hit you land builds 4 more Grit.",
+  "effects": [
+   {
+    "furyPerHit": 4
+   }
+  ]
+ },
+ {
+  "id": "defensive_armaments",
+  "name": "Defensive Armaments",
+  "type": "Class",
+  "level": 4,
+  "class": "gunslinger",
+  "description": "You keep the barrel between you and the blow: +1 AC.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "bandolier",
+  "name": "Bandolier",
+  "type": "Class",
+  "level": 4,
+  "class": "gunslinger",
+  "description": "Rounds ready to hand: every gun you hold takes one round more.",
+  "effects": [
+   {
+    "capacity": 1
+   }
+  ]
+ },
+ {
+  "id": "ricochet",
+  "name": "Ricochet",
+  "type": "Class",
+  "level": 6,
+  "class": "gunslinger",
+  "description": "Penetrating Shot flies through one enemy more and costs 5 less Grit.",
+  "effects": [
+   {
+    "ability": "penetrating_shot",
+    "pierce": 1,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "gunslingers_hide",
+  "name": "Gunslinger's Hide",
+  "type": "Class",
+  "level": 6,
+  "class": "gunslinger",
+  "description": "Too stubborn to fall: +2 HP a level and +1 to Fortitude saves.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 2
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "dead_mans_draw",
+  "name": "Dead Man's Draw",
+  "type": "Class",
+  "level": 8,
+  "class": "gunslinger",
+  "subclass": "pistolero",
+  "description": "Pistolero: Dead Man's Hand finds two more targets and costs 10 less Grit.",
+  "effects": [
+   {
+    "ability": "dead_mans_hand",
+    "targets": 2,
+    "cost": -10
+   }
+  ]
+ },
+ {
+  "id": "lethal_aim",
+  "name": "Lethal Aim",
+  "type": "Class",
+  "level": 8,
+  "class": "gunslinger",
+  "subclass": "sniper",
+  "description": "Sniper: Vital Shot's bleed deals a die more, and it costs 10 less Grit.",
+  "effects": [
+   {
+    "ability": "vital_shot",
+    "persistentDice": 1,
+    "cost": -10
+   }
+  ]
+ },
+ {
+  "id": "crack_shot_mastery",
+  "name": "Crack Shot Mastery",
+  "type": "Class",
+  "level": 10,
+  "class": "gunslinger",
+  "description": "Crack Shot costs 4 less Grit, and your critical hits deal 4 more damage.",
+  "effects": [
+   {
+    "ability": "crack_shot",
+    "cost": -4
+   },
+   {
+    "critDamage": 4
+   }
+  ]
+ },
+ {
+  "id": "bottomless_bandolier",
+  "name": "Bottomless Bandolier",
+  "type": "Class",
+  "level": 10,
+  "class": "gunslinger",
+  "description": "Every gun you hold takes one round more, and loads a tenth faster.",
+  "effects": [
+   {
+    "capacity": 1
+   },
+   {
+    "reloadSpeed": 0.1
+   }
+  ]
+ },
+ {
+  "id": "storm_of_lead",
+  "name": "Storm of Lead",
+  "type": "Class",
+  "level": 12,
+  "class": "gunslinger",
+  "description": "Hail of Lead falls a tile wider and costs 5 less Grit.",
+  "effects": [
+   {
+    "ability": "hail_of_lead",
+    "radius": 1,
+    "cost": -5
+   }
+  ]
+ },
+ {
+  "id": "deadeye_gunslinger",
+  "name": "Deadeye Gunslinger",
+  "type": "Class",
+  "level": 12,
+  "class": "gunslinger",
+  "description": "+1 to attack and Perception, and your guns reach a tile further.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 1
+   },
+   {
+    "statistic": "Perception",
+    "value": 1
+   },
+   {
+    "weaponRange": 1
+   }
+  ]
+ },
+ {
+  "id": "thunder_and_lightning",
+  "name": "Thunder and Lightning",
+  "type": "Class",
+  "level": 14,
+  "class": "gunslinger",
+  "subclass": "pistolero",
+  "description": "Pistolero: Twin Thunder costs 10 less Grit, and +2 damage on every hit.",
+  "effects": [
+   {
+    "ability": "twin_thunder",
+    "cost": -10
+   },
+   {
+    "statistic": "Damage",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "one_in_the_chamber",
+  "name": "One in the Chamber",
+  "type": "Class",
+  "level": 14,
+  "class": "gunslinger",
+  "subclass": "sniper",
+  "description": "Sniper: One Shot, One Kill costs 10 less Grit, and your Strikes at a target 6 tiles off or more deal 3 more damage.",
+  "effects": [
+   {
+    "ability": "one_shot_one_kill",
+    "cost": -10
+   },
+   {
+    "distantDamage": 3
+   }
+  ]
+ },
+ {
+  "id": "gunslinger_dedication",
+  "name": "Gunslinger Dedication",
+  "type": "Class",
+  "level": 2,
+  "dedication": "gunslinger",
+  "description": "You learned to shoot: Crack Shot, a Strike with a weapon die more. It spends Grit, which your hits build.",
+  "effects": [
+   {
+    "ability": "crack_shot"
    }
   ]
  }

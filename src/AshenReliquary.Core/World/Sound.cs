@@ -33,6 +33,12 @@ public enum SoundCue
     Block,
     /// <summary>A Unique or a Set piece dropping.</summary>
     RareDrop,
+    /// <summary>A gun firing: "heavy" for a long gun.</summary>
+    Gunshot,
+    /// <summary>A gun being loaded again.</summary>
+    Reload,
+    /// <summary>A gun's misfire: a dry click.</summary>
+    Misfire,
 }
 
 /// <summary>

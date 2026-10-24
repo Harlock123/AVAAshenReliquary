@@ -445,6 +445,26 @@ public sealed class Character : IDefender
     /// </summary>
     public bool TaintFuel { get; private set; }
 
+    /// <summary>The Gunslinger's Singular Expertise: damage with a gun, 2, 3 from level 7, 4 from level 15.</summary>
+    public int SingularExpertise => 2 + (Level >= 7 ? 1 : 0) + (Level >= 15 ? 1 : 0);
+
+    /// <summary>The Gunslinger's: reloads quicker by this share, rounds more in every gun, a round back on a critical hit.</summary>
+    public double ReloadSpeedBonus { get; private set; }
+    public int CapacityBonus { get; private set; }
+    public bool CritReload { get; private set; }
+
+    /// <summary>The Sniper's: more damage with a gun at a target <c>GameWorld.DistantTiles</c> off or more.</summary>
+    public int DistantDamage { get; private set; }
+
+    /// <summary>More special rounds from each casting at the forge (Munitions Crafter).</summary>
+    public int RoundsBonus { get; private set; }
+
+    /// <summary>
+    /// The Paladin's Oath of Justice: their champion's reaction is always ready, a Strike back at a monster that hits
+    /// them or an ally beside them (at most once every <c>GameWorld.RetributionSeconds</c>).
+    /// </summary>
+    public bool Retribution { get; private set; }
+
     /// <summary>Hunt Prey's precision d8s against the hunted monster: the class's, plus feats'. None for most classes.</summary>
     public int PreyDice => Class.PreyDiceAt(Level) + PreyDiceBonus;
 
@@ -514,10 +534,10 @@ public sealed class Character : IDefender
         _abilityMods.Clear();
         _grantedAbilities.Clear();
         FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
-        UndeadBaneBonus = MinionBonus = MinionGrowth = GraveChargeBonus = ChargesPerCorpseBonus = 0;
+        UndeadBaneBonus = MinionBonus = MinionGrowth = GraveChargeBonus = ChargesPerCorpseBonus = CapacityBonus = DistantDamage = RoundsBonus = 0;
         Companion = null;
-        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = 0;
-        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = false;
+        RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = ReloadSpeedBonus = 0;
+        IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = Retribution = CritReload = false;
         Taint.ResetRate(_baseTaintRate);
         foreach (var feat in _feats)
             ApplyEffects(feat.Name, feat.Effects);
@@ -567,6 +587,12 @@ public sealed class Character : IDefender
             HealShare += e.HealShare;
             LightBonus += e.Light;
             TaintFuel |= e.TaintFuel;
+            Retribution |= e.Retribution;
+            ReloadSpeedBonus += e.ReloadSpeed;
+            CapacityBonus += e.Capacity;
+            CritReload |= e.CritReload;
+            DistantDamage += e.DistantDamage;
+            RoundsBonus += e.RoundsBonus;
             MinionBonus += e.Minions;
             MinionGrowth += e.MinionGrowth;
             GraveChargeBonus += e.GraveCharges;
@@ -690,10 +716,15 @@ public sealed class Character : IDefender
 
     /// <summary>
     /// The flat damage added to the weapon's dice: STR for melee and thrown weapons, nothing for other ranged weapons.
-    /// A rogue (<see cref="ClassDefinition.FinesseDamage"/>) adds DEX instead with a finesse weapon, if it is higher.
+    /// A rogue (<see cref="ClassDefinition.FinesseDamage"/>) adds DEX instead with a finesse weapon, if it is higher; a
+    /// gunslinger (<see cref="ClassDefinition.GunDamage"/>) adds its Singular Expertise with a gun instead: 1, 2 from level 7,
+    /// 3 from level 15.
     /// </summary>
     public ModifierTotal DamageBonus()
     {
+        if (Class.GunDamage && Weapon.Definition.Firearm)
+            return Total(StatisticKind.Damage, null, new Modifier("Singular Expertise", SingularExpertise),
+                new Modifier(GearSource, Gear.WeaponDamage));
         var addsStrength = !Weapon.Definition.IsRanged || Weapon.Definition.Has(WeaponTrait.Thrown);
         var attribute = addsStrength && Class.FinesseDamage && Weapon.Definition.Has(WeaponTrait.Finesse)
             && Attributes[AttributeKind.Dexterity] > Attributes[AttributeKind.Strength] ? AttributeKind.Dexterity : AttributeKind.Strength;

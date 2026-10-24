@@ -12,7 +12,10 @@ public sealed record LootDrop(Item? Item, int Gold = 0, bool Draught = false);
 /// level reaches (story items never drop), or a rare when there is none yet. Item level is the monster's effective level; runes are gated by item level (weapon potency from 2,
 /// striking from 4, armour potency from 5, resilient from 8). Uncommon items get 1 to 2 affixes, rares 3 to 4. Belt
 /// items (bombs, elixirs) drop on their own roll: 6% from a normal monster, 30% from a champion or better, 35% from a
-/// chest, one or two at a time.
+/// chest, one or two at a time. A gun's special rounds never drop: they are cast at the forge or bought.
+/// <para>Guns are Ironhold's make: in Act 1 a firearm is a quarter as likely as its weight says. The gunsmith's raw
+/// materials (<see cref="Material"/>: black powder, lead shot, gun parts) drop on a roll of their own, rare in Act 1
+/// (<see cref="MaterialChances"/>) and common from Act 2.</para>
 /// </summary>
 public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> items, IReadOnlyList<AffixDefinition> affixes)
 {
@@ -23,6 +26,14 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
     /// were 5, 30 and 60 before the draught case kept spares, so fewer are needed.
     /// </summary>
     public const int DraughtChance = 2, CacheDraughtChance = 15, ReliquaryDraughtChance = 35;
+
+    /// <summary>
+    /// The chance (percent) of raw materials from a normal monster, a champion or better, a chest and a reliquary: in
+    /// Act 1, then from Act 2 on.
+    /// </summary>
+    public static readonly (int Normal, int Champion, int Cache, int Reliquary)[] MaterialChances = [(3, 15, 10, 25), (10, 40, 35, 60)];
+
+    private static (int Normal, int Champion, int Cache, int Reliquary) MaterialChance(int act) => MaterialChances[act <= 1 ? 0 : 1];
 
     public IReadOnlyList<LootDrop> Roll(CreatureRank rank, int level, IRandomSource random, bool spawner = false, int act = 1)
     {
@@ -45,7 +56,7 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             {
                 // A Herald's first drop is always rare.
                 var rarity = i == 0 && rank >= CreatureRank.Herald ? Rarity.Rare : RollRarity(rank, random, act);
-                drops.Add(new LootDrop(Generate(Math.Max(1, level), rarity, random)));
+                drops.Add(new LootDrop(Generate(Math.Max(1, level), rarity, random, act: act)));
             }
         }
         if (random.Roll(1, 100) <= goldChance)
@@ -54,13 +65,24 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             drops.Add(new LootDrop(null, Draught: true));
         if (rank != CreatureRank.Minion && random.Roll(1, 100) <= (rank >= CreatureRank.Champion ? 30 : 6) && BeltItem(level, random) is { } belt)
             drops.Add(new LootDrop(belt));
+        var chance = MaterialChance(act);
+        if (rank != CreatureRank.Minion && random.Roll(1, 100) <= (rank >= CreatureRank.Champion ? chance.Champion : chance.Normal)
+            && Material(rank >= CreatureRank.Champion ? random.Roll(2, 4) : random.Roll(1, 2), random) is { } material)
+            drops.Add(new LootDrop(material));
         return drops;
+    }
+
+    /// <summary>A stack of one of the gunsmith's raw materials, by their weights, or null when there are none.</summary>
+    public Item? Material(int count, IRandomSource random)
+    {
+        var pool = Items.Values.Where(i => i.IsMaterial && i.Weight > 0).ToList();
+        return pool.Count == 0 ? null : new Item(Pick(pool, random), Rarity.Common, 1, count: count);
     }
 
     /// <summary>One or two of a random belt item for <paramref name="level"/>, or null when there are none.</summary>
     public Item? BeltItem(int level, IRandomSource random)
     {
-        var pool = Items.Values.Where(i => i.IsBeltItem && i.MinLevel <= level).ToList();
+        var pool = Items.Values.Where(i => i.IsBeltItem && i.MinLevel <= level && i.Weight > 0).ToList();
         if (pool.Count == 0)
             return null;
         var definition = Pick(pool, random);
@@ -79,13 +101,13 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
         var drops = new List<LootDrop>();
         if (kind == World.CacheKind.Reliquary)
         {
-            drops.Add(new LootDrop(Generate(level, random.Roll(1, 100) <= 25 ? Rarity.Rare : Rarity.Uncommon, random)));
-            drops.Add(new LootDrop(Generate(level, RollRarity(CreatureRank.Champion, random, act), random)));
+            drops.Add(new LootDrop(Generate(level, random.Roll(1, 100) <= 25 ? Rarity.Rare : Rarity.Uncommon, random, act: act)));
+            drops.Add(new LootDrop(Generate(level, RollRarity(CreatureRank.Champion, random, act), random, act: act)));
         }
         else
         {
             var roll = random.Roll(1, 100);
-            drops.Add(new LootDrop(Generate(level, roll <= 45 ? Rarity.Common : roll <= 90 ? Rarity.Uncommon : Rarity.Rare, random)));
+            drops.Add(new LootDrop(Generate(level, roll <= 45 ? Rarity.Common : roll <= 90 ? Rarity.Uncommon : Rarity.Rare, random, act: act)));
         }
         var gold = random.Roll(3, 18) * (1 + level) * (kind == World.CacheKind.Reliquary ? 3 : 1);
         drops.Add(new LootDrop(null, Gold: gold));
@@ -93,6 +115,10 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             drops.Add(new LootDrop(null, Draught: true));
         if (random.Roll(1, 100) <= 35 && BeltItem(level, random) is { } belt)
             drops.Add(new LootDrop(belt));
+        var reliquary = kind == World.CacheKind.Reliquary;
+        if (random.Roll(1, 100) <= (reliquary ? MaterialChance(act).Reliquary : MaterialChance(act).Cache)
+            && Material(reliquary ? random.Roll(3, 5) : random.Roll(2, 3), random) is { } material)
+            drops.Add(new LootDrop(material));
         return drops;
     }
 
@@ -129,13 +155,14 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
     }
 
     /// <param name="only">Narrows the pool (a smith's stock); null allows any equippable item.</param>
-    public Item Generate(int itemLevel, Rarity rarity, IRandomSource random, Func<ItemDefinition, bool>? only = null)
+    /// <param name="act">The act it drops in: in Act 1 guns are a quarter as likely (0: no such scaling).</param>
+    public Item Generate(int itemLevel, Rarity rarity, IRandomSource random, Func<ItemDefinition, bool>? only = null, int act = 0)
     {
         if (rarity is Rarity.Unique or Rarity.Set)
-            return Special(itemLevel, rarity, random) ?? Generate(itemLevel, Rarity.Rare, random, only);
+            return Special(itemLevel, rarity, random) ?? Generate(itemLevel, Rarity.Rare, random, only, act);
         var pool = Items.Values.Where(i => i.Slot is not null && !i.IsSpecial && i.MinLevel <= itemLevel && (!i.IsJewelry || rarity != Rarity.Common)
             && (only is null || only(i))).ToList();
-        var definition = Pick(pool, random);
+        var definition = Pick(pool, random, i => act == 1 && i.IsFirearm ? Math.Max(1, i.Weight / 4) : i.Weight);
 
         int potency = 0, striking = 0, resilient = 0;
         var runeBoost = rarity == Rarity.Common ? 0 : 20;
@@ -207,13 +234,14 @@ public sealed class LootGenerator(IReadOnlyDictionary<string, ItemDefinition> it
             potency: definition.Potency, striking: definition.Striking, resilient: definition.Resilient,
             name: definition.IsSpecial ? definition.Name : null);
 
-    private static ItemDefinition Pick(List<ItemDefinition> pool, IRandomSource random)
+    private static ItemDefinition Pick(List<ItemDefinition> pool, IRandomSource random, Func<ItemDefinition, int>? weight = null)
     {
-        var total = pool.Sum(i => i.Weight);
+        weight ??= i => i.Weight;
+        var total = pool.Sum(weight);
         var roll = random.Roll(1, total);
         foreach (var item in pool)
         {
-            roll -= item.Weight;
+            roll -= weight(item);
             if (roll <= 0)
                 return item;
         }

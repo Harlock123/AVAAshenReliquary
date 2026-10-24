@@ -156,13 +156,18 @@ public sealed class Equipment
         return true;
     }
 
-    /// <summary>The slot an item goes to: rings take the free hand (the first if both are full).</summary>
+    /// <summary>
+    /// The slot an item goes to: rings take the free hand (the first if both are full); a pistol beside a pistol in the
+    /// main hand takes the empty off hand (twin pistols).
+    /// </summary>
     public EquipSlot? SlotFor(Item item)
     {
         if (item.Definition.Slot is not { } slot)
             return null;
         if (slot is EquipSlot.Ring1 or EquipSlot.Ring2)
             return !_worn.ContainsKey(EquipSlot.Ring1) ? EquipSlot.Ring1 : !_worn.ContainsKey(EquipSlot.Ring2) ? EquipSlot.Ring2 : EquipSlot.Ring1;
+        if (item.Definition.IsPistol && In(EquipSlot.MainHand) is { Definition.IsPistol: true } main && main != item && !_worn.ContainsKey(EquipSlot.OffHand))
+            return EquipSlot.OffHand;
         return slot;
     }
 
@@ -178,13 +183,14 @@ public sealed class Equipment
 
     /// <summary>
     /// Wears the item in bag cell <paramref name="index"/> in <paramref name="slot"/> (dragged onto it), when it goes
-    /// there: a ring in either ring slot, anything else only in its own.
+    /// there: a ring in either ring slot, a pistol in the off hand beside a gun (twin pistols), anything else only in its own.
     /// </summary>
     public bool EquipFromBag(int index, EquipSlot slot)
     {
         if (_bag[index] is not { Definition.Slot: { } own } item)
             return false;
-        var fits = own == slot || (own is EquipSlot.Ring1 or EquipSlot.Ring2 && slot is EquipSlot.Ring1 or EquipSlot.Ring2);
+        var fits = own == slot || (own is EquipSlot.Ring1 or EquipSlot.Ring2 && slot is EquipSlot.Ring1 or EquipSlot.Ring2)
+            || (slot == EquipSlot.OffHand && item.Definition.IsPistol && In(EquipSlot.MainHand) is { Definition.IsFirearm: true, Definition.IsTwoHanded: false });
         if (!fits)
             return false;
         if (slot == SlotFor(item))
