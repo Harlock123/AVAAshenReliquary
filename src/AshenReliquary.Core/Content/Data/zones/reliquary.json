@@ -831,7 +831,12 @@
     179
    ],
    "radius": 1.5,
-   "openText": "The stair down to the Cinder Throne, where Malachar Vane waits. (The Epilogue is still being written.)"
+   "to": "cinder_throne",
+   "toExit": "stair",
+   "arrive": [
+    28,
+    176
+   ]
   }
  ],
  "caches": [

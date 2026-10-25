@@ -169,6 +169,15 @@ implementation decisions made so far). `README.md` has the run commands and cont
   M4: M5 (the Epilogue: the Cinder Throne). After M4, asked for: the in-game guide (`GuideView`/`GuideViewModel`, words
   in `guide.json`, numbers from the content; Guide buttons on the title, creation screen and Escape menu): a new class,
   ancestry, subclass or condition needs its words there (`GuideTests` checks).
+- **M5 (the Epilogue):** in progress, following `docs/M5_PLAN.md` (decisions taken with the suggestions: Echoes at 40%
+  and their first phase, the beacon's knights as avatar allies, Space mashed for the Heart's Pull, the toy and four
+  memories, Bind needing the Chronicle and three side stories, slides rendered from the zones). Step 1 done: the Cinder
+  Throne (`tools/cinder_throne_mapgen.py`, below the Reliquary's `throne` stair) and Malachar Vane (`malachar`, Prophet
+  rank; boss `court` (his fall kills the rest), `allies`/`alliesCount`/`alliesIf` (`lantern_knight`s with the beacon
+  lit; `WorldView.DrawAlly` draws avatar allies), phase `callsEchoEverySeconds`); Echoes as pack options `echoHealth`/
+  `echoPhases`/`dormant` (`MonsterActor.Dormant`, `WaitsToBeCalled`: ash until called, back to ash when the hero falls),
+  at level 16 here; the `hidden_way` gate with the beacon dark; `ThroneTests`, `ThroneUiTests`,
+  `BalanceReport.Cinder_Throne_at_level_20`. Next: step 2, the Burning God.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

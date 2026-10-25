@@ -1799,8 +1799,15 @@ public sealed partial class WorldView : Control
             paint.Color = SKColors.White.WithAlpha((byte)(255 * m.Definition.Alpha));
         if (world.IsUnseen(m))
             paint.Color = SKColors.White.WithAlpha(30);
+        // A Herald's Echo waiting to be called (the Cinder Throne): a grey figure of ash.
+        if (m.Dormant)
+        {
+            var ash = SKColorFilter.CreateLighting(new SKColor(120, 115, 110), new SKColor(20, 18, 16));
+            filter = filter is null ? ash : SKColorFilter.CreateCompose(filter, ash);
+            paint.Color = SKColors.White.WithAlpha(150);
+        }
         // A Herald's Echo: a ghost of ember and ash, half there.
-        if (m.IsEcho)
+        else if (m.IsEcho)
         {
             var ember = SKColorFilter.CreateLighting(new SKColor(255, 190, 150), new SKColor(70, 25, 0));
             filter = filter is null ? ember : SKColorFilter.CreateCompose(filter, ember);
@@ -1898,9 +1905,24 @@ public sealed partial class WorldView : Control
             paint.Color = SKColors.White.WithAlpha((byte)(255 * risen));
             foot = new SKPoint(foot.X, foot.Y + (1 - risen) * 40 * z);
         }
-        var set = _assets.Enemy(ally.Definition.Sprite);
-        if (Pick(set, ally.Animation) is { } anim)
-            DrawFrame(canvas, anim.Image ?? set.Image, anim.Frame(anim.FrameAt(ally.AnimationTime), ally.Direction), foot, (float)ally.Definition.Scale, paint);
+        if (ally.Definition.Look is { } look)
+        {
+            // An ally in armour (the Order's knights at the Cinder Throne): Flare's avatar layers, as a person is drawn.
+            foreach (var slot in _assets.LayerOrder(ally.Direction))
+            {
+                var layer = look.GetValueOrDefault(slot) ?? (BareBody.Contains(slot) ? (slot == "head" ? "head_short" : $"default_{slot}") : null);
+                if (layer is null || Pick(_assets.AvatarLayer(layer), ally.Animation) is not { } part)
+                    continue;
+                DrawFrame(canvas, _assets.AvatarLayer(layer).Image, part.Frame(part.FrameAt(ally.AnimationTime), ally.Direction), foot,
+                    (float)ally.Definition.Scale, paint);
+            }
+        }
+        else
+        {
+            var set = _assets.Enemy(ally.Definition.Sprite);
+            if (Pick(set, ally.Animation) is { } anim)
+                DrawFrame(canvas, anim.Image ?? set.Image, anim.Frame(anim.FrameAt(ally.AnimationTime), ally.Direction), foot, (float)ally.Definition.Scale, paint);
+        }
         if (!ally.IsDead && ally.Creature.HitPoints < ally.Creature.Stats.HitPoints)
             WorldOverlay.DrawHealthBar(canvas, foot, z, ally.Creature.HitPoints / (float)ally.Creature.Stats.HitPoints, false, 95,
                 new SKColor(90, 190, 80));
@@ -2613,7 +2635,7 @@ public sealed partial class WorldView : Control
         // A Herald's Echo burns with its own ember light, and a ward across a passage lights it.
         foreach (var m in world.Monsters)
         {
-            if (m.IsEcho && !m.IsDead)
+            if (m.IsEcho && !m.IsDead && !m.Dormant)
                 lights.Add((ToScreen(m.X, m.Y), 4.5f + (float)Math.Sin(time * 3 + m.X) * 0.2f, new SKColor(255, 150, 90, 65)));
             // Vorthrax burns: the wyrm lights his own cavern, on the ground or in the air.
             else if (m.Definition.Boss is not null && m.Definition.DamageType == Core.Combat.DamageType.Fire && !m.IsDead)

@@ -111,7 +111,7 @@ public sealed partial class GameWorld
     public bool IsUnseen(MonsterActor m) => m.Definition.Unseen && !m.IsDead && Time >= m.RevealedUntil;
 
     /// <summary>A monster the hero (and the bots) can pick out to attack.</summary>
-    public bool CanTarget(MonsterActor m) => !m.IsDead && !IsUnseen(m);
+    public bool CanTarget(MonsterActor m) => !m.IsDead && !IsUnseen(m) && !m.Dormant;
 
     private void RevealMonster(MonsterActor m, double seconds = RevealSeconds)
     {

@@ -470,6 +470,38 @@ public class BalanceReport(ITestOutputHelper output)
     /// (+2 in the wastes and on the rivers, +3 from the nest). The nest's run ends past Vorthrax (step 9), through the Ember
     /// Gate; the Reliquary's starts with every relic undealt with, so all four Echoes stand in the gauntlet.
     /// </summary>
+    /// <summary>
+    /// The Cinder Throne (M5 step 1) at level 20, +3 runes: Malachar's court as the Echo rule makes it, at its hardest
+    /// (every relic left undealt with: all four Echoes beside him) and its easiest (every relic dealt with, and the beacon
+    /// lit: no Echoes, and the Order's knights beside the hero).
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Cinder_Throne_at_level_20(string kit)
+    {
+        ReportZone(kit, "cinder_throne", "stair", 20, "the Cinder Throne, every relic undealt with", runes: 3);
+        ReportZone(kit, "cinder_throne", "stair", 20, "the Cinder Throne, every relic dealt with and the beacon lit", runes: 3,
+            flags: new Dictionary<string, string>
+            {
+                ["act1.sallow_relic"] = "destroyed", ["act2.hadric_relic"] = "returned", ["act3.candles"] = "rekindled",
+                ["act4.egg"] = "smashed", ["act4.beacon"] = "lit",
+            });
+    }
+
     [Theory]
     [InlineData("fighter vanguard")]
     [InlineData("fighter bulwark")]

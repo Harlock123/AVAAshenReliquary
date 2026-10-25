@@ -265,6 +265,12 @@ Step 10 closed M4's building: a hero can **begin at Act 2, 3 or 4** (the creatio
 kit etched to suit and gold for the act's smith; the level-up picks wait on the L screen. Every subclass's bot plays
 all four acts in one run, through the Reliquary to the stair down to the Cinder Throne (the Epilogue, M5). M4's exit test
 is your own play of Acts 2-4.
+M5, the Epilogue, has begun. Its step 1 is the **Cinder Throne**, down the Reliquary Sanctum's stair: Malachar Vane, the
+Ashen Prophet, holds court there with his Inquisitors, his Taint pooling under you. Round his dais stand the Echoes of
+every Herald whose relic you left undealt with, as figures of ash that he calls into the fight one at a time, fainter than
+in the Reliquary. If you lit the Order's beacon at the Ember Gate, two of its knights come in to fight beside you; if you
+kept it dark, the Order's hidden way takes you round his honour guard. When he falls, his court falls with him. His later
+phases, his daughter's story and the endings are still to come.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

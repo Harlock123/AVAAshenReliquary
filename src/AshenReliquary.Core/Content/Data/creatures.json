@@ -1525,6 +1525,102 @@
   }
  },
  {
+  "id": "malachar",
+  "name": "Malachar Vane",
+  "sprite": "avatar",
+  "damageType": "Void",
+  "attacksPerSecond": 0.55,
+  "moveSpeed": 2.4,
+  "aggroRadius": 12,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "scale": 1.15,
+  "tint": "#f0d8c8",
+  "hitPointsScale": 0.1,
+  "named": true,
+  "rareDrop": true,
+  "voice": "cultist",
+  "inflicts": {
+   "condition": "Frightened",
+   "value": 1,
+   "seconds": 4,
+   "save": "Will"
+  },
+  "resistances": {
+   "Fire": 10,
+   "Void": 10,
+   "Mental": 10,
+   "Taint": 20
+  },
+  "immunities": [
+   "Poison"
+  ],
+  "look": {
+   "head": "mage_hood",
+   "chest": "mage_vest",
+   "hands": "mage_sleeves",
+   "legs": "mage_skirt",
+   "feet": "mage_boots",
+   "main": "greatstaff"
+  },
+  "boss": {
+   "arenaRadius": 12,
+   "barName": "Malachar Vane, the Ashen Prophet",
+   "deathFlag": "act5.malachar",
+   "court": true,
+   "allies": "lantern_knight",
+   "alliesCount": 2,
+   "alliesIf": {
+    "act4.beacon": "lit"
+   },
+   "deathLine": "Malachar Vane goes down on his knees before the Throne he built, and the god's bones behind him go dark.",
+   "journal": {
+    "id": "act5_throne",
+    "title": "The Cinder Throne",
+    "kind": "main",
+    "text": "Under the Reliquary, in a cavern of black glass, Malachar Vane was building Ashur a body out of his own bones, and waiting for the last piece: the Ember Heart in my chest. Malachar is down. The Throne stands empty."
+   },
+   "phases": [
+    {
+     "below": 1.0,
+     "name": "The Prophet's Court",
+     "summonEverySeconds": 18,
+     "summons": "inquisitor",
+     "summonCount": 2,
+     "summonCap": 4,
+     "poolEverySeconds": 8,
+     "poolType": "Taint",
+     "poolDamage": "3d6",
+     "poolRadius": 1.6,
+     "poolSeconds": 8,
+     "callsEchoEverySeconds": 8
+    }
+   ]
+  }
+ },
+ {
+  "id": "lantern_knight",
+  "name": "Knight of the Last Lantern",
+  "sprite": "avatar",
+  "damageType": "Slashing",
+  "attacksPerSecond": 1.0,
+  "moveSpeed": 3.0,
+  "aggroRadius": 8,
+  "attackRange": 1.3,
+  "damage": "2d8",
+  "voice": "cultist",
+  "look": {
+   "head": "plate_helm",
+   "chest": "plate_cuirass",
+   "hands": "plate_gauntlets",
+   "legs": "plate_greaves",
+   "feet": "plate_boots",
+   "main": "longsword",
+   "off": "kite_shield"
+  }
+ },
+ {
   "id": "drakeling",
   "name": "Drakeling",
   "sprite": "wyvern_fire",

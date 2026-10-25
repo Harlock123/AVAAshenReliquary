@@ -2011,6 +2011,12 @@ public sealed partial class GameWorld
                 UpdateRising(m, dt);
             return;
         }
+        // A figure of ash waiting to be called (a Cinder Throne Echo) does nothing.
+        if (m.Dormant)
+        {
+            m.Play("stance");
+            return;
+        }
         m.Creature.Conditions.Update(dt);
         UpdateVeil(m, dt);
         if (m.IsDead)
@@ -2536,7 +2542,7 @@ public sealed partial class GameWorld
 
     private void Aggro(MonsterActor m)
     {
-        if (m.IsDead || m.State != MonsterState.Idle)
+        if (m.IsDead || m.State != MonsterState.Idle || m.Dormant)
             return;
         m.State = MonsterState.Chase;
         foreach (var other in _monsters.Where(o => o.PackId == m.PackId && o != m && !o.IsDead && o.State == MonsterState.Idle))
@@ -2758,7 +2764,7 @@ public sealed partial class GameWorld
         var def = _creatures.TryGetValue(creatureId, out var d) ? d : throw new InvalidDataException($"Unknown creature '{creatureId}'.");
         var stats = CreatureStats.For(level ?? Zone.Level, rank);
         // A Herald's Echo (the Reliquary) has only a share of its health.
-        var scale = def.HitPointsScale * (member?.Echo == true ? EchoHealth : 1);
+        var scale = def.HitPointsScale * (member?.Echo == true ? member.EchoHealth ?? EchoHealth : 1);
         if (scale != 1.0)
             stats = stats with { HitPoints = Math.Max(1, (int)Math.Round(stats.HitPoints * scale)) };
         var dice = def.Damage is { } text ? Dice.Parse(text) : stats.DefaultStrikeDamage;
@@ -2796,11 +2802,15 @@ public sealed partial class GameWorld
             IsLeader = member?.Leads == true,
             IsEcho = member?.Echo == true,
             EchoAlone = member?.Alone == true,
+            EchoLastPhase = member?.EchoPhases is { } phases ? Math.Max(0, phases - 1) : null,
+            Dormant = member?.Dormant == true,
+            WaitsToBeCalled = member?.Dormant == true,
         };
         if (def.Boss is { } boss)
         {
             (monster.X, monster.Y) = (x, y);
             monster.PoolIn = boss.Phases[0].PoolEverySeconds;
+            monster.CallEchoIn = boss.Phases[0].CallsEchoEverySeconds;
             monster.FloodRadius = boss.ArenaRadius;
         }
         if (def.IsSpawner)

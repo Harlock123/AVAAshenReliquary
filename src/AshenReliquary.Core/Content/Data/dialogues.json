@@ -3342,5 +3342,25 @@
         ]
       }
     }
+  },
+  {
+    "id": "cinder_throne_seat",
+    "start": "start",
+    "openings": [
+      {
+        "node": "empty",
+        "requires": {
+          "act5.malachar": "slain"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A throne cut from one block of black glass, too big for any man, its back carved with the Pale Lantern turned upside down. Behind it the god's bones are heaped up into something like a body, and the gap in its chest is the shape of the shard in yours. Malachar Vane stands between you and it."
+      },
+      "empty": {
+        "text": "The Throne stands empty, and the bones behind it are cold. The shard in your chest is not: it pulls toward them, gently, like a tide. Whatever is to be decided here will be decided by you. (The endings are still being written.)"
+      }
+    }
   }
 ]

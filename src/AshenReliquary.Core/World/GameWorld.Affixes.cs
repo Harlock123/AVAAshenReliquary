@@ -81,6 +81,9 @@ public sealed partial class GameWorld
     /// <summary>Damage landing on a monster: its ward (Shielded) soaks what it can, the rest is taken. Returns the rest.</summary>
     private int DamageMonster(MonsterActor m, int damage)
     {
+        // A dormant Echo is ash, not yet a foe.
+        if (m.Dormant)
+            return 0;
         // The Choir: a reflection shatters at a touch; a blow at a sister lands on the one health bar they share.
         if (m.IsReflection)
         {

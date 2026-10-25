@@ -686,8 +686,8 @@ The build order proves the rules engine and one playable act before widening con
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary; step 10 done: the campaign through all four acts and beginning at an act; the exit test waits on the user's play of Acts 2–4).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
-6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
-7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
+6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
+7. **M6 — Polish.** *Planned (`docs/M6_PLAN.md`, which adds Mythic tiers past level 20 and the Ashen Depths).* Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
 ### MVP (first playable)
 
@@ -2048,6 +2048,34 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 - **Seen in the runs, left open:** gold piles up (about 30,000 at the Reliquary in the bot's hands); the starting-kit
   rows lose some Herald duels (the Vanguard, Pistolero and Sniper against Vorthrax at 19); the necromancers win every
   Vorthrax duel in under 25 s.
+
+### The Cinder Throne and Malachar's court (M5 step 1)
+
+- **The zone** (`tools/cinder_throne_mapgen.py`, level 20, dark): down the Reliquary Sanctum's stair, a landing with a
+  shrine, the Prophet's honour guard in a hall of black glass, and the throne cavern, glass over lava crossed by three
+  bridges, with the Throne on its dais and Ashur's bones heaped behind it. The Throne is an interactable whose words change
+  once Malachar is dead (the choice itself is step 4).
+- **Malachar Vane, the Ashen Prophet** (`malachar`): the Prophet rank (×35 health, level +3; `hitPointsScale` 0.1), an
+  avatar caster in a hood with a great staff, whose void bolts can frighten (a Will save). The boss bar names a Prophet as
+  one. Phase 1, the Prophet's Court: two Inquisitors summoned every 18 s (no more than four), a pool of Taint under the hero
+  every 8 s (3d6).
+- **The court:** a boss with `court` takes every monster still standing down with it when it falls.
+- **The Echoes** (decision 1): the Echo of each Herald whose relic was left undealt with stands round the dais as a grey
+  figure of ash (`PackMember.Dormant`: it neither acts, aggroes nor can be targeted or hurt) until Malachar calls it
+  (`BossPhase.CallsEchoEverySeconds`, 8 s, and only when no Echo he called still stands). An Echo here is faint:
+  `echoHealth` 0.4, `echoPhases` 1 (its first phase only) and its pack at level 16, so it comes as an add, not a duel. If
+  the hero falls, Malachar is made whole and the Echoes he called that still stand go back to ash; the ones laid to rest
+  stay so.
+- **The Last Lantern's payoff** (decision 2): with `act4.beacon` lit, two knights of the Order (`lantern_knight`, drawn
+  from the avatar layers in plate) come in behind the hero as the fight begins (`BossDefinition.Allies`, `AlliesCount`,
+  `AlliesIf`), timed allies at the hero's level. Kept dark, the Order's hidden ward (`hidden_way`) opens a path from the
+  landing round the honour guard to the cavern's west side.
+- **Balance** (`BalanceReport.Cinder_Throne_at_level_20`, the starting kit at 20 with runes): with every relic dealt with
+  and the beacon lit, every subclass clears the zone in 1–2.5 minutes with at most one death; with every relic left
+  undealt with and no knights, in 1–9.5 minutes with 0–10 deaths (the casters, rogues, rangers' Marksman and the Sniper the
+  most). At level 20 Echoes, the worst case cost up to 113 deaths: each fall makes Malachar whole again.
+- **Tests:** `ThroneTests` (the zone, the Echoes by flag and faint, dormant until called, the knights and the hidden
+  way, the court falling with him), `ThroneUiTests` (the court in ash, the knights, an Echo called).
 
 ### The in-game guide (after M4)
 

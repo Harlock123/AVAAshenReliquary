@@ -236,7 +236,7 @@ public class CampaignReport(ITestOutputHelper output)
             world.Flags.GetValueOrDefault("act2.hadric") == "slain", bot.HadricLevel,
             world.Flags.GetValueOrDefault("act3.choir") == "slain", bot.ChoirLevel,
             world.Flags.GetValueOrDefault("act4.vorthrax") == "slain", bot.VorthraxLevel,
-            world.Zone.Id == "reliquary" && world.ZoneComplete);
+            world.Zone.Id == "cinder_throne");
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>

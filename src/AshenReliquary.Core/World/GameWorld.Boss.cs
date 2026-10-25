@@ -50,6 +50,8 @@ public sealed partial class GameWorld
         }
         var phase = boss.Phases[m.BossPhase];
         m.Creature.ArmorClassShift = phase.AcShift;
+        CallAllies(m, boss);
+        CallEchoes(m, phase, dt);
         UpdateChoir(m, boss, phase, dt);
 
         if (phase.PoolEverySeconds > 0)
@@ -135,6 +137,33 @@ public sealed partial class GameWorld
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// As a boss's fight begins: the hero's allies it brings, if their flags hold (the Order's knights at the Cinder Throne),
+    /// at the hero's side, fighting for the length of the fight (they fall for good, as skeletons do).
+    /// </summary>
+    private void CallAllies(MonsterActor m, BossDefinition boss)
+    {
+        if (m.AlliesCalled || boss.Allies is not { } id || boss.AlliesCount <= 0 || !_creatures.TryGetValue(id, out var definition))
+            return;
+        m.AlliesCalled = true;
+        if (boss.AlliesIf is { } flags && !Holds(flags))
+            return;
+        var level = Hero.Character.Level;
+        for (var i = 0; i < boss.AlliesCount; i++)
+        {
+            var ally = new AllyActor(definition, CompanionStats(definition, level, 1), level, 1)
+            {
+                IsMinion = true,
+                ExpiresAt = Time + 900,
+                RaisedAt = Time,
+            };
+            (ally.X, ally.Y) = SummonSpot();
+            _allies.Add(ally);
+        }
+        Say("The Order's knights come in behind you, lanterns raised.");
+        Sound(SoundCue.Ward, Hero);
     }
 
     /// <summary>A charge: braced while the lane shows, then a rush down it; the hero caught in it is trampled once.</summary>
@@ -303,9 +332,46 @@ public sealed partial class GameWorld
             m.ChargeIn = m.Definition.Boss.Phases[0].ChargeEverySeconds;
             ResetChoir(m);
             ResetWyrm(m);
+            m.AlliesCalled = false;
+            m.CallEchoIn = m.Definition.Boss.Phases[0].CallsEchoEverySeconds;
             _monsters.RemoveAll(x => x.SummonedBy == m);
         }
+        // The Echoes that were called go back to waiting as ash.
+        foreach (var m in _monsters.Where(m => m.WaitsToBeCalled && !m.IsDead))
+        {
+            m.Dormant = true;
+            m.State = MonsterState.Idle;
+            (m.X, m.Y) = (m.HomeX, m.HomeY);
+            m.Path.Clear();
+        }
         ClearBossAftermath();
+    }
+
+    /// <summary>
+    /// Malachar's court: once no Echo he called still stands, and its time has come, he calls the next waiting one (the
+    /// nearest him) into the fight.
+    /// </summary>
+    private void CallEchoes(MonsterActor m, BossPhase phase, double dt)
+    {
+        if (phase.CallsEchoEverySeconds <= 0)
+            return;
+        if (_monsters.Any(x => x.WaitsToBeCalled && !x.Dormant && !x.IsDead))
+        {
+            m.CallEchoIn = phase.CallsEchoEverySeconds;
+            return;
+        }
+        m.CallEchoIn -= dt;
+        if (m.CallEchoIn > 0)
+            return;
+        m.CallEchoIn = phase.CallsEchoEverySeconds;
+        if (_monsters.Where(x => x.Dormant && !x.IsDead).MinBy(x => x.DistanceTo(m)) is not { } echo)
+            return;
+        echo.Dormant = false;
+        Aggro(echo);
+        Float(echo, "THE ECHO RISES", FloatingTextKind.Critical, 1.2);
+        Say($"Malachar calls, and the {echo.Name.ToLowerInvariant()} stands up out of the ash.");
+        AddImpact(echo.X, echo.Y, Combat.DamageType.Fire);
+        Sound(SoundCue.GraveRise, echo, "grave");
     }
 
     private void ClearBossAftermath()
@@ -336,6 +402,17 @@ public sealed partial class GameWorld
             Arrival = new Banner($"{m.Name} fades", "Another of the Prophet's Heralds is laid to rest.", Time);
             Say($"The {m.Name.ToLowerInvariant()} breaks apart into ash.");
             return;
+        }
+        // Malachar: his court falls with him.
+        if (boss.Court)
+        {
+            foreach (var other in _monsters.Where(x => x != m && !x.IsDead).ToList())
+            {
+                other.Creature.TakeDamage(other.Creature.HitPoints);
+                other.State = MonsterState.Dead;
+                other.Play("die", restart: true);
+                Float(other, "ash", FloatingTextKind.Info, 0.5);
+            }
         }
         if (boss.DeathFlag is { } flag)
             SetFlag(flag, boss.DeathValue ?? "slain");

@@ -255,7 +255,9 @@ public sealed partial class GameWorld
 
     /// <summary>The last phase an Echo enters (never its Herald's last, but the first if that is all there is).</summary>
     internal static int LastPhase(MonsterActor m) =>
-        m.Definition.Boss is not { } boss ? 0 : Math.Max(0, boss.Phases.Count - 1 - (m.IsEcho && boss.Phases.Count > 1 ? 1 : 0));
+        m.Definition.Boss is not { } boss ? 0
+        : m.EchoLastPhase is { } held ? Math.Min(held, boss.Phases.Count - 1)
+        : Math.Max(0, boss.Phases.Count - 1 - (m.IsEcho && boss.Phases.Count > 1 ? 1 : 0));
 
     // ----- The pet -------------------------------------------------------------------
 

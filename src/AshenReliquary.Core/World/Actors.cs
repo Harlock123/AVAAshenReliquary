@@ -428,6 +428,20 @@ public sealed class MonsterActor : Actor
     /// <summary>An Echo whose sisters stay away (the Choir half laid to rest).</summary>
     public bool EchoAlone { get; internal set; }
 
+    /// <summary>The last phase this Echo may enter, when it is held to fewer than its Herald's all but last.</summary>
+    internal int? EchoLastPhase { get; set; }
+
+    /// <summary>A boss's allies of the hero have been called for this fight.</summary>
+    internal bool AlliesCalled { get; set; }
+
+    /// <summary>A figure of ash waiting to be called into the fight (a Cinder Throne Echo): untouchable, and it does nothing.</summary>
+    public bool Dormant { get; internal set; }
+
+    /// <summary>It began dormant, and goes back to waiting when the fight starts again.</summary>
+    internal bool WaitsToBeCalled { get; set; }
+
+    internal double CallEchoIn { get; set; }
+
     /// <summary>A flying boss in the air (Vorthrax): out of a blade's reach until it swoops.</summary>
     public bool Aloft { get; internal set; }
 

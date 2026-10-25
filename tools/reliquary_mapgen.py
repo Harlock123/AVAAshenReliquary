@@ -169,8 +169,8 @@ zone = {
     "exits": [
         {"id": "gate", "label": "The Ember Gate", "at": [cx, 2], "radius": 1.5, "to": "wyrms_nest", "toExit": "reliquary",
          "arrive": start},
-        {"id": "throne", "label": "The Cinder Throne", "at": [cx, 179], "radius": 1.5,
-         "openText": "The stair down to the Cinder Throne, where Malachar Vane waits. (The Epilogue is still being written.)"},
+        {"id": "throne", "label": "The Cinder Throne", "at": [cx, 179], "radius": 1.5, "to": "cinder_throne", "toExit": "stair",
+         "arrive": [cx, 176]},
     ],
     "caches": caches,
     "npcs": [

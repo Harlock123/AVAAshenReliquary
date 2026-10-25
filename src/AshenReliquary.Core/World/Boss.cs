@@ -4,7 +4,10 @@ namespace AshenReliquary.Core.World;
 /// A Herald fight, from the creature's <c>boss</c> block: the phases it passes through as its health falls, the arena
 /// round the spot it was placed (its home), the line it dies with and the flag its death sets. <see cref="Sisters"/>
 /// (the Choir of Whispers) are creatures that fight beside it on its one health bar: a blow at any of them lands on
-/// it. <see cref="BarName"/> names the HUD's boss bar when it isn't the boss's own name.
+/// it. <see cref="BarName"/> names the HUD's boss bar when it isn't the boss's own name. <see cref="Allies"/>: when the
+/// fight begins, <see cref="AlliesCount"/> of that creature come to fight for the hero, if the flags in
+/// <see cref="AlliesIf"/> hold (the Order's knights at the Cinder Throne, the beacon lit). <see cref="Court"/>: its fall
+/// brings down every monster still standing in the zone (Malachar's court).
 /// </summary>
 public sealed record BossDefinition(
     IReadOnlyList<BossPhase> Phases,
@@ -14,7 +17,11 @@ public sealed record BossDefinition(
     string? DeathValue = "slain",
     JournalEntryDefinition? Journal = null,
     IReadOnlyList<string>? Sisters = null,
-    string? BarName = null);
+    string? BarName = null,
+    string? Allies = null,
+    int AlliesCount = 0,
+    IReadOnlyDictionary<string, string>? AlliesIf = null,
+    bool Court = false);
 
 /// <summary>
 /// One phase, entered when health falls to <see cref="Below"/> of the maximum (the first phase is 1.0):
@@ -49,6 +56,8 @@ public sealed record BossDefinition(
 /// land <see cref="PoolCount"/> at a time and be of <see cref="PoolType"/> (a firestorm); every
 /// <see cref="CrumbleEverySeconds"/> one of the arena's platforms (legend <c>crumbles</c>) cracks into embers and, after
 /// <see cref="CrumbleWarning"/> seconds, sinks into the lava, <see cref="CrumbleDamage"/> to anyone left on it.</item>
+/// <item>Malachar's court (M5): every <see cref="CallsEchoEverySeconds"/>, once the last has fallen, it calls the next
+/// dormant Echo of the zone into the fight, one at a time.</item>
 /// </list>
 /// </summary>
 public sealed record BossPhase(
@@ -97,7 +106,8 @@ public sealed record BossPhase(
     Combat.DamageType? PoolType = null,
     double CrumbleEverySeconds = 0,
     double CrumbleWarning = 2.5,
-    string CrumbleDamage = "6d6");
+    string CrumbleDamage = "6d6",
+    double CallsEchoEverySeconds = 0);
 
 /// <summary>A boss's breath: the cone it marked toward the hero, burning from <see cref="BurnAt"/>.</summary>
 public sealed class BossBreath(double x, double y, double direction, double arc, double range, double burnAt)

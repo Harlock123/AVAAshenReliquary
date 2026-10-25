@@ -30,10 +30,13 @@ public sealed record InflictDefinition(ConditionKind Condition, int Value = 1, d
 /// pack leader, who drives the rest of its pack (the AI's fourth behaviour, <see cref="GameWorld.LeaderTiles"/>).
 /// <see cref="Echo"/>: a Herald's Echo (the Reliquary's gauntlet): a Herald come back at
 /// <see cref="GameWorld.EchoHealth"/> of its health, without its last phase, its death setting no flag of its own;
-/// <see cref="Alone"/>: one whose sisters stay away (the Choir's, half laid to rest).
+/// <see cref="Alone"/>: one whose sisters stay away (the Choir's, half laid to rest). <see cref="EchoHealth"/> and
+/// <see cref="EchoPhases"/> make an Echo fainter still (the Cinder Throne's, beside Malachar: 40% and its first phase).
+/// <see cref="Dormant"/>: it waits as a figure of ash, untouchable, until a boss calls it into the fight
+/// (<see cref="BossPhase.CallsEchoEverySeconds"/>).
 /// </summary>
 public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null,
-    bool Leads = false, bool Echo = false, bool Alone = false);
+    bool Leads = false, bool Echo = false, bool Alone = false, double? EchoHealth = null, int? EchoPhases = null, bool Dormant = false);
 
 /// <summary>
 /// A pack placed on the map. Members scatter within <see cref="Radius"/> tiles of <see cref="At"/>. <see cref="Level"/>
