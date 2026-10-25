@@ -163,7 +163,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `poolType` (a firestorm), `crumble*` over legend `crumbles` platforms (`TileMap.Crack`/`Sink`/`RaisePlatforms`,
   `GroundVersion` for the ground cache); the Reliquary's Vault of Flame for his Echo (revision 2);
   `BalanceReport.Vorthrax_at_levels_18_and_19`; `CampaignReport.Acts_1_to_4_to_Vorthrax`). Act 4 is whole to the
-  Reliquary. Step 10 done: `CampaignReport.Acts_1_to_4_through_the_Reliquary` plays all four acts with every subclass
+  Reliquary. Step 10 done: the campaign (now `CampaignReport.The_whole_game_to_an_ending`) plays all four acts with every subclass
   to the stair to the Cinder Throne (level 20); beginning at an act (`GameWorld.ActStarts`/`BeginAct`, the creation
   screen's "Begin at", `--act N`). M4's exit test waits on the user's play of Acts 2-4 (start with `--act 2`). After
   M4: M5 (the Epilogue: the Cinder Throne). After M4, asked for: the in-game guide (`GuideView`/`GuideViewModel`, words
@@ -191,7 +191,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `PendingEnding` taken by `MainWindow.ShowEpilogue`; `epilogue.json` (`ContentDatabase.Epilogue`, `SlidesFor`, an ending
   `alone`); `EpilogueView`/`EpilogueViewModel`, scenes from `GameSession.Scene` + `GameWorld.StageScene` in a
   `WorldView.SceneOnly`; `credits.json` from `tools/build_credits.py`; the title's `SaveEntry.Finished`; `EndingsTests`,
-  `EpilogueUiTests`). Next: step 5, balance and the exit test.
+  `EpilogueUiTests`). Step 5, the bots' half, done: `CampaignReport.The_whole_game_to_an_ending` plays every subclass
+  to one of the endings in turn (`EndingFor`; the bot's `Visit`, visits before leaving a zone, `Throne`); bot fixes
+  `Tactics.Away` (escape moves avoid exits) and allies sent only at lit targets in reach. M5's exit test waits on the
+  user's play of the Throne and an ending (`--act 4`). After M5: M6 (`docs/M6_PLAN.md`).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

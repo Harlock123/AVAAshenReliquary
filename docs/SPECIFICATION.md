@@ -686,7 +686,7 @@ The build order proves the rules engine and one playable act before widening con
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary; step 10 done: the campaign through all four acts and beginning at an act; the exit test waits on the user's play of Acts 2–4).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
-6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God; step 3 done: the Heart's Pull and Malachar's Daughter; step 4 done: the choice, the endings, the epilogue and the credits).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
+6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God; step 3 done: the Heart's Pull and Malachar's Daughter; step 4 done: the choice, the endings, the epilogue and the credits; step 5: the campaign plays every subclass to an ending; the exit test waits on the user's play of the Throne and an ending).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** *Planned (`docs/M6_PLAN.md`, which adds Mythic tiers past level 20 and the Ashen Depths).* Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
 ### MVP (first playable)
@@ -2017,7 +2017,7 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 
 ### Balance and the exit test (M4 step 10)
 
-- **The campaign** (`CampaignReport.Acts_1_to_4_through_the_Reliquary`) now plays the whole game so far in one run per
+- **The campaign** (`CampaignReport.Acts_1_to_4_through_the_Reliquary`, since M5 step 5 `The_whole_game_to_an_ending`) now plays the whole game so far in one run per
   subclass: Act 1 from the gallows to Mother Sallow, Act 2 to Ser Hadric, Act 3 to the Choir, Act 4 past Vorthrax and down
   through the Reliquary (every Echo, every ward) to the stair to the Cinder Throne. All fifteen subclasses come through:
 
@@ -2181,6 +2181,29 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   again, the Lantern-Bird with Malachar spared, the slides for flags and endings, every scene set somewhere real and staged
   empty); `EpilogueUiTests` (the choice to the title, photographing the choice, the ending's and a place's slide, the
   credits and the finished save).
+
+### Balance and the exit test (M5 step 5)
+
+- **The whole game** (`CampaignReport.The_whole_game_to_an_ending`, which replaces the four-act run): every subclass
+  plays from the gallows to the Cinder Throne, Malachar and the choice, for one of the four endings in turn down the
+  list of subclasses (`CampaignReport.EndingFor`), so each ending is reached three or four times:
+  - Destroy and Claim are chosen with no side stories done (the worst case at the Throne: every Echo, no knights);
+  - Bind's kits read the Chronicle's seven pages, light the beacon and smash the Wyrm's egg (the Chronicle and three
+    side stories);
+  - the Lantern-Bird's kits take Wren's toy and find every memory of her, so Malachar is spared at the parley.
+- **The bot** gains `Visit` (walk to someone or something and answer its dialogue), visits made before leaving a cleared
+  zone, and `Throne` (through the court to Malachar's fall or sparing, then the choice). The report prints the story's
+  flags.
+- **Found on the way, fixed in the bots** (`Tactics`): escape moves (a caster's Step, Disengage, Hit the Dirt) now turn
+  aside from a zone's exits (`Tactics.Away`: a wizard's Step out of melee once took it back out of the Lava Rivers);
+  allies are sent (Sic 'Em, Hunt as One, Bone Rush) only at a lit target within reach (in the Reliquary's dark the
+  Beastmaster sent its wolf at nothing for an hour).
+- **Results** (one run each): all fifteen reach the ending they played for; Malachar falls (or is spared) at level 20
+  every time, after 57–113 bot minutes of play for the whole game. At the Throne, thirteen kits lose no one in 1.1–2.6
+  minutes; the Sniper dies 7 times in 9 minutes and the Vanguard 23 times in 29 (both in the worst case, mostly to Malachar
+  and a zealot in the Burning God). Left for the exit test.
+- **The exit test** (proposed in the plan): the bots' runs pass for every subclass (above); the user plays the Cinder
+  Throne and one ending, from a finished Act 4 save or with `--act 4`.
 
 ### The in-game guide (after M4)
 

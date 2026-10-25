@@ -288,6 +288,9 @@ the road's side stories through (*The Lantern Rekindled*); claim the Throne (*Th
 Malachar, let him carry the Heart down into the fire (*The Lantern-Bird*). Then the **epilogue**: a slide for the ending
 and one for each place your choices reached, each over a scene of that place, and the credits. Your save is marked
 finished on the title screen, and loading it takes you back to the Throne to choose again.
+Step 5 had every subclass's bot play the whole game, from the gallows to an ending (each of the four reached by three or
+four of them, Malachar falling or spared at level 20). M5's exit test is your own play of the Cinder Throne and an ending
+(`--act 4` with a class flag starts at the Ember Gate camp).
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

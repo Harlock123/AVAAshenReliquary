@@ -89,6 +89,10 @@ it).*
 
 ### 5. Balance and the exit test
 
+*Bots' half done (2026-10-25): spec section 16, "Balance and the exit test (M5 step 5)". Every subclass plays the whole
+game to the ending it is given, Malachar at 20. The Vanguard and the Sniper die most at the Throne in the worst case
+(23 and 7 deaths); left for the user's play. The exit test waits on the user's play of the Throne and an ending.*
+
 - **Campaign runs:** `CampaignReport` plays to the end with every subclass. Malachar falls at level 20, and each ending
   can be reached.
 - **Exit (proposed):** the user plays the Cinder Throne and one ending (with `--act 4` or a finished Act 4 save); the bots'
