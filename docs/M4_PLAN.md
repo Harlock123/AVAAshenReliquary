@@ -186,10 +186,16 @@ sink, the one under the hero first); the Ember Gate opens on his death; his Echo
 his egg was smashed. Every subclass kills him in `CampaignReport.Acts_1_to_4_to_Vorthrax`, at level 18. See the spec,
 section 16, "Vorthrax the Cinderwyrm".
 
-### 10. Balance and the exit test
+### 10. Balance and the exit test (done, but the user's play)
 
 - **Campaign runs:** `CampaignReport` plays each act with every subclass. Each Herald falls at the act's top level, and each act takes about as long as Act 1 (1.5–2 hours of play).
 - **Exit (proposed):** the user plays Acts 2–4 with one class of their choice; the bots' runs pass for all twelve subclasses.
+
+*Done (2026-10-25), but the user's play:* `CampaignReport.Acts_1_to_4_through_the_Reliquary` plays all four acts with
+every subclass, through the Reliquary to the stair to the Cinder Throne: Sallow at 5, Hadric at 10, the Choir at 14,
+Vorthrax at 18, level 20 at the end. Act 1 to Act 4 take about 18.5, 20, 14.5 and 17.5 bot minutes. A hero can begin at
+Act 2, 3 or 4 (`GameWorld.ActStarts`; the creation screen's "Begin at", `--act N`) for the user's play of Acts 2-4. See
+the spec, section 16, "Balance and the exit test (M4 step 10)".
 
 ## Decisions to take
 

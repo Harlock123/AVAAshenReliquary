@@ -36,6 +36,7 @@ dotnet run --project src/AshenReliquary.App -- --vanguard # or any subclass: --b
                                                           # --cutthroat, --trickster, --marksman, --beastmaster,
                                                           # --lanternbearer, --oathbreaker, --paladin, --bonelord, --plaguebringer,
                                                           # --pistolero, --sniper
+dotnet run --project src/AshenReliquary.App -- --sniper --act 4 # begin at Act 2, 3 or 4 (the acts before done, at its level)
 dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id such as iron_march, or --wizard; the hero starts at the zone's level)
 ```
@@ -254,6 +255,11 @@ he marks on the ground first (Step out of it); below 60% he takes to the air, ou
 spells and bombs, rains fire round you, and swoops down every few seconds to be struck; below a quarter he lands, and
 the platforms of his cavern crack into embers and sink into the lava one by one, the one you stand on first. His death
 opens the Ember Gate down into the Reliquary, where his Echo waits too unless you smashed his egg.
+Step 10 closed M4's building: a hero can **begin at Act 2, 3 or 4** (the creation screen's "Begin at" button, or
+`--act N` with a class flag), with the Heralds before it dead, at the level a hero reaches that act (6, 11 or 15), its
+kit etched to suit and gold for the act's smith; the level-up picks wait on the L screen. Every subclass's bot plays
+all four acts in one run, through the Reliquary to the stair down to the Cinder Throne (the Epilogue, M5). M4's exit test
+is your own play of Acts 2-4.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

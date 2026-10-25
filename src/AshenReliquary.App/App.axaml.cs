@@ -17,7 +17,8 @@ public partial class App : Application
             // "--ranger", "--champion" or "--necromancer" skips both (or a subclass: "--vanguard", "--bulwark",
             // "--pyromancer", "--stormcaller", "--cutthroat", "--trickster", "--marksman", "--beastmaster",
             // "--lanternbearer", "--oathbreaker", "--paladin", "--bonelord", "--plaguebringer", "--gunslinger", "--pistolero",
-            // "--sniper"), and "--battle [zone]" (the Fens by default) starts a fight that plays itself.
+            // "--sniper"), and "--battle [zone]" (the Fens by default) starts a fight that plays itself. "--act N" (2 to 4) with a
+            // class flag starts at that act, the acts before it done (M4 step 10's exit test).
             var args = desktop.Args ?? [];
             var window = new MainWindow();
             // Sound: OpenAL with a mixing period big enough for a virtual machine's sound card; "--mute" stays silent.
@@ -42,7 +43,9 @@ public partial class App : Application
                          .Any(args.Contains))
             {
                 var (classId, subclass) = GameSession.QuickStart(args);
-                window.Session = GameSession.NewGame(classId, seed: Environment.TickCount, subclass: subclass);
+                var actAt = Array.IndexOf(args, "--act");
+                var act = actAt >= 0 && actAt + 1 < args.Length && int.TryParse(args[actAt + 1], out var n) ? Math.Clamp(n, 1, 4) : 1;
+                window.Session = GameSession.NewGame(classId, seed: Environment.TickCount, subclass: subclass, act: act);
             }
             else
                 window.ShowStart();

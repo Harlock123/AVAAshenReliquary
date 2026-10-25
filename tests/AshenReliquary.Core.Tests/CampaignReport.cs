@@ -14,7 +14,8 @@ namespace AshenReliquary.Core.Tests;
 /// Run it with `--logger "console;verbosity=detailed"`; ASHEN_BALANCE_RUNS sets the runs per class (1 by default).
 /// <see cref="Acts_1_and_2_to_Ser_Hadric"/> plays on through Act 2 (M4 step 4), with Ironhold's Hilde and Sable for the
 /// smith and trader; <see cref="Acts_1_to_3_to_the_Choir"/> on through Act 3 (M4 step 7), with the Rest's Halvard and Mora;
-/// <see cref="Acts_1_to_4_to_Vorthrax"/> on through Act 4 to the Cinderwyrm (M4 step 9), with the Ember Gate's Brannoc and Hesk.
+/// <see cref="Acts_1_to_4_through_the_Reliquary"/> on through Act 4, past the Cinderwyrm and down through the Reliquary (M4
+/// steps 9 and 10), with the Ember Gate's Brannoc and Hesk.
 /// </summary>
 public class CampaignReport(ITestOutputHelper output)
 {
@@ -25,7 +26,7 @@ public class CampaignReport(ITestOutputHelper output)
 
     public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0,
         int Salvaged = 0, int Crafted = 0, string? Dedication = null, bool HadricSlain = false, int HadricLevel = 0, bool ChoirSlain = false,
-        int ChoirLevel = 0, bool VorthraxSlain = false, int VorthraxLevel = 0);
+        int ChoirLevel = 0, bool VorthraxSlain = false, int VorthraxLevel = 0, bool ThroneReached = false);
 
     [Theory]
     [InlineData("fighter vanguard")]
@@ -138,9 +139,10 @@ public class CampaignReport(ITestOutputHelper output)
     }
 
     /// <summary>
-    /// Act 4 played on from Act 3's end (M4 step 9): down the cliff road to the Ember Gate camp (Brannoc's forge, Hesk's
-    /// supplies), the Ash Wastes, the Lava Rivers and the Wyrm's Nest to Vorthrax the Cinderwyrm. The exit test: Vorthrax
-    /// falls, and Act 4 (to the Ember Gate) ends about level 19.
+    /// Act 4 played on from Act 3's end (M4 steps 9 and 10): down the cliff road to the Ember Gate camp (Brannoc's forge,
+    /// Hesk's supplies), the Ash Wastes, the Lava Rivers and the Wyrm's Nest to Vorthrax the Cinderwyrm, then down through
+    /// the Reliquary and its gauntlet of Echoes to the stair to the Cinder Throne. The exit test: Vorthrax falls, every ward
+    /// opens, and Act 4 ends about level 20.
     /// </summary>
     [Theory]
     [InlineData("fighter vanguard")]
@@ -158,20 +160,21 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
-    public void Acts_1_to_4_to_Vorthrax(string kit)
+    public void Acts_1_to_4_through_the_Reliquary(string kit)
     {
         for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
              seed <= (only > 0 ? only : Runs); seed++)
         {
             var c = Play(kit, seed, actTwo: true, actThree: true, actFour: true);
-            output.WriteLine($"{kit}, run {seed}: Sallow at {c.SallowLevel}, Hadric at {c.HadricLevel}, the Choir at {c.ChoirLevel}, Vorthrax {(c.VorthraxSlain ? "slain" : "lives")} at {c.VorthraxLevel}, {c.Minutes:0} min of play, {c.SuppliesBought} supplies, {c.Salvaged} salvaged, {c.Crafted} crafted");
+            output.WriteLine($"{kit}, run {seed}: Sallow at {c.SallowLevel}, Hadric at {c.HadricLevel}, the Choir at {c.ChoirLevel}, Vorthrax {(c.VorthraxSlain ? "slain" : "lives")} at {c.VorthraxLevel}, the Throne's stair {(c.ThroneReached ? "reached" : "not reached")}, {c.Minutes:0} min of play, {c.SuppliesBought} supplies, {c.Salvaged} salvaged, {c.Crafted} crafted");
             foreach (var leg in c.Legs)
                 output.WriteLine($"  {leg.Zone,-22} {leg.Minutes,5:0.0} min  deaths {leg.Deaths,2}  potions {leg.Potions,2}  level {leg.LevelIn} ({leg.XpIn,3}) -> {leg.LevelOut} ({leg.XpOut,3})  gold {leg.Gold}");
             foreach (var g in c.Killers.GroupBy(k => k).OrderByDescending(g => g.Count()).Take(6))
                 output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
             Assert.True(c.ChoirSlain, $"{kit} run {seed} did not silence the Choir");
             Assert.True(c.VorthraxSlain, $"{kit} run {seed} did not kill Vorthrax");
-            Assert.InRange(c.Legs[^1].LevelOut, 18, 20);
+            Assert.True(c.ThroneReached, $"{kit} run {seed} did not come through the Reliquary");
+            Assert.InRange(c.Legs[^1].LevelOut, 19, 20);
             Assert.DoesNotContain(c.Killers, k => k.StartsWith("STUCK"));
         }
     }
@@ -225,12 +228,15 @@ public class CampaignReport(ITestOutputHelper output)
             bot.Clear("lava_rivers", "nest", wakeFirstShrine: true);
             bot.WakeAndVisit("ember_gate_shrine", "brannoc", "hesk");
             bot.Clear("wyrms_nest", "reliquary", wakeFirstShrine: true);
+            bot.WakeAndVisit("ember_gate_shrine", "brannoc", "hesk");
+            bot.Clear("reliquary", "throne", wakeFirstShrine: true);
         }
         return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers,
             bot.SuppliesBought, bot.Salvaged, bot.Crafted, hero.DedicationClass?.Name,
             world.Flags.GetValueOrDefault("act2.hadric") == "slain", bot.HadricLevel,
             world.Flags.GetValueOrDefault("act3.choir") == "slain", bot.ChoirLevel,
-            world.Flags.GetValueOrDefault("act4.vorthrax") == "slain", bot.VorthraxLevel);
+            world.Flags.GetValueOrDefault("act4.vorthrax") == "slain", bot.VorthraxLevel,
+            world.Zone.Id == "reliquary" && world.ZoneComplete);
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>

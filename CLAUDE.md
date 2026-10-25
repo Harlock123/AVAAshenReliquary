@@ -163,7 +163,10 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `poolType` (a firestorm), `crumble*` over legend `crumbles` platforms (`TileMap.Crack`/`Sink`/`RaisePlatforms`,
   `GroundVersion` for the ground cache); the Reliquary's Vault of Flame for his Echo (revision 2);
   `BalanceReport.Vorthrax_at_levels_18_and_19`; `CampaignReport.Acts_1_to_4_to_Vorthrax`). Act 4 is whole to the
-  Reliquary. Next: step 10, balance and the exit test.
+  Reliquary. Step 10 done: `CampaignReport.Acts_1_to_4_through_the_Reliquary` plays all four acts with every subclass
+  to the stair to the Cinder Throne (level 20); beginning at an act (`GameWorld.ActStarts`/`BeginAct`, the creation
+  screen's "Begin at", `--act N`). M4's exit test waits on the user's play of Acts 2-4 (start with `--act 2`). After
+  M4: M5 (the Epilogue: the Cinder Throne).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs
@@ -203,7 +206,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
 
 - They drive step by step ("commit it and move on to X", "run it"). **Commit only when asked**, on `main`.
 - "Run it" means: build Release, then start `dotnet src/AshenReliquary.App/bin/Release/net10.0/AVAAshenReliquary.dll`
-  in the background (`--fighter`, `--wizard`, `--rogue`, `--ranger`, `--champion`, `--necromancer`, `--gunslinger` or a subclass flag skip creation; `--mute` starts silent; `--battle [zone]` plays a fight by
+  in the background (`--fighter`, `--wizard`, `--rogue`, `--ranger`, `--champion`, `--necromancer`, `--gunslinger` or a subclass flag skip creation, and `--act 2|3|4` with one begins at that act; `--mute` starts silent; `--battle [zone]` plays a fight by
   itself, `Services/BattleDemo.cs`, saving to a temp folder: use it to watch or record fights, or measure fps in combat).
   To record: make the game fullscreen with `hyprctl dispatch 'hl.dsp.window.fullscreen({ window = "class:AVAAshenReliquary" })'`,
   then `gpu-screen-recorder -w region -region 1500x1000+0+0 -s 1920x1280 -f 60 -k h264 -cursor no -a default_output -o <file>`

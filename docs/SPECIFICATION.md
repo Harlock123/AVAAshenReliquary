@@ -685,7 +685,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary; step 10 done: the campaign through all four acts and beginning at an act; the exit test waits on the user's play of Acts 2–4).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -2014,6 +2014,40 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   starting kit at 19 the Vanguard, Pistolero and Sniper lose most. The necromancers win every fight in 15–25 s.
   **The campaign** (`CampaignReport.Acts_1_to_4_to_Vorthrax`): every subclass kills Vorthrax, meeting him at level 18,
   in 53–85 minutes of play for the four acts; Act 4 takes heroes from 14 to 19, with 0–4 deaths in its three zones.
+
+### Balance and the exit test (M4 step 10)
+
+- **The campaign** (`CampaignReport.Acts_1_to_4_through_the_Reliquary`) now plays the whole game so far in one run per
+  subclass: Act 1 from the gallows to Mother Sallow, Act 2 to Ser Hadric, Act 3 to the Choir, Act 4 past Vorthrax and down
+  through the Reliquary (every Echo, every ward) to the stair to the Cinder Throne. All fifteen subclasses come through:
+
+  | Herald | Met at (every subclass) | The act's levels |
+  | --- | --- | --- |
+  | Mother Sallow | 5 | 1–5 |
+  | Ser Hadric | 10 (the Oathbreaker 9) | 6–10 |
+  | The Choir of Whispers | 14 | 11–15 |
+  | Vorthrax the Cinderwyrm | 18 | 16–19 |
+
+  The run ends at level 20 in the Reliquary, in 56–93 bot minutes of play for the four acts (the bot fights and walks
+  faster than a player; the user's own Act 1 took 74 minutes against the bot's 14–25). Bot minutes an act, towns aside:
+  Act 1 about 18.5, Act 2 about 20, Act 3 about 14.5, Act 4 about 17.5 with the Reliquary. Act 3 is the shortest, by about a
+  fifth (three zones and the tower against four zones); left as it is.
+- **Each Herald a level under or at the act's top:** Sallow, Hadric and the Choir are met a level under the hero who meets
+  them (as M2 decided for Sallow); Vorthrax is met at his own level, 18. With runes at the level the campaign meets each,
+  every subclass wins five or six of six duels (`BalanceReport`: `Mother_Sallow_at_levels_4_and_5`,
+  `Ser_Hadric_at_levels_9_and_10`, `The_Choir_at_levels_13_and_14`, `Vorthrax_at_levels_18_and_19`).
+- **Beginning at an act** (`GameWorld.ActStarts`, `GameWorld.BeginAct`): for the exit test's play of Acts 2–4 without
+  replaying what came before. Act 2 begins on the Iron March at level 6, Act 3 at the foot of the Frostbitten Pass at 11,
+  Act 4 at the Ember Gate camp at 15. The Heralds before are dead (their flags set, and Varro's, and the Bell Tower's
+  stair open), their hubs' shrines awake for the Rift, the worn kit made again at that item level with every fundamental
+  rune it can hold, gold for the smith (900, 3,500, 9,000) and two more bombs; the side stories of the acts before are
+  left undone (so their Echoes come in the Reliquary). The level-up picks wait on the L screen. The creation screen's
+  "Begin at" button cycles the act; `--act N` does it for a quick start.
+- **The exit test** (proposed in the plan): the bots' runs pass for every subclass (above, and every balance row
+  finishes); the user's play of Acts 2–4 with one class is still to come.
+- **Seen in the runs, left open:** gold piles up (about 30,000 at the Reliquary in the bot's hands); the starting-kit
+  rows lose some Herald duels (the Vanguard, Pistolero and Sniper against Vorthrax at 19); the necromancers win every
+  Vorthrax duel in under 25 s.
 
 ### The Gunslinger (after M4 step 6)
 

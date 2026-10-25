@@ -185,14 +185,22 @@ public sealed class GameSession
         return gear;
     }
 
-    /// <summary>A new game from the character creation screen's choices, on Gallows Road.</summary>
-    public static GameSession NewGame(CharacterChoices choices, int seed, string zoneId = "gallows_road")
+    /// <summary>
+    /// A new game from the character creation screen's choices, on Gallows Road; or at a later act's start
+    /// (<paramref name="act"/> 2 to 4: <see cref="GameWorld.BeginAct"/>).
+    /// </summary>
+    public static GameSession NewGame(CharacterChoices choices, int seed, string zoneId = "gallows_road", int act = 1)
     {
         var content = ContentDatabase.Embedded;
+        var start = act > 1 ? GameWorld.ActStarts.Single(a => a.Act == act) : null;
+        if (start is not null)
+            zoneId = start.Zone;
         var hero = CharacterBuilder.Create(content, choices);
         var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, seed, content.AbilityBar(choices.ClassId), content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, choices.ClassId, choices.Subclass);
         hero.RestAtShrine();
+        if (start is not null)
+            world.BeginAct(start);
         var session = new GameSession(world, choices.ClassId) { SaveId = Services.SaveStore.NewSaveId(choices.Name), Seed = seed };
         session.HookAutosave();
         return session;
@@ -202,13 +210,13 @@ public sealed class GameSession
     /// A quick start (tests, "--wizard"): a Human with the recommended build for the class, and its default subclass
     /// unless one is named.
     /// </summary>
-    public static GameSession NewGame(string classId, int seed, string zoneId = "gallows_road", string? subclass = null)
+    public static GameSession NewGame(string classId, int seed, string zoneId = "gallows_road", string? subclass = null, int act = 1)
     {
         var choices = CharacterBuilder.Recommend(ContentDatabase.Embedded, "The Ashbound", "human",
             classId switch { "wizard" => "hedge-scholar", "rogue" => "street-urchin", "ranger" => "hunter", "champion" => "lantern-acolyte", "necromancer" => "gravedigger",
                 "gunslinger" => "ironhold-gunhand", _ => "deserter" }, classId)
             with { Subclass = subclass ?? DefaultSubclass(classId) };
-        var session = NewGame(choices, seed, zoneId);
+        var session = NewGame(choices, seed, zoneId, act);
         session.PortraitId = Services.Portraits.For("human").FirstOrDefault()?.Id;
         return session;
     }

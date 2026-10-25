@@ -5,6 +5,7 @@ using AshenReliquary.Core.Characters;
 using AshenReliquary.Core.Content;
 using AshenReliquary.Core.Items;
 using AshenReliquary.Core.Rules;
+using AshenReliquary.Core.World;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -191,6 +192,23 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
 
     /// <summary>Raised by Begin with the finished choices and the chosen portrait (null when none exists yet).</summary>
     public event Action<CharacterChoices, Portrait?>? Started;
+
+    /// <summary>
+    /// The act the hero begins at (M4 step 10): 1 on the gallows road, or 2 to 4 with the acts before it done, at its
+    /// level (see <see cref="GameWorld.ActStarts"/>).
+    /// </summary>
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(StartActLabel))] private int _startAct = 1;
+
+    public string StartActLabel => StartAct switch
+    {
+        2 => "Begin at: Act 2 · the Iron March, level 6",
+        3 => "Begin at: Act 3 · the Frostbitten Pass, level 11",
+        4 => "Begin at: Act 4 · the Ember Gate, level 15",
+        _ => "Begin at: Act 1 · the gallows",
+    };
+
+    [RelayCommand]
+    private void NextStartAct() => StartAct = StartAct % GameWorld.ActStarts.Count + 1;
 
     public string AncestryDetail => $"{Ancestry.HitPoints} HP · {Ancestry.SpeedFeet} ft · {Ancestry.Senses}. {Ancestry.Trait}.";
     public string BackgroundDetail => $"Trained in {Background.Skill} and {Background.Lore}; skill feat {Background.SkillFeat}.";

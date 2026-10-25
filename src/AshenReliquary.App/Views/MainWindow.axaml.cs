@@ -130,13 +130,13 @@ public partial class MainWindow : Window
         return vm;
     }
 
-    /// <summary>Shows the character creation screen; Begin starts a new game on Gallows Road.</summary>
+    /// <summary>Shows the character creation screen; Begin starts a new game on Gallows Road (or at a later act's start).</summary>
     public CharacterCreationViewModel ShowCharacterCreation()
     {
         var vm = new CharacterCreationViewModel();
         vm.Started += (choices, portrait) =>
         {
-            var session = GameSession.NewGame(choices, Environment.TickCount);
+            var session = GameSession.NewGame(choices, Environment.TickCount, act: vm.StartAct);
             session.PortraitId = portrait?.Id;
             Session = session;
             SaveNow(announce: false);
