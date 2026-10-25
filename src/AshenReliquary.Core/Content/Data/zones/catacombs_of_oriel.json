@@ -723,7 +723,10 @@
      "count": 2
     }
    ],
-   "level": 14
+   "level": 14,
+   "flag": "act3.bell_tower",
+   "value": "open",
+   "says": "Somewhere to the south, stone shifts and falls: the stair up to the Bell Tower is open."
   },
   {
    "at": [
@@ -803,7 +806,13 @@
    "requires": {
     "act3.bell_tower": "open"
    },
-   "sealedText": "The stair up to the Bell Tower is choked with fallen stone. (The Bell Tower is still being written.)"
+   "sealedText": "The stair up to the Bell Tower is choked with fallen stone. Something in the abbots' crypt holds it shut.",
+   "to": "bell_tower",
+   "toExit": "catacombs",
+   "arrive": [
+    30,
+    89
+   ]
   }
  ],
  "caches": [

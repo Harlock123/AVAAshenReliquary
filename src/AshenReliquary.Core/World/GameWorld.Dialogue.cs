@@ -45,6 +45,7 @@ public sealed partial class GameWorld
     {
         EndDialogue();
         CloseStash();
+        HeldCandle = null;
         _interactives.Clear();
         // Someone there only while flags hold (Red Mirella, until her choice is made).
         foreach (var npc in (zone.Npcs ?? []).Where(n => Holds(n.Requires)))
@@ -56,7 +57,7 @@ public sealed partial class GameWorld
     /// <summary>Walk to someone or something (a click on them) and start its dialogue on arrival.</summary>
     public void Interact(Interactive who)
     {
-        if (Hero.IsDead || !_interactives.Contains(who))
+        if (Hero.IsDead || !_interactives.Contains(who) || HeldBySong())
             return;
         Hero.Order = null;
         Hero.PickupTarget = null;
@@ -124,6 +125,11 @@ public sealed partial class GameWorld
         if (who.Thing?.Action == "stash")
         {
             StashOpenAt = who;
+            return;
+        }
+        if (who.Thing?.Action == "candle")
+        {
+            TouchCandle(who);
             return;
         }
         if (who.Dialogue is null || !_dialogues.TryGetValue(who.Dialogue, out var dialogue))

@@ -227,8 +227,14 @@ times as fast; minotaurs, ice crawlers, frost wraiths and hexers keep the road. 
 Will save sees through. Below, the dark **Catacombs of Oriel** (levels 13-14) hold the Choir's acolytes, who turn your
 wolf or skeletons against you for a while, and the Hollow Abbot. Crowd-control casters slow, frighten and stupefy. Two
 side stories: seven burned pages of the **Library of Ash** (read them all to learn what Ashur was), and **the
-Penitent**, Brother Caddoc's confession in the catacombs (forgive him or send him away). Next: the Bell Tower and the
-Choir of Whispers.
+Penitent**, Brother Caddoc's confession in the catacombs (forgive him or send him away).
+Step 7 finished Act 3. The Hollow Abbot's fall clears the stair to the **Bell Tower** (level 14), where the **Choir of
+Whispers** sings in the belfry: three sisters on one health bar (hit any of them). Below 60% two fade into the bells and
+Agnete hides among reflections of herself that shatter at a touch; stay near her and a Perception check hears the true
+voice (a gold ring at her feet). Below a quarter the three sing as one, and every 6 s a failed Will save enthralls you:
+you walk to the singer and can do nothing for a few seconds. In the tower's chapel the **Three Candles** burn on the
+wrong sisters' stands: click one to lift it, another to swap them (the sisters' hymnals in their cells say whose is
+whose), or snuff them all out. Brother Caddoc forgiven sings against the song; sent away, he joins it.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

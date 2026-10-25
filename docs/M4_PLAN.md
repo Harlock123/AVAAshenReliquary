@@ -138,13 +138,19 @@ casters (`inflicts`); the Library of Ash (seven pages, a boon and the chronicle'
 survey's gaps (ghosts, white-robed cultists) are recolours with a creature alpha. See the spec, section 16, "The
 Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel".
 
-### 7. The Bell Tower and the Choir of Whispers
+### 7. The Bell Tower and the Choir of Whispers (done)
 
 - **The fight, in three phases:**
   1. Three sisters on one health bar.
   2. Mirror clones; a Perception check reveals the real one.
   3. Mind control: a Will save every 6 s.
 - **Three Candles:** the sisters' relic puzzle.
+
+*Done (2026-10-24):* the Bell Tower (level 14) up the catacombs' south stair, opened by the Hollow Abbot's fall; the
+Choir (Agnete, Brigid and Cille on one bar; Agnete among four reflections a Perception check sees through; the song's Will
+saves enthralling the hero); Three Candles (set right, or snuffed); the Penitent's payoff (Caddoc forgiven sings against
+the song, banished joins the Choir). The campaign plays Acts 1–3 to the Choir with every subclass. Act 3 is whole. See
+the spec, section 16, "The Bell Tower and the Choir of Whispers".
 
 ### 8. Levels 16–20 and Act 4
 

@@ -13,7 +13,7 @@ namespace AshenReliquary.Core.Tests;
 /// have Garrow etch runes. It fights as <see cref="BalanceReport"/>'s bot does (no kiting) and steps out of rot pools.
 /// Run it with `--logger "console;verbosity=detailed"`; ASHEN_BALANCE_RUNS sets the runs per class (1 by default).
 /// <see cref="Acts_1_and_2_to_Ser_Hadric"/> plays on through Act 2 (M4 step 4), with Ironhold's Hilde and Sable for the
-/// smith and trader.
+/// smith and trader; <see cref="Acts_1_to_3_to_the_Choir"/> on through Act 3 (M4 step 7), with the Rest's Halvard and Mora.
 /// </summary>
 public class CampaignReport(ITestOutputHelper output)
 {
@@ -23,7 +23,8 @@ public class CampaignReport(ITestOutputHelper output)
     public sealed record ZoneLeg(string Zone, double Minutes, int Deaths, int Potions, int LevelIn, int XpIn, int LevelOut, int XpOut, int Gold);
 
     public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0,
-        int Salvaged = 0, int Crafted = 0, string? Dedication = null, bool HadricSlain = false, int HadricLevel = 0);
+        int Salvaged = 0, int Crafted = 0, string? Dedication = null, bool HadricSlain = false, int HadricLevel = 0, bool ChoirSlain = false,
+        int ChoirLevel = 0);
 
     [Theory]
     [InlineData("fighter vanguard")]
@@ -97,7 +98,45 @@ public class CampaignReport(ITestOutputHelper output)
         }
     }
 
-    public static Campaign Play(string kit, int seed, bool actTwo = false)
+    /// <summary>
+    /// Act 3 played on from Act 2's end (M4 step 7): the Frostbitten Pass to Saint Oriel's Rest (Halvard's forge, Mora's
+    /// supplies), the Hollow Woods, the Catacombs of Oriel and up the Bell Tower to the Choir of Whispers. The exit test: the
+    /// Choir falls, and Act 3 ends about level 15.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Acts_1_to_3_to_the_Choir(string kit)
+    {
+        for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
+             seed <= (only > 0 ? only : Runs); seed++)
+        {
+            var c = Play(kit, seed, actTwo: true, actThree: true);
+            output.WriteLine($"{kit}, run {seed}: Sallow at {c.SallowLevel}, Hadric at {c.HadricLevel}, the Choir {(c.ChoirSlain ? "slain" : "lives")} at {c.ChoirLevel}, {c.Minutes:0} min of play, {c.SuppliesBought} supplies, {c.Salvaged} salvaged, {c.Crafted} crafted");
+            foreach (var leg in c.Legs)
+                output.WriteLine($"  {leg.Zone,-22} {leg.Minutes,5:0.0} min  deaths {leg.Deaths,2}  potions {leg.Potions,2}  level {leg.LevelIn} ({leg.XpIn,3}) -> {leg.LevelOut} ({leg.XpOut,3})  gold {leg.Gold}");
+            foreach (var g in c.Killers.GroupBy(k => k).OrderByDescending(g => g.Count()).Take(6))
+                output.WriteLine($"  went down {g.Count(),2}x near {g.Key}");
+            Assert.True(c.ChoirSlain, $"{kit} run {seed} did not silence the Choir");
+            Assert.InRange(c.Legs[^1].LevelOut, 14, 16);
+            Assert.DoesNotContain(c.Killers, k => k.StartsWith("STUCK"));
+        }
+    }
+
+    public static Campaign Play(string kit, int seed, bool actTwo = false, bool actThree = false)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
@@ -128,9 +167,20 @@ public class CampaignReport(ITestOutputHelper output)
             bot.Walk("barrow_fields", "siege_walls");
             bot.Clear("siege_walls", "heights");
         }
+        if (actThree)
+        {
+            bot.Clear("frostbitten_pass", "rest", wakeFirstShrine: true);
+            bot.Town("halvard", "mora");
+            bot.Walk("saint_oriels_rest", "north_door");
+            bot.Clear("hollow_woods", "catacombs", wakeFirstShrine: true);
+            bot.Clear("catacombs_of_oriel", "bell_tower");
+            bot.WakeAndVisit("cloister_shrine", "halvard", "mora");
+            bot.Clear("bell_tower", "cliff_road");
+        }
         return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers,
             bot.SuppliesBought, bot.Salvaged, bot.Crafted, hero.DedicationClass?.Name,
-            world.Flags.GetValueOrDefault("act2.hadric") == "slain", bot.HadricLevel);
+            world.Flags.GetValueOrDefault("act2.hadric") == "slain", bot.HadricLevel,
+            world.Flags.GetValueOrDefault("act3.choir") == "slain", bot.ChoirLevel);
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>
@@ -143,6 +193,7 @@ public class CampaignReport(ITestOutputHelper output)
         public List<string> Killers { get; } = [];
         public int SallowLevel { get; private set; }
         public int HadricLevel { get; private set; }
+        public int ChoirLevel { get; private set; }
 
         private int _deaths, _potions;
         private bool _wasDead;
@@ -221,6 +272,8 @@ public class CampaignReport(ITestOutputHelper output)
                 SallowLevel = Hero.Level;
             if (world.Boss is { Definition.Id: "ser_hadric" } && HadricLevel == 0)
                 HadricLevel = Hero.Level;
+            if (world.Boss is { Definition.Id: "choir_agnete" } && ChoirLevel == 0)
+                ChoirLevel = Hero.Level;
             if (Hero.HitPoints < Hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                 _potions++;
             Tactics.Upkeep(world);

@@ -116,6 +116,12 @@ public sealed class HeroActor : Actor
     public MonsterActor? Prey { get; internal set; }
     internal double InvulnerableUntil { get; set; }
 
+    /// <summary>The Choir's song holds the hero until then: they walk to the singer and can do nothing else.</summary>
+    public double EnthralledUntil { get; internal set; }
+
+    /// <summary>The sister whose song holds the hero.</summary>
+    internal MonsterActor? Enthraller { get; set; }
+
     /// <summary>Cold exposure, 0 to 100 (a cold zone's: chilled at half, freezing at full).</summary>
     public double Cold { get; internal set; }
 
@@ -383,6 +389,21 @@ public sealed class MonsterActor : Actor
 
     /// <summary>One of a Mirrored monster's images: weaker, see-through, gone when the original falls.</summary>
     public bool IsMirrorImage { get; internal set; }
+
+    /// <summary>A sister of the Choir: her health is the boss's, and a blow at her lands on it.</summary>
+    public MonsterActor? SharesWith { get; internal set; }
+
+    /// <summary>One of the Choir's reflections: it looks like the true sister, and shatters at a touch.</summary>
+    public bool IsReflection { get; internal set; }
+
+    /// <summary>The true sister among her reflections, seen for what she is until then (a Perception check).</summary>
+    public double TrueVoiceUntil { get; internal set; }
+
+    internal double ShuffleIn { get; set; }
+    internal double SongIn { get; set; }
+
+    /// <summary>A boss phase's late arrival (Brother Caddoc) has come.</summary>
+    internal bool Joined { get; set; }
 
     /// <summary>A corpse that will stand again unless it is destroyed.</summary>
     public bool IsRising => IsDead && RisesIn > 0;

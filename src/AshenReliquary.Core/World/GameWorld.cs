@@ -340,7 +340,7 @@ public sealed partial class GameWorld
     /// <summary>Steps toward a point, dropping whatever the hero was doing. False on cooldown, unable to move, or dead.</summary>
     public bool Dodge(double towardX, double towardY)
     {
-        if (Hero.IsDead || !Hero.Character.Conditions.CanMove || Time < Hero.DodgeReadyAt || Hero.DodgeRemaining > 0)
+        if (Hero.IsDead || !Hero.Character.Conditions.CanMove || Time < Hero.DodgeReadyAt || Hero.DodgeRemaining > 0 || HeldBySong())
             return false;
         var (dx, dy) = (towardX - Hero.X, towardY - Hero.Y);
         var length = Math.Sqrt(dx * dx + dy * dy);
@@ -517,7 +517,7 @@ public sealed partial class GameWorld
     /// </summary>
     public void MoveTo(double x, double y)
     {
-        if (Hero.IsDead)
+        if (Hero.IsDead || HeldBySong())
             return;
         if (Hero.Character.Taint.ReversedMovementRemaining > 0)
             (x, y) = (2 * Hero.X - x, 2 * Hero.Y - y);
@@ -553,7 +553,7 @@ public sealed partial class GameWorld
 
     private void Use(AbilityDefinition ability, MonsterActor? target, (double X, double Y)? toward = null)
     {
-        if (Hero.IsDead)
+        if (Hero.IsDead || HeldBySong())
             return;
         if (ability.IsSelf)
         {
@@ -591,7 +591,7 @@ public sealed partial class GameWorld
     /// <summary>Walk to a piece of loot and pick it up (a click on its label).</summary>
     public void PickUp(GroundItem item)
     {
-        if (Hero.IsDead || !_ground.Contains(item))
+        if (Hero.IsDead || !_ground.Contains(item) || HeldBySong())
             return;
         Hero.Order = null;
         Hero.TalkTarget = null;
@@ -1131,6 +1131,8 @@ public sealed partial class GameWorld
             return;
         }
         if (!c.Conditions.CanAct)
+            return;
+        if (UpdateEnthralled(dt))
             return;
 
         if (hero.Action is { } action)
@@ -1751,6 +1753,21 @@ public sealed partial class GameWorld
             Dissolve(monster);
             return;
         }
+        // The Choir: a reflection is gone, worth nothing; a sister falls with the bar she shares, and brings the boss down.
+        if (monster.IsReflection)
+        {
+            ShatterReflection(monster);
+            return;
+        }
+        if (monster.SharesWith is { } pool)
+        {
+            monster.State = MonsterState.Dead;
+            monster.Path.Clear();
+            monster.Play("die", restart: true);
+            if (pool.Creature.IsDead && pool.State != MonsterState.Dead)
+                Kill(pool, critical);
+            return;
+        }
         if (Hero.Prey == monster)
             Hero.Prey = null;
         if (monster.SpawnIndex >= 0)
@@ -1782,7 +1799,11 @@ public sealed partial class GameWorld
         // A side story's pack: once every one of its placed monsters has fallen, its flag is set.
         if (monster.SpawnIndex >= 0 && monster.PackId - 1 < Zone.Spawns.Count && Zone.Spawns[monster.PackId - 1] is { Flag: { } packFlag } spawn
             && !_monsters.Any(m => m.PackId == monster.PackId && m.SpawnIndex >= 0 && !m.IsDead))
+        {
             SetFlag(packFlag, spawn.Value ?? "cleared");
+            if (spawn.Says is { } line)
+                Say(line);
+        }
     }
 
     public const int VengeanceMax = 3;
@@ -2343,6 +2364,7 @@ public sealed partial class GameWorld
         ClearNecromancerState();
         Hero.Play("die", restart: true);
         Hero.RespawnIn = RespawnSeconds;
+        Hero.EnthralledUntil = 0;
         Sound(SoundCue.Death, Hero);
         Hero.Order = null;
         Hero.Action = null;

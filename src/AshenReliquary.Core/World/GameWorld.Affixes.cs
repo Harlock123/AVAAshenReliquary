@@ -81,6 +81,22 @@ public sealed partial class GameWorld
     /// <summary>Damage landing on a monster: its ward (Shielded) soaks what it can, the rest is taken. Returns the rest.</summary>
     private int DamageMonster(MonsterActor m, int damage)
     {
+        // The Choir: a reflection shatters at a touch; a blow at a sister lands on the one health bar they share.
+        if (m.IsReflection)
+        {
+            if (damage > 0)
+                m.Creature.TakeDamage(m.Creature.HitPoints);
+            return 0;
+        }
+        if (m.SharesWith is { IsDead: false } pool)
+        {
+            var landed = DamageMonster(pool, damage);
+            SyncChoir(pool);
+            // A sister struck as she withdrew (no longer in the field to follow the bar) still falls with it.
+            if (pool.IsDead)
+                m.Creature.TakeDamage(m.Creature.HitPoints);
+            return landed;
+        }
         if (m.Definition.Boss is not null && damage > 0)
             m.Threat[_dealer ?? Hero] = m.Threat.GetValueOrDefault(_dealer ?? Hero) + damage;
         if (m.Ward > 0 && damage > 0)
@@ -97,6 +113,8 @@ public sealed partial class GameWorld
             m.Creature.TakeDamage(m.Creature.HitPoints);
         if (m.Has(MonsterAffix.Mirrored) && !m.HasSplit && !m.IsDead && m.Creature.HitPoints * 2 <= m.Creature.Stats.HitPoints)
             Split(m);
+        if (m.Definition.Boss is { Sisters.Count: > 0 })
+            SyncChoir(m);
         return damage;
     }
 

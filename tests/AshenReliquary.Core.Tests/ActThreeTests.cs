@@ -112,6 +112,7 @@ public class ActThreeTests
         var stair = world.Zone.Exits.Single(e => e.Id == "bell_tower");
         foreach (var m in world.Monsters.ToList())
             world.Slay(m);
+        world.SetFlag("act3.bell_tower", "");                   // as if the Hollow Abbot still stood (ChoirTests opens it)
         (world.Hero.X, world.Hero.Y) = (stair.At[0] + 0.5, stair.At[1] - 3.5);
         world.MoveTo(stair.At[0] + 0.5, stair.At[1] + 0.5);
         Run(world, 3);

@@ -4,7 +4,7 @@ An isometric action RPG in Grim Dawn's style with Pathfinder 2e Remaster rules, 
 SkiaSharp. The design is `docs/SPECIFICATION.md` (the working copy; section 15 has the milestones, section 16 the
 implementation decisions made so far). `README.md` has the run commands and controls.
 
-## Where things stand (2026-10-20)
+## Where things stand (2026-10-24)
 
 - **M0 (rules core):** done.
 - **M1 (vertical slice):** done (2026-10-17). Built: renderer, Gallows Road, six monsters, abilities, loot and
@@ -131,7 +131,7 @@ implementation decisions made so far). `README.md` has the run commands and cont
   the Library of Ash (`act3.page.N`, `ReadLibraryPage`, boon `ashurs_chronicle`) and the Penitent (`act3.penitent`
   forgiven/banished, boon `penitents_grace`; Caddoc's NPC entries hang on flags); `Tactics.WarmUp`;
   `BalanceReport.Frostbitten_Pass_at_level_11`, `Hollow_Woods_at_level_12`, `Catacombs_of_Oriel_at_level_13`. The
-  campaign's Act 3 leg waits for the Choir (step 7). After step 6, asked for: the bar's right-click menu
+  campaign's Act 3 leg came with the Choir (step 7). After step 6, asked for: the bar's right-click menu
   (`Rendering/BindMenu.cs`, `GameWorld.BindAbility`: one ability may be bound to several slots, sharing its cooldown;
   `SlotsOf`); then frame time at full screen (spec section 16): the ground cached in chunks (`WorldView.Ground.cs`,
   `CacheGround`), the darkness mask on a GPU surface, the depth pass culled and sorted in place; `ASHEN_STATS=1` logs the
@@ -144,7 +144,14 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `GunDamage` Singular Expertise +2/+3/+4; Pistolero and Sniper; materials `ItemCategory.Material` dropping by act
   (`LootGenerator.MaterialChances`), special rounds `AbilityDefinition.Round` cast at a forge, `CraftRecipe.Refit` and
   `Item.Refits`; Ironhold's gunsmith Ottilie; art and sounds from `tools/build_guns.py` and `tools/build_gun_sounds.py`,
-  which need a venv with Pillow, numpy and scipy; `--gunslinger`, `--pistolero`, `--sniper`). Next: step 7, the Bell Tower and the Choir of Whispers.
+  which need a venv with Pillow, numpy and scipy; `--gunslinger`, `--pistolero`, `--sniper`). Step 7 done: the Bell Tower and the Choir of Whispers
+  (`tools/bell_tower_mapgen.py`, opened by the Hollow Abbot's pack flag and its spawn `says`; `World/GameWorld.Choir.cs`:
+  boss `sisters` sharing the boss's health through `MonsterActor.SharesWith` (redirected in `DamageMonster`, synced by
+  `SyncChoir`), phase `withdraw`, `reflections` (`IsReflection`, shuffled; Perception hears `TrueVoiceUntil`), the song
+  (`songEverySeconds`, `HeroActor.EnthralledUntil`, commands refused by `HeldBySong`), `joins`/`joinsIf` (Caddoc
+  banished); Three Candles (interactable `action: candle`, flags `act3.candle.<sister>`, `act3.candles`);
+  `BalanceReport.Bell_Tower_at_level_14`, `The_Choir_at_levels_13_and_14`; `CampaignReport.Acts_1_to_3_to_the_Choir`).
+  Act 3 is whole. Next: step 8, levels 16-20 and Act 4.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

@@ -23,7 +23,7 @@ namespace AshenReliquary.Core.World;
 /// a champion, siphons life when hurt and otherwise casts Grave Bolt. The gunslinger keeps its distance as the ranger
 /// does (Hit the Dirt! out of melee, loading the gun as it lands), fires Risky Reload when its gun is empty, Headshots
 /// anything tough, fans the hammer with two rounds or more loaded, scatters shot into a crowd and Crack Shots with Grit
-/// to spare.
+/// to spare. Every class goes for the Choir's true voice once it is heard among her reflections.
 /// </summary>
 public static class Tactics
 {
@@ -97,6 +97,9 @@ public static class Tactics
     public static void Act(GameWorld world, string classId, MonsterActor target)
     {
         var hero = world.Hero;
+        // Among the Choir's reflections, the true voice once heard (anything else may be a reflection).
+        if (world.Monsters.FirstOrDefault(m => !m.IsDead && world.Time < m.TrueVoiceUntil) is { } voice)
+            target = voice;
         var resource = hero.Resource;
         // Abilities by id, on the bar or waiting in the list (a player would put them on the bar).
         bool Ready(string id, out string slot)

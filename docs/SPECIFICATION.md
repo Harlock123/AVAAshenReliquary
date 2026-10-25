@@ -158,7 +158,7 @@ The world is a chain of 16 hand-authored zones, four per act, connected through 
 | 3 | Saint Oriel's Rest | 3.1 Frostbitten Pass | 11–12 | Cold-exposure meter, blizzards |
 | 3 |  | 3.2 Hollow Woods | 12–13 | Invisible and illusion enemies, Will saves |
 | 3 |  | 3.3 Catacombs of Oriel (dungeon) | 13–14 | Mind-control enemies turn your summons |
-| 3 |  | 3.4 Bell Tower | 14–15 | **Boss:** The Choir of Whispers |
+| 3 |  | 3.4 Bell Tower | 14 | **Boss:** The Choir of Whispers |
 | 4 | Ember Gate camp | 4.1 Ash Wastes | 16–17 | Ash storms block line of sight |
 | 4 |  | 4.2 Lava Rivers | 17–18 | Hazardous terrain, fire resistance checks |
 | 4 |  | 4.3 Wyrm's Nest | 18–19 | **Boss:** Vorthrax the Cinderwyrm |
@@ -685,7 +685,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1768,7 +1768,7 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **Gaps:** no ghosts, frost wraiths, cultists in white, or whisper-spawn. They are recolours, as Flare draws its own
     ghosts: a tint and a creature `alpha` (0 to 1) for the see-through.
 - **The road:** the Siege Walls' Herald gate → **the Frostbitten Pass** → Saint Oriel's Rest → (the north door) **the
-  Hollow Woods** → **the Catacombs of Oriel** → the stair to the Bell Tower, barred until step 7.
+  Hollow Woods** → **the Catacombs of Oriel** → the stair to the Bell Tower (step 7).
 - **New creatures** (`creatures.json`):
 
   | Creature | Art | What it does |
@@ -1817,8 +1817,8 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   catacombs' door. There are 14 packs, three shrines and six chests.
 - **The Catacombs of Oriel** (`tools/catacombs_of_oriel_mapgen.py`, levels 13–14, a dark dungeon, `xpScale` 0.6): the
   stair hall, the long ossuary, the Choir's chapel, the penitents' cells (Caddoc's confession), the abbots' hall, and
-  the abbots' crypt (the Hollow Abbot and the reliquary). The stair up to the Bell Tower is choked with stone until step
-  7. There are 17 packs, three shrines and six chests.
+  the abbots' crypt (the Hollow Abbot and the reliquary). The stair up to the Bell Tower is choked with stone until the
+  Hollow Abbot falls (step 7). There are 17 packs, three shrines and six chests.
 - **The Library of Ash** (a hidden side story): seven burned pages of the Chronicle of Saint Oriel lie on lecterns, two
   in the pass, two in the woods and three in the catacombs (`library_page_1`…`7`, flags `act3.page.N`).
   - The journal counts the pages read.
@@ -1847,6 +1847,54 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   - **The pass at 11:** everyone through, in 2.5–4.4 bot minutes; the Cutthroat dies most (two a run, to wraith packs).
   - **The woods at 12:** no deaths; a hero point now and then to a Mirrored cultist.
   - **The catacombs at 13:** at most one death a run (turned wolves, the Hollow Abbot, Mirrored cultists).
+
+### The Bell Tower and the Choir of Whispers (M4 step 7)
+
+- **The road:** the Hollow Abbot's fall clears the stone from the catacombs' south stair (his pack sets
+  `act3.bell_tower = open`; a spawn's new `says` puts up the message), and the stair climbs to **the Bell Tower**.
+- **The Bell Tower** (`tools/bell_tower_mapgen.py`, level 14, a dark dungeon on Flare's dungeon tileset, `xpScale` 0.8),
+  bottom to top:
+  - the tower foot (the stair from the catacombs, a shrine; Brother Caddoc waits here if he was forgiven);
+  - the bell-ringers' hall, with the sisters' three cells off its west side and the candle chapel off its east;
+  - the ringing chamber (a second shrine);
+  - the belfry, a round arena under the bells (ropes hanging, four piers, braziers enough to see the sisters by).
+
+  Behind the belfry the **cliff road** north is a Herald gate on `act3.choir = slain` (Act 4 is still to come). There
+  are nine packs, two shrines and five chests (a reliquary in the belfry).
+- **The Choir of Whispers** (`choir_agnete`, a Herald, level 13: a level under the hero who meets her, as Hadric is).
+  The boss framework gains `sisters` (creatures that fight beside the boss on its one bar), a bar name (`barName`), and
+  phase fields for reflections, the song and a late arrival (`GameWorld.Choir.cs`):
+
+  | Phase | What happens |
+  | --- | --- |
+  | **The Choir of Whispers** (from full) | Agnete with **Brigid** and **Cille** on one health bar: a blow at either sister lands on Agnete's health, and theirs follows it. All three are kiting-free casters: Agnete stupefies, Brigid frightens, Cille dominates the hero's allies. Mirror cultists come to their side. |
+  | **The sisters break into reflections** (below 60%) | Brigid and Cille fade into the bells. Agnete hides among four **reflections**, identical down to the name and the health bar, shuffled every 12 s. A reflection shatters at a touch, worth nothing. Within 10 tiles, every 2 s, a Perception check against her Perception DC hears **the true voice**: a gold ring at her feet for 6 s. |
+  | **They sing as one** (below 25%) | The sisters return. Every 6 s **the song**: a Will save against the Choir's DC, or the hero is **enthralled** for 3 s (6 on a critical failure). Enthralled, they walk to the nearest singer, drawn violet, and can do nothing else (commands do nothing; a potion still works). |
+
+  The sisters and reflections are `SharesWith` the boss; the killing blow on a sister brings the Choir down. A sister
+  struck as she withdraws still falls with the bar (the first balance run found a blow in flight emptying the bar
+  without killing the Choir). Falling starts the fight again, the sisters beside her. Her death sets `act3.choir = slain`
+  and writes the journal; Abbess Ilse has words after.
+- **Three Candles** (Act 3's Herald Remnant story): three candles that will not go out burn on the chapel's stands, one
+  for each sister, each the wrong colour. The sisters' hymnals in their cells say whose was whose (Agnete's blue, Brigid's
+  green, Cille's gold). Clicking a stand lifts its candle; clicking another swaps the two (flags `act3.candle.<sister>`).
+  - **Set right** (`act3.candles = rekindled`, 900 XP): the flames burn white; the true voice is easier to hear (+4 to
+    the Perception checks), and the Choir's Echo is gone (for the epilogue, M5).
+  - **Snuffed** with the brass snuffer by the door (`snuffed`, 450 XP): the Echo is only weakened.
+- **The Penitent's payoff** (step 6's flag): Brother Caddoc **forgiven** waits at the tower foot and sings against the
+  song (+2 to its Will saves); **banished**, he climbs into the belfry for the last verse and fights for the Choir
+  (`caddoc_turned`, a phase's `joins` with `joinsIf`).
+- **The renderer:** the candle stands carry a still flame in their colour (white once set right), and their labels say
+  it; the true voice's gold ring; the enthralled hero tinted violet; the Herald bar reads "The Choir of Whispers".
+- **The bots** go for the true voice once it is heard (otherwise the nearest, so reflections shatter as they come).
+- **Balance** (two runs each):
+  - **The Choir alone** (`BalanceReport.The_Choir_at_levels_13_and_14`): with +2 runes at 13, most subclasses win
+    every fight; the wizards and the Marksman win two of six. At 14 in the starting kit the Marksman loses (as it did to
+    Hadric) and the Vanguard wins two of six; with runes at 14 every subclass wins five or six of six.
+  - **The tower** (`Bell_Tower_at_level_14`): every subclass through in 1.9–3.8 bot minutes, no deaths. The first runs
+    found the belfry too dark for a bow to see the sisters; four more braziers light it.
+  - **The campaign** (`CampaignReport.Acts_1_to_3_to_the_Choir`): every subclass silences the Choir, meeting her at
+    level 14, in 42–75 minutes of play for the three acts; the tower costs no deaths.
 
 ### The Gunslinger (after M4 step 6)
 

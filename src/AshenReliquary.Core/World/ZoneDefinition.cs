@@ -29,10 +29,11 @@ public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRan
 /// <summary>
 /// A pack placed on the map. Members scatter within <see cref="Radius"/> tiles of <see cref="At"/>. <see cref="Level"/>
 /// sets the pack's level where it differs from the zone's (the Fens run from 2 to 3). When the whole pack has fallen,
-/// world flag <see cref="Flag"/> is set to <see cref="Value"/> (a side story's "clear the camp").
+/// world flag <see cref="Flag"/> is set to <see cref="Value"/> (a side story's "clear the camp"), and <see cref="Says"/>
+/// goes up as a message (the Hollow Abbot's fall clears the stair to the Bell Tower).
 /// </summary>
 public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, double Radius = 2.0, int? Level = null,
-    string? Flag = null, string? Value = null);
+    string? Flag = null, string? Value = null, string? Says = null);
 
 /// <summary>A shrine: checkpoint, respawn point, potion refill and Taint cleanse.</summary>
 public sealed record ShrineDefinition(string Id, string Name, int[] At);

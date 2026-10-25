@@ -49,6 +49,7 @@ public sealed partial class GameWorld
         }
         var phase = boss.Phases[m.BossPhase];
         m.Creature.ArmorClassShift = phase.AcShift;
+        UpdateChoir(m, boss, phase, dt);
 
         if (phase.PoolEverySeconds > 0)
         {
@@ -188,6 +189,8 @@ public sealed partial class GameWorld
         m.Creature.ArmorClassShift = phase.AcShift;
         m.Charge = null;
         m.ChargeIn = phase.ChargeEverySeconds / 2;
+        m.ShuffleIn = 0;
+        m.SongIn = phase.SongEverySeconds / 2;
         if (phase.Banner is { } banner)
         {
             // The standard goes up beside the boss's home; it rallies the legion until it is broken.
@@ -276,6 +279,7 @@ public sealed partial class GameWorld
             m.Creature.ArmorClassShift = 0;
             m.Charge = null;
             m.ChargeIn = m.Definition.Boss.Phases[0].ChargeEverySeconds;
+            ResetChoir(m);
             _monsters.RemoveAll(x => x.SummonedBy == m);
         }
         ClearBossAftermath();

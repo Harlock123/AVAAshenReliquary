@@ -443,6 +443,28 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("necromancer plaguebringer")]
     public void Catacombs_of_Oriel_at_level_13(string kit) => ReportZone(kit, "catacombs_of_oriel", "woods", 13, "the Catacombs of Oriel and back up the stair", runes: 2);
 
+    /// <summary>
+    /// The Bell Tower (M4 step 7): every pack, the Choir of Whispers in the belfry, and out by the cliff road; a level-14
+    /// hero in the starting kit with +2 runes.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Bell_Tower_at_level_14(string kit) => ReportZone(kit, "bell_tower", "cliff_road", 14, "the Bell Tower and the Choir of Whispers", runes: 2);
+
     private void ReportZone(string kit, string zoneId, string exitId, int level, string what, int runes = 1)
     {
         var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: runes)).ToList();
@@ -790,6 +812,40 @@ public class BalanceReport(ITestOutputHelper output)
             output.WriteLine($"{kit} at level {level}{(runed ? " with a +2 striking weapon and +1 armour" : " in the starting kit")}: Ser Hadric, {fights.Count} fights");
             foreach (var f in fights)
                 output.WriteLine($"  {(f.Won ? "won " : "lost")}  {f.Seconds,5:0} s  potions {f.Potions}  reached phase {f.Phase + 1}  his HP left {f.BossHpLeft:0%}");
+            output.WriteLine($"  won {fights.Count(f => f.Won)} of {fights.Count}, average {fights.Average(f => f.Seconds):0} s");
+        }
+    }
+
+    /// <summary>
+    /// The Choir of Whispers (M4 step 7) alone in the belfry at level 13: a level-13 hero with the runes a player would
+    /// have (+2 potency and striking, +1 armour), and a level-14 hero (the level the campaign meets her at) in the starting
+    /// kit and runed.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void The_Choir_at_levels_13_and_14(string kit)
+    {
+        foreach (var (level, runed) in new[] { (13, true), (14, false), (14, true) })
+        {
+            var fights = Enumerable.Range(1, Math.Max(Seeds, 6))
+                .Select(seed => BossFight(kit, seed, runed, level, "bell_tower", "choir_agnete", potency: 2)).ToList();
+            output.WriteLine($"{kit} at level {level}{(runed ? " with a +2 striking weapon and +1 armour" : " in the starting kit")}: the Choir, {fights.Count} fights");
+            foreach (var f in fights)
+                output.WriteLine($"  {(f.Won ? "won " : "lost")}  {f.Seconds,5:0} s  potions {f.Potions}  reached phase {f.Phase + 1}  its HP left {f.BossHpLeft:0%}");
             output.WriteLine($"  won {fights.Count(f => f.Won)} of {fights.Count}, average {fights.Average(f => f.Seconds):0} s");
         }
     }

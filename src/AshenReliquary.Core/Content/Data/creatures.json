@@ -1032,5 +1032,206 @@
    "Poison"
   ],
   "undead": true
+ },
+ {
+  "id": "choir_agnete",
+  "name": "Sister Agnete",
+  "sprite": "avatar",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.6,
+  "moveSpeed": 1.9,
+  "aggroRadius": 12,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "damage": "2d6",
+  "scale": 1.25,
+  "tint": "#b8ccff",
+  "hitPointsScale": 0.2,
+  "inflicts": {
+   "condition": "Stupefied",
+   "value": 1,
+   "seconds": 6,
+   "save": "Will"
+  },
+  "resistances": {
+   "Mental": 10,
+   "Cold": 5
+  },
+  "voice": "crone",
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest_alt2",
+   "hands": "mage_sleeves_alt2",
+   "legs": "mage_skirt_alt2",
+   "feet": "mage_boots_alt2",
+   "main": "rod"
+  },
+  "boss": {
+   "arenaRadius": 10,
+   "barName": "The Choir of Whispers",
+   "sisters": [
+    "choir_brigid",
+    "choir_cille"
+   ],
+   "deathFlag": "act3.choir",
+   "deathLine": "\"Ilse? Is it morning? We were singing... I can't remember the words any more...\"",
+   "journal": {
+    "id": "act3_choir",
+    "title": "The Choir of Whispers",
+    "kind": "main",
+    "text": "I silenced the Choir of Whispers in the belfry of Saint Oriel. Agnete, Brigid and Cille were three sisters who went up the Bell Tower to pray when the ash fell; the hymn a lector in grey taught them sang through them for fifteen years. The bells of the Rest can ring again. The Choir sang of a heart in the mountain, the last piece their master needs, and of me, carrying it to him."
+   },
+   "phases": [
+    {
+     "below": 1.0,
+     "name": "The Choir of Whispers",
+     "summonEverySeconds": 18,
+     "summons": "mirror_cultist",
+     "summonCount": 1,
+     "summonCap": 2
+    },
+    {
+     "below": 0.6,
+     "name": "The sisters break into reflections",
+     "withdraw": true,
+     "reflections": 4,
+     "reflectEverySeconds": 12,
+     "reflection": "choir_reflection"
+    },
+    {
+     "below": 0.25,
+     "name": "They sing as one",
+     "songEverySeconds": 6,
+     "songSeconds": 3,
+     "joins": "caddoc_turned",
+     "joinsIf": {
+      "act3.penitent": "banished"
+     }
+    }
+   ]
+  }
+ },
+ {
+  "id": "choir_brigid",
+  "name": "Sister Brigid",
+  "sprite": "avatar",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.55,
+  "moveSpeed": 1.9,
+  "aggroRadius": 12,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "damage": "2d6",
+  "scale": 1.2,
+  "tint": "#c4ecc0",
+  "inflicts": {
+   "condition": "Frightened",
+   "value": 1,
+   "seconds": 4,
+   "save": "Will"
+  },
+  "resistances": {
+   "Mental": 10,
+   "Cold": 5
+  },
+  "voice": "crone",
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest_alt2",
+   "hands": "mage_sleeves_alt2",
+   "legs": "mage_skirt_alt2",
+   "feet": "mage_boots_alt2",
+   "main": "wand"
+  }
+ },
+ {
+  "id": "choir_cille",
+  "name": "Sister Cille",
+  "sprite": "avatar",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.55,
+  "moveSpeed": 2.0,
+  "aggroRadius": 12,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "damage": "2d6",
+  "scale": 1.15,
+  "tint": "#ffe4a8",
+  "dominates": true,
+  "resistances": {
+   "Mental": 10,
+   "Cold": 5
+  },
+  "voice": "crone",
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest_alt2",
+   "hands": "mage_sleeves_alt2",
+   "legs": "mage_skirt_alt2",
+   "feet": "mage_boots_alt2",
+   "main": "wand"
+  }
+ },
+ {
+  "id": "choir_reflection",
+  "name": "Sister Agnete",
+  "sprite": "avatar",
+  "damageType": "Mental",
+  "attacksPerSecond": 0.45,
+  "moveSpeed": 1.9,
+  "aggroRadius": 12,
+  "attackRange": 7,
+  "ranged": true,
+  "caster": true,
+  "damage": "1d8",
+  "scale": 1.25,
+  "tint": "#b8ccff",
+  "resistances": {
+   "Mental": 10,
+   "Cold": 5
+  },
+  "voice": "crone",
+  "look": {
+   "head": "mage_hood_alt2",
+   "chest": "mage_vest_alt2",
+   "hands": "mage_sleeves_alt2",
+   "legs": "mage_skirt_alt2",
+   "feet": "mage_boots_alt2",
+   "main": "rod"
+  }
+ },
+ {
+  "id": "caddoc_turned",
+  "name": "Brother Caddoc",
+  "sprite": "avatar",
+  "damageType": "Bludgeoning",
+  "attacksPerSecond": 0.8,
+  "moveSpeed": 2.4,
+  "aggroRadius": 12,
+  "attackRange": 1.4,
+  "damage": "2d6",
+  "named": true,
+  "tint": "#d8c8f0",
+  "inflicts": {
+   "condition": "Frightened",
+   "value": 1,
+   "seconds": 4,
+   "save": "Will"
+  },
+  "resistances": {
+   "Mental": 5
+  },
+  "voice": "cultist",
+  "look": {
+   "head": "leather_hood",
+   "chest": "mage_vest",
+   "hands": "cloth_gloves",
+   "legs": "cloth_pants",
+   "feet": "cloth_sandals",
+   "main": "staff"
+  }
  }
 ]

@@ -6,7 +6,7 @@
 # (bone-shelved galleries), the Choir's chapel to the west (acolytes in white), the penitents' cells to the east (Brother
 # Caddoc waits in the last one to make his confession: the Penitent's story), the abbots' hall (a second shrine), the
 # abbots' crypt (the Hollow Abbot, a named guardian, and the reliquary), and at the south end the stair up to the Bell
-# Tower (a third shrine), barred until step 7. Three burned pages of the Library of Ash lie here.
+# Tower (a third shrine), choked with stone until the Hollow Abbot falls. Three burned pages of the Library of Ash lie here.
 #
 # Act 3's third mechanic: domination. The Choir's acolytes turn the hero's allies against them for a while, or with no
 # ally to turn, frighten the hero.
@@ -189,7 +189,8 @@ spawns = [
     # The abbots' crypt: the Hollow Abbot and his choir
     pack((DEAD, N, 3), at=[20, 67], level=14),
     pack((ACO, N, 2), (DEAD, N, 1), at=[41, 67], level=14),
-    pack((ABBOT, C, 1, ["vengeful"]), (ACO, N, 2), at=[30, 74], level=14),
+    dict(pack((ABBOT, C, 1, ["vengeful"]), (ACO, N, 2), at=[30, 74], level=14), flag="act3.bell_tower", value="open",
+         says="Somewhere to the south, stone shifts and falls: the stair up to the Bell Tower is open."),
     # The stair up to the Bell Tower
     pack((MIRROR, C, 1, ["mirrored", "hasted"]), (ACO, N, 1), at=[30, 89], level=14),
 ]
@@ -260,7 +261,8 @@ zone = {
          "arrive": [30, 6]},
         {"id": "bell_tower", "label": "The Bell Tower", "at": [30, 92], "radius": 1.5,
          "requires": {"act3.bell_tower": "open"},
-         "sealedText": "The stair up to the Bell Tower is choked with fallen stone. (The Bell Tower is still being written.)"},
+         "sealedText": "The stair up to the Bell Tower is choked with fallen stone. Something in the abbots' crypt holds it shut.",
+         "to": "bell_tower", "toExit": "catacombs", "arrive": [30, 89]},
     ],
     "caches": caches,
     "npcs": [

@@ -2,7 +2,9 @@ namespace AshenReliquary.Core.World;
 
 /// <summary>
 /// A Herald fight, from the creature's <c>boss</c> block: the phases it passes through as its health falls, the arena
-/// round the spot it was placed (its home), the line it dies with and the flag its death sets.
+/// round the spot it was placed (its home), the line it dies with and the flag its death sets. <see cref="Sisters"/>
+/// (the Choir of Whispers) are creatures that fight beside it on its one health bar: a blow at any of them lands on
+/// it. <see cref="BarName"/> names the HUD's boss bar when it isn't the boss's own name.
 /// </summary>
 public sealed record BossDefinition(
     IReadOnlyList<BossPhase> Phases,
@@ -10,7 +12,9 @@ public sealed record BossDefinition(
     string? DeathLine = null,
     string? DeathFlag = null,
     string? DeathValue = "slain",
-    JournalEntryDefinition? Journal = null);
+    JournalEntryDefinition? Journal = null,
+    IReadOnlyList<string>? Sisters = null,
+    string? BarName = null);
 
 /// <summary>
 /// One phase, entered when health falls to <see cref="Below"/> of the maximum (the first phase is 1.0):
@@ -33,6 +37,11 @@ public sealed record BossDefinition(
 /// and is knocked prone on a failure (a Step under way dodges it);</item>
 /// <item><see cref="Banner"/>: it plants a standard (a creature that <see cref="CreatureDefinition.Rallies"/>) that
 /// gives it and its legion +2 to hit and a fifth more damage until the standard is broken.</item>
+/// <item>the Choir: its sisters stand beside it unless the phase has them <see cref="Withdraw"/>; it hides among
+/// <see cref="Reflections"/> images of itself (<see cref="Reflection"/>), shuffled every <see cref="ReflectEverySeconds"/>,
+/// that shatter at a touch and that a Perception check sees through; every <see cref="SongEverySeconds"/> its song
+/// takes the hero's will (a Will save or enthralled for <see cref="SongSeconds"/>); and <see cref="Joins"/> comes to its
+/// side when the flags in <see cref="JoinsIf"/> hold (Brother Caddoc, banished).</item>
 /// </list>
 /// </summary>
 public sealed record BossPhase(
@@ -60,7 +69,15 @@ public sealed record BossPhase(
     double ChargeWindup = 1.0,
     string ChargeDamage = "3d8",
     string? Banner = null,
-    IReadOnlyDictionary<string, string>? Look = null);
+    IReadOnlyDictionary<string, string>? Look = null,
+    bool Withdraw = false,
+    int Reflections = 0,
+    double ReflectEverySeconds = 12,
+    string? Reflection = null,
+    double SongEverySeconds = 0,
+    double SongSeconds = 3,
+    string? Joins = null,
+    IReadOnlyDictionary<string, string>? JoinsIf = null);
 
 /// <summary>A boss's charge: the lane it marked (from its spot to beyond the hero), live from <see cref="RushAt"/>.</summary>
 public sealed class BossCharge(double fromX, double fromY, double toX, double toY, double rushAt)

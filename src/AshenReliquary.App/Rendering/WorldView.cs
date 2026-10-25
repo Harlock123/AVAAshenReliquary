@@ -1438,6 +1438,23 @@ public sealed partial class WorldView : Control
             DrawGroundRing(canvas, target, time, targeted: true);
         if (world.Hero.Prey is { IsDead: false } prey && world.IsLit(prey.X, prey.Y))
             DrawPreyMark(canvas, prey, time);
+        foreach (var m in world.Monsters)
+        {
+            if (!m.IsDead && world.Time < m.TrueVoiceUntil)
+                DrawTrueVoice(canvas, m, time);
+        }
+    }
+
+    /// <summary>The Choir's true sister, heard among her reflections: a pale gold ring that pulses at her feet.</summary>
+    private void DrawTrueVoice(SKCanvas canvas, MonsterActor m, double time)
+    {
+        var z = (float)Zoom;
+        var foot = ToScreen(m.X, m.Y);
+        var r = TargetRingRadius * 1.15f * z * (float)m.Definition.Scale;
+        var pulse = (float)(0.5 + 0.5 * Math.Sin(time * 4));
+        using var ring = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = (3 + 2 * pulse) * z,
+            Color = new SKColor(255, 225, 140, (byte)(150 + 90 * pulse)) };
+        canvas.DrawOval(SKRect.Create(foot.X - r, foot.Y - r / 2, 2 * r, r), ring);
     }
 
     /// <summary>The Ranger's prey: a green hunter's mark, four arrowheads pointing in at its feet.</summary>
@@ -1877,10 +1894,12 @@ public sealed partial class WorldView : Control
         }
         var layers = Session!.AppearanceLayers;
         var animation = hero.Animation;
-        // In the shadows (Hide in Shadows) the hero is a dim, half-seen shape.
+        // In the shadows (Hide in Shadows) the hero is a dim, half-seen shape; held by the Choir's song, a violet one.
         using var hidden = hero.IsHidden
             ? new SKPaint { Color = SKColors.White.WithAlpha(150), ColorFilter = SKColorFilter.CreateLighting(new SKColor(170, 170, 215), new SKColor(10, 10, 30)) }
-            : null;
+            : world.Enthralled
+                ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(new SKColor(200, 140, 255), new SKColor(60, 0, 70)) }
+                : null;
         foreach (var slot in _assets.LayerOrder(hero.Direction))
         {
             if (!layers.TryGetValue(slot, out var layer))
@@ -2024,7 +2043,34 @@ public sealed partial class WorldView : Control
             using var paint = hovered ? new SKPaint { ColorFilter = SKColorFilter.CreateLighting(SKColors.White, new SKColor(40, 35, 25)) } : null;
             DrawTile(canvas, tile, ToScreen(who.X, who.Y), time, paint);
         }
+        if (World?.CandleColour(who) is { } flame)
+            DrawCandleFlame(canvas, ToScreen(who.X, who.Y), flame, time);
     }
+
+    /// <summary>A candle that will not go out, on its stand: a still flame in its colour, with a soft glow.</summary>
+    private void DrawCandleFlame(SKCanvas canvas, SKPoint foot, string colour, double time)
+    {
+        var z = (float)Zoom;
+        var c = colour switch
+        {
+            "blue" => new SKColor(120, 170, 255),
+            "green" => new SKColor(130, 230, 140),
+            "gold" => new SKColor(255, 210, 110),
+            _ => new SKColor(245, 245, 255),
+        };
+        var at = new SKPoint(foot.X, foot.Y - 44 * z);
+        var glow = (float)(0.85 + 0.15 * Math.Sin(time * 2.5));
+        using var halo = new SKPaint { IsAntialias = true, Shader = SKShader.CreateRadialGradient(at, 26 * z * glow,
+            [c.WithAlpha(150), c.WithAlpha(0)], SKShaderTileMode.Clamp) };
+        canvas.DrawCircle(at, 26 * z * glow, halo);
+        using var flame = new SKPaint { IsAntialias = true, Color = c };
+        canvas.DrawOval(SKRect.Create(at.X - 4 * z, at.Y - 9 * z, 8 * z, 14 * z), flame);
+        using var heart = new SKPaint { IsAntialias = true, Color = SKColors.White.WithAlpha(220) };
+        canvas.DrawOval(SKRect.Create(at.X - 2 * z, at.Y - 4 * z, 4 * z, 7 * z), heart);
+    }
+
+    /// <summary>A candle stand's label line: the colour of the flame on it.</summary>
+    private static string? CandleTitle(GameWorld world, Interactive who) => world.CandleColour(who) is { } c ? $"a {c} flame" : null;
 
     /// <summary>A person's name and calling, or a thing's name, when near or hovered.</summary>
     private void DrawInteractiveLabels(SKCanvas canvas, GameWorld world)
@@ -2041,11 +2087,12 @@ public sealed partial class WorldView : Control
                 continue;
             var foot = ToScreen(who.X, who.Y);
             var top = foot.Y - (who.Npc is null ? 100 : 150) * (float)Zoom - 30;
-            var width = Math.Max(nameFont.MeasureText(who.Name), who.Title is null ? 0 : small.MeasureText(who.Title)) + 16;
-            var height = who.Title is null ? 20 : 32;
+            var subtitle = who.Title ?? CandleTitle(world, who);
+            var width = Math.Max(nameFont.MeasureText(who.Name), subtitle is null ? 0 : small.MeasureText(subtitle)) + 16;
+            var height = subtitle is null ? 20 : 32;
             canvas.DrawRect(SKRect.Create(foot.X - width / 2, top, width, height), back);
             canvas.DrawText(who.Name, foot.X, top + 14, SKTextAlign.Center, nameFont, ink);
-            if (who.Title is { } title)
+            if ((who.Title ?? CandleTitle(world, who)) is { } title)
                 canvas.DrawText(title, foot.X, top + 27, SKTextAlign.Center, small, dim);
         }
     }

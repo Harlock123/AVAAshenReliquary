@@ -2130,6 +2130,12 @@
     "start": "start",
     "openings": [
       {
+        "node": "after_choir",
+        "requires": {
+          "act3.choir": "slain"
+        }
+      },
+      {
         "node": "again",
         "requires": {
           "act3.ilse": "met"
@@ -2180,6 +2186,24 @@
             "text": "\"Tell me of the Choir again.\"",
             "to": "choir"
           },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "after_choir": {
+        "text": "Abbess Ilse is standing at the window when you come in, and does not turn. \"I heard the bells,\" she says. \"Nobody rang them. They rang anyway, three times, when you were up there.\" Her shoulders shake once and are still. \"Was it quick? For Cille?\" She does not wait for an answer. \"Thank you. The Choir sang of a heart in the mountain, and the man who wants it. Mount Cindral lies over the cliffs. You know the way now.\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act3_rest",
+              "title": "Saint Oriel's Rest",
+              "kind": "main",
+              "text": "The Choir of Whispers is silent and the bells of Saint Oriel's Rest rang again. Abbess Ilse grieves for her sister Cille. The Choir sang of a heart in the mountain and the master who wants it: the road over the cliffs leads to Mount Cindral."
+            }
+          }
+        ],
+        "choices": [
           {
             "text": "Leave."
           }
@@ -2658,6 +2682,174 @@
     "nodes": {
       "start": {
         "text": "Caddoc is scrubbing the flags again, but he is humming under his breath, and the tune is not the Choir's. \"When you go up the tower, I'll be on the stair behind you.\""
+      }
+    }
+  },
+  {
+    "id": "tower_note_agnete",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A hymnal on a shelf above a narrow cot, its margins full of a careful hand. \"Agnete takes the low part. Mother Abbess says her voice is the tarn under the ice, and gave her a candle of blue wax for her vigils, the colour of it.\""
+      },
+      "unsolved": {
+        "text": "A hymnal on a shelf above a narrow cot, its margins full of a careful hand. \"Agnete takes the low part. Mother Abbess says her voice is the tarn under the ice, and gave her a candle of blue wax for her vigils, the colour of it.\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act3_candles",
+              "title": "Three Candles",
+              "kind": "side",
+              "text": "In the Bell Tower's chapel three candles burn that will not go out, on a stand for each of the three sisters, and not one of them on its own. The sisters' cells say what colour each one's candle was. A brass snuffer lies by the chapel door: snuffing them would be quicker."
+            }
+          }
+        ]
+      }
+    },
+    "openings": [
+      {
+        "node": "unsolved",
+        "requires": {
+          "act3.candles": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "tower_note_brigid",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A hymnal, swollen with damp, a dried sprig pressed between its pages. \"Brigid's candle is green, for the moss on the spring stones. She says it is the only thing that grows up here that the snow cannot kill.\""
+      },
+      "unsolved": {
+        "text": "A hymnal, swollen with damp, a dried sprig pressed between its pages. \"Brigid's candle is green, for the moss on the spring stones. She says it is the only thing that grows up here that the snow cannot kill.\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act3_candles",
+              "title": "Three Candles",
+              "kind": "side",
+              "text": "In the Bell Tower's chapel three candles burn that will not go out, on a stand for each of the three sisters, and not one of them on its own. The sisters' cells say what colour each one's candle was. A brass snuffer lies by the chapel door: snuffing them would be quicker."
+            }
+          }
+        ]
+      }
+    },
+    "openings": [
+      {
+        "node": "unsolved",
+        "requires": {
+          "act3.candles": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "tower_note_cille",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A hymnal with a child's drawing of a bell inside its cover. \"Cille, our youngest, has the high part, and a candle of gold for the morning. Her sister Ilse calls her 'little bell'.\""
+      },
+      "unsolved": {
+        "text": "A hymnal with a child's drawing of a bell inside its cover. \"Cille, our youngest, has the high part, and a candle of gold for the morning. Her sister Ilse calls her 'little bell'.\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act3_candles",
+              "title": "Three Candles",
+              "kind": "side",
+              "text": "In the Bell Tower's chapel three candles burn that will not go out, on a stand for each of the three sisters, and not one of them on its own. The sisters' cells say what colour each one's candle was. A brass snuffer lies by the chapel door: snuffing them would be quicker."
+            }
+          }
+        ]
+      }
+    },
+    "openings": [
+      {
+        "node": "unsolved",
+        "requires": {
+          "act3.candles": ""
+        }
+      }
+    ]
+  },
+  {
+    "id": "tower_snuffer",
+    "start": "start",
+    "openings": [
+      {
+        "node": "rekindled",
+        "requires": {
+          "act3.candles": "rekindled"
+        }
+      },
+      {
+        "node": "cold",
+        "requires": {
+          "act3.candles": "snuffed"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A brass snuffer on a long chain hangs by the chapel door, green with age. Across the chapel the three candles burn on, each on its stand, each flame as still as if it were painted.",
+        "choices": [
+          {
+            "text": "Snuff out all three candles.",
+            "to": "snuff"
+          },
+          {
+            "text": "Leave them burning."
+          }
+        ]
+      },
+      "snuff": {
+        "text": "The flames fight the snuffer like living things, and one by one they go out. For a moment you hear three voices cry out far above you; then only the wind. The wax is cold at once, as if it had never burned.",
+        "effects": [
+          {
+            "flag": "act3.candles",
+            "value": "snuffed"
+          },
+          {
+            "xp": 450
+          },
+          {
+            "journal": {
+              "id": "act3_candles",
+              "title": "Three Candles",
+              "kind": "side",
+              "text": "In the Bell Tower's chapel I snuffed out the three candles that would not go out. Three voices cried out far above me. Whatever held the sisters to their candles is weaker now; I doubt it is gone."
+            }
+          }
+        ]
+      },
+      "rekindled": {
+        "text": "The three candles burn white and still, each on her own sister's stand. The snuffer hangs untouched."
+      },
+      "cold": {
+        "text": "The three candles stand cold. Nothing will light them again."
+      }
+    }
+  },
+  {
+    "id": "tower_caddoc",
+    "start": "start",
+    "openings": [
+      {
+        "node": "after",
+        "requires": {
+          "act3.choir": "slain"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "Brother Caddoc waits at the foot of the stair with his staff across his knees. \"I said I would stand with you under the tower.\" He looks up into the dark, where the singing is. \"They will sing the last verse when they are losing. When they do, listen for me. I know a hymn of my own now.\""
+      },
+      "after": {
+        "text": "Caddoc is weeping and smiling at once. \"I heard them stop. I heard Cille stop.\" He gets up stiffly. \"I'll go down and tell the abbess. Someone should hear it from a friend.\""
       }
     }
   }
