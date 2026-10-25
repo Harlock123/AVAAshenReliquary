@@ -25,6 +25,15 @@ public sealed class ContentDatabase
     /// <summary>The in-game guide's words (guide.json).</summary>
     public static GuideDefinition Guide => GuideInstance.Value;
 
+    private static readonly Lazy<EpilogueDefinition> EpilogueInstance = new(() => Read<EpilogueDefinition>("epilogue.json"));
+    private static readonly Lazy<CreditsDefinition> CreditsInstance = new(() => Read<CreditsDefinition>("credits.json"));
+
+    /// <summary>The endings and the epilogue's slides (epilogue.json).</summary>
+    public static EpilogueDefinition Epilogue => EpilogueInstance.Value;
+
+    /// <summary>The credits roll's sources (credits.json, written by tools/build_credits.py from the asset manifest).</summary>
+    public static CreditsDefinition Credits => CreditsInstance.Value;
+
     public ContentDatabase(
         IEnumerable<AncestryDefinition> ancestries,
         IEnumerable<BackgroundDefinition> backgrounds,
@@ -106,7 +115,8 @@ public sealed class ContentDatabase
         && !KnownTables.Contains(resourceName["AshenReliquary.Content.".Length..]);
 
     private static readonly HashSet<string> KnownTables =
-        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json", "sets.json", "guide.json"];
+        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json", "sets.json", "guide.json",
+         "epilogue.json", "credits.json"];
 
     private static T Read<T>(string fileName)
     {

@@ -686,7 +686,7 @@ The build order proves the rules engine and one playable act before widening con
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary; step 10 done: the campaign through all four acts and beginning at an act; the exit test waits on the user's play of Acts 2–4).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
-6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God; step 3 done: the Heart's Pull and Malachar's Daughter).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
+6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God; step 3 done: the Heart's Pull and Malachar's Daughter; step 4 done: the choice, the endings, the epilogue and the credits).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** *Planned (`docs/M6_PLAN.md`, which adds Mythic tiers past level 20 and the Ashen Depths).* Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
 ### MVP (first playable)
@@ -2146,6 +2146,41 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   parley sparing him with every memory, turning from it, no parley without the toy, the five keepsakes reachable and
   counted); `ThroneUiTests` (Space pressing the pull without pausing, the parley and the spared Malachar, the toy's glint);
   `ActFourTests` (a leader's cry doesn't heal itself).
+
+### The choice and the endings (M5 step 4)
+
+- **The choice** is the Throne's dialogue (`cinder_throne_seat`) once Malachar is dead or spared. Each ending is asked
+  twice (a confirmation, then "Do it."), as dialogue effect `ending` (`GameWorld.Endings.cs`):
+  - **Destroy** the Ember Heart, and die: *Ashes to Ashes*.
+  - **Bind** Ashur inside yourself: *The Lantern Rekindled*. Open (`act5.bind`, worked out as each dialogue opens) only
+    with the Chronicle of Saint Oriel whole (`act3.library` = complete) and three of the twelve side stories seen
+    through (`GameWorld.SideStories`: Act 1's well-keeper's relic, scarecrow and ferry; Act 2's oath, Confessor and
+    faction; Act 3's candles, Penitent and Library; Act 4's egg, beacon and Malachar's daughter; any resolution counts, an
+    egg carried off and never settled does not). Otherwise the choice shows, and says what it lacks.
+  - **Claim** the Throne: *The New Prophet* (the province burns; M6's New Game+ will read it for the Tainted modifier).
+  - With Malachar spared, **give him the Heart** to carry into the fire: *The Lantern-Bird*, the dialogue ending. The
+    hero lives, an ordinary person again.
+- **The ending is kept** in the flag `act5.ending` (`GameWorld.Ending`). The game is saved as it is chosen, at the
+  Throne, so the title can show it ("Finished: Ashes to Ashes", `SaveEntry.Finished`), and loading the save puts the hero
+  back before the Throne to choose again.
+- **The epilogue** (`EpilogueView`, `EpilogueViewModel`; the words in `epilogue.json`, `ContentDatabase.Epilogue`):
+  - the ending's slide first, then a slide for each place the story reached, told by the first variant whose flags hold
+    (`EpilogueDefinition.SlidesFor`): Malachar's end, the well-keeper's daughter, Ironhold's refugees, the Ferry, the
+    scarecrow, Ser Hadric's oath, the Iron March's faction, the Clockwork Confessor, the Choir's candles, the Penitent, the
+    Last Lantern, the drakeling.
+  - The New Prophet is told *alone*: only the slides written for it follow (Malachar's body by the Throne, Vardmoor
+    burning), since everything mended on the road burns with the rest.
+  - Each slide's scene is drawn from the game's own zones: a `WorldView` in scene mode (`SceneOnly`: no hero, labels or
+    HUD) over a world staged from the story's flags (`GameSession.Scene`, `GameWorld.StageScene`: no monsters, the camera
+    on the NPC or object the slide names), kept turning so its fires flicker, darkened toward the foot for the words.
+  - Space, Enter or the right arrow go on; "Skip to the credits" (or Escape) skips.
+- **The credits** roll up from `credits.json`, which `tools/build_credits.py` now writes beside `CREDITS.md` from the asset
+  manifest: the game, the hero and the ending reached, the rules' licence, then every source with its authors and
+  licence. "Return to the title" ends it.
+- **Tests:** `EndingsTests` (the choices offered, Bind's requirement, an ending kept and handed over once and chosen
+  again, the Lantern-Bird with Malachar spared, the slides for flags and endings, every scene set somewhere real and staged
+  empty); `EpilogueUiTests` (the choice to the title, photographing the choice, the ending's and a place's slide, the
+  credits and the finished save).
 
 ### The in-game guide (after M4)
 

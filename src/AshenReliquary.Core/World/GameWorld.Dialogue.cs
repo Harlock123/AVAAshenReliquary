@@ -140,6 +140,7 @@ public sealed partial class GameWorld
         _dialogue = dialogue;
         _speaker = who;
         _lastRoll = null;
+        RefreshEndingFlags();
         var start = dialogue.Openings?.FirstOrDefault(o => Holds(o.Requires))?.Node ?? dialogue.Start;
         Enter(start);
     }
@@ -298,6 +299,8 @@ public sealed partial class GameWorld
         }
         if (effect.Spare)
             SpareParley();
+        if (effect.Ending is { } ending)
+            ReachEnding(ending);
         if (effect.Boon is { } boon && Hero.Character.Content?.Feats.GetValueOrDefault(boon) is { } feat)
         {
             SetFlag(BoonFlag(boon), "granted");

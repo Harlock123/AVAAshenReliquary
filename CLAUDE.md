@@ -186,7 +186,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   `Parleying` holds every monster and ally, dialogue effect `spare` (`SpareParley`, the NPC `malachar_spared`); keepsake
   interactables (`action: keepsake`, a glint until `daughter.<place>` is set; `CountMemories` keeps `daughter.memories`);
   Wren's `lantern_bird` (icon `bird`); a leader's cry no longer heals the leader (Malachar healed himself through steps
-  1-2); the bots mash at `Tactics.PullPresses`; `HeartsPullTests`). Next: step 4, the choice and the endings.
+  1-2); the bots mash at `Tactics.PullPresses`; `HeartsPullTests`). Step 4 done: the choice and the endings (the Throne's
+  dialogue, effect `ending`, `GameWorld.Endings.cs`: `SideStories`, `BindOpen` (flag `act5.bind`), `act5.ending`,
+  `PendingEnding` taken by `MainWindow.ShowEpilogue`; `epilogue.json` (`ContentDatabase.Epilogue`, `SlidesFor`, an ending
+  `alone`); `EpilogueView`/`EpilogueViewModel`, scenes from `GameSession.Scene` + `GameWorld.StageScene` in a
+  `WorldView.SceneOnly`; `credits.json` from `tools/build_credits.py`; the title's `SaveEntry.Finished`; `EndingsTests`,
+  `EpilogueUiTests`). Next: step 5, balance and the exit test.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

@@ -220,4 +220,19 @@ public sealed class GameSession
         session.PortraitId = Services.Portraits.For("human").FirstOrDefault()?.Id;
         return session;
     }
+
+    /// <summary>
+    /// An epilogue slide's scene: <paramref name="zoneId"/> as the hero's story left it (its <paramref name="flags"/>,
+    /// so its people are the ones who stayed), emptied of monsters, the camera on <paramref name="near"/>. Never saved.
+    /// </summary>
+    public static GameSession Scene(string zoneId, IReadOnlyDictionary<string, string> flags, string near)
+    {
+        var content = ContentDatabase.Embedded;
+        var choices = CharacterBuilder.Recommend(content, "Scene", "human", "deserter", "fighter") with { Subclass = DefaultSubclass("fighter") };
+        var hero = CharacterBuilder.Create(content, choices);
+        var world = new GameWorld(content.Zone(zoneId), content.Creatures, hero, 1, content.AbilityBar("fighter"), content.Loot, content.Zones,
+            content.Dialogues, content.Abilities);
+        world.StageScene(flags, near);
+        return new GameSession(world, "fighter");
+    }
 }

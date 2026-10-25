@@ -65,6 +65,7 @@
                   <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}" FontSize="16" />
                     <TextBlock Text="{Binding Detail}" FontSize="12" Foreground="#C8BCA4" />
+                    <TextBlock Text="{Binding Finished}" IsVisible="{Binding IsFinished}" FontSize="12" Foreground="#F0C860" />
                     <TextBlock Text="{Binding When}" FontSize="11" Foreground="#8A7F6C" />
                   </StackPanel>
                 </Grid>

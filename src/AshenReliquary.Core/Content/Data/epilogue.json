@@ -1,0 +1,313 @@
+{
+  "endings": {
+    "destroy": {
+      "title": "Ashes to Ashes",
+      "zone": "cinder_throne",
+      "near": "throne",
+      "text": "You take the Ember Heart in both hands and break it on the black glass of the Throne. The god's fire goes out of the bones, out of the mountain, out of the province, and last of all out of you. The death the noose began on Gallows Hill finishes, gently, a year late. They find you on the Throne's step with your eyes closed, and they say afterwards that you were smiling. In Vardmoor the grey rot stops spreading that winter, and in spring the fields come up green."
+    },
+    "bind": {
+      "title": "The Lantern Rekindled",
+      "zone": "cinder_throne",
+      "near": "throne",
+      "text": "You remember the Chronicle of Saint Oriel: a shepherd who took the mountain's fire into his chest and carried it for nine hundred years. You open your hands, and Ashur comes into you like a held breath. It does not burn. It is heavy, and it is warm, and it is yours to carry now. The Taint draws back from the land as a tide draws back, and wherever you walk the lamps burn a little brighter. The Order calls you the Lantern. You call yourself tired, and keep walking."
+    },
+    "claim": {
+      "title": "The New Prophet",
+      "zone": "cinder_throne",
+      "near": "throne",
+      "text": "You sit. The Throne fits you as if it had been cut for you, and perhaps it was. Behind you the god's bones knit, and stand, and bow. Malachar wanted a god to give him something back; you want nothing back, and that makes you stronger than he ever was. The fire comes down the mountain the next morning. Vardmoor burns, and from the ashes it rises in your image.",
+      "alone": true
+    },
+    "mercy": {
+      "title": "The Lantern-Bird",
+      "zone": "cinder_throne",
+      "near": "malachar_spared",
+      "text": "\"Give it to me,\" Malachar says. \"I have carried worse.\" The Ember Heart comes out of your chest as it never would for his pulling, as easily as a coal lifted from a hearth, and you are only a person again: tired, cold, alive. He holds the Heart in one hand and Wren's wooden bird in the other, and walks down the glass into the fire, and the god goes with him. Nobody builds a throne there again."
+    }
+  },
+  "slides": [
+    {
+      "id": "throne",
+      "title": "The Ashen Prophet",
+      "zone": "cinder_throne",
+      "near": "throne",
+      "variants": [
+        {
+          "requires": {
+            "act5.malachar": "slain",
+            "act5.ending": "claim"
+          },
+          "text": "You had Malachar Vane's body laid at the foot of the Throne he built, where you could see it. A reminder, you told the court, of what becomes of prophets who ask gods for things."
+        },
+        {
+          "requires": {
+            "act5.malachar": "spared",
+            "act5.ending": "destroy"
+          },
+          "text": "Malachar Vane sat by your body until the fire went out of the bones, and then he carried you up out of the Reliquary in his arms, as he once carried his daughter. He lives at the Ember Gate now, and tends two graves under the beacon."
+        },
+        {
+          "requires": {
+            "act5.malachar": "spared",
+            "act5.ending": "bind"
+          },
+          "text": "Malachar Vane walked down from the mountain beside you, and nobody who saw him knew him. He teaches children their letters in a village with no name, and carves them wooden birds."
+        },
+        {
+          "requires": {
+            "act5.malachar": "spared",
+            "act5.ending": "claim"
+          },
+          "text": "Malachar Vane was the first to kneel to you, and the first you sent away. He walked into the burning province carrying a wooden bird, and was not seen again."
+        },
+        {
+          "requires": {
+            "act5.malachar": "slain"
+          },
+          "text": "Malachar Vane lies where he fell, at the foot of the Throne he built. In his robe they found a child's drawing of a bird, folded small."
+        }
+      ]
+    },
+    {
+      "id": "well",
+      "title": "The Well-Keeper's Daughter",
+      "zone": "fort_gallowmere",
+      "near": "ysolde",
+      "variants": [
+        {
+          "requires": {
+            "act1.sallow_relic": "cured"
+          },
+          "text": "Ysolde's cure, brewed from Mother Sallow's own relic, went upriver in Old Coll's boats to every camp in the province. The grey rot still takes the old and the weak, but it no longer takes whole villages."
+        },
+        {
+          "requires": {
+            "act1.sallow_relic": "destroyed"
+          },
+          "text": "Mother Sallow's relic lay in pieces on her hearth, and nothing of her came back. Ysolde never found another cure; the rot burned itself out in its own time, and took its toll on the way."
+        }
+      ]
+    },
+    {
+      "id": "refugees",
+      "title": "Ironhold's Refugees",
+      "zone": "ironhold",
+      "near": "hale",
+      "variants": [
+        {
+          "requires": {
+            "act2.refugees": "saved"
+          },
+          "text": "Half of Sister Hale's refugee yard walked out of Ironhold the next spring, back to farms they had given up for lost. The yard is a market now, and on its well someone has carved your name."
+        },
+        {
+          "requires": {
+            "act2.refugees": "lost"
+          },
+          "text": "Sister Hale buried two a day in Ironhold's refugee yard until there was no one left to bury. She keeps a list of the names, and reads it aloud once a year."
+        }
+      ]
+    },
+    {
+      "id": "ferry",
+      "title": "The Ferry",
+      "zone": "fort_gallowmere",
+      "near": "coll",
+      "variants": [
+        {
+          "requires": {
+            "act1.ferry": "brothers"
+          },
+          "text": "The Brothers of the Ferry run the river from the Fens to the mountains now, and nothing moves on it without their say. They carry medicine and letters cheaply, and everything else dearly. Old Coll swears they have gone straight. Nobody believes him."
+        },
+        {
+          "requires": {
+            "act1.ferry": "lantern"
+          },
+          "text": "Brother Anselm's Lantern men met the Brothers of the Ferry where they landed, and the river went quiet. Medicine comes up it slowly now, by the Order's leave and at the Order's price."
+        }
+      ]
+    },
+    {
+      "id": "scarecrow",
+      "title": "The Scarecrow on Gallows Road",
+      "zone": "gallows_road",
+      "near": "scarecrow",
+      "variants": [
+        {
+          "requires": {
+            "act1.scarecrow": "freed"
+          },
+          "text": "The scarecrow on Gallows Road is only straw and sacking now. Children leave flowers in its pocket, and nobody remembers why."
+        },
+        {
+          "requires": {
+            "act1.scarecrow": "taken"
+          },
+          "text": "The soul you took out of the scarecrow on Gallows Road still murmurs in the gem, some nights. Its pole stands empty, and the crows have come back."
+        }
+      ]
+    },
+    {
+      "id": "hadric",
+      "title": "Ser Hadric's Oath",
+      "zone": "barrow_fields",
+      "near": "ediths_grave",
+      "variants": [
+        {
+          "requires": {
+            "act2.hadric_relic": "returned"
+          },
+          "text": "Ser Hadric's greatsword still lies along his wife's grave in the Barrow Fields. Nobody has tried to move it. The Iron Legion's dead stay quiet there, and the barley grows tall."
+        },
+        {
+          "requires": {
+            "act2.hadric_relic": "broken"
+          },
+          "text": "The two halves of Ser Hadric's oath-blade are gone from the Barrow Fields; some say a smith in Ironhold made a knife of one. On still nights, people say, something paces the old walls, looking for it."
+        }
+      ]
+    },
+    {
+      "id": "faction",
+      "title": "The Iron March",
+      "zone": "ironhold",
+      "near": "thale",
+      "variants": [
+        {
+          "requires": {
+            "act2.faction": "guard"
+          },
+          "text": "Red Mirella walked into Ironhold on her own feet, and Captain Thale heard what she did with his grain. She captains the March's patrols now, and they say the Guard's cellars are emptier, and the camps fuller, than they were."
+        },
+        {
+          "requires": {
+            "act2.faction": "outlaws"
+          },
+          "text": "Red Mirella's outlaws hold the Iron March, and the grain from its fields goes to the refugee camps, not to the Guard. Captain Thale calls it banditry. The camps call it supper."
+        },
+        {
+          "requires": {
+            "act2.faction": "none"
+          },
+          "text": "Red Mirella slipped into the ruins and was not seen again. The Iron March is quiet, and hungry, and the Guard keeps its cellars full."
+        }
+      ]
+    },
+    {
+      "id": "confessor",
+      "title": "The Clockwork Confessor",
+      "zone": "ironhold",
+      "near": "confessor",
+      "variants": [
+        {
+          "requires": {
+            "act2.confessor": "repaired"
+          },
+          "text": "The Clockwork Confessor hears confessions in Ironhold's founders' corner again, and soldiers queue for it in the evenings. It has heard three hundred years of nothing, it says, and it is in no hurry."
+        },
+        {
+          "requires": {
+            "act2.confessor": "scrapped"
+          },
+          "text": "The Clockwork Confessor's parts went into Ironhold's forges, and its empty stole still lies folded on the bench. Nobody sits there."
+        }
+      ]
+    },
+    {
+      "id": "choir",
+      "title": "The Choir of Whispers",
+      "zone": "saint_oriels_rest",
+      "near": "ilse",
+      "variants": [
+        {
+          "requires": {
+            "act3.candles": "rekindled"
+          },
+          "text": "Three candles burn in the bell tower of Saint Oriel's Rest, and will not go out. On feast days, the sisters say, you can hear three voices singing under the bell, and they are not sad any more."
+        },
+        {
+          "requires": {
+            "act3.candles": "snuffed"
+          },
+          "text": "The bell tower of Saint Oriel's Rest is silent. The sisters say the snuffed candles were a mercy. They do not go up the stair."
+        }
+      ]
+    },
+    {
+      "id": "penitent",
+      "title": "The Penitent",
+      "zone": "saint_oriels_rest",
+      "near": "caddoc_back",
+      "variants": [
+        {
+          "requires": {
+            "act3.penitent": "forgiven"
+          },
+          "text": "Brother Caddoc sings in the cloister of Saint Oriel's Rest, and the songs are his own now. He still kneels by the tower stair every night, but he gets up again."
+        },
+        {
+          "requires": {
+            "act3.penitent": "banished"
+          },
+          "text": "Brother Caddoc went down the mountain alone. Somewhere in the lowlands, people say, a man sings for his supper, and never sings the same hymn twice."
+        }
+      ]
+    },
+    {
+      "id": "order",
+      "title": "The Last Lantern",
+      "zone": "ember_gate",
+      "near": "beacon",
+      "variants": [
+        {
+          "requires": {
+            "act4.beacon": "lit"
+          },
+          "text": "The beacon at the Ember Gate burns pale every night, and the Order of the Last Lantern keeps it. Warden Corwen has taken in forty novices. She says it is forty more than she ever expected to see."
+        },
+        {
+          "requires": {
+            "act4.beacon": "dark"
+          },
+          "text": "The beacon at the Ember Gate was never lit, and the Order of the Last Lantern went back into the hidden ways it came out of. Warden Corwen keeps them still, and keeps her counsel."
+        }
+      ]
+    },
+    {
+      "id": "drakeling",
+      "title": "The Wyrm's Egg",
+      "zone": "ember_gate",
+      "near": "brannoc",
+      "variants": [
+        {
+          "requires": {
+            "act4.egg": "hatched"
+          },
+          "text": "Vorthrax's drakeling grew. It is the size of a plough-horse now, and it sleeps in Brannoc's forge to keep the coals warm. It has burned exactly one barn, and the farmer was paid twice over."
+        },
+        {
+          "requires": {
+            "act4.egg": "smashed"
+          },
+          "text": "Vorthrax's egg lies in pieces in his nest, and no wyrm will rise from the Wyrm's Nest again. The mountain is quieter. It is also emptier."
+        }
+      ]
+    },
+    {
+      "id": "vardmoor",
+      "title": "Vardmoor",
+      "zone": "fort_gallowmere",
+      "near": "well",
+      "variants": [
+        {
+          "requires": {
+            "act5.ending": "claim"
+          },
+          "text": "Fort Gallowmere burned first, then Ironhold, then the Rest on its mountain. Everything you mended on the road from the gallows burned with the rest: the camps, the ferries, the candles, the forge. In a year there was nobody left in Vardmoor who did not kneel to you, and nobody who remembered your name from before."
+        }
+      ]
+    }
+  ]
+}

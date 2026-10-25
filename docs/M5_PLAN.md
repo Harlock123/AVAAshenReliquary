@@ -69,6 +69,11 @@ had been healing Malachar himself; fixed for every leader, and his health raised
 
 ### 4. The choice and the endings
 
+*Done (2026-10-25): spec section 16, "The choice and the endings". The twelve side stories are Act 1's well-keeper's
+relic, scarecrow and ferry, Act 2's oath, Confessor and faction, Act 3's candles, Penitent and Library, and Act 4's egg,
+beacon and Malachar's daughter. The New Prophet is told alone (the province burns, so the other slides would contradict
+it).*
+
 - **The choice,** at the Throne after the fight, as a dialogue with the dying god:
   - **Destroy** the Ember Heart and die: "Ashes to Ashes".
   - **Bind** Ashur inside yourself: "The Lantern Rekindled", needing the Chronicle (the Library of Ash) and at least

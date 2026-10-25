@@ -30,6 +30,13 @@ public sealed class SaveEntry(SaveGame save)
         }
     }
 
+    /// <summary>The ending this character reached ("Finished: Ashes to Ashes"), or null for a game still under way.</summary>
+    public string? Finished => Save.Flags.GetValueOrDefault(EpilogueDefinition.EndingFlag) is { } ending
+        ? $"Finished: {ContentDatabase.Epilogue.Endings.GetValueOrDefault(ending)?.Title ?? ending}"
+        : null;
+
+    public bool IsFinished => Finished is not null;
+
     public string When
     {
         get

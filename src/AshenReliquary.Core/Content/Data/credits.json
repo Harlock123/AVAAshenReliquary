@@ -1,0 +1,124 @@
+{
+ "sources": [
+  {
+   "title": "Flare: Empyrean Campaign / fantasycore art",
+   "authors": "The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt",
+   "licence": "CC-BY-SA 3.0",
+   "credit": null
+  },
+  {
+   "title": "Act 4's tileset (tileset_cinder): Flare's cave tileset recoloured, with generated lava and embers",
+   "authors": "The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt",
+   "licence": "CC-BY-SA 3.0",
+   "credit": null
+  },
+  {
+   "title": "Flare character portraits (mods/fantasycore/images/portraits)",
+   "authors": "The Flare art team (portrait pack by Justin Nichol and others); see Assets/Flare/CREDITS.txt",
+   "licence": "CC-BY-SA 3.0",
+   "credit": null
+  },
+  {
+   "title": "Fantasy Portrait Set 1",
+   "authors": "Joseph Hewitt (GearHead), http://gearheadrpg.com",
+   "licence": "CC BY 4.0",
+   "credit": null
+  },
+  {
+   "title": "Adonthell portraits",
+   "authors": "The Adonthell project's artists, submitted to OpenGameArt by Grumbel / bart",
+   "licence": "CC-BY-SA 3.0 (also GPL 2.0 / 3.0)",
+   "credit": null
+  },
+  {
+   "title": "Halforc character illustration",
+   "authors": "PolygonDan (OpenGameArt)",
+   "licence": "CC-BY-SA 4.0",
+   "credit": null
+  },
+  {
+   "title": "Wolf monsters animated",
+   "authors": "Danimal (rig, animation, Flare sprites), from Micket's CC0 \"wolf 1\" mesh with Poss's fur textures (OpenGameArt)",
+   "licence": "CC-BY-SA 4.0 (also CC-BY-SA 3.0)",
+   "credit": null
+  },
+  {
+   "title": "Old Ruins tileset, as extended in Flare's Empyrean Campaign (mods/empyrean_campaign/images/tilesets/tileset_ruins.png)",
+   "authors": "rubberduck (Old Ruins tileset, OpenGameArt); extended with stairs, gates, pits, objects and plants by Justin Jacobs for Flare (https://github.com/flareteam/flare-game)",
+   "licence": "CC-BY-SA 3.0",
+   "credit": null
+  },
+  {
+   "title": "game-icons.net",
+   "authors": "Carl Olsen, DarkZaitzev, Delapouite, Lorc, Sbed, Skoll, Willdabeast (each icon's author and page are in Assets/Icons/icons.json)",
+   "licence": "CC BY 3.0",
+   "credit": null
+  },
+  {
+   "title": "artisticdude, RPG Sound Pack",
+   "authors": "artisticdude",
+   "licence": "CC0",
+   "credit": null
+  },
+  {
+   "title": "Kenney, 50 RPG sound effects",
+   "authors": "Kenney (kenney.nl)",
+   "licence": "CC0",
+   "credit": null
+  },
+  {
+   "title": "StarNinjas, 20 sword sound effects",
+   "authors": "StarNinjas",
+   "licence": "CC0",
+   "credit": null
+  },
+  {
+   "title": "Little Robot Sound Factory, Fantasy Sound Effects Library",
+   "authors": "Little Robot Sound Factory (www.littlerobotsoundfactory.com)",
+   "licence": "CC-BY 3.0",
+   "credit": null
+  },
+  {
+   "title": "Kevin MacLeod, incompetech.com",
+   "authors": "Kevin MacLeod (incompetech.com)",
+   "licence": "CC BY 4.0",
+   "credit": "\"Ossuary 1 - A Beginning\", \"Ossuary 5 - Rest\", \"Ossuary 6 - Air\" Kevin MacLeod (incompetech.com). Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/"
+  },
+  {
+   "title": "Alexandr Zhelanov, Battle themes",
+   "authors": "Alexandr Zhelanov",
+   "licence": "CC-BY 4.0",
+   "credit": null
+  },
+  {
+   "title": "JaggedStone, Loopable Dungeon Ambience",
+   "authors": "JaggedStone",
+   "licence": "CC0",
+   "credit": null
+  },
+  {
+   "title": "Flare: Empyrean Campaign, soundfx (mods/fantasycore/soundfx)",
+   "authors": "The Flare team and the open-licensed sound artists credited in Assets/Flare/CREDITS.txt",
+   "licence": "CC-BY-SA 3.0",
+   "credit": null
+  },
+  {
+   "title": "rubberduck, 80 CC0 creature SFX",
+   "authors": "rubberduck",
+   "licence": "CC0",
+   "credit": null
+  },
+  {
+   "title": "Firearm layers and loot sprites (derived from Flare's avatar layers)",
+   "authors": "The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt; the guns modelled and posed for Ashen Reliquary",
+   "licence": "CC-BY-SA 3.0",
+   "credit": null
+  },
+  {
+   "title": "Ashen Reliquary, synthesised gun sounds",
+   "authors": "The Ashen Reliquary project (original work)",
+   "licence": "CC0",
+   "credit": null
+  }
+ ]
+}

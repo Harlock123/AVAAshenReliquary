@@ -98,6 +98,7 @@ public partial class MainWindow : Window
 
     public WorldView View => World;
     public CharacterCreationView CreationView => Creation;
+    public EpilogueView EpilogueView => Epilogue;
     public TitleView TitleScreen => TitlePage;
     public bool MenuOpen => GameMenu.IsVisible;
     public bool Paused { get; private set; }
@@ -181,11 +182,33 @@ public partial class MainWindow : Window
         return vm;
     }
 
+    /// <summary>
+    /// An ending chosen at the Throne: the game is saved (with the ending in its flags: the title shows it, and loading
+    /// it puts the hero back at the Throne), then the epilogue's slides and the credits; then the title.
+    /// </summary>
+    public EpilogueViewModel? ShowEpilogue()
+    {
+        if (_session is not { } session)
+            return null;
+        SaveNow(announce: false);
+        var world = session.World;
+        if (world.TakePendingEnding() is not { } ending)
+            return null;
+        var vm = new EpilogueViewModel(ending, world.Flags.ToDictionary(), world.Hero.Character.Name);
+        vm.Finished += () => ShowTitle();
+        Epilogue.DataContext = vm;
+        ShowOnly(Epilogue);
+        Paused = true;
+        Epilogue.Focus();
+        return vm;
+    }
+
     private void ShowOnly(Control screen)
     {
         TitlePage.IsVisible = screen == TitlePage;
         Creation.IsVisible = screen == Creation;
         Guide.IsVisible = screen == Guide;
+        Epilogue.IsVisible = screen == Epilogue;
         World.IsVisible = screen == World;
         GameMenu.IsVisible = false;
     }
@@ -256,6 +279,11 @@ public partial class MainWindow : Window
         lock (World.Gate)
             Advance(elapsed);
         World.InvalidateVisual();
+        // An ending chosen at the Throne: once its dialogue has closed, the epilogue.
+        if (World.IsVisible && _session?.World is { PendingEnding: not null, Dialogue: null })
+            ShowEpilogue();
+        if (Epilogue.IsVisible)
+            Epilogue.Advance(elapsed);
     }
 
     private void Advance(TimeSpan elapsed)

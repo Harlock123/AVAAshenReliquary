@@ -3348,15 +3348,15 @@
     "start": "start",
     "openings": [
       {
-        "node": "empty",
+        "node": "spared",
         "requires": {
-          "act5.malachar": "slain"
+          "act5.malachar": "spared"
         }
       },
       {
         "node": "empty",
         "requires": {
-          "act5.malachar": "spared"
+          "act5.malachar": "slain"
         }
       }
     ],
@@ -3365,7 +3365,192 @@
         "text": "A throne cut from one block of black glass, too big for any man, its back carved with the Pale Lantern turned upside down. Behind it the god's bones are heaped up into something like a body, and the gap in its chest is the shape of the shard in yours. Malachar Vane stands between you and it."
       },
       "empty": {
-        "text": "The Throne stands empty, and the bones behind it are cold. The shard in your chest is not: it pulls toward them, gently, like a tide. Whatever is to be decided here will be decided by you. (The endings are still being written.)"
+        "text": "The Throne stands empty, and the bones behind it are cold. The shard in your chest is not: it pulls toward them, gently, like a tide. Whatever is decided here, you will decide it.",
+        "choices": [
+          {
+            "text": "Break the Ember Heart on the Throne. (It will kill you.)",
+            "to": "destroy"
+          },
+          {
+            "text": "Take the god into yourself, as Ashur once did, and carry him.",
+            "to": "bind",
+            "requires": {
+              "act5.bind": "open"
+            }
+          },
+          {
+            "text": "Take the god into yourself...",
+            "to": "bind_closed",
+            "requires": {
+              "act5.bind": ""
+            }
+          },
+          {
+            "text": "Sit on the Throne.",
+            "to": "claim"
+          },
+          {
+            "text": "Let Malachar take the Heart, and carry it down into the fire.",
+            "to": "mercy",
+            "requires": {
+              "act5.malachar": "spared"
+            }
+          },
+          {
+            "text": "Not yet."
+          }
+        ]
+      },
+      "spared": {
+        "text": "The Throne stands empty, and the bones behind it are cold. Malachar sits on its step with Wren's wooden bird in his hands, and watches you without hope or fear. The shard in your chest pulls toward the bones, gently, like a tide. Whatever is decided here, you will decide it.",
+        "choices": [
+          {
+            "text": "Break the Ember Heart on the Throne. (It will kill you.)",
+            "to": "destroy"
+          },
+          {
+            "text": "Take the god into yourself, as Ashur once did, and carry him.",
+            "to": "bind",
+            "requires": {
+              "act5.bind": "open"
+            }
+          },
+          {
+            "text": "Take the god into yourself...",
+            "to": "bind_closed",
+            "requires": {
+              "act5.bind": ""
+            }
+          },
+          {
+            "text": "Sit on the Throne.",
+            "to": "claim"
+          },
+          {
+            "text": "Let Malachar take the Heart, and carry it down into the fire.",
+            "to": "mercy",
+            "requires": {
+              "act5.malachar": "spared"
+            }
+          },
+          {
+            "text": "Not yet."
+          }
+        ]
+      },
+      "destroy": {
+        "text": "You close your hand round the shard in your chest. It comes when you call it, hot as a coal and lighter than you thought. One blow on the black glass would end the god. It would end you too: the Heart is all that has kept you alive since the gallows.",
+        "choices": [
+          {
+            "text": "Do it.",
+            "effects": [
+              {
+                "ending": "destroy"
+              }
+            ]
+          },
+          {
+            "text": "Not yet.",
+            "to": "back"
+          }
+        ]
+      },
+      "bind": {
+        "text": "You remember the Chronicle: a shepherd who took the mountain's fire into his chest and carried it for nine hundred years, dying and rising, until he could carry it no longer. You could take it up as he did, and carry it on. It would never be put down.",
+        "choices": [
+          {
+            "text": "Do it.",
+            "effects": [
+              {
+                "ending": "bind"
+              }
+            ]
+          },
+          {
+            "text": "Not yet.",
+            "to": "back"
+          }
+        ]
+      },
+      "bind_closed": {
+        "text": "You reach for the god as the Chronicle says Ashur did, and it does not come. You do not know enough of what he was, or of what you are: the whole Chronicle of Saint Oriel, read in the Library of Ash, and the stories of the road (at least three of them) seen through. (Bind needs both.)",
+        "choices": [
+          {
+            "text": "Step back.",
+            "to": "back"
+          }
+        ]
+      },
+      "claim": {
+        "text": "The Throne is too big for any man, and it fits you exactly. Sit, and the god's body will stand up around you, and the Taint will be yours to give and to take away. Malachar wanted to ask the god for something. You would not have to ask.",
+        "choices": [
+          {
+            "text": "Do it.",
+            "effects": [
+              {
+                "ending": "claim"
+              }
+            ]
+          },
+          {
+            "text": "Not yet.",
+            "to": "back"
+          }
+        ]
+      },
+      "mercy": {
+        "text": "\"Give it to me,\" Malachar says, without getting up. \"It will come to me if you let it. I have carried worse down that mountain.\" He looks at the fire below the glass. \"She would have liked to see it go out.\"",
+        "choices": [
+          {
+            "text": "Do it.",
+            "effects": [
+              {
+                "ending": "mercy"
+              }
+            ]
+          },
+          {
+            "text": "Not yet.",
+            "to": "back"
+          }
+        ]
+      },
+      "back": {
+        "text": "The bones are cold. The shard is warm. There is no hurry, now.",
+        "choices": [
+          {
+            "text": "Break the Ember Heart on the Throne. (It will kill you.)",
+            "to": "destroy"
+          },
+          {
+            "text": "Take the god into yourself, as Ashur once did, and carry him.",
+            "to": "bind",
+            "requires": {
+              "act5.bind": "open"
+            }
+          },
+          {
+            "text": "Take the god into yourself...",
+            "to": "bind_closed",
+            "requires": {
+              "act5.bind": ""
+            }
+          },
+          {
+            "text": "Sit on the Throne.",
+            "to": "claim"
+          },
+          {
+            "text": "Let Malachar take the Heart, and carry it down into the fire.",
+            "to": "mercy",
+            "requires": {
+              "act5.malachar": "spared"
+            }
+          },
+          {
+            "text": "Not yet."
+          }
+        ]
       }
     }
   },

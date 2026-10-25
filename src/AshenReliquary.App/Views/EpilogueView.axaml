@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AshenReliquary.App.ViewModels"
+             xmlns:r="using:AshenReliquary.App.Rendering"
+             x:Class="AshenReliquary.App.Views.EpilogueView"
+             x:DataType="vm:EpilogueViewModel"
+             FontFamily="Georgia, Palatino Linotype, Noto Serif, serif"
+             Foreground="#E8DCC4"
+             Focusable="True">
+  <UserControl.Styles>
+    <Style Selector="Button.next">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="Padding" Value="22,7" />
+      <Setter Property="Background" Value="#6B2A12" />
+      <Setter Property="Foreground" Value="#FFE7C0" />
+      <Setter Property="BorderBrush" Value="#F0A050" />
+      <Setter Property="BorderThickness" Value="1.5" />
+    </Style>
+    <Style Selector="Button.quiet">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Padding" Value="14,5" />
+      <Setter Property="Background" Value="#241C16" />
+      <Setter Property="BorderBrush" Value="#5A4C3A" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+  </UserControl.Styles>
+
+  <Panel Background="#08070A">
+    <!-- The scene: the place the slide tells of, from the game's own zones, darkened toward the foot for the words. -->
+    <r:WorldView x:Name="Scene" SceneOnly="True" IsHitTestVisible="False" IsVisible="{Binding ShowingSlides}" />
+    <Border IsHitTestVisible="False" IsVisible="{Binding ShowingSlides}">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+          <GradientStop Color="#40000000" Offset="0" />
+          <GradientStop Color="#10000000" Offset="0.35" />
+          <GradientStop Color="#E0080608" Offset="0.72" />
+          <GradientStop Color="#F5080608" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+
+    <!-- The slide's words -->
+    <Grid RowDefinitions="*,Auto" IsVisible="{Binding ShowingSlides}">
+      <StackPanel Grid.Row="1" MaxWidth="860" Margin="40,0,40,34" HorizontalAlignment="Center">
+        <TextBlock Text="{Binding Ending}" FontSize="13" LetterSpacing="4" Foreground="#A59B87" HorizontalAlignment="Center"
+                   IsVisible="{Binding !Current.IsEnding}" />
+        <TextBlock Text="{Binding Current.Title}" Name="SlideTitle" FontSize="30" LetterSpacing="3" Foreground="#F0C860"
+                   HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" Margin="0,4,0,14" />
+        <TextBlock Text="{Binding Current.Text}" Name="SlideText" FontSize="17" LineHeight="27" TextWrapping="Wrap"
+                   Foreground="#E8DCC4" TextAlignment="Center" />
+        <DockPanel Margin="0,22,0,0" LastChildFill="False">
+          <Button DockPanel.Dock="Left" Classes="quiet" Content="Skip to the credits" Command="{Binding SkipCommand}" Name="SkipButton" />
+          <Button DockPanel.Dock="Right" Classes="next" Content="{Binding NextLabel}" Command="{Binding NextCommand}" Name="NextButton" />
+          <TextBlock DockPanel.Dock="Right" Text="{Binding Counter}" Foreground="#8A7F6C" FontSize="12" VerticalAlignment="Center" Margin="0,0,16,0" />
+        </DockPanel>
+      </StackPanel>
+    </Grid>
+
+    <!-- The credits, rolling up -->
+    <Grid RowDefinitions="*,Auto" IsVisible="{Binding RollingCredits}">
+      <Grid.Background>
+        <RadialGradientBrush Center="50%,40%" GradientOrigin="50%,40%" RadiusX="80%" RadiusY="80%">
+          <GradientStop Color="#2A1C14" Offset="0" />
+          <GradientStop Color="#08070A" Offset="1" />
+        </RadialGradientBrush>
+      </Grid.Background>
+      <ScrollViewer Grid.Row="0" Name="CreditsScroll" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden">
+        <ItemsControl ItemsSource="{Binding Credits}" Name="CreditsList" MaxWidth="760" Margin="40,620,40,420">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:CreditLine">
+              <Panel>
+                <TextBlock Text="{Binding Text}" IsVisible="{Binding IsHeading}" FontSize="19" Foreground="#F0C860"
+                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,2" />
+                <TextBlock Text="{Binding Text}" IsVisible="{Binding !IsHeading}" FontSize="14" Foreground="#C8BCA4"
+                           TextAlignment="Center" TextWrapping="Wrap" Margin="0,1" />
+              </Panel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+      <Button Grid.Row="1" Classes="next" Content="Return to the title" Command="{Binding NextCommand}" Name="TitleButton"
+              HorizontalAlignment="Center" Margin="0,10,0,22" />
+    </Grid>
+  </Panel>
+</UserControl>

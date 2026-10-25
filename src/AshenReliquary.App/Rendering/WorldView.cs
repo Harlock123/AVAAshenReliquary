@@ -428,6 +428,9 @@ public sealed partial class WorldView : Control
 
     public GameSession? Session { get; set; }
 
+    /// <summary>An epilogue slide's scene (<see cref="GameSession.Scene"/>): the world drawn without the hero, labels or HUD.</summary>
+    public bool SceneOnly { get; set; }
+
     /// <summary>When set, the view shows this many seconds of real time for the ash drift (tests pin it).</summary>
     public double? FixedTime { get; set; }
 
@@ -1143,6 +1146,9 @@ public sealed partial class WorldView : Control
             Stats.Mark("upscale");
         }
 
+        // An epilogue's scene: the world alone, no hero, no labels, no HUD.
+        if (SceneOnly)
+            return;
         // Text and HUD always at full resolution, so they stay crisp.
         _uiScale = deviceScale;
         _viewport = SKRect.Create(size);
@@ -1688,7 +1694,8 @@ public sealed partial class WorldView : Control
             var monster = m;
             Add(m.IsDead ? m.X + m.Y - 0.6 : m.X + m.Y, m.X, () => DrawMonster(canvas, monster, world));
         }
-        Add(world.Hero.X + world.Hero.Y, world.Hero.X, () => DrawHero(canvas, world));
+        if (!SceneOnly)
+            Add(world.Hero.X + world.Hero.Y, world.Hero.X, () => DrawHero(canvas, world));
         foreach (var a in world.Allies)
         {
             var ally = a;

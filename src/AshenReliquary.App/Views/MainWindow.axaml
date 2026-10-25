@@ -49,6 +49,7 @@
 
     <v:CharacterCreationView x:Name="Creation" IsVisible="False" />
     <v:GuideView x:Name="Guide" IsVisible="False" />
+    <v:EpilogueView x:Name="Epilogue" IsVisible="False" />
     <v:TitleView x:Name="TitlePage" IsVisible="False" />
   </Panel>
 </Window>

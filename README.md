@@ -282,6 +282,12 @@ and you fall. And step 3 brought **Malachar's Daughter**: Wren's carved lantern-
 camp at the north end of the Gallows Road, and memories of her wait in Ironhold, Saint Oriel's Rest, the Ember Gate camp
 and the Reliquary's Sanctum. Carry the bird into his last phase and he stops to ask where you found it; the more of her
 story you know, the likelier he is to listen. Moved, he lays down the fire and is spared.
+Step 4 brought **the choice**: at the empty Throne, destroy the Ember Heart and die with the god (*Ashes to Ashes*); bind
+Ashur inside yourself and carry him, as the Chronicle of Saint Oriel tells, if you have read it whole and seen three of
+the road's side stories through (*The Lantern Rekindled*); claim the Throne (*The New Prophet*); or, if you spared
+Malachar, let him carry the Heart down into the fire (*The Lantern-Bird*). Then the **epilogue**: a slide for the ending
+and one for each place your choices reached, each over a scene of that place, and the credits. Your save is marked
+finished on the title screen, and loading it takes you back to the Throne to choose again.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

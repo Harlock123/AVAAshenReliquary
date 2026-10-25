@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Regenerates CREDITS.md from assets.manifest.json (the single record of every third-party asset)."""
+"""Regenerates CREDITS.md, and the game's credits roll (credits.json), from assets.manifest.json (the single record of every
+third-party asset)."""
 import json, os
 
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,4 +19,10 @@ for s in manifest["sources"]:
     lines.append("")
 lines += ["## Code", "", "The game's code is MIT licensed (`LICENSE`). Game mechanics follow Pathfinder 2e Remaster rules published under the ORC licence; the Pathfinder name, setting and trademarks are not used.", ""]
 open(os.path.join(root, "CREDITS.md"), "w").write("\n".join(lines))
+# The same list for the game's own credits roll after an ending (ContentDatabase.Credits).
+credits = {"sources": [{"title": s["title"], "authors": s["authors"], "licence": s["licence"], "credit": s.get("credit")}
+                       for s in manifest["sources"]]}
+with open(os.path.join(root, "src/AshenReliquary.Core/Content/Data/credits.json"), "w") as f:
+    json.dump(credits, f, indent=1, ensure_ascii=False)
+    f.write("\n")
 print(f"{len(manifest['sources'])} sources")
