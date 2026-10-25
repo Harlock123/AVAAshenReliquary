@@ -1,0 +1,385 @@
+{
+  "chapters": [
+    {
+      "id": "welcome",
+      "title": "Welcome to Vardmoor",
+      "sections": [
+        {
+          "heading": null,
+          "text": "Three hundred years ago the Order of the Pale Lantern killed a god in Mount Cindral. They kept his bones in a sealed vault, the Reliquary, and his ash under lock and lantern. Then Malachar Vane, the Order's last High Lector, broke the seals. He calls himself the Ashen Prophet now, and the god's ash, the Taint, drifts over the province of Vardmoor: it raises the dead, twists the beasts and whispers to the living."
+        },
+        {
+          "heading": "You, the Ashbound",
+          "text": "You were hanged at Gallowmere for a crime you can't remember, and the noose failed. When the Reliquary burst, a shard of the dead god's bone was driven into your chest: the Ember Heart. It drinks the Taint. That is why you grow stronger as you fight, why you rise again at the shrines when you fall, and why the Prophet's four Heralds seem to be waiting for you."
+        },
+        {
+          "heading": "The road",
+          "text": "The story runs in four acts, each with a hub town, its zones and a Herald at its end: Mother Sallow in the drowned lowlands, Ser Hadric on Ironhold's walls, the Choir of Whispers in the cliff monastery, and Vorthrax the Cinderwyrm at the Ember Gate. Each act has side stories, found through letters, corpses and strange objects rather than quest markers; the choices you make in them come back later."
+        },
+        {
+          "heading": "This guide",
+          "text": "The chapters on the left explain how the game plays: the controls, the six attributes and what they do, the six ancestries, the seven classes and their subclasses, combat and conditions, gear, and how you grow from level to level. The numbers in it are read from the game itself, so they are always current."
+        }
+      ]
+    },
+    {
+      "id": "controls",
+      "title": "Controls and the screen",
+      "sections": [
+        {
+          "heading": "Moving and fighting",
+          "text": "Left-click the ground to walk; hold the button to keep walking. Left-click a monster for your basic attack, right-click it for your right-mouse ability. Keys 1 to 6 use the other slots on your bar against the monster under the cursor. Hold Ctrl and click to attack the monster nearest the cursor without walking. Shift is the Step: a quick dodge toward the pointer, untouchable for a moment, on a short cooldown."
+        },
+        {
+          "heading": "The bar",
+          "text": "Press K for the Abilities panel, where you choose what goes on the bar: click an ability, then a slot, or drag it there. Right-click any slot on the bar for a list of every ability you have. Keys 7 to 0 throw or drink what is on your belt: bombs fly at the monster under the cursor, antidotes are drunk at once. Q drinks a healing potion, R loads a gun early."
+        },
+        {
+          "heading": "Panels",
+          "text": "I or Tab opens the inventory, C the character sheet, J the journal, L the level-up screen when a level is waiting. Escape opens the menu (save, return to the title, quit), Space pauses, F5 saves, F6 saves a copy of your game as a save of its own. The mouse wheel zooms."
+        },
+        {
+          "heading": "The screen",
+          "text": "Your health orb is bottom left, your class's resource orb bottom right (Fury, Devotion, Momentum, Focus, Mana or Grit), and the Taint meter above it. A Herald's health bar appears across the top in its fight. The minimap is top right; zone names and messages appear at the top left and centre."
+        },
+        {
+          "heading": "Shrines and the Rift",
+          "text": "Walk near a shrine to wake it. Woken shrines heal you, refill your potions, cleanse your Taint and mark where you rise when you fall. Click a woken shrine to open its Rift and travel to any other woken shrine, in any act."
+        },
+        {
+          "heading": "Towns",
+          "text": "Each act's hub has a smith (arms, armour, rune etching and crafting), a trader (wares and the belt's supplies), a stash chest shared by all your hubs, an altar where you can change your choices (free once an act), people to talk to, and a Rift shrine."
+        }
+      ]
+    },
+    {
+      "id": "attributes",
+      "title": "Attributes and statistics",
+      "sections": [
+        {
+          "heading": null,
+          "text": "Every character has six attributes, each a modifier from about -1 to +7. They start at +0; your ancestry, background and class each boost some by +1 (an ancestry's flaw takes one down by 1), and you choose more boosts at levels 5, 10, 15 and 20. No attribute may start above +4, and a boost to one already at +4 or more is a partial boost: it takes two to rise a whole point."
+        },
+        {
+          "heading": "How a check works",
+          "text": "Almost everything is a d20 roll plus a modifier against a number: an attack against the target's AC, a save against a DC, a skill check against a difficulty. Beat it by 10 or more and the result is a critical success (a critical hit deals double damage); miss it by 10 or more and it is a critical failure. A natural 20 makes the result one step better, a natural 1 one step worse. Near misses still graze for a little damage."
+        },
+        {
+          "heading": "Proficiency",
+          "text": "Your training in a weapon, armour, save or skill is untrained, trained, expert, master or legendary. Trained adds 2 plus your level, and each step after that 2 more, so a character's numbers climb with every level. Your class sets the steps."
+        },
+        {
+          "heading": "Bonuses",
+          "text": "Bonuses come in kinds: item (runes, gear), status (auras, spells) and circumstance (a raised shield, cover). Only the best bonus and the worst penalty of each kind count; untyped bonuses all add up."
+        }
+      ]
+    },
+    {
+      "id": "ancestries",
+      "title": "Ancestries",
+      "sections": [
+        {
+          "heading": null,
+          "text": "Your ancestry sets your starting hit points, your speed and senses, the attributes it boosts (and the one it lowers), a trait of its own and a choice of two heritages. At level 1 and every four levels after you take an ancestry feat from its list. Any ancestry can play any class; the boosts only make some pairings easier."
+        }
+      ]
+    },
+    {
+      "id": "classes",
+      "title": "Classes",
+      "sections": [
+        {
+          "heading": null,
+          "text": "Your class is the heart of your character: your hit points per level, your key attribute, your armour, the resource your abilities spend, and the abilities themselves. At level 1 you also choose one of its subclasses, which adds its own abilities and changes how the class plays. New abilities join your bar as you level (some at 2, 6, 8, 11, 13, 16 and 18), and from level 2 you can take a multiclass dedication to borrow another class's signature ability."
+        }
+      ]
+    },
+    {
+      "id": "combat",
+      "title": "Combat",
+      "sections": [
+        {
+          "heading": "Attacks and abilities",
+          "text": "Your basic attack repeats while you hold the button. Abilities cost your class's resource and some have a cooldown; abilities marked Flourish lock out other flourishes for 3 seconds. An ability's wind-up is its Pathfinder action cost, half a second an action, never faster than your weapon swings."
+        },
+        {
+          "heading": "Saves",
+          "text": "Area attacks, poisons and spells call for saves: Fortitude (body), Reflex (dodging) or Will (mind), against the attacker's DC. A basic save takes no damage on a critical success, half on a success, full on a failure and double on a critical failure."
+        },
+        {
+          "heading": "Off-guard and flanking",
+          "text": "An off-guard creature has -2 AC. A monster is off-guard when it is prone, grabbed, unaware of you, or flanked; and monsters flank you too, closing in from opposite sides. Rogues add sneak attack dice against off-guard targets."
+        },
+        {
+          "heading": "Cover and the dark",
+          "text": "Shooting across a low wall, a cart or a boulder at someone close behind it is against cover: +2 AC for them. In a dark place, what stands outside every light is concealed: an attack at it must first pass a flat check."
+        },
+        {
+          "heading": "The Step",
+          "text": "Shift dodges a short way toward the pointer; for a moment nothing can touch you, and a Step under way passes through a Herald's breath or charge."
+        },
+        {
+          "heading": "Falling and the Taint",
+          "text": "At 0 hit points you fall. A Hero Point (you gain one in every new zone) pulls you back at half health; without one you rise at the last shrine you woke, losing a tenth of a level's XP. The Taint meter fills when Tainted things touch you; at 100 its whispers turn your feet. Shrines cleanse it."
+        },
+        {
+          "heading": "Heralds",
+          "text": "Each act ends with a Herald: a boss with phases that change as its health falls, shown by the marks on its health bar. Watch for what it puts on the ground before it strikes: rings, lanes and cones are warnings, and a Step out of them is the answer."
+        }
+      ]
+    },
+    {
+      "id": "conditions",
+      "title": "Conditions",
+      "sections": [
+        {
+          "heading": null,
+          "text": "Conditions are what blows, spells and poisons leave behind. A number after a condition is its value: frightened 2 is worse than frightened 1. Their icons show over your health orb, and over a monster's health bar."
+        },
+        {
+          "heading": "Frightened",
+          "text": "A status penalty equal to its value on every check (attacks, saves, skills, AC), but not on damage. It drops by 1 every 2 seconds."
+        },
+        {
+          "heading": "Sickened",
+          "text": "A status penalty equal to its value on every check except damage, and you can't drink potions while it lasts."
+        },
+        {
+          "heading": "Clumsy",
+          "text": "A penalty on everything Dexterity governs: AC, Reflex saves, ranged attacks and finesse attacks."
+        },
+        {
+          "heading": "Enfeebled",
+          "text": "A penalty on everything Strength governs: melee attacks and their damage."
+        },
+        {
+          "heading": "Stupefied",
+          "text": "A penalty on everything the mental attributes govern: spell attacks, spell DCs, Will saves and Perception."
+        },
+        {
+          "heading": "Drained",
+          "text": "Your maximum hit points fall by its value times your level, and your Fortitude saves suffer."
+        },
+        {
+          "heading": "Slowed",
+          "text": "Every action takes a quarter longer for each point."
+        },
+        {
+          "heading": "Stunned",
+          "text": "You can do nothing at all, for half a second to two. A stun leaves a few seconds of immunity behind it."
+        },
+        {
+          "heading": "OffGuard",
+          "text": "-2 AC, and open to sneak attacks."
+        },
+        {
+          "heading": "Prone",
+          "text": "Knocked down: you can't move, and you are off-guard."
+        },
+        {
+          "heading": "Grabbed",
+          "text": "Held: you can't move, and you are off-guard."
+        },
+        {
+          "heading": "Immobilized",
+          "text": "Rooted to the spot: you can't move, but you can still fight."
+        },
+        {
+          "heading": "Blinded",
+          "text": "Your light shrinks to a tile, and your attacks must pass a flat check first."
+        },
+        {
+          "heading": "Dazzled",
+          "text": "As blinded, from a flash of light."
+        }
+      ]
+    },
+    {
+      "id": "gear",
+      "title": "Gear, runes and crafting",
+      "sections": [
+        {
+          "heading": "Rarity",
+          "text": "Loot comes common (white), uncommon (gold), rare (blue), unique (violet) and set (green). Uniques are hand-made items with a trait of their own; set pieces grant more the more of the set you wear."
+        },
+        {
+          "heading": "Fundamental runes",
+          "text": "A weapon takes potency (+1 to +3 item bonus to attack) and striking (one, two or three more damage dice); body armour takes potency (to AC) and resilient (to saves). An item's level decides how high its runes can go. Any smith etches a rune a rank higher, or moves runes from one item to another."
+        },
+        {
+          "heading": "The bag",
+          "text": "Sort orders your bag for your class: a green arrow marks an upgrade, a red one a downgrade, a red tint gear your class can't use well. Ctrl-click marks an item junk, then locked; Sell junk clears the junk in one go. You may wear up to ten invested magic items at once; more lie dormant."
+        },
+        {
+          "heading": "Crafting",
+          "text": "Salvage spare gear at a forge into Ashen Dust and Rune Fragments, then spend them to raise an item, add or reroll an affix, or brew supplies, on a Crafting check."
+        }
+      ]
+    },
+    {
+      "id": "levelling",
+      "title": "Levelling and feats",
+      "sections": [
+        {
+          "heading": "Experience",
+          "text": "Every level takes 1,000 XP. Monsters, side stories and discoveries give it; a monster above your level gives more, one far below you little. When a level comes, its hit points arrive at once and the rest waits for you on the level-up screen (L)."
+        },
+        {
+          "heading": "What each level brings",
+          "text": "Every level brings something: a class feat at even levels, a skill feat at even levels, a skill increase and a class feature at odd levels, an ancestry feat at 1, 5, 9, 13 and 17, a general feat at 3, 7, 11, 15 and 19, and four attribute boosts at 5, 10, 15 and 20."
+        },
+        {
+          "heading": "Feats",
+          "text": "Feats are passives (always on), new abilities for your bar, or modifiers that sharpen an ability you already have: more radius, less cost, a longer effect. Class feats from level 2 include a multiclass dedication, which gives you another class's signature ability and a small pool of its resource."
+        },
+        {
+          "heading": "Starting later",
+          "text": "On the creation screen, \"Begin at\" starts a new hero at Act 2, 3 or 4, with the acts before it done and your kit etched for the act's level; your level-up picks wait on the L screen."
+        }
+      ]
+    }
+  ],
+  "attributes": {
+    "Strength": "Your melee attacks and melee damage (and a thrown weapon's damage), and Athletics. Heavy armour needs Strength: below its requirement it slows you more and hampers Strength and Dexterity checks. Enfeebled lowers it.",
+    "Dexterity": "Your AC (up to your armour's Dexterity cap), Reflex saves, ranged attacks and bombs, and finesse weapons (a Rogue's finesse damage too); Acrobatics, Stealth and Thievery. Clumsy lowers it.",
+    "Constitution": "Your hit points: it is added to your class's hit points at every level. Your Fortitude saves, and how slowly the Taint builds in you (5% more slowly a point, to half).",
+    "Intelligence": "The key attribute of the Wizard and Necromancer: their spell attacks and spell DCs. One more trained skill at level 1 for each point, and Arcana, Crafting, Occultism, Society and every Lore.",
+    "Wisdom": "Your Will saves and Perception (spotting traps and the unseen, hearing the true voice), and Medicine, Nature, Religion and Survival.",
+    "Charisma": "Prices: every point takes 2% off what you pay traders and smiths (wares, supplies, potions and rune work), up to 10%. Deception, Diplomacy, Intimidation and Performance, which open choices in conversations."
+  },
+  "ancestries": {
+    "human": {
+      "tagline": "Versatile and stubborn: the people of Vardmoor's towns and roads.",
+      "text": "Humans have no fixed boosts and no flaw: two free boosts go wherever your class wants them, and a general feat at level 1. Their heritages make them more skilled, or half-elven.",
+      "suits": "Any class. The safe choice for a first character."
+    },
+    "dwarf": {
+      "tagline": "Mountain folk, hard as their stone.",
+      "text": "Dwarves boost Constitution and Wisdom and lower Charisma. With 10 ancestry hit points, darkvision and a status bonus against poison, they shrug off what kills others; but they are slow, at 20 feet.",
+      "suits": "Fighters and Champions who want to stand in the front line, and anyone who hates the Fens' poison."
+    },
+    "elf": {
+      "tagline": "Long-lived, quick and old in their learning.",
+      "text": "Elves boost Dexterity and Intelligence and lower Constitution. They are the fastest ancestry, at 30 feet, with low-light vision and a bonus against sleep and charm, but only 6 ancestry hit points.",
+      "suits": "Wizards, Necromancers, Rangers and Rogues who keep out of reach."
+    },
+    "halfling": {
+      "tagline": "Small, lucky and hard to pin down.",
+      "text": "Halflings boost Dexterity and Wisdom and lower Strength. Their keen eyes and their luck (once a zone they reroll a failed save) keep them alive despite 6 ancestry hit points.",
+      "suits": "Rogues, Rangers and Gunslingers, who fight with Dexterity and don't miss the Strength."
+    },
+    "orc": {
+      "tagline": "Proud, fierce and hard to kill.",
+      "text": "Orcs boost Strength and choose one more boost freely, with no flaw. They have 10 ancestry hit points and darkvision, and their ferocity keeps them standing at 1 hit point, once a fight, instead of falling.",
+      "suits": "Fighters and Champions, and anyone who wants a second chance in every fight."
+    },
+    "ashborn": {
+      "tagline": "Touched by the god's ash before they were born.",
+      "text": "Ashborn boost Charisma and Constitution and lower Wisdom. The Taint builds more slowly in them, and they resist fire by half their level, which matters more with every act.",
+      "suits": "Champions (the Oathbreaker above all, who lives on the Taint) and anyone heading for Act 4's fire."
+    }
+  },
+  "classes": {
+    "fighter": {
+      "tagline": "The master of weapons.",
+      "text": "The Fighter is the best at hitting things: expert with every weapon from level 1 and legendary by 13. Fury builds as your blows land and fades out of a fight; you spend it on Power Attack, Cleave, a charge, and Finishing Blow, which pours all your Fury into one strike.",
+      "strengths": "The best attack bonus in the game, heavy armour and shields, and simple, strong play.",
+      "weaknesses": "Little reach (a charge, and the Vanguard's bursts) and nothing to heal itself with but potions.",
+      "tips": [
+        "Keep the shield up (Raise a Shield costs nothing) as a fight starts.",
+        "Save a full bar of Fury for Finishing Blow on a champion or a Herald.",
+        "Unstoppable at 16 ignores stuns and the Choir's song."
+      ],
+      "start": "Strength key, Constitution second. Human or Orc. Bulwark for a first character, Vanguard for more damage."
+    },
+    "champion": {
+      "tagline": "A holy warrior bound to an oath.",
+      "text": "The Champion stands in heavy armour behind a shield and keeps going. Devotion builds as you take blows, and you spend it on Lay on Hands (healing), Smite and auras that pulse round you, hurting enemies and helping you. Its subclass chooses its oath.",
+      "strengths": "The toughest class: heavy armour, healing of its own, auras that soak blows.",
+      "weaknesses": "Slower to kill than a Fighter; its auras ask you to stand in the fight, not walk round it.",
+      "tips": [
+        "Keep Shield of Faith and your subclass's aura up in a fight.",
+        "Lay on Hands is your potion: use it below half health.",
+        "Avatar of the Lantern at 16 makes you very hard to kill for 15 seconds."
+      ],
+      "start": "Strength key, Constitution second. Dwarf or Orc; Ashborn for the Oathbreaker. Lanternbearer for a first character."
+    },
+    "rogue": {
+      "tagline": "Quick, quiet and deadly from the shadows.",
+      "text": "The Rogue fights up close with light blades and wins by finding the gap: sneak attack adds dice against anything off-guard, and Hide in Shadows lets you open with a blow the target never sees. Momentum builds as you move and land critical hits; Tumble rolls you through danger.",
+      "strengths": "Huge damage against off-guard targets, mobility, and the most skills.",
+      "weaknesses": "Only 8 hit points a level and light armour: a Rogue caught standing still goes down.",
+      "tips": [
+        "Hide before a pack notices you, and open on the toughest one.",
+        "Tumble through a foe (the Trickster) to leave it off-guard.",
+        "Death Mark at 16 makes your next hit a critical hit."
+      ],
+      "start": "Dexterity key, Constitution second. Elf or Halfling. Cutthroat for damage, Trickster for traps and control."
+    },
+    "ranger": {
+      "tagline": "A hunter with a bow and an eye for prey.",
+      "text": "The Ranger fights from range. Hunt Prey marks one monster and every Strike against it deals extra d8s; Focus regenerates and pays for Twin Shot, Aimed Shot and the subclass's shots. Disengage springs you out of melee and back into bow range.",
+      "strengths": "Strong, safe damage from range, steady resource, and (the Beastmaster) a wolf to hold monsters off.",
+      "weaknesses": "Medium armour at best; a monster that reaches you is dangerous, and dark places need light to shoot by.",
+      "tips": [
+        "Always keep your target hunted.",
+        "Disengage when something reaches you, then shoot again.",
+        "Hunter's Apex at 16 makes every monster near you your prey."
+      ],
+      "start": "Dexterity key, Constitution second. Elf or Halfling. Marksman for damage, Beastmaster for a companion."
+    },
+    "wizard": {
+      "tagline": "Arcane fire and lightning from a distance.",
+      "text": "The Wizard casts spells from Mana: Ignition and Force Bolt from level 1, then cones, bursts and blasts. Spells grow with your level (their spell rank), not with your weapon. The Shield cantrip blocks a blow, and Blink jumps you out of trouble.",
+      "strengths": "The best damage against crowds, and spells that reach a flying Herald.",
+      "weaknesses": "Only 6 hit points a level and no armour: positioning is everything.",
+      "tips": [
+        "Step out of melee at once, then cast.",
+        "Keep the Shield cantrip ready when something closes.",
+        "Disintegrate at 16 is your strongest single-target spell."
+      ],
+      "start": "Intelligence key, Constitution and Dexterity next. Elf or Human. Pyromancer for burning crowds, Stormcaller for control."
+    },
+    "necromancer": {
+      "tagline": "A summoner of the dead and a caster of rot.",
+      "text": "The Necromancer raises skeletons to fight for it and casts void and rot from Mana. Grave Charges come from corpses near you and pay for raising the dead and the strongest spells. Bone Rush sends every skeleton at one monster.",
+      "strengths": "Allies that hold monsters off you, area damage, and life drained back into you.",
+      "weaknesses": "6 hit points a level and no armour; its skeletons crumble if you fall.",
+      "tips": [
+        "Keep your skeletons up between fights.",
+        "Fight where corpses fall: they are your Grave Charges.",
+        "Lich Form at 16 doubles everything your dead deal."
+      ],
+      "start": "Intelligence key, Constitution next. Human or Elf. Bonelord for an army, Plaguebringer for rot and explosions."
+    },
+    "gunslinger": {
+      "tagline": "Ironhold's black powder and a steady hand.",
+      "text": "The Gunslinger fights with guns: pistols or a long gun. A gun holds a few rounds and must be reloaded (R, or Risky Reload in an instant); a natural 1 misfires and fouls the load. Grit builds on hits and critical hits. Gun damage adds Singular Expertise, growing at levels 7 and 15. Special rounds (fire, silver, scatter) are cast at a forge.",
+      "strengths": "Heavy damage at range, and a dive (Hit the Dirt!) that reloads as you land.",
+      "weaknesses": "8 hit points a level and light or medium armour; the reload leaves gaps.",
+      "tips": [
+        "Never let a fight start with an empty gun.",
+        "Silver rounds against the undead; fire rounds against the living.",
+        "Smoke and Thunder at 16 means no reloading for 10 seconds."
+      ],
+      "start": "Dexterity key, Constitution second. Ironhold Gunhand background. Pistolero up close, Sniper from far away."
+    }
+  },
+  "subclasses": {
+    "vanguard": "Two-handed weapons that sweep and knock monsters away: Earthshaker, Whirlwind Strike, Earthsplitter, Titan's Wrath.",
+    "bulwark": "Sword and shield, blocking and striking back: Challenge draws monsters to you, and Shield Block counters.",
+    "lanternbearer": "Light and healing, and the bane of the undead: Lantern's Radiance, Beacon of Hope, Dawnbreak, Sunburst.",
+    "oathbreaker": "The Taint as a weapon: your hits fill your Taint meter and your strikes drain life by it. Aura of Dread, Ruinous Blow.",
+    "paladin": "The oath of justice: your reaction strikes back at whatever hits you or an ally beside you. Blade of Justice, Final Judgment.",
+    "cutthroat": "Wounds and ambushes: a strike out of hiding is a critical hit. Gutting Strike, Assassinate, A Thousand Cuts.",
+    "trickster": "Traps and misdirection: Snare, Smoke Bomb, Caltrops; a Tumble leaves enemies off-guard.",
+    "marksman": "Arrows that pierce through lines of enemies, and critical hits that give Focus back. Piercing Shot, Killshot.",
+    "beastmaster": "A wolf companion that follows, fights and comes back when it falls, with Sic 'Em and its own feats.",
+    "pyromancer": "Fire, burning and areas: Burning Hands, Fireball, Meteor, Meteor Swarm.",
+    "stormcaller": "Lightning that chains, cold that slows, and control: Thunderclap, Chain Lightning, Ball Lightning, Tempest.",
+    "bonelord": "A skeleton army and armour of bone: Bone Armor, bone knights, the Bone Colossus, the Army of the Dead.",
+    "plaguebringer": "Rot, poison and corpse explosions: each corpse gives two Grave Charges. Plague Cloud, Blight, Plague Tide.",
+    "pistolero": "Pistols, quick and close, two at once: Fan the Hammer empties both guns into one target.",
+    "sniper": "A long gun and a long way off: Headshot stuns, and shots at distant targets hit harder."
+  }
+}

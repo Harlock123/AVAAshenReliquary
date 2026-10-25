@@ -22,6 +22,8 @@
                   ToolTip.Tip="Save over this character's save (F5)." />
           <Button x:Name="SaveCopyButton" Content="Save a copy" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7"
                   ToolTip.Tip="Keep a snapshot of the game as it is now, as a save of its own on the title screen, numbered: Elirk-2, Elirk-3 (F6). Your game still saves to its own file." />
+          <Button x:Name="GuideButton" Content="Guide" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7"
+                  ToolTip.Tip="How the game plays: the controls, attributes, ancestries, classes, combat and levelling." />
           <Button x:Name="TitleButton" Content="Save and return to title" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
           <Button x:Name="QuitGameButton" Content="Save and quit" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7" />
           <Button x:Name="JustQuitButton" Content="Just quit (don't save)" Width="260" HorizontalContentAlignment="Center" Margin="0,4" FontSize="15" Padding="0,7"
@@ -46,6 +48,7 @@
     </Border>
 
     <v:CharacterCreationView x:Name="Creation" IsVisible="False" />
+    <v:GuideView x:Name="Guide" IsVisible="False" />
     <v:TitleView x:Name="TitlePage" IsVisible="False" />
   </Panel>
 </Window>

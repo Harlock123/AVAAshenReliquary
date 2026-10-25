@@ -290,6 +290,8 @@
       <Button DockPanel.Dock="Right" Classes="big begin" Content="Begin  ›" Command="{Binding BeginCommand}"
               IsEnabled="{Binding CanBegin}" Name="BeginButton" />
       <Button DockPanel.Dock="Left" Classes="big" Content="Recommended" Command="{Binding RecommendCommand}" Name="RecommendButton" />
+      <Button DockPanel.Dock="Left" Classes="big" Content="Guide" Command="{Binding GuideCommand}" Name="GuideButton"
+              ToolTip.Tip="The guide, open at the class you have chosen: its abilities at every level, and the other classes and ancestries." />
       <Button DockPanel.Dock="Right" Classes="big" Content="{Binding StartActLabel}" Command="{Binding NextStartActCommand}" Name="StartActButton"
               Margin="0,0,10,0" ToolTip.Tip="Start later in the story: the acts before done, at that act's level, the kit etched to suit." />
       <TextBlock Text="{Binding Problem}" Foreground="#E8695E" VerticalAlignment="Center" Margin="16,0" TextWrapping="Wrap" />

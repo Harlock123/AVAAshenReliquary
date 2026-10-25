@@ -41,6 +41,11 @@ dotnet run --project src/AshenReliquary.App -- --mute     # no sound
 dotnet run --project src/AshenReliquary.App -- --battle   # a fight that plays itself in the Fens (add a zone id such as iron_march, or --wizard; the hero starts at the zone's level)
 ```
 
+The title screen's **Guide** (also on the creation screen, open at the class you are making, and in the Escape menu)
+explains the game: the controls, the six attributes and what each does, a page for every ancestry (its portraits, hit
+points, speed, boosts, heritages and feats) and every class (its figure in its kit, hit points, key attribute,
+resource, armour, tips, and every ability it and its subclasses gain, by level), combat, conditions, gear and levelling.
+
 Left-click the ground to walk (hold to keep walking), left-click a monster for your basic attack, right-click a
 monster for your right-mouse ability; hold **Ctrl** and a click attacks the monster nearest the cursor and never walks
 (hold the button to keep at it, the ring shows who it will hit), **1** to **6** use the other bar slots on the monster under the cursor

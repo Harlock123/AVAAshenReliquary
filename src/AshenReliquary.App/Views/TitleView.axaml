@@ -79,6 +79,8 @@
         <Button Classes="menu primary" Content="Continue" Command="{Binding LoadCommand}" IsVisible="{Binding HasSaves}"
                 IsEnabled="{Binding HasSelection}" Name="ContinueButton" />
         <Button Classes="menu" Content="New character" Command="{Binding NewCharacterCommand}" Name="NewButton" />
+        <Button Classes="menu" Content="Guide" Command="{Binding GuideCommand}" Name="GuideButton"
+                ToolTip.Tip="How the game plays: the controls, attributes, ancestries, classes, combat and levelling." />
         <StackPanel IsVisible="{Binding HasSaves}">
           <Button Classes="menu" Content="Delete character…" Command="{Binding DeleteCommand}" IsEnabled="{Binding HasSelection}"
                   IsVisible="{Binding !ConfirmingDelete}" Name="DeleteButton" />

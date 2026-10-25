@@ -30,6 +30,8 @@ public partial class MainWindow : Window
         SaveButton.Click += (_, _) => { SaveNow(); MenuNote.Text = "Saved."; };
         SaveCopyButton.Click += (_, _) => { if (SaveCopy() is { } name) MenuNote.Text = $"Saved a copy: {name}."; };
         TitleButton.Click += (_, _) => { SaveNow(); ShowTitle(); };
+        // From a paused game: the guide, then back to the menu, still paused.
+        GuideButton.Click += (_, _) => ShowGuide(() => { ShowOnly(World); OpenMenu(); });
         QuitGameButton.Click += (_, _) => Close();
         JustQuitButton.Click += (_, _) => { _quitWithoutSaving = true; Close(); };
         Closing += (_, _) =>
@@ -124,6 +126,7 @@ public partial class MainWindow : Window
         var vm = new TitleViewModel();
         vm.LoadRequested += save => Session = GameSession.FromSave(save);
         vm.NewRequested += () => ShowCharacterCreation();
+        vm.GuideRequested += () => ShowGuide(() => ShowTitle());
         vm.QuitRequested += Close;
         TitlePage.DataContext = vm;
         ShowOnly(TitlePage);
@@ -141,6 +144,7 @@ public partial class MainWindow : Window
             Session = session;
             SaveNow(announce: false);
         };
+        vm.GuideRequested += page => ShowGuide(() => ShowOnly(Creation), page);
         Creation.DataContext = vm;
         ShowOnly(Creation);
         return vm;
@@ -153,10 +157,27 @@ public partial class MainWindow : Window
         World.Focus();
     }
 
+    /// <summary>
+    /// Shows the guide (from the title, the creation screen or the Escape menu), open at <paramref name="page"/> if one is
+    /// given; its Back button does <paramref name="back"/>.
+    /// </summary>
+    public GuideViewModel ShowGuide(Action back, string? page = null)
+    {
+        var vm = new GuideViewModel();
+        if (page is not null)
+            vm.Open(page);
+        vm.Closed += back;
+        Guide.DataContext = vm;
+        ShowOnly(Guide);
+        Paused = true;
+        return vm;
+    }
+
     private void ShowOnly(Control screen)
     {
         TitlePage.IsVisible = screen == TitlePage;
         Creation.IsVisible = screen == Creation;
+        Guide.IsVisible = screen == Guide;
         World.IsVisible = screen == World;
         GameMenu.IsVisible = false;
     }

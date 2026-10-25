@@ -166,7 +166,9 @@ implementation decisions made so far). `README.md` has the run commands and cont
   Reliquary. Step 10 done: `CampaignReport.Acts_1_to_4_through_the_Reliquary` plays all four acts with every subclass
   to the stair to the Cinder Throne (level 20); beginning at an act (`GameWorld.ActStarts`/`BeginAct`, the creation
   screen's "Begin at", `--act N`). M4's exit test waits on the user's play of Acts 2-4 (start with `--act 2`). After
-  M4: M5 (the Epilogue: the Cinder Throne).
+  M4: M5 (the Epilogue: the Cinder Throne). After M4, asked for: the in-game guide (`GuideView`/`GuideViewModel`, words
+  in `guide.json`, numbers from the content; Guide buttons on the title, creation screen and Escape menu): a new class,
+  ancestry, subclass or condition needs its words there (`GuideTests` checks).
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

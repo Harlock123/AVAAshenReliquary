@@ -2049,6 +2049,23 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   rows lose some Herald duels (the Vanguard, Pistolero and Sniper against Vorthrax at 19); the necromancers win every
   Vorthrax duel in under 25 s.
 
+### The in-game guide (after M4)
+
+- **Where:** a Guide button on the title screen, on the creation screen (open at the class being made; Back returns to
+  the hero as it was) and in the Escape menu (Back returns to the paused menu). Escape closes it too.
+- **What:** `GuideView` (a list of pages on the left, the page on the right, Previous and Next), in the creation screen's
+  colours and type. Its pages: Welcome to Vardmoor, Controls and the screen, Attributes and statistics, Ancestries (with
+  a page for each of the six), Classes (a page for each of the seven, its subclasses on it), Combat, Conditions, Gear,
+  runes and crafting, Levelling and feats.
+- **Words and numbers apart:** the prose is `guide.json` (`ContentDatabase.Guide`: the chapters, and a write-up for every
+  attribute, ancestry, class and subclass); every number is read from the content when the guide opens
+  (`GuideViewModel`): an ancestry's hit points, speed, senses, boosts, flaw, trait, heritages and ancestry feats, with its
+  portraits; a class's hit points, key attribute, resource, armour, trained skills and subclasses, and every ability it
+  and its subclasses gain by level, with its icon and key; each condition with its icon. A class is drawn in its
+  starting kit from Flare's avatar layers (`GuideArt`, from the layers `GameSession.LayersFor` gives the game's hero).
+- **Tests:** `GuideTests` fails if any attribute, ancestry, class, subclass or condition lacks its words;
+  `GuideUiTests` opens it from the title, the creation screen and a game, and photographs its pages.
+
 ### The Gunslinger (after M4 step 6)
 
 Asked for: a gunslinger class, with drops that give it raw materials. The four choices, taken with the suggestions: plain

@@ -69,6 +69,7 @@ public sealed partial class TitleViewModel : ObservableObject
 
     public event Action<SaveGame>? LoadRequested;
     public event Action? NewRequested;
+    public event Action? GuideRequested;
     public event Action? QuitRequested;
 
     public void Refresh()
@@ -82,6 +83,9 @@ public sealed partial class TitleViewModel : ObservableObject
     }
 
     partial void OnSelectedChanged(SaveEntry? value) => ConfirmingDelete = false;
+
+    [RelayCommand]
+    private void Guide() => GuideRequested?.Invoke();
 
     [RelayCommand]
     private void Load()

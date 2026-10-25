@@ -92,34 +92,34 @@ public sealed class GameSession
     public string ClassId { get; }
 
     /// <summary>The paper-doll layers to draw: each worn item's Flare layer, or the bare body where nothing is worn.</summary>
-    public IReadOnlyDictionary<string, string> AppearanceLayers
+    public IReadOnlyDictionary<string, string> AppearanceLayers => LayersFor(World.Hero.Equipment);
+
+    /// <summary>The paper-doll layers for what is worn (the game's hero; the guide's class figures).</summary>
+    public static IReadOnlyDictionary<string, string> LayersFor(Equipment gear)
     {
-        get
+        var layers = new Dictionary<string, string>
         {
-            var layers = new Dictionary<string, string>
+            ["head"] = "head_short", ["chest"] = "default_chest", ["legs"] = "default_legs",
+            ["feet"] = "default_feet", ["hands"] = "default_hands",
+        };
+        foreach (var (slot, item) in gear.Worn)
+        {
+            if (item.Definition.Gfx is not { } gfx)
+                continue;
+            // A bow is held in the off hand, as Flare draws it; a gun in the weapon hand, and a second pistol in the
+            // off hand has a layer of its own.
+            if (slot == EquipSlot.OffHand && item.Definition.IsPistol)
+                gfx += "_offhand";
+            var layer = slot switch
             {
-                ["head"] = "head_short", ["chest"] = "default_chest", ["legs"] = "default_legs",
-                ["feet"] = "default_feet", ["hands"] = "default_hands",
+                EquipSlot.MainHand when item.Definition.Ranged && !item.Definition.IsFirearm => "off",
+                EquipSlot.MainHand => "main", EquipSlot.OffHand => "off", EquipSlot.Head => "head", EquipSlot.Chest => "chest",
+                EquipSlot.Hands => "hands", EquipSlot.Legs => "legs", EquipSlot.Feet => "feet", _ => null,
             };
-            foreach (var (slot, item) in World.Hero.Equipment.Worn)
-            {
-                if (item.Definition.Gfx is not { } gfx)
-                    continue;
-                // A bow is held in the off hand, as Flare draws it; a gun in the weapon hand, and a second pistol in the
-                // off hand has a layer of its own.
-                if (slot == EquipSlot.OffHand && item.Definition.IsPistol)
-                    gfx += "_offhand";
-                var layer = slot switch
-                {
-                    EquipSlot.MainHand when item.Definition.Ranged && !item.Definition.IsFirearm => "off",
-                    EquipSlot.MainHand => "main", EquipSlot.OffHand => "off", EquipSlot.Head => "head", EquipSlot.Chest => "chest",
-                    EquipSlot.Hands => "hands", EquipSlot.Legs => "legs", EquipSlot.Feet => "feet", _ => null,
-                };
-                if (layer is not null)
-                    layers[layer] = gfx;
-            }
-            return layers;
+            if (layer is not null)
+                layers[layer] = gfx;
         }
+        return layers;
     }
 
     /// <summary>The classes the vertical slice can start as: the ones with abilities and a starting kit.</summary>

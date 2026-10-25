@@ -210,6 +210,12 @@ public sealed partial class CharacterCreationViewModel : ObservableObject
     [RelayCommand]
     private void NextStartAct() => StartAct = StartAct % GameWorld.ActStarts.Count + 1;
 
+    /// <summary>Raised by the Guide button, with the guide page for the class being made.</summary>
+    public event Action<string>? GuideRequested;
+
+    [RelayCommand]
+    private void Guide() => GuideRequested?.Invoke($"class:{SelectedClass.Definition.Id}");
+
     public string AncestryDetail => $"{Ancestry.HitPoints} HP · {Ancestry.SpeedFeet} ft · {Ancestry.Senses}. {Ancestry.Trait}.";
     public string BackgroundDetail => $"Trained in {Background.Skill} and {Background.Lore}; skill feat {Background.SkillFeat}.";
 

@@ -20,6 +20,10 @@ public sealed class ContentDatabase
     };
 
     private static readonly Lazy<ContentDatabase> EmbeddedInstance = new(LoadEmbedded);
+    private static readonly Lazy<GuideDefinition> GuideInstance = new(() => Read<GuideDefinition>("guide.json"));
+
+    /// <summary>The in-game guide's words (guide.json).</summary>
+    public static GuideDefinition Guide => GuideInstance.Value;
 
     public ContentDatabase(
         IEnumerable<AncestryDefinition> ancestries,
@@ -102,7 +106,7 @@ public sealed class ContentDatabase
         && !KnownTables.Contains(resourceName["AshenReliquary.Content.".Length..]);
 
     private static readonly HashSet<string> KnownTables =
-        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json", "sets.json"];
+        ["ancestries.json", "backgrounds.json", "classes.json", "creatures.json", "abilities.json", "items.json", "affixes.json", "dialogues.json", "feats.json", "sets.json", "guide.json"];
 
     private static T Read<T>(string fileName)
     {
