@@ -154,8 +154,8 @@ public static class Tactics
             && world.Monsters.Where(m => !m.IsDead && !m.Definition.Ranged && m.DistanceTo(hero) < 1.6).MinBy(m => m.DistanceTo(hero)) is { } melee
             && melee.DistanceTo(hero) > 0.01)
         {
-            var away = melee.DistanceTo(hero);
-            world.Dodge(hero.X + (hero.X - melee.X) / away * 4, hero.Y + (hero.Y - melee.Y) / away * 4);
+            var (sx, sy) = Away(world, melee, 4);
+            world.Dodge(sx, sy);
             return;
         }
         // Past level 5 (M4): each class's level-6 and level-11 abilities and its subclass's level-8 and level-13
@@ -170,8 +170,7 @@ public static class Tactics
                 && world.Monsters.Where(m => !m.IsDead && !m.Definition.Ranged && m.DistanceTo(hero) < 1.6).MinBy(m => m.DistanceTo(hero)) is { } pressing
                 && pressing.DistanceTo(hero) > 0.01)
             {
-                var away = pressing.DistanceTo(hero);
-                world.UseAbility(slot, null, (hero.X + (hero.X - pressing.X) / away * 6, hero.Y + (hero.Y - pressing.Y) / away * 6));
+                world.UseAbility(slot, null, Away(world, pressing, 6));
                 return;
             }
             (string Id, bool When, MonsterActor? At, (double X, double Y)? Toward)[] signatures =
@@ -207,7 +206,7 @@ public static class Tactics
                 ("assassinate", distance < 1.8 && tough, target, null),
                 ("caltrops", Within(2.5) >= 2, null, null),
                 ("killshot", tough && distance < 10, target, null),
-                ("hunt_as_one", tough && distance < 9 && world.Allies.Any(a => !a.IsDead), target, null),
+                ("hunt_as_one", tough && distance < 9 && world.IsLit(target.X, target.Y) && world.Allies.Any(a => !a.IsDead), target, null),
                 ("meteor", distance < 10 && Near(target, 3.5) >= 2, target, null),
                 ("ball_lightning", distance < 9 && Near(target, 2.5) >= 2, target, null),
                 ("one_shot_one_kill", tough && distance < 13, target, null),
@@ -344,8 +343,10 @@ public static class Tactics
                 world.UseAbility(slot, null);
             else if (Ready("corpse_explosion", out slot) && world.Monsters.Count(m => !m.IsDead && m.DistanceTo(target) < 2.2) >= 2)
                 world.UseAbility(slot, target);
-            // Bone Rush reaches 10 tiles (a boss rooted beyond it, Malachar at his Throne, is walked to instead).
-            else if (Ready("bone_rush", out slot) && standing >= 2 && target.Creature.Stats.Rank >= CreatureRank.Champion && distance <= 10)
+            // Bone Rush reaches 10 tiles, and only what can be seen (a boss rooted beyond it, Malachar at his Throne, or in the
+            // dark, is walked to instead).
+            else if (Ready("bone_rush", out slot) && standing >= 2 && target.Creature.Stats.Rank >= CreatureRank.Champion && distance <= 10
+                     && world.IsLit(target.X, target.Y))
                 world.UseAbility(slot, target);
             else if (Ready("siphon_life", out slot) && c.HitPoints < c.MaxHitPoints * 0.7)
                 world.UseAbility(slot, target);
@@ -358,8 +359,7 @@ public static class Tactics
             var pressing = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(hero) < 1.8).MinBy(m => m.DistanceTo(hero));
             if (pressing is not null && world.Shoots && Ready("hit_the_dirt", out slot))
             {
-                var d = Math.Max(0.01, pressing.DistanceTo(hero));
-                world.UseAbility(slot, null, (hero.X + (hero.X - pressing.X) / d * 4, hero.Y + (hero.Y - pressing.Y) / d * 4));
+                world.UseAbility(slot, null, Away(world, pressing, 4));
                 return;
             }
             if (hero.Loaded <= 0 && Ready("risky_reload", out slot))
@@ -381,13 +381,12 @@ public static class Tactics
             var pressing = world.Monsters.Where(m => !m.IsDead && m.DistanceTo(hero) < 1.8).MinBy(m => m.DistanceTo(hero));
             if (pressing is not null && world.Shoots && Ready("disengage", out slot))
             {
-                var d = Math.Max(0.01, pressing.DistanceTo(hero));
-                world.UseAbility(slot, null, (hero.X + (hero.X - pressing.X) / d * 4, hero.Y + (hero.Y - pressing.Y) / d * 4));
+                world.UseAbility(slot, null, Away(world, pressing, 4));
                 return;
             }
             if (hero.Prey != target && Ready("hunt_prey", out slot) && target.Creature.Stats.Rank >= CreatureRank.Normal)
                 world.UseAbility(slot, target);
-            if (Ready("sic", out slot) && world.Companion is { IsDead: false } && distance < 9)
+            if (Ready("sic", out slot) && world.Companion is { IsDead: false } && distance < 9 && world.IsLit(target.X, target.Y))
                 world.UseAbility(slot, target);
             if (Ready("piercing_shot", out slot) && world.Monsters.Count(m => !m.IsDead && m.DistanceTo(target) < 3) >= 2)
                 world.UseAbility(slot, target);
@@ -412,6 +411,24 @@ public static class Tactics
             else if (hero.CurrentTarget != target)
                 world.Attack(target);
         }
+    }
+
+    /// <summary>
+    /// Where to spring to, <paramref name="tiles"/> away from <paramref name="from"/>: straight away from it, or turned aside
+    /// a little at a time when that lands near a zone's exit (a Step backwards through a doorway once took a wizard out of
+    /// the Lava Rivers in the middle of a fight) or off open ground.
+    /// </summary>
+    private static (double X, double Y) Away(GameWorld world, MonsterActor from, double tiles)
+    {
+        var hero = world.Hero;
+        var away = Math.Atan2(hero.Y - from.Y, hero.X - from.X);
+        foreach (var turn in new[] { 0.0, 0.6, -0.6, 1.2, -1.2, 1.8, -1.8 })
+        {
+            var (x, y) = (hero.X + Math.Cos(away + turn) * tiles, hero.Y + Math.Sin(away + turn) * tiles);
+            if (world.Map.IsWalkable(x, y) && world.Zone.Exits.All(e => Math.Abs(e.At[0] + 0.5 - x) + Math.Abs(e.At[1] + 0.5 - y) > e.Radius + 3))
+                return (x, y);
+        }
+        return (hero.X + Math.Cos(away) * tiles, hero.Y + Math.Sin(away) * tiles);
     }
 
     /// <summary>The belt slot holding the first of these items that is there, or null.</summary>

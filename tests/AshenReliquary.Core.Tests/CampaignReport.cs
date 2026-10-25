@@ -14,8 +14,8 @@ namespace AshenReliquary.Core.Tests;
 /// Run it with `--logger "console;verbosity=detailed"`; ASHEN_BALANCE_RUNS sets the runs per class (1 by default).
 /// <see cref="Acts_1_and_2_to_Ser_Hadric"/> plays on through Act 2 (M4 step 4), with Ironhold's Hilde and Sable for the
 /// smith and trader; <see cref="Acts_1_to_3_to_the_Choir"/> on through Act 3 (M4 step 7), with the Rest's Halvard and Mora;
-/// <see cref="Acts_1_to_4_through_the_Reliquary"/> on through Act 4, past the Cinderwyrm and down through the Reliquary (M4
-/// steps 9 and 10), with the Ember Gate's Brannoc and Hesk.
+/// <see cref="The_whole_game_to_an_ending"/> on through Act 4, past the Cinderwyrm and down through the Reliquary, with the
+/// Ember Gate's Brannoc and Hesk, to the Cinder Throne, Malachar and an ending (M5 step 5).
 /// </summary>
 public class CampaignReport(ITestOutputHelper output)
 {
@@ -26,7 +26,8 @@ public class CampaignReport(ITestOutputHelper output)
 
     public sealed record Campaign(List<ZoneLeg> Legs, bool SallowSlain, int SallowLevel, double Minutes, List<string> Killers, int SuppliesBought = 0,
         int Salvaged = 0, int Crafted = 0, string? Dedication = null, bool HadricSlain = false, int HadricLevel = 0, bool ChoirSlain = false,
-        int ChoirLevel = 0, bool VorthraxSlain = false, int VorthraxLevel = 0, bool ThroneReached = false);
+        int ChoirLevel = 0, bool VorthraxSlain = false, int VorthraxLevel = 0, bool ThroneReached = false, string? Malachar = null,
+        int MalacharLevel = 0, string? Ending = null, string Story = "");
 
     [Theory]
     [InlineData("fighter vanguard")]
@@ -139,10 +140,10 @@ public class CampaignReport(ITestOutputHelper output)
     }
 
     /// <summary>
-    /// Act 4 played on from Act 3's end (M4 steps 9 and 10): down the cliff road to the Ember Gate camp (Brannoc's forge,
-    /// Hesk's supplies), the Ash Wastes, the Lava Rivers and the Wyrm's Nest to Vorthrax the Cinderwyrm, then down through
-    /// the Reliquary and its gauntlet of Echoes to the stair to the Cinder Throne. The exit test: Vorthrax falls, every ward
-    /// opens, and Act 4 ends about level 20.
+    /// The whole game (M5 step 5): Acts 1 to 4 as before (Act 4 down the cliff road to the Ember Gate camp, the Ash Wastes,
+    /// the Lava Rivers and the Wyrm's Nest to Vorthrax, then the Reliquary's gauntlet of Echoes), then the Cinder Throne:
+    /// Malachar's court and his three phases, and the choice. Each kit plays for one ending (<see cref="EndingFor"/>), so
+    /// all four are reached. The exit test: Malachar falls (or is spared) at level 20, and the ending is the one played for.
     /// </summary>
     [Theory]
     [InlineData("fighter vanguard")]
@@ -160,13 +161,15 @@ public class CampaignReport(ITestOutputHelper output)
     [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
-    public void Acts_1_to_4_through_the_Reliquary(string kit)
+    public void The_whole_game_to_an_ending(string kit)
     {
+        var ending = EndingFor(kit);
         for (var seed = int.TryParse(Environment.GetEnvironmentVariable("ASHEN_CAMPAIGN_SEED"), out var only) ? only : 1;
              seed <= (only > 0 ? only : Runs); seed++)
         {
-            var c = Play(kit, seed, actTwo: true, actThree: true, actFour: true);
-            output.WriteLine($"{kit}, run {seed}: Sallow at {c.SallowLevel}, Hadric at {c.HadricLevel}, the Choir at {c.ChoirLevel}, Vorthrax {(c.VorthraxSlain ? "slain" : "lives")} at {c.VorthraxLevel}, the Throne's stair {(c.ThroneReached ? "reached" : "not reached")}, {c.Minutes:0} min of play, {c.SuppliesBought} supplies, {c.Salvaged} salvaged, {c.Crafted} crafted");
+            var c = Play(kit, seed, actTwo: true, actThree: true, actFour: true, ending: ending);
+            output.WriteLine($"{kit}, run {seed}: Sallow at {c.SallowLevel}, Hadric at {c.HadricLevel}, the Choir at {c.ChoirLevel}, Vorthrax {(c.VorthraxSlain ? "slain" : "lives")} at {c.VorthraxLevel}, Malachar {c.Malachar ?? "lives"} at {c.MalacharLevel}, ending {c.Ending ?? "none"} (played for {ending}), {c.Minutes:0} min of play, {c.SuppliesBought} supplies, {c.Salvaged} salvaged, {c.Crafted} crafted");
+            output.WriteLine($"  the story: {c.Story}");
             foreach (var leg in c.Legs)
                 output.WriteLine($"  {leg.Zone,-22} {leg.Minutes,5:0.0} min  deaths {leg.Deaths,2}  potions {leg.Potions,2}  level {leg.LevelIn} ({leg.XpIn,3}) -> {leg.LevelOut} ({leg.XpOut,3})  gold {leg.Gold}");
             foreach (var g in c.Killers.GroupBy(k => k).OrderByDescending(g => g.Count()).Take(6))
@@ -174,13 +177,31 @@ public class CampaignReport(ITestOutputHelper output)
             Assert.True(c.ChoirSlain, $"{kit} run {seed} did not silence the Choir");
             Assert.True(c.VorthraxSlain, $"{kit} run {seed} did not kill Vorthrax");
             Assert.True(c.ThroneReached, $"{kit} run {seed} did not come through the Reliquary");
-            Assert.InRange(c.Legs[^1].LevelOut, 19, 20);
+            Assert.Equal(ending == "mercy" ? "spared" : "slain", c.Malachar);
+            Assert.Equal(20, c.MalacharLevel);
+            Assert.Equal(ending, c.Ending);
             Assert.DoesNotContain(c.Killers, k => k.StartsWith("STUCK"));
         }
     }
 
-    public static Campaign Play(string kit, int seed, bool actTwo = false, bool actThree = false, bool actFour = false)
+    /// <summary>
+    /// The ending a kit's campaign plays for, the four in turn down the list of subclasses (so every ending is reached by
+    /// three or four of them): Bind's kits read the Chronicle, light the beacon and smash the egg on the way (the Chronicle
+    /// and three side stories); the Lantern-Bird's carry Wren's toy and every memory of her, so Malachar is spared.
+    /// </summary>
+    public static string EndingFor(string kit) => (Kits.IndexOf(kit) % 4) switch { 0 => "destroy", 1 => "claim", 2 => "bind", _ => "mercy" };
+
+    private static readonly List<string> Kits =
+    [
+        "fighter vanguard", "fighter bulwark", "wizard pyromancer", "wizard stormcaller", "rogue cutthroat", "rogue trickster", "ranger marksman",
+        "ranger beastmaster", "champion lanternbearer", "champion oathbreaker", "champion paladin", "gunslinger pistolero", "gunslinger sniper",
+        "necromancer bonelord", "necromancer plaguebringer",
+    ];
+
+    public static Campaign Play(string kit, int seed, bool actTwo = false, bool actThree = false, bool actFour = false, string? ending = null)
     {
+        var bind = ending == "bind";
+        var mercy = ending == "mercy";
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
         var hero = TestCharacters.ForKit(kit);
@@ -190,7 +211,7 @@ public class CampaignReport(ITestOutputHelper output)
         BalanceReport.Dress(hero, world.Hero.Equipment, kit);
         var bot = new Bot(world, classId, bar) { Subclass = hero.Subclass?.Id };
 
-        bot.Clear("gallows_road", "fort_gallowmere");
+        bot.Clear("gallows_road", "fort_gallowmere", false, mercy ? ["daughter_toy:Take the bird."] : []);
         bot.Fort();
         bot.Walk("fort_gallowmere", "west_gate");
         bot.Clear("rotwater_fens", "chapel", wakeFirstShrine: true);
@@ -203,6 +224,8 @@ public class CampaignReport(ITestOutputHelper output)
         {
             bot.Clear("iron_march", "ironhold");
             bot.Town("hilde", "sable");
+            if (mercy)
+                bot.Visit("daughter_ironhold");
             bot.Walk("ironhold", "north_gate");
             bot.Clear("barrow_fields", "barracks", wakeFirstShrine: true);
             bot.Clear("old_barracks", "stair");
@@ -212,31 +235,41 @@ public class CampaignReport(ITestOutputHelper output)
         }
         if (actThree)
         {
-            bot.Clear("frostbitten_pass", "rest", wakeFirstShrine: true);
+            bot.Clear("frostbitten_pass", "rest", true, bind ? ["page_1", "page_2"] : []);
             bot.Town("halvard", "mora");
+            if (mercy)
+                bot.Visit("daughter_oriel");
             bot.Walk("saint_oriels_rest", "north_door");
-            bot.Clear("hollow_woods", "catacombs", wakeFirstShrine: true);
-            bot.Clear("catacombs_of_oriel", "bell_tower");
+            bot.Clear("hollow_woods", "catacombs", true, bind ? ["page_3", "page_4"] : []);
+            bot.Clear("catacombs_of_oriel", "bell_tower", false, bind ? ["page_5", "page_6", "page_7"] : []);
             bot.WakeAndVisit("cloister_shrine", "halvard", "mora");
             bot.Clear("bell_tower", "cliff_road");
         }
         if (actFour)
         {
             bot.Town("brannoc", "hesk");
+            if (mercy)
+                bot.Visit("daughter_ember_gate");
+            if (bind)
+                bot.Visit("beacon", "Light the beacon");
             bot.Walk("ember_gate", "wastes");
             bot.Clear("ash_wastes", "rivers", wakeFirstShrine: true);
             bot.Clear("lava_rivers", "nest", wakeFirstShrine: true);
             bot.WakeAndVisit("ember_gate_shrine", "brannoc", "hesk");
-            bot.Clear("wyrms_nest", "reliquary", wakeFirstShrine: true);
+            bot.Clear("wyrms_nest", "reliquary", true, bind ? ["egg:Smash it."] : []);
             bot.WakeAndVisit("ember_gate_shrine", "brannoc", "hesk");
-            bot.Clear("reliquary", "throne", wakeFirstShrine: true);
+            bot.Clear("reliquary", "throne", true, mercy ? ["daughter_journal"] : []);
         }
+        if (ending is not null && world.Zone.Id == "cinder_throne")
+            bot.Throne(ending);
         return new Campaign(bot.Legs, world.Flags.GetValueOrDefault("act1.sallow") == "slain", bot.SallowLevel, world.Time / 60, bot.Killers,
             bot.SuppliesBought, bot.Salvaged, bot.Crafted, hero.DedicationClass?.Name,
             world.Flags.GetValueOrDefault("act2.hadric") == "slain", bot.HadricLevel,
             world.Flags.GetValueOrDefault("act3.choir") == "slain", bot.ChoirLevel,
             world.Flags.GetValueOrDefault("act4.vorthrax") == "slain", bot.VorthraxLevel,
-            world.Zone.Id == "cinder_throne");
+            world.Zone.Id == "cinder_throne", world.Flag("act5.malachar"), bot.MalacharLevel, world.Flag("act5.ending"),
+            string.Join(", ", world.Flags.Where(f => f.Key.StartsWith("daughter.") || f.Key is "act5.parley" or "act3.library" or "act4.beacon" or "act4.egg")
+                .OrderBy(f => f.Key).Select(f => $"{f.Key}={f.Value}")));
     }
 
     /// <summary>The player: fights, rests, loots, walks on, and keeps count.</summary>
@@ -262,11 +295,16 @@ public class CampaignReport(ITestOutputHelper output)
         private Characters.Character Hero => world.Hero.Character;
 
         /// <summary>Clears zone <paramref name="zoneId"/> pack by pack, then walks into exit <paramref name="exitId"/>.</summary>
-        public void Clear(string zoneId, string exitId, bool wakeFirstShrine = false)
+        public void Clear(string zoneId, string exitId, bool wakeFirstShrine = false, params string[] visits)
         {
             var (start, deaths, potions, levelIn, xpIn) = (world.Time, _deaths, _potions, Hero.Level, world.Experience.Xp);
             if (wakeFirstShrine)
                 Wake(world.Zone.Shrines[0]);
+            if (world.Zone.Id != zoneId)
+            {
+                Killers.Add($"STUCK: to clear {zoneId}, but in {world.Zone.Id} at {world.Hero.X:0.0},{world.Hero.Y:0.0}");
+                return;
+            }
             var exit = world.Zone.Exits.Single(e => e.Id == exitId);
             while (world.Zone.Id == zoneId && !(exit.To is null && world.ZoneComplete) && world.Time - start < 3600)
             {
@@ -278,6 +316,15 @@ public class CampaignReport(ITestOutputHelper output)
                     continue;
                 }
                 var next = world.Monsters.Where(m => !m.IsDead && m.SpawnIndex >= 0).MinBy(m => m.SpawnIndex);
+                // The zone cleared: what is to be read or picked up here (a page, a keepsake), before the way on.
+                if (next is null && visits.Length > 0)
+                {
+                    // "egg:Smash it." visits the egg and answers so.
+                    foreach (var visit in visits)
+                        Visit(visit.Split(':')[0], visit.Split(':').Skip(1).ToArray());
+                    visits = [];
+                    continue;
+                }
                 GoToward(next is not null ? (next.X, next.Y) : (exit.At[0] + 0.5, exit.At[1] + 0.5));
                 world.Update(Tick);
             }
@@ -551,6 +598,90 @@ public class CampaignReport(ITestOutputHelper output)
         }
 
         /// <summary>The pilgrim's lantern, from its lectern in the chapel's narthex.</summary>
+        /// <summary>
+        /// Walks to someone or something in this zone and answers its dialogue: each answer is the first choice that starts
+        /// with it (none: it is only read). False when it isn't here or wasn't reached.
+        /// </summary>
+        public bool Visit(string id, params string[] answers)
+        {
+            if (world.Interactives.FirstOrDefault(i => i.Id == id) is not { } who)
+                return false;
+            // Whatever was still being said (Malachar's last words at the parley) is done with.
+            if (world.Dialogue is not null)
+                world.EndDialogue();
+            var start = world.Time;
+            while (world.Dialogue is null && world.Time - start < 180)
+            {
+                if (Turn())
+                    continue;
+                // Near it, the world's own approach (a click on it) finds the open side to stand on.
+                if (who.DistanceTo(world.Hero.X, world.Hero.Y) <= 6)
+                {
+                    if (world.Hero.InteractTarget != who)
+                        world.Interact(who);
+                }
+                else if (world.Time >= _nextMove)
+                    GoToward((who.X, who.Y + 1));
+                world.Update(Tick);
+            }
+            if (world.Dialogue is null)
+            {
+                Killers.Add($"STUCK on the way to {id} in {world.Zone.Id}: at {world.Hero.X:0.0},{world.Hero.Y:0.0}, {who.DistanceTo(world.Hero.X, world.Hero.Y):0.0} off, "
+                    + $"pull {world.Pull is not null}, parley {world.Parleying}, dead {Hero.IsDead}, alive {world.Monsters.Count(m => !m.IsDead)}, "
+                    + $"path {Pathfinder.Find(world.Map, ((int)world.Hero.X, (int)world.Hero.Y), ((int)who.X, (int)(who.Y + 1)), maxNodes: 60000)?.Count.ToString() ?? "none"}");
+                return false;
+            }
+            foreach (var answer in answers)
+            {
+                var index = world.Dialogue?.Choices.ToList().FindIndex(c => c.Text.StartsWith(answer, StringComparison.Ordinal)) ?? -1;
+                if (index < 0)
+                    break;
+                world.Choose(index);
+            }
+            if (world.Dialogue is not null)
+                world.EndDialogue();
+            return true;
+        }
+
+        public int MalacharLevel { get; private set; }
+
+        /// <summary>
+        /// The Cinder Throne: through the honour guard to Malachar's court, the fight to his fall (or his sparing, shown his
+        /// daughter's toy), then the choice at the Throne.
+        /// </summary>
+        public void Throne(string ending)
+        {
+            var (start, deaths, potions, levelIn, xpIn) = (world.Time, _deaths, _potions, Hero.Level, world.Experience.Xp);
+            while (world.Zone.Id == "cinder_throne" && world.Flag("act5.malachar") is null && world.Time - start < 3600)
+            {
+                if (world.Boss is { Definition.Id: "malachar" } && MalacharLevel == 0)
+                    MalacharLevel = Hero.Level;
+                if (Turn())
+                    continue;
+                if (world.Time < _nextMove)
+                {
+                    world.Update(Tick);
+                    continue;
+                }
+                var next = world.Monsters.Where(m => !m.IsDead && m.SpawnIndex >= 0 && !m.Dormant).MinBy(m => m.SpawnIndex);
+                if (next is null)
+                    break;
+                GoToward((next.X, next.Y));
+                world.Update(Tick);
+            }
+            if (world.Flag("act5.malachar") is null)
+                Killers.Add($"STUCK at the Cinder Throne at {world.Hero.X:0.0},{world.Hero.Y:0.0}");
+            Visit("throne", ending switch
+            {
+                "destroy" => "Break the Ember Heart",
+                "bind" => "Take the god into yourself, as Ashur",
+                "claim" => "Sit on the Throne",
+                _ => "Let Malachar take the Heart",
+            }, "Do it.");
+            Legs.Add(new ZoneLeg("cinder_throne", (world.Time - start) / 60, _deaths - deaths, _potions - potions, levelIn, xpIn, Hero.Level,
+                world.Experience.Xp, world.Hero.Equipment.Gold));
+        }
+
         public void TakeLantern()
         {
             if (world.Interactives.FirstOrDefault(i => i.Id == "pilgrims_lantern") is not { } lectern)
