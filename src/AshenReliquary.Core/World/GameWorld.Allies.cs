@@ -320,12 +320,14 @@ public sealed partial class GameWorld
         if (ally.Target is { IsDead: false } current && current.State != MonsterState.Idle && current.DistanceTo(Hero) <= AllyEngageTiles + 3)
             return current;
         bool Fighting(MonsterActor m) => m.State != MonsterState.Idle && m.DistanceTo(Hero) <= AllyEngageTiles && IsLit(m.X, m.Y);
-        return _monsters.Where(m => CanTarget(m) && (Fighting(m) || m.Victim == ally)).MinBy(m => m.DistanceTo(ally));
+        return _monsters.Where(m => CanTarget(m) && !m.Aloft && (Fighting(m) || m.Victim == ally)).MinBy(m => m.DistanceTo(ally));
     }
 
     /// <summary>An ally's bite: a creature Strike against the monster's AC; a commanded bite adds its dice and condition.</summary>
     private void AllyBites(AllyActor ally, MonsterActor target)
     {
+        if (target.Aloft)
+            return;
         var command = ally.Command;
         ally.Command = null;
         var result = Strike.Resolve(ally.Creature, target.Creature, ally.Cadence, Time, Random);

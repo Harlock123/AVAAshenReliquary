@@ -42,6 +42,13 @@ public sealed record BossDefinition(
 /// that shatter at a touch and that a Perception check sees through; every <see cref="SongEverySeconds"/> its song
 /// takes the hero's will (a Will save or enthralled for <see cref="SongSeconds"/>); and <see cref="Joins"/> comes to its
 /// side when the flags in <see cref="JoinsIf"/> hold (Brother Caddoc, banished).</item>
+/// <item>Vorthrax (M4 step 9): every <see cref="BreathEverySeconds"/> a cone of fire, <see cref="BreathArc"/> degrees and
+/// <see cref="BreathRange"/> tiles toward the hero, marked on the ground for <see cref="BreathWindup"/> seconds first, then
+/// <see cref="BreathDamage"/> against a basic Reflex save; <see cref="Flies"/>: aloft over its home, out of a blade's
+/// reach, swooping down beside the hero every <see cref="SwoopEverySeconds"/> for <see cref="SwoopSeconds"/>; pools may
+/// land <see cref="PoolCount"/> at a time and be of <see cref="PoolType"/> (a firestorm); every
+/// <see cref="CrumbleEverySeconds"/> one of the arena's platforms (legend <c>crumbles</c>) cracks into embers and, after
+/// <see cref="CrumbleWarning"/> seconds, sinks into the lava, <see cref="CrumbleDamage"/> to anyone left on it.</item>
 /// </list>
 /// </summary>
 public sealed record BossPhase(
@@ -77,7 +84,53 @@ public sealed record BossPhase(
     double SongEverySeconds = 0,
     double SongSeconds = 3,
     string? Joins = null,
-    IReadOnlyDictionary<string, string>? JoinsIf = null);
+    IReadOnlyDictionary<string, string>? JoinsIf = null,
+    double BreathEverySeconds = 0,
+    double BreathArc = 60,
+    double BreathRange = 7,
+    double BreathWindup = 1.2,
+    string BreathDamage = "8d6",
+    bool Flies = false,
+    double SwoopEverySeconds = 9,
+    double SwoopSeconds = 4,
+    int PoolCount = 1,
+    Combat.DamageType? PoolType = null,
+    double CrumbleEverySeconds = 0,
+    double CrumbleWarning = 2.5,
+    string CrumbleDamage = "6d6");
+
+/// <summary>A boss's breath: the cone it marked toward the hero, burning from <see cref="BurnAt"/>.</summary>
+public sealed class BossBreath(double x, double y, double direction, double arc, double range, double burnAt)
+{
+    public double X { get; } = x;
+    public double Y { get; } = y;
+    public double Direction { get; } = direction;
+    public double Arc { get; } = arc;
+    public double Range { get; } = range;
+    public double BurnAt { get; } = burnAt;
+    internal bool Burned { get; set; }
+
+    /// <summary>Whether a point lies in the cone.</summary>
+    public bool Covers(double px, double py)
+    {
+        var (dx, dy) = (px - X, py - Y);
+        var d = Math.Sqrt(dx * dx + dy * dy);
+        if (d > Range)
+            return false;
+        if (d < 0.6)
+            return true;
+        var off = Math.Abs(Math.IEEERemainder(Math.Atan2(dy, dx) - Direction, 2 * Math.PI));
+        return off <= Arc * Math.PI / 360;
+    }
+}
+
+/// <summary>A platform of the arena cracking (embers) until <see cref="SinksAt"/>, when it goes into the lava.</summary>
+public sealed class Crumbling(string group, IReadOnlyList<(int X, int Y)> cells, double sinksAt)
+{
+    public string Group { get; } = group;
+    public IReadOnlyList<(int X, int Y)> Cells { get; } = cells;
+    public double SinksAt { get; } = sinksAt;
+}
 
 /// <summary>A boss's charge: the lane it marked (from its spot to beyond the hero), live from <see cref="RushAt"/>.</summary>
 public sealed class BossCharge(double fromX, double fromY, double toX, double toY, double rushAt)

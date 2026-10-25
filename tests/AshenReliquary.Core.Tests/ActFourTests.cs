@@ -211,7 +211,7 @@ public class ActFourTests
     {
         var world = InWith("reliquary");
         var echoes = world.Monsters.Where(m => m.IsEcho).ToList();
-        Assert.Equal(["choir_agnete", "mother_sallow", "ser_hadric"], echoes.Select(m => m.Definition.Id).Order());
+        Assert.Equal(["choir_agnete", "mother_sallow", "ser_hadric", "vorthrax"], echoes.Select(m => m.Definition.Id).Order());
         var sallow = echoes.Single(m => m.Definition.Id == "mother_sallow");
         Assert.Equal("Echo of Mother Sallow", sallow.Name);
         var whole = Creatures.CreatureStats.For(19, CreatureRank.Herald).HitPoints * Content.Creatures["mother_sallow"].HitPointsScale;
@@ -236,7 +236,7 @@ public class ActFourTests
         Assert.True(world.GateOpen(gates.Single(g => g.Id == "vault_of_rot")));
         Assert.True(world.GateOpen(gates.Single(g => g.Id == "vault_of_iron")));
         Assert.False(world.GateOpen(gates.Single(g => g.Id == "vault_of_whispers")));
-        var choir = world.Monsters.Single(m => m.IsEcho);
+        var choir = world.Monsters.Single(m => m.IsEcho && m.Definition.Id == "choir_agnete");
         Assert.True(choir.EchoAlone);
         // Alone: her sisters never come.
         (world.Hero.X, world.Hero.Y) = (choir.X, choir.Y + 4);

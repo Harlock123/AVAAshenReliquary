@@ -158,7 +158,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   generators; `GameWorld.ActFour.cs`: ash storms, embers, pack leaders (`leads`), wards (`gates`), spawn
   `requires`/`unless` (settled again after a load), Herald Echoes (`echo`, `alone`), the pet (`FeatEffect.Pet`); the
   Ember Gate camp, Ash Wastes, Lava Rivers, Wyrm's Nest (its Ember Gate waits on `act4.vorthrax`), the Reliquary; the
-  Wyrm Egg and the Last Lantern; `BalanceReport` rows for the four zones). Next: step 9, Vorthrax the Cinderwyrm.
+  Wyrm Egg and the Last Lantern; `BalanceReport` rows for the four zones). Step 9 done: Vorthrax the Cinderwyrm
+  (`GameWorld.Wyrm.cs`: phase `breath*`, `flies`/`swoop*` (`MonsterActor.Aloft`: blades can't reach), `poolCount`/
+  `poolType` (a firestorm), `crumble*` over legend `crumbles` platforms (`TileMap.Crack`/`Sink`/`RaisePlatforms`,
+  `GroundVersion` for the ground cache); the Reliquary's Vault of Flame for his Echo (revision 2);
+  `BalanceReport.Vorthrax_at_levels_18_and_19`; `CampaignReport.Acts_1_to_4_to_Vorthrax`). Act 4 is whole to the
+  Reliquary. Next: step 10, balance and the exit test.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

@@ -5,8 +5,9 @@
 # Inquisitors hold it, unless the beacon at the Ember Gate was lit: then the Order's knights took it first, and one waits
 # there), the Muster (two packs led by elites; if the beacon was kept dark, the old stealth way, a passage round it,
 # opens), then the gauntlet of Herald Echoes (the spec's Echo rule): the Vault of Rot (Mother Sallow's Echo, unless her
-# relic was destroyed), the Vault of Iron (Ser Hadric's, unless his sword went back to his wife's grave) and the Vault
-# of Whispers (the Choir's, gone if the candles were set right, alone if they were snuffed), each behind a ward that
+# relic was destroyed), the Vault of Iron (Ser Hadric's, unless his sword went back to his wife's grave), the Vault of
+# Whispers (the Choir's, gone if the candles were set right, alone if they were snuffed) and the Vault of Flame
+# (Vorthrax's, unless his egg was smashed; M4 step 9), each behind a ward that
 # burns out when the Echo before it is laid to rest; and the Sanctum, the Reliquary's heart, where the way to the Cinder
 # Throne opens (the Epilogue, M5). Every pack is led by an elite (Act 4's pack mix).
 #
@@ -16,8 +17,8 @@
 import sys
 from cinder_common import Rng, legend, open_cell, pack, write, LEADS
 
-REVISION = 1
-W, H = 56, 158
+REVISION = 2
+W, H = 56, 184
 rnd = Rng(19209)
 grid = [[' '] * W for _ in range(H)]
 
@@ -40,8 +41,9 @@ muster = (cx - 12, 40, cx + 12, 56)
 rot = (cx - 12, 64, cx + 12, 84)
 iron = (cx - 12, 90, cx + 12, 110)
 whispers = (cx - 12, 116, cx + 12, 136)
-sanctum = (cx - 10, 142, cx + 10, 154)
-for r in (narthex, vigil, muster, rot, iron, whispers, sanctum):
+flame = (cx - 12, 142, cx + 12, 162)
+sanctum = (cx - 10, 168, cx + 10, 180)
+for r in (narthex, vigil, muster, rot, iron, whispers, flame, sanctum):
     room(*r)
 corridor(cx, 1, 4)
 corridor(cx, 14, 20)
@@ -50,6 +52,7 @@ corridor(cx, 56, 64)
 corridor(cx, 84, 90)
 corridor(cx, 110, 116)
 corridor(cx, 136, 142)
+corridor(cx, 162, 168)
 # The stealth way round the Muster: from the Hall of Vigil's west end down to the Vault of Rot's door, behind a ward
 # that opens only if the beacon was kept dark.
 sx = cx - 17
@@ -74,7 +77,7 @@ for y in range(H):
                for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
             grid[y][x] = 'W'
 # Pillars in the halls and vaults; braziers.
-for (x0, y0, x1, y1) in (vigil, muster, rot, iron, whispers, sanctum):
+for (x0, y0, x1, y1) in (vigil, muster, rot, iron, whispers, flame, sanctum):
     for px in (x0 + 3, x1 - 3):
         for py in range(y0 + 3, y1 - 1, 5):
             grid[py][px] = 'R'
@@ -85,11 +88,11 @@ for (bx, by) in [(narthex[0] + 1, narthex[1] + 1), (narthex[2] - 1, narthex[1] +
 for y in range(30, 58, 6):
     grid[y][sx + 1] = 'B'
 shrine1 = [cx - 3, 10]
-shrine2 = [cx - 6, 151]
+shrine2 = [cx - 6, 177]
 grid[shrine1[1]][shrine1[0]] = 'S'
 grid[shrine2[1]][shrine2[0]] = 'S'
 # The Sanctum: the empty biers where Ashur's bones lay.
-for (x, y) in [(cx - 3, 147), (cx, 147), (cx + 3, 147)]:
+for (x, y) in [(cx - 3, 173), (cx, 173), (cx + 3, 173)]:
     grid[y][x] = 'b'
 
 rows = [''.join(r) for r in grid]
@@ -102,7 +105,8 @@ caches = [
     cache("vault_of_rot", rot[2] - 2, rot[3] - 2, facing=1),
     cache("vault_of_iron", iron[0] + 2, iron[3] - 2),
     cache("vault_of_whispers", whispers[2] - 2, whispers[3] - 2, facing=1),
-    cache("sanctum", cx, 151, kind="Reliquary"),
+    cache("vault_of_flame", flame[0] + 2, flame[3] - 2),
+    cache("sanctum", cx, 177, kind="Reliquary"),
 ]
 
 def ward(y):
@@ -134,14 +138,18 @@ spawns = [
          requires={"act3.candles": "snuffed"}, flag="act4.echo.choir", value="laid",
          says="Agnete's Echo falls silent, alone, and the last ward goes out."),
     # The Sanctum
-    pack((CAPT, E, 1, ["mirrored", "shielded"], LEADS), (ZEAL, N, 2), (INQ, N, 2), at=[cx, 150], radius=3, level=20),
-    pack((WRAITH, E, 1, ["tainted"], LEADS), (HUSK, N, 3), at=[cx - 6, 145], level=20),
+    pack(("vorthrax", B, 1, None, ECHO), at=[cx, 152], radius=0, level=19,
+         unless={"act4.egg": "smashed"}, flag="act4.echo.vorthrax", value="laid",
+         says="Vorthrax's Echo folds its wings and burns down to nothing, and the last ward before the Sanctum goes out."),
+    pack((CAPT, E, 1, ["mirrored", "shielded"], LEADS), (ZEAL, N, 2), (INQ, N, 2), at=[cx, 176], radius=3, level=20),
+    pack((WRAITH, E, 1, ["tainted"], LEADS), (HUSK, N, 3), at=[cx - 6, 171], level=20),
 ]
 gates = [
     {"id": "stealth_way", "name": "The old stealth way's ward", "cells": stealth_ward, "requires": {"act4.beacon": "dark"}},
     {"id": "vault_of_rot", "name": "The ward of the Vault of Rot", "cells": ward(86), "requires": {"act4.echo.sallow": "laid"}},
     {"id": "vault_of_iron", "name": "The ward of the Vault of Iron", "cells": ward(112), "requires": {"act4.echo.hadric": "laid"}},
     {"id": "vault_of_whispers", "name": "The ward of the Vault of Whispers", "cells": ward(138), "requires": {"act4.echo.choir": "laid"}},
+    {"id": "vault_of_flame", "name": "The ward of the Vault of Flame", "cells": ward(164), "requires": {"act4.echo.vorthrax": "laid"}},
 ]
 start = [cx, 6]
 zone = {
@@ -161,7 +169,7 @@ zone = {
     "exits": [
         {"id": "gate", "label": "The Ember Gate", "at": [cx, 2], "radius": 1.5, "to": "wyrms_nest", "toExit": "reliquary",
          "arrive": start},
-        {"id": "throne", "label": "The Cinder Throne", "at": [cx, 153], "radius": 1.5,
+        {"id": "throne", "label": "The Cinder Throne", "at": [cx, 179], "radius": 1.5,
          "openText": "The stair down to the Cinder Throne, where Malachar Vane waits. (The Epilogue is still being written.)"},
     ],
     "caches": caches,
@@ -172,7 +180,7 @@ zone = {
                   "main": "longsword", "off": "kite_shield"}},
     ],
     "interactables": [
-        {"id": "biers", "name": "The empty biers", "at": [cx, 146], "dialogue": "reliquary_biers"},
+        {"id": "biers", "name": "The empty biers", "at": [cx, 172], "dialogue": "reliquary_biers"},
     ],
 }
 write(zone, sys.argv[1])

@@ -59,9 +59,20 @@ public sealed partial class GameWorld
             {
                 m.PoolIn = phase.PoolEverySeconds;
                 var dice = Dice.Parse(phase.PoolDamage);
-                _hazards.Add(new Hazard(Hero.X, Hero.Y, phase.PoolRadius, Time + phase.PoolWarningSeconds,
-                    Time + phase.PoolWarningSeconds + phase.PoolSeconds, dice, PoolDc(m)));
-                Sound(SoundCue.WitchCast, m);
+                // The first where the hero stands; a firestorm's others round them.
+                for (var i = 0; i < Math.Max(1, phase.PoolCount); i++)
+                {
+                    var (px, py) = (Hero.X, Hero.Y);
+                    if (i > 0)
+                    {
+                        var angle = Random.Roll(0, 359) * Math.PI / 180;
+                        var r = 1.5 + Random.Roll(0, 25) / 10.0;
+                        (px, py) = (Hero.X + Math.Cos(angle) * r, Hero.Y + Math.Sin(angle) * r);
+                    }
+                    _hazards.Add(new Hazard(px, py, phase.PoolRadius, Time + phase.PoolWarningSeconds,
+                        Time + phase.PoolWarningSeconds + phase.PoolSeconds, dice, PoolDc(m), phase.PoolType ?? DamageType.Poison));
+                }
+                Sound(phase.PoolType == DamageType.Fire ? SoundCue.Ignition : SoundCue.WitchCast, m);
             }
         }
         if (phase.SummonEverySeconds > 0 && phase.Summons is { } summons)
@@ -98,6 +109,9 @@ public sealed partial class GameWorld
                 }
             }
         }
+        // Vorthrax: flight and swoops, his breath, the crumbling rock.
+        if (UpdateWyrm(m, phase, dt))
+            return true;
         if (phase.ChargeEverySeconds > 0 && !m.Fused && m.Creature.Conditions.CanMove)
         {
             if (m.Charge is { } charge)
@@ -192,6 +206,11 @@ public sealed partial class GameWorld
         m.ChargeIn = phase.ChargeEverySeconds / 2;
         m.ShuffleIn = 0;
         m.SongIn = phase.SongEverySeconds / 2;
+        m.Breath = null;
+        m.BreathIn = phase.BreathEverySeconds / 2;
+        m.SwoopIn = phase.SwoopEverySeconds / 2;
+        m.LandedUntil = 0;
+        m.CrumbleIn = 2;
         if (phase.Banner is { } banner)
         {
             // The standard goes up beside the boss's home; it rallies the legion until it is broken.
@@ -246,7 +265,9 @@ public sealed partial class GameWorld
             if (h.TickIn > 0)
                 continue;
             h.TickIn = 1.0;
-            var save = Check.Roll(Random, Hero.Character.Save(StatisticKind.Fortitude).Total + PoisonSaveBonus(h.Type), h.Dc);
+            // Fire is leapt from (Reflex); rot and Taint are breathed in (Fortitude).
+            var save = Check.Roll(Random, Hero.Character.Save(h.Type == DamageType.Fire ? StatisticKind.Reflex : StatisticKind.Fortitude).Total
+                + PoisonSaveBonus(h.Type), h.Dc);
             var rolled = h.Damage.Roll(Random);
             var amount = save.Degree switch
             {
@@ -281,6 +302,7 @@ public sealed partial class GameWorld
             m.Charge = null;
             m.ChargeIn = m.Definition.Boss.Phases[0].ChargeEverySeconds;
             ResetChoir(m);
+            ResetWyrm(m);
             _monsters.RemoveAll(x => x.SummonedBy == m);
         }
         ClearBossAftermath();
@@ -289,6 +311,9 @@ public sealed partial class GameWorld
     private void ClearBossAftermath()
     {
         _hazards.Clear();
+        // The rock comes back whole, for the way on and for the next fight.
+        _crumbling.Clear();
+        Map.RaisePlatforms();
         foreach (var (x, y) in _flooded)
             Map.SetBog(x, y, false);
         _flooded.Clear();

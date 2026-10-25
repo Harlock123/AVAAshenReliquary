@@ -467,8 +467,8 @@ public class BalanceReport(ITestOutputHelper output)
 
     /// <summary>
     /// Act 4's zones (M4 step 8), each at its own level in the starting kit with the runes a player would have by then
-    /// (+2 in the wastes and on the rivers, +3 from the nest). The nest's way on waits on Vorthrax (step 9), so its run
-    /// starts with him slain; the Reliquary's with every relic undealt with, so all three Echoes stand in the gauntlet.
+    /// (+2 in the wastes and on the rivers, +3 from the nest). The nest's run ends past Vorthrax (step 9), through the Ember
+    /// Gate; the Reliquary's starts with every relic undealt with, so all four Echoes stand in the gauntlet.
     /// </summary>
     [Theory]
     [InlineData("fighter vanguard")]
@@ -522,8 +522,7 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("gunslinger sniper")]
     [InlineData("necromancer bonelord")]
     [InlineData("necromancer plaguebringer")]
-    public void Wyrms_Nest_at_level_18(string kit) => ReportZone(kit, "wyrms_nest", "reliquary", 18, "the Wyrm's Nest", runes: 3,
-        flags: new Dictionary<string, string> { ["act4.vorthrax"] = "slain" });
+    public void Wyrms_Nest_at_level_18(string kit) => ReportZone(kit, "wyrms_nest", "reliquary", 18, "the Wyrm's Nest and Vorthrax", runes: 3);
 
     [Theory]
     [InlineData("fighter vanguard")]
@@ -740,6 +739,10 @@ public class BalanceReport(ITestOutputHelper output)
         var pool = world.Hazards.FirstOrDefault(h => h.Covers(world.Hero.X, world.Hero.Y) && world.Time < h.EndsAt);
         if (pool is null && StepOutOfLane(world, ref nextDodge) is { } lane)
             return lane;
+        if (pool is null && StepOutOfBreath(world, ref nextDodge) is { } breath)
+            return breath;
+        if (pool is null && StepOffCrumbling(world, ref nextDodge) is { } rock)
+            return rock;
         if (pool is null || world.Time < nextDodge)
             return pool;
         var (dx, dy) = (world.Hero.X - pool.X, world.Hero.Y - pool.Y);
@@ -749,6 +752,67 @@ public class BalanceReport(ITestOutputHelper output)
         world.MoveTo(pool.X + dx / d * (pool.Radius + 1.2), pool.Y + dy / d * (pool.Radius + 1.2));
         nextDodge = world.Time + 0.8;
         return pool;
+    }
+
+    /// <summary>
+    /// Vorthrax's breath marked over the hero: out of the cone sideways (round its edge, the shorter way). Returns a
+    /// stand-in hazard while the hero is in it.
+    /// </summary>
+    internal static Hazard? StepOutOfBreath(GameWorld world, ref double nextDodge)
+    {
+        var hero = world.Hero;
+        foreach (var m in world.Monsters)
+        {
+            if (m.Breath is not { } b || m.IsDead || world.Time >= b.BurnAt || !b.Covers(hero.X, hero.Y))
+                continue;
+            var stand = new Hazard(hero.X, hero.Y, 1, b.BurnAt, b.BurnAt, new Rules.Dice(0, 1), 0);
+            if (world.Time < nextDodge)
+                return stand;
+            var a = Math.Atan2(hero.Y - b.Y, hero.X - b.X);
+            var side = Math.IEEERemainder(a - b.Direction, 2 * Math.PI) >= 0 ? 1 : -1;
+            var d = Math.Max(1.5, Math.Sqrt((hero.X - b.X) * (hero.X - b.X) + (hero.Y - b.Y) * (hero.Y - b.Y)));
+            var out_ = b.Direction + side * (b.Arc * Math.PI / 360 + 0.5);
+            var (gx, gy) = (b.X + Math.Cos(out_) * d, b.Y + Math.Sin(out_) * d);
+            if (!world.Map.IsWalkable(gx, gy))
+            {
+                out_ = b.Direction - side * (b.Arc * Math.PI / 360 + 0.5);
+                (gx, gy) = (b.X + Math.Cos(out_) * d, b.Y + Math.Sin(out_) * d);
+            }
+            if (world.DodgeCooldownRemaining <= 0)
+                world.Dodge(gx, gy);
+            else
+                world.MoveTo(gx, gy);
+            nextDodge = world.Time + 0.5;
+            return stand;
+        }
+        return null;
+    }
+
+    /// <summary>A platform cracking under the hero (Vorthrax's last phase): off it, onto the nearest firm rock.</summary>
+    internal static Hazard? StepOffCrumbling(GameWorld world, ref double nextDodge)
+    {
+        var hero = world.Hero;
+        var (hx, hy) = ((int)Math.Floor(hero.X), (int)Math.Floor(hero.Y));
+        if (world.Crumbling.FirstOrDefault(c => c.Cells.Contains((hx, hy))) is not { } crumbling)
+            return null;
+        var stand = new Hazard(hero.X, hero.Y, 1, crumbling.SinksAt, crumbling.SinksAt, new Rules.Dice(0, 1), 0);
+        if (world.Time < nextDodge)
+            return stand;
+        (int X, int Y)? best = null;
+        for (var r = 1; r <= 8 && best is null; r++)
+        for (var dy = -r; dy <= r; dy++)
+        for (var dx = -r; dx <= r; dx++)
+        {
+            var (cx, cy) = (hx + dx, hy + dy);
+            if (world.Map.IsBlocked(cx, cy) || world.Map.IsCrumbling(cx, cy) || world.Map.IsEmbers(cx, cy))
+                continue;
+            if (best is not { } b || dx * dx + dy * dy < (b.X - hx) * (b.X - hx) + (b.Y - hy) * (b.Y - hy))
+                best = (cx, cy);
+        }
+        if (best is { } to)
+            world.MoveTo(to.X + 0.5, to.Y + 0.5);
+        nextDodge = world.Time + 0.8;
+        return stand;
     }
 
     /// <summary>
@@ -928,6 +992,40 @@ public class BalanceReport(ITestOutputHelper output)
             output.WriteLine($"{kit} at level {level}{(runed ? " with a +2 striking weapon and +1 armour" : " in the starting kit")}: the Choir, {fights.Count} fights");
             foreach (var f in fights)
                 output.WriteLine($"  {(f.Won ? "won " : "lost")}  {f.Seconds,5:0} s  potions {f.Potions}  reached phase {f.Phase + 1}  its HP left {f.BossHpLeft:0%}");
+            output.WriteLine($"  won {fights.Count(f => f.Won)} of {fights.Count}, average {fights.Average(f => f.Seconds):0} s");
+        }
+    }
+
+    /// <summary>
+    /// Vorthrax the Cinderwyrm (M4 step 9) alone in his cavern at level 18: a level-18 hero with the runes a player would
+    /// have (+3 potency, striking, +1 armour), and a level-19 hero (the level the campaign meets him at) in the starting kit
+    /// and runed.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Vorthrax_at_levels_18_and_19(string kit)
+    {
+        foreach (var (level, runed) in new[] { (18, true), (19, false), (19, true) })
+        {
+            var fights = Enumerable.Range(1, Math.Max(Seeds, 6))
+                .Select(seed => BossFight(kit, seed, runed, level, "wyrms_nest", "vorthrax", potency: 3)).ToList();
+            output.WriteLine($"{kit} at level {level}{(runed ? " with a +3 striking weapon and +1 armour" : " in the starting kit")}: Vorthrax, {fights.Count} fights");
+            foreach (var f in fights)
+                output.WriteLine($"  {(f.Won ? "won " : "lost")}  {f.Seconds,5:0} s  potions {f.Potions}  reached phase {f.Phase + 1}  his HP left {f.BossHpLeft:0%}");
             output.WriteLine($"  won {fights.Count(f => f.Won)} of {fights.Count}, average {fights.Average(f => f.Seconds):0} s");
         }
     }

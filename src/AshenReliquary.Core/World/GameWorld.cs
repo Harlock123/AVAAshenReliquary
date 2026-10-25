@@ -1189,6 +1189,19 @@ public sealed partial class GameWorld
             }
             hero.Path.Clear();
 
+            // A flying boss in the air (Vorthrax): a blade waits below for it to come down.
+            if (target.Aloft && !ReachesAloft(ability))
+            {
+                hero.Face(target.X, target.Y);
+                hero.Play("stance");
+                if (Time >= _aloftSaidAt + 4)
+                {
+                    _aloftSaidAt = Time;
+                    Float(hero, "out of reach", FloatingTextKind.Miss, 0.5);
+                }
+                return;
+            }
+
             // A gun empty or being loaded: the hero waits on it, facing the target.
             if (HoldsFire(ability))
             {
@@ -1372,6 +1385,13 @@ public sealed partial class GameWorld
         : ability.Kind == AbilityKind.Burst ? ability.Radius * 0.8 + target.Radius
         : Shoots ? Hero.Character.Weapon.Definition.Range + Hero.Character.WeaponRangeBonus + target.Radius
         : MeleeReach + Hero.Character.ReachBonus + target.Radius;
+
+    private double _aloftSaidAt = double.NegativeInfinity;
+
+    /// <summary>What reaches a flying boss in the air: arrows and shot, spells, bombs and blasts.</summary>
+    private bool ReachesAloft(AbilityDefinition ability) =>
+        ability.IsSpell || ability.IsSpellBurst || ability.Kind is AbilityKind.Bomb || (ability.UsesWeapon && Shoots)
+        || ability.Kind == AbilityKind.Blast;
 
     /// <summary>Whether the hero's weapon Strikes are arrows (a bow in hand).</summary>
     public bool Shoots => Hero.Character.Weapon.Definition.IsRanged;
@@ -1715,6 +1735,12 @@ public sealed partial class GameWorld
     {
         if (LostInTheDark(target))
             return;
+        // It rose as the blade came down.
+        if (target.Aloft && !Shoots)
+        {
+            Float(target, "out of reach", FloatingTextKind.Miss);
+            return;
+        }
         var c = Hero.Character;
         var (offGuard, sneak) = SneakAttack(target, fromHiding || feint);
         var cover = Shoots ? CoverAgainst(Hero.X, Hero.Y, target) : 0;

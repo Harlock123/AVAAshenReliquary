@@ -1451,6 +1451,80 @@
   }
  },
  {
+  "id": "vorthrax",
+  "name": "Vorthrax the Cinderwyrm",
+  "sprite": "wyvern_fire",
+  "damageType": "Fire",
+  "attacksPerSecond": 0.8,
+  "moveSpeed": 3.0,
+  "aggroRadius": 11,
+  "attackRange": 2.0,
+  "scale": 1.7,
+  "hitPointsScale": 0.18,
+  "named": true,
+  "rareDrop": true,
+  "voice": "wolf",
+  "resistances": {
+   "Fire": 20
+  },
+  "weaknesses": {
+   "Cold": 10
+  },
+  "immunities": [
+   "Poison"
+  ],
+  "boss": {
+   "arenaRadius": 12,
+   "deathFlag": "act4.vorthrax",
+   "deathLine": "Vorthrax falls across the gate he guarded, and the fire in him goes out like a forge at night. The Ember Gate stands open.",
+   "journal": {
+    "id": "act4_vorthrax",
+    "title": "The Cinderwyrm",
+    "kind": "main",
+    "text": "Vorthrax the Cinderwyrm, the fourth Herald, is dead on the floor of his cavern above the Ember Gate. The gate stands open, and the stair goes down into the Reliquary, where the Order kept Ashur's bones and where Malachar Vane went before me."
+   },
+   "phases": [
+    {
+     "below": 1.0,
+     "name": "Vorthrax the Cinderwyrm",
+     "breathEverySeconds": 8,
+     "breathArc": 60,
+     "breathRange": 7,
+     "breathDamage": "7d6"
+    },
+    {
+     "below": 0.6,
+     "name": "He takes to the air",
+     "flies": true,
+     "swoopEverySeconds": 7,
+     "swoopSeconds": 4.5,
+     "poolEverySeconds": 4,
+     "poolCount": 3,
+     "poolRadius": 1.4,
+     "poolSeconds": 5,
+     "poolDamage": "3d6",
+     "poolType": "Fire",
+     "summonEverySeconds": 25,
+     "summons": "cinder_drake",
+     "summonCount": 1,
+     "summonCap": 2
+    },
+    {
+     "below": 0.25,
+     "name": "He lands on the burning rock",
+     "breathEverySeconds": 6,
+     "breathArc": 70,
+     "breathRange": 7,
+     "breathDamage": "7d6",
+     "crumbleEverySeconds": 9,
+     "crumbleWarning": 3,
+     "crumbleDamage": "6d6",
+     "attackRateScale": 1.2
+    }
+   ]
+  }
+ },
+ {
   "id": "drakeling",
   "name": "Drakeling",
   "sprite": "wyvern_fire",

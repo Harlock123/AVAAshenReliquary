@@ -65,6 +65,7 @@ public sealed partial class GameWorld
             ability.WeaponDamage ? c.Weapon.Definition.DamageType : ability.DamageType, Time));
         Sound(ability.IsSpellBurst ? SoundCue.Ignition : SoundCue.Swing, at.X, at.Y);
         var caught = _monsters.Where(m => !m.IsDead && IsLit(m.X, m.Y) && m.DistanceTo(at.X, at.Y) <= ability.Radius + m.Radius
+                && (!m.Aloft || ability.IsSpellBurst)
                 && (!cone || WithinArc(ability.Arc, aim!, m)))
             .ToList();
         var dealtInAll = 0;

@@ -33,6 +33,8 @@ public sealed class TileMap
     private readonly bool[,] _avoid;
     private readonly bool[,] _lava;
     private readonly bool[,] _gate;
+    private readonly Dictionary<string, List<(int X, int Y)>> _platforms = [];
+    private readonly Dictionary<(int X, int Y), (int Ground, bool Blocked, bool Lava, bool Embers)> _sunk = [];
     private readonly bool[,] _embers;
 
     /// <summary>Act 4's lava tiles: <see cref="LavaTile"/> + 4 x the corners that are lava + the cell's parity.</summary>
@@ -86,6 +88,12 @@ public sealed class TileMap
                 _blocked[x, y] = entry.Blocks || _water[x, y] || _lava[x, y] && !entry.Bridge;
                 _blocksSight[x, y] = entry.BlocksSight;
                 _cover[x, y] = entry.Cover;
+                if (entry.Crumbles is { } group)
+                {
+                    if (!_platforms.TryGetValue(group, out var cells))
+                        _platforms[group] = cells = [];
+                    cells.Add((x, y));
+                }
                 if (entry.Light > 0)
                     _lights.Add(new MapLight(x + 0.5, y + 0.5, entry.Light, entry.LightColor));
             }
@@ -120,6 +128,70 @@ public sealed class TileMap
 
     /// <summary>True for a cell nothing can be seen through (a wall, solid rock, a tree trunk, a ward still burning).</summary>
     public bool BlocksSight(int x, int y) => !InBounds(x, y) || _blocksSight[x, y] || _gate[x, y];
+
+    /// <summary>A boss arena's platforms that can sink (legend <c>crumbles</c>), by group, in map order.</summary>
+    public IReadOnlyDictionary<string, List<(int X, int Y)>> Platforms => _platforms;
+
+    /// <summary>Bumped whenever the ground of a cell changes in play (a platform cracking or sinking), for the renderer's cache.</summary>
+    public int GroundVersion { get; private set; }
+
+    /// <summary>A platform cracks: its cells show embers (and burn) until it sinks. The cell's ground is kept to restore.</summary>
+    internal void Crack(int x, int y)
+    {
+        if (!InBounds(x, y) || _sunk.ContainsKey((x, y)))
+            return;
+        _sunk[(x, y)] = (_ground[x, y], _blocked[x, y], _lava[x, y], _embers[x, y]);
+        _embers[x, y] = true;
+        _ground[x, y] = EmberTile + (x & 1) + 2 * (y & 1);
+        GroundVersion++;
+    }
+
+    /// <summary>A cracked cell goes into the lava: blocked, and the banks round it reshaped.</summary>
+    internal void Sink(int x, int y)
+    {
+        if (!InBounds(x, y))
+            return;
+        if (!_sunk.ContainsKey((x, y)))
+            _sunk[(x, y)] = (_ground[x, y], _blocked[x, y], _lava[x, y], _embers[x, y]);
+        _embers[x, y] = false;
+        _lava[x, y] = true;
+        _blocked[x, y] = true;
+        ReshapeLava(x, y);
+        GroundVersion++;
+    }
+
+    /// <summary>Every cracked or sunk cell back as it was (the fight starts again).</summary>
+    internal void RaisePlatforms()
+    {
+        if (_sunk.Count == 0)
+            return;
+        foreach (var ((x, y), was) in _sunk)
+        {
+            (_ground[x, y], _blocked[x, y], _lava[x, y], _embers[x, y]) = was;
+        }
+        foreach (var (x, y) in _sunk.Keys.ToList())
+            ReshapeLava(x, y);
+        _sunk.Clear();
+        GroundVersion++;
+    }
+
+    /// <summary>A cell sunk or cracked in play (cracked: still embers; sunk: lava).</summary>
+    public bool IsCrumbling(int x, int y) => _sunk.ContainsKey((x, y)) && !_lava[x, y];
+
+    /// <summary>The lava tiles round a changed cell chosen again by their corners.</summary>
+    private void ReshapeLava(int cx, int cy)
+    {
+        bool LavaPoint(int px, int py) => IsLava(px - 1, py - 1) && IsLava(px, py - 1) && IsLava(px - 1, py) && IsLava(px, py);
+        for (var y = cy - 1; y <= cy + 1; y++)
+        for (var x = cx - 1; x <= cx + 1; x++)
+        {
+            if (!InBounds(x, y) || !_lava[x, y])
+                continue;
+            var corners = (LavaPoint(x, y) ? 1 : 0) | (LavaPoint(x + 1, y) ? 2 : 0) | (LavaPoint(x + 1, y + 1) ? 4 : 0) | (LavaPoint(x, y + 1) ? 8 : 0);
+            var parity = (x & 1) + 2 * (y & 1);
+            _ground[x, y] = corners == 0 ? EmberTile + parity : LavaTile + 4 * corners + parity;
+        }
+    }
 
     /// <summary>True for a cell a ward still closes (the Reliquary's).</summary>
     public bool IsGate(int x, int y) => InBounds(x, y) && _gate[x, y];

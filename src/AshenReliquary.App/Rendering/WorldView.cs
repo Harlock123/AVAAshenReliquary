@@ -1323,6 +1323,8 @@ public sealed partial class WorldView : Control
         DrawTargetMarks(canvas, world, time);
         DrawZoneTraps(canvas, world, time);
         DrawChargeLanes(canvas, world);
+        DrawBreaths(canvas, world);
+        DrawCrumbling(canvas, world);
         DrawBursts(canvas, world);
         DrawTraps(canvas, world);
         Stats.Mark("ground");
@@ -1544,15 +1546,16 @@ public sealed partial class WorldView : Control
             var rx = (float)h.Radius * HalfTileWidth * z * 1.414f;
             var ry = (float)h.Radius * HalfTileHeight * z * 1.414f;
             var oval = new SKRect(at.X - rx, at.Y - ry, at.X + rx, at.Y + ry);
-            // Rot is a sickly green; a Tainted monster's corruption a bruised purple.
+            // Rot is a sickly green; a Tainted monster's corruption a bruised purple; Vorthrax's firestorm burns.
             var taint = h.Type == AshenReliquary.Core.Combat.DamageType.Taint;
+            var fire = h.Type == AshenReliquary.Core.Combat.DamageType.Fire;
             if (!h.IsActive(world.Time))
             {
                 var pulse = (float)(0.5 + 0.5 * Math.Sin(world.Time * 14));
                 using var ring = new SKPaint
                 {
                     IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = (2 + 2 * pulse) * z * 2,
-                    Color = (taint ? new SKColor(190, 110, 230) : new SKColor(170, 230, 90)).WithAlpha((byte)(120 + 100 * pulse)),
+                    Color = (taint ? new SKColor(190, 110, 230) : fire ? new SKColor(255, 150, 60) : new SKColor(170, 230, 90)).WithAlpha((byte)(120 + 100 * pulse)),
                 };
                 canvas.DrawOval(oval, ring);
                 continue;
@@ -1563,6 +1566,8 @@ public sealed partial class WorldView : Control
                 IsAntialias = true,
                 Shader = SKShader.CreateRadialGradient(at, rx, taint
                     ? [new SKColor(130, 60, 170, (byte)(170 * fade)), new SKColor(70, 25, 100, (byte)(160 * fade)), new SKColor(30, 10, 40, 0)]
+                    : fire
+                    ? [new SKColor(255, 210, 120, (byte)(200 * fade)), new SKColor(230, 90, 20, (byte)(170 * fade)), new SKColor(90, 20, 5, 0)]
                     : [new SKColor(120, 170, 40, (byte)(170 * fade)), new SKColor(70, 110, 20, (byte)(150 * fade)), new SKColor(40, 60, 10, 0)],
                     [0f, 0.7f, 1f], SKShaderTileMode.Clamp),
             };
@@ -1747,6 +1752,14 @@ public sealed partial class WorldView : Control
     private void DrawMonster(SKCanvas canvas, MonsterActor m, GameWorld world)
     {
         var foot = ToScreen(m.X, m.Y);
+        // A flying boss in the air (Vorthrax): its shadow on the ground, the body high above it.
+        if (m.Aloft && !m.IsDead)
+        {
+            var z = (float)Zoom;
+            using var shadow = new SKPaint { IsAntialias = true, Color = new SKColor(0, 0, 0, 110) };
+            canvas.DrawOval(SKRect.Create(foot.X - 70 * z, foot.Y - 20 * z, 140 * z, 40 * z), shadow);
+            foot = new SKPoint(foot.X, foot.Y - (float)(150 + 12 * Math.Sin(world.Time * 2.4)) * z);
+        }
         using var paint = new SKPaint();
         var hovered = MonsterUnderPointer() == m;
         var filter = m.Creature.Stats.Rank switch
@@ -2602,6 +2615,9 @@ public sealed partial class WorldView : Control
         {
             if (m.IsEcho && !m.IsDead)
                 lights.Add((ToScreen(m.X, m.Y), 4.5f + (float)Math.Sin(time * 3 + m.X) * 0.2f, new SKColor(255, 150, 90, 65)));
+            // Vorthrax burns: the wyrm lights his own cavern, on the ground or in the air.
+            else if (m.Definition.Boss is not null && m.Definition.DamageType == Core.Combat.DamageType.Fire && !m.IsDead)
+                lights.Add((ToScreen(m.X, m.Y), m.Aloft ? 7f : 5.5f, new SKColor(255, 140, 60, 70)));
         }
         foreach (var gate in world.Zone.Gates ?? [])
         {

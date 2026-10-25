@@ -685,7 +685,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones, Vorthrax to come in step 9).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1956,7 +1956,8 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   them where they can (`TileMap.EmberStepCost`). Some lava cells are lights.
 - **The Wyrm's Nest** (`tools/wyrms_nest_mapgen.py`): dark caves of Flare's cave walls lit by lava and braziers: the
   Mouth, the Bone Gallery, the Roost, the Inquisitors' Vigil (the Prophet's orders: let the vessel reach the gate), the
-  Clutch with the egg, and the Ember Gate's cavern, a ring of lava round a stone floor where Vorthrax waits (step 9).
+  Clutch with the egg, and the Ember Gate's cavern, a ring of lava round a stone floor where Vorthrax waits (step 9: see
+  "Vorthrax the Cinderwyrm").
 - **Pack leaders** (the AI's fourth behaviour): a pack member with `leads` drives its pack while it stands within 8 tiles
   (+1 to hit, a tenth more damage); in a fight it cries them on every 10 s (quicker for 4 s, a tenth of their health
   back); when it falls those it led are frightened for 6 s. A gold chevron marks it; the bots go for it first when it is
@@ -1977,11 +1978,42 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
     Vigil before you, and one waits there; +1 to every save) or keep it dark (`dark`: the Order's old stealth way round
     the Inquisitors' muster opens behind a ward; +2 Stealth, +1 Reflex, 5 feet faster). Its larger payoff is the final
     fight's first phase (M5).
-- **Balance** (`BalanceReport.Ash_Wastes_at_level_16`, `Lava_Rivers_at_level_17`, `Wyrms_Nest_at_level_18` with Vorthrax
-  taken as slain, `Reliquary_at_level_19` with all three Echoes; starting kit, +2 runes, +3 from the nest): every
+- **Balance** (`BalanceReport.Ash_Wastes_at_level_16`, `Lava_Rivers_at_level_17`, `Wyrms_Nest_at_level_18` (with Vorthrax
+  taken as slain until step 9 put him in it), `Reliquary_at_level_19` with every Echo; starting kit, +2 runes, +3 from the nest): every
   subclass finishes every zone, in 2.1–6.1 bot minutes (the beastmaster 14.8 in the Reliquary), at 0–4 deaths; the
   Inquisitors' elite captains do most of the killing. The first runs lost the fighters four times at the wastes'
   muster, where a second pack stood beside the captain's; it is thinner now. Act 4's campaign leg comes with Vorthrax.
+
+### Vorthrax the Cinderwyrm (M4 step 9)
+
+- **Vorthrax** (`vorthrax`, a Herald, level 18, Flare's fire wyvern at 1.7 scale) waits in the Wyrm's Nest's top cavern,
+  on a stone floor inside a ring of lava, before the Ember Gate. The boss framework gains a breath, flight and crumbling
+  rock (`GameWorld.Wyrm.cs`; phase fields `breathEverySeconds`, `breathArc`, `breathRange`, `breathWindup`,
+  `breathDamage`, `flies`, `swoopEverySeconds`, `swoopSeconds`, `poolCount`, `poolType`, `crumbleEverySeconds`,
+  `crumbleWarning`, `crumbleDamage`):
+
+  | Phase | What happens |
+  | --- | --- |
+  | **Vorthrax the Cinderwyrm** (from full) | He bites (fire), and every 8 s draws breath: a 60° cone 7 tiles long marked on the ground toward the hero for 1.2 s, then 7d6 fire against a basic Reflex save for anyone in it (a Step under way passes through). |
+  | **He takes to the air** (below 60%) | He rises over his home (drawn high, his shadow below), out of reach of any blade or burst (`MonsterActor.Aloft`; arrows, shot, spells, bombs and blasts reach him; allies can't). Every 4 s a **firestorm**: three fire pools round the hero, 3d6 a second against a basic Reflex save (fire pools save on Reflex). Every 7 s he **swoops** down beside the hero for 4.5 s, to bite and be struck. Cinder-drakes come to him, two at most. |
+  | **He lands on the burning rock** (below 25%) | He lands for good and breathes every 6 s. Every 9 s one of the floor's six **platforms** (legend `crumbles`, a group each) cracks: embers for 3 s (marked in red, burning), then it sinks into the lava (`TileMap.Crack`, `Sink`; the banks reshaped, the ground cache drawn again by `GroundVersion`). The platform under the hero goes first; anyone still on it takes 6d6 fire (basic Reflex) and is thrown to firm ground. The core and the causeways never sink. |
+
+  A fall starts him again from full, and the rock comes back whole (`RaisePlatforms`); so does his death. It sets
+  `act4.vorthrax = slain`, writes the journal, and opens the Ember Gate down into the Reliquary; Warden Corwen has words.
+- **His Echo** waits in the Reliquary's new **Vault of Flame** (zone revision 2) behind the Choir's vault, unless his egg
+  was smashed (`act4.echo.vorthrax`, a fourth ward before the Sanctum). Never entering his last phase, it flies but never
+  breaks the floor.
+- **The renderer:** the breath's cone glowing as the fire comes, the wyrm high in the air over his shadow, red pools of
+  the firestorm, cracking platforms edged in pulsing red; he lights his cavern himself.
+- **The bots** step sideways out of the cone (a Step when it is ready) and off a cracking platform; the melee classes
+  wait out his flight below him, throwing bombs, and strike when he swoops.
+- **Balance** (`BalanceReport.Vorthrax_at_levels_18_and_19`, six fights each): the first tuning lost most fights in the
+  flight (three pools every 3 s, three drakes, short swoops). Softened (pools every 4 s at 3d6, one drake at a time, longer
+  and more frequent swoops, the breath 7d6) and his health trimmed (`hitPointsScale` 0.18): with runes at 19 every
+  subclass wins five or six of six; at 18 with runes most win four to six (the Vanguard and the Sniper two); in the
+  starting kit at 19 the Vanguard, Pistolero and Sniper lose most. The necromancers win every fight in 15–25 s.
+  **The campaign** (`CampaignReport.Acts_1_to_4_to_Vorthrax`): every subclass kills Vorthrax, meeting him at level 18,
+  in 53–85 minutes of play for the four acts; Act 4 takes heroes from 14 to 19, with 0–4 deaths in its three zones.
 
 ### The Gunslinger (after M4 step 6)
 

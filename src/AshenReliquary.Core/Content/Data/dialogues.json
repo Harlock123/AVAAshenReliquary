@@ -2864,6 +2864,12 @@
         }
       },
       {
+        "node": "after_wyrm",
+        "requires": {
+          "act4.vorthrax": "slain"
+        }
+      },
+      {
         "node": "again",
         "requires": {
           "act4.corwen": "met"
@@ -2995,6 +3001,28 @@
           }
         ],
         "choices": [
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "after_wyrm": {
+        "text": "Corwen is on the tower when you come back down the road, watching the mountain. The red light at its top has gone out. \"Forty knights have watched that light for three years,\" she says, without turning. \"I thought I would feel more than tired.\" She comes down the stair and grips your arm. \"The Reliquary is open. The Prophet is under it, at the Throne, and he has been waiting for you the whole time. Go when you are ready. Not before.\"",
+        "effects": [
+          {
+            "journal": {
+              "id": "act4_camp",
+              "title": "The Ember Gate",
+              "kind": "main",
+              "text": "Vorthrax the Cinderwyrm is dead and the Ember Gate is open. Below it the Reliquary goes down to the Cinder Throne, where Malachar Vane waits for what is in my chest. Warden Corwen says to go when I am ready, and not before."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"Tell me about the beacon.\"",
+            "to": "beacon"
+          },
           {
             "text": "Leave."
           }

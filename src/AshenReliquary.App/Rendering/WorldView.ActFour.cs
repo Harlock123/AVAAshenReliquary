@@ -176,6 +176,60 @@ public sealed partial class WorldView
         }
     }
 
+    /// <summary>
+    /// Vorthrax's breath while he draws it: the cone it will burn, glowing brighter as the fire comes; then a flash of
+    /// flame down it.
+    /// </summary>
+    private void DrawBreaths(SKCanvas canvas, GameWorld world)
+    {
+        foreach (var m in world.Monsters)
+        {
+            if (m.Breath is not { } b || m.IsDead)
+                continue;
+            var burning = world.Time >= b.BurnAt;
+            var gather = (float)Math.Clamp(1 - (b.BurnAt - world.Time) / 1.2, 0, 1);
+            using var path = new SKPath();
+            var start = b.Direction - b.Arc * Math.PI / 360;
+            var end = b.Direction + b.Arc * Math.PI / 360;
+            path.MoveTo(ToScreen(b.X, b.Y));
+            for (var i = 0; i <= 16; i++)
+            {
+                var a = start + (end - start) * i / 16;
+                path.LineTo(ToScreen(b.X + Math.Cos(a) * b.Range, b.Y + Math.Sin(a) * b.Range));
+            }
+            path.Close();
+            using var fill = new SKPaint
+            {
+                IsAntialias = true,
+                Color = burning ? new SKColor(255, 170, 60, 200) : new SKColor(255, 90, 30, (byte)(50 + 110 * gather)),
+            };
+            canvas.DrawPath(path, fill);
+            using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2.5f, Color = new SKColor(255, 140, 50, 220) };
+            canvas.DrawPath(path, edge);
+        }
+    }
+
+    /// <summary>A platform cracking (Vorthrax's arena): a red edge pulsing round each cell, faster as it goes.</summary>
+    private void DrawCrumbling(SKCanvas canvas, GameWorld world)
+    {
+        foreach (var c in world.Crumbling)
+        {
+            var left = (float)Math.Clamp(c.SinksAt - world.Time, 0, 3);
+            var pulse = (float)(0.5 + 0.5 * Math.Sin(world.Time * (8 + 10 / Math.Max(0.3, left))));
+            using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2f, Color = new SKColor(255, 80, 30, (byte)(120 + 120 * pulse)) };
+            foreach (var (x, y) in c.Cells)
+            {
+                using var path = new SKPath();
+                path.MoveTo(ToScreen(x, y));
+                path.LineTo(ToScreen(x + 1, y));
+                path.LineTo(ToScreen(x + 1, y + 1));
+                path.LineTo(ToScreen(x, y + 1));
+                path.Close();
+                canvas.DrawPath(path, edge);
+            }
+        }
+    }
+
     /// <summary>The ashen world beyond the map's edge: rock spires here and there on the ash.</summary>
     private static int? OutsideSpire(int x, int y) =>
         Hash01(x * 7919 + y * 104729) < 0.35 ? new[] { 144, 145, 146, 147, 148, 149, 153 }[(int)(Hash01(x * 31 + y * 17) * 7) % 7] : null;

@@ -5,16 +5,17 @@
 # hive among the wyrm's leavings), the Roost (cinder-drakes on ledges over a lava pool), the Inquisitors' Vigil (the
 # Prophet's men keeping watch on the nest, a shrine beyond), the Clutch (the Wyrm's Egg, warm in its bed of embers: the
 # Herald Remnant story of Act 4), and the Ember Gate's cavern at the top: the great door down into the Reliquary, where
-# Vorthrax waits (M4 step 9). The door stays shut until he is dead.
+# Vorthrax waits (M4 step 9). The door stays shut until he is dead. His cavern's floor is a stone core inside a ring of six
+# platforms (a, b, c, d, f and g: legend "crumbles") that his last phase sinks into the lava one by one.
 #
 # It is dark: the lava and a few braziers light it, and the hero's own light. The caves' walls are Flare's (recoloured),
 # shaped by tools/cinder_common.wall_tiles.
 #
 # Bump REVISION whenever the layout changes: saves made on another revision start the zone again at its entrance.
 import math, sys
-from cinder_common import Rng, legend, open_cell, pack, wall_tiles, write, LEADS
+from cinder_common import Rng, legend, open_cell, pack, wall_tiles, write, LEADS, PEBBLES
 
-REVISION = 1
+REVISION = 2
 W, H = 66, 124
 rnd = Rng(18130)
 grid = [['w'] * W for _ in range(H)]
@@ -88,11 +89,20 @@ for y in range(gate[1] - 9, gate[1] + 10):
         r = ((x - gate[0]) / 16) ** 2 + ((y - gate[1]) / 9) ** 2
         if 0.62 < r <= 1.0 and grid[y][x] in '.,':
             grid[y][x] = '~'
-# Islands of rock in the gate's lava, and the causeway in from the south.
+# The causeway in from the south.
 for y in range(gate[1] + 4, gate[1] + 11):
     for x in range(gate[0] - 1, gate[0] + 2):
         if grid[y][x] == '~':
             grid[y][x] = '.'
+# Vorthrax's floor: six platforms in a ring round the core, by angle; the causeway and the north door stay firm.
+SECTORS = "abcdfg"
+for y in range(gate[1] - 9, gate[1] + 10):
+    for x in range(gate[0] - 16, gate[0] + 17):
+        r = ((x - gate[0]) / 16) ** 2 + ((y - gate[1]) / 9) ** 2
+        if not (0.2 < r <= 0.62) or grid[y][x] not in '.,' or abs(x - gate[0]) <= 1:
+            continue
+        a = (math.atan2((y - gate[1]) * 16 / 9, x - gate[0]) + math.pi) / (2 * math.pi)
+        grid[y][x] = SECTORS[int(a * 6) % 6]
 # The Clutch: a bed of embers round the egg.
 egg = [clutch[0] + 2, clutch[1] - 1]
 for y in range(egg[1] - 2, egg[1] + 3):
@@ -154,8 +164,12 @@ spawns = [
     pack((DRAKE, E, 1, ["tainted"], LEADS), (DRAKE, N, 2), at=[clutch[0] - 3, clutch[1] + 2], radius=2.5, level=19),
     pack((LION, C, 1, ["mirrored"], LEADS), (LION, N, 1), (ANT, N, 3), at=[(clutch[0] + gate[0]) // 2, (clutch[1] + gate[1]) // 2 + 4],
          level=19),
+    # The Ember Gate's cavern: Vorthrax the Cinderwyrm, a level under the hero who meets him, as the other Heralds are.
+    pack(("vorthrax", "Herald", 1), at=[gate[0], gate[1]], radius=0, level=18),
 ]
 lg = legend({"!": {"ground": "lava", "light": 3.0, "lightColor": "#ff8a3a"}})
+for k in "abcdfg":
+    lg[k] = {"ground": "ash", "tiles": PEBBLES, "crumbles": k}
 lg.update(extra)
 zone = {
     "id": "wyrms_nest", "name": "The Wyrm's Nest", "level": 18, "act": 4, "revision": REVISION, "xpScale": 0.8,

@@ -3,7 +3,7 @@
  "name": "The Reliquary",
  "level": 19,
  "act": 4,
- "revision": 1,
+ "revision": 2,
  "xpScale": 0.8,
  "tileset": "tileset_cinder",
  "tagline": "Three hundred years the Order kept him here. Then a High Lector broke the seals.",
@@ -151,20 +151,46 @@
   "                          W===W                         ",
   "                          W===W                         ",
   "                          W===W                         ",
+  "               WWWWWWWWWWWW===WWWWWWWWWWWW              ",
+  "               W===,=====================W              ",
+  "               W=B=================,===B=W              ",
+  "               W==,============,=========W              ",
+  "               W===R=================R===W              ",
+  "               W==============,==========W              ",
+  "               W=========================W              ",
+  "               W=========================W              ",
+  "               W=====,===================W              ",
+  "               W===R========,========R===W              ",
+  "               W==================,=====,W              ",
+  "               W=========================W              ",
+  "               W========,================W              ",
+  "               W==,=,=,==================W              ",
+  "               W===R=================R===W              ",
+  "               W==,=========,==,=========W              ",
+  "               W=========================W              ",
+  "               W=,===========,==========,W              ",
+  "               W,,======,================W              ",
+  "               W===R,====,===,=======R=,=W              ",
+  "               W=B===================,=B=W              ",
+  "               W====,==========,=========W              ",
+  "               WWWWWWWWWWWW===WWWWWWWWWWWW              ",
+  "                          W===W                         ",
+  "                          W===W                         ",
+  "                          W===W                         ",
   "                 WWWWWWWWWW===WWWWWWWWWW                ",
-  "                 W===,=================W                ",
+  "                 W=====,===============W                ",
   "                 W=B=================B=W                ",
-  "                 W==,=======,==========W                ",
-  "                 W==,R=============R===W                ",
+  "                 W====,==========,=====W                ",
+  "                 W===R====,========R===W                ",
   "                 W=====================W                ",
-  "                 W=======b=,b==b=======W                ",
+  "                 W====,==b==b==b=======W                ",
+  "                 W=,====,==============W                ",
+  "                 W===,=================W                ",
+  "                 W,==R=============R===W                ",
+  "                 W====S===============,W                ",
   "                 W=====================W                ",
-  "                 W=====================W                ",
-  "                 W===R========,====R===W                ",
-  "                 W====S================W                ",
-  "                 W==,==================W                ",
-  "                 W=B==========,=====,B=W                ",
-  "                 W=====================W                ",
+  "                 W=B=================B=W                ",
+  "                 W==============,==,===W                ",
   "                 WWWWWWWWWWWWWWWWWWWWWWW                ",
   "                                                        ",
   "                                                        "
@@ -582,7 +608,29 @@
   {
    "at": [
     28,
-    150
+    152
+   ],
+   "radius": 0,
+   "pack": [
+    {
+     "creature": "vorthrax",
+     "rank": "Herald",
+     "count": 1,
+     "echo": true
+    }
+   ],
+   "level": 19,
+   "unless": {
+    "act4.egg": "smashed"
+   },
+   "flag": "act4.echo.vorthrax",
+   "value": "laid",
+   "says": "Vorthrax's Echo folds its wings and burns down to nothing, and the last ward before the Sanctum goes out."
+  },
+  {
+   "at": [
+    28,
+    176
    ],
    "radius": 3,
    "pack": [
@@ -612,7 +660,7 @@
   {
    "at": [
     22,
-    145
+    171
    ],
    "radius": 2.0,
    "pack": [
@@ -718,6 +766,27 @@
    "requires": {
     "act4.echo.choir": "laid"
    }
+  },
+  {
+   "id": "vault_of_flame",
+   "name": "The ward of the Vault of Flame",
+   "cells": [
+    [
+     27,
+     164
+    ],
+    [
+     28,
+     164
+    ],
+    [
+     29,
+     164
+    ]
+   ],
+   "requires": {
+    "act4.echo.vorthrax": "laid"
+   }
   }
  ],
  "shrines": [
@@ -734,7 +803,7 @@
    "name": "The Sanctum's Door",
    "at": [
     22,
-    151
+    177
    ]
   }
  ],
@@ -759,7 +828,7 @@
    "label": "The Cinder Throne",
    "at": [
     28,
-    153
+    179
    ],
    "radius": 1.5,
    "openText": "The stair down to the Cinder Throne, where Malachar Vane waits. (The Epilogue is still being written.)"
@@ -821,10 +890,19 @@
    "facing": 1
   },
   {
+   "id": "vault_of_flame",
+   "at": [
+    18,
+    160
+   ],
+   "kind": "Cache",
+   "facing": 0
+  },
+  {
    "id": "sanctum",
    "at": [
     28,
-    151
+    177
    ],
    "kind": "Reliquary",
    "facing": 0
@@ -862,7 +940,7 @@
    "name": "The empty biers",
    "at": [
     28,
-    146
+    172
    ],
    "dialogue": "reliquary_biers"
   }

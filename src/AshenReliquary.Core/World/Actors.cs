@@ -428,6 +428,17 @@ public sealed class MonsterActor : Actor
     /// <summary>An Echo whose sisters stay away (the Choir half laid to rest).</summary>
     public bool EchoAlone { get; internal set; }
 
+    /// <summary>A flying boss in the air (Vorthrax): out of a blade's reach until it swoops.</summary>
+    public bool Aloft { get; internal set; }
+
+    /// <summary>The cone of fire it has marked, or null.</summary>
+    public BossBreath? Breath { get; internal set; }
+
+    internal double BreathIn { get; set; }
+    internal double SwoopIn { get; set; }
+    internal double LandedUntil { get; set; }
+    internal double CrumbleIn { get; set; }
+
     /// <summary>A corpse that will stand again unless it is destroyed.</summary>
     public bool IsRising => IsDead && RisesIn > 0;
 

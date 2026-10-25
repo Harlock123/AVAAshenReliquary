@@ -172,13 +172,19 @@ the Lava Rivers (lava, bridges, embers), the Wyrm's Nest (Vorthrax's cavern empt
 (wards, elite-led packs, the gauntlet of Herald Echoes); pack leaders; the Wyrm's Egg (a drakeling pet) and the Last
 Lantern. See the spec, section 16, "Levels 16–20 and Act 4".
 
-### 9. Vorthrax the Cinderwyrm
+### 9. Vorthrax the Cinderwyrm (done)
 
 - **The fight, in three phases:**
   1. Ground melee and a fire-breath cone.
   2. Flight, with a firestorm across the arena.
   3. He lands on lava terrain, and the platforms crumble.
 - **The Herald gate** to the Reliquary.
+
+*Done (2026-10-25):* Vorthrax in the Wyrm's Nest's top cavern: his breath (a cone marked first), his flight (out of a
+blade's reach, a firestorm of fire pools, swoops down to be struck) and the burning rock (six platforms that crack and
+sink, the one under the hero first); the Ember Gate opens on his death; his Echo in the Reliquary's Vault of Flame unless
+his egg was smashed. Every subclass kills him in `CampaignReport.Acts_1_to_4_to_Vorthrax`, at level 18. See the spec,
+section 16, "Vorthrax the Cinderwyrm".
 
 ### 10. Balance and the exit test
 

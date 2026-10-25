@@ -249,6 +249,11 @@ under captains (a gold chevron): their packs fight harder while the captain stan
 stories: the **Wyrm Egg** (smash it, or hatch a drakeling that follows you) and the **Last Lantern** (light the Order's
 beacon, or keep it dark and go the old stealth way). Act 4's ground is Flare's cave tileset recoloured to ash, with lava
 drawn for it.
+Step 9 brought **Vorthrax the Cinderwyrm**, Herald of Flame, to the top of the Wyrm's Nest. He breathes fire down a cone
+he marks on the ground first (Step out of it); below 60% he takes to the air, out of reach of anything but arrows, shot,
+spells and bombs, rains fire round you, and swoops down every few seconds to be struck; below a quarter he lands, and
+the platforms of his cavern crack into embers and sink into the lava one by one, the one you stand on first. His death
+opens the Ember Gate down into the Reliquary, where his Echo waits too unless you smashed his egg.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

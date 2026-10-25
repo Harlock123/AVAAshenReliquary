@@ -13,10 +13,11 @@ namespace AshenReliquary.Core.World;
 /// brazier, a shaft of moonlight) of that radius in tiles, in <see cref="LightColor"/>. <see cref="Cover"/>: a low
 /// wall, a cart or a barricade, seen over but not shot through cleanly: a ranged attack across it at someone close behind
 /// it is against cover (see <see cref="TileMap.InCover"/>). <see cref="Bridge"/>: lava ground ("lava") that can be
-/// walked, a walkway laid over it.
+/// walked, a walkway laid over it. <see cref="Crumbles"/>: a platform of a boss's arena (the group it belongs to) that its
+/// last phase may sink into lava (Vorthrax's).
 /// </summary>
 public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false,
-    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null, bool Cover = false, bool Bridge = false);
+    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null, bool Cover = false, bool Bridge = false, string? Crumbles = null);
 
 /// <summary>
 /// A condition a monster's hits lay on the hero (a crowd-control caster's): <see cref="Condition"/> of

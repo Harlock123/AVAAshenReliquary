@@ -42,7 +42,7 @@ public sealed partial class WorldView
     }
 
     private readonly Dictionary<(int X, int Y), GroundChunk> _chunks = [];
-    private (TileMap Map, double Zoom, float Scale, bool Gpu)? _chunkKey;
+    private (TileMap Map, int Version, double Zoom, float Scale, bool Gpu)? _chunkKey;
     private long _chunkFrame;
 
     /// <summary>False draws the ground tile by tile, as while zooming (tests compare the two).</summary>
@@ -79,7 +79,8 @@ public sealed partial class WorldView
         var z = (float)Zoom;
         var zs = z * ds;
         var gpu = _worldOnGpu && _gpuContext is not null;
-        var key = (world.Map, Zoom, ds, gpu);
+        // A platform cracking or sinking (Vorthrax's arena) changes the ground: the chunks are drawn again.
+        var key = (world.Map, world.Map.GroundVersion, Zoom, ds, gpu);
         if (_chunkKey != key)
         {
             ClearGroundChunks();

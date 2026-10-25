@@ -56,7 +56,7 @@ def legend(extra=None):
     return base
 
 
-def wall_tiles(grid, rng, floor=".,=eX#~SBo"):
+def wall_tiles(grid, rng, floor=".,=eX#~SBo!abcdfg"):
     """
     Turns each cave-wall cell ('w') into the wall the floor beside it calls for (Flare's cave walls show their rock on
     the faces toward the camera, +x and +y): rock on both faces where floor lies to +x and +y, on one where it lies to
