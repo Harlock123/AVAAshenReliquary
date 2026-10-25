@@ -301,6 +301,25 @@ dotnet build AVAAshenReliquary.slnx
 dotnet test AVAAshenReliquary.slnx
 ```
 
+The balance and campaign reports are slow and run with the rest; to read what they print, run them on their own:
+
+```bash
+ASHEN_BALANCE_RUNS=40 dotnet test tests/AshenReliquary.Core.Tests --filter BalanceReport --logger "console;verbosity=detailed"
+ASHEN_CAMPAIGN_SEED=3 dotnet test tests/AshenReliquary.Core.Tests --filter CampaignReport --logger "console;verbosity=detailed"
+ASHEN_SHOTS=/tmp/shots dotnet test tests/AshenReliquary.App.Tests --filter ActFourUiTests   # save the screenshots
+```
+
+### Environment variables
+
+| Variable | What it does |
+| --- | --- |
+| `ASHEN_STATS=1` | Starts the game with the F3 stats shown, and writes the stats line to standard output (for measuring at full screen) |
+| `ASHEN_SAVE_DIR=<folder>` | Keeps saves in that folder instead of the usual one (on Linux `~/.local/share/AshenReliquary/saves`), and `settings.json` beside it. `ASHEN_SAVE_DIR=userdata/saves` plays the saves and settings in the repo's `userdata/` |
+| `GDK_SCALE`, `AVALONIA_GLOBAL_SCALE_FACTOR` | The HiDPI scale on Linux (see above) |
+| `ASHEN_BALANCE_RUNS=<n>` | Tests: how many runs the balance and campaign reports make for each class (4 for the fights and 1 for whole zones and the campaign by default) |
+| `ASHEN_CAMPAIGN_SEED=<n>` | Tests: the campaign report plays only that seed (to replay one run that went wrong) |
+| `ASHEN_SHOTS=<folder>` | Tests: the App tests save their screenshots there as PNGs (none are saved without it) |
+
 GitHub Actions (`.github/workflows/build.yml`) builds and tests every push. Publishing and releases are
 added with the App project in M1.
 
