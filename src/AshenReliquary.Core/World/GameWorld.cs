@@ -2177,6 +2177,8 @@ public sealed partial class GameWorld
                 m.State = MonsterState.Attack;
                 m.AttackElapsed = 0;
                 m.AttackLanded = false;
+                if (def.Boss?.Phases[m.BossPhase].StrikeTypes is { Count: > 0 } types)
+                    m.Creature.StrikeDamageType = types[m.StrikesMade++ % types.Count];
                 if (def.Unseen)
                     RevealMonster(m);                                    // it shows itself as it strikes
                 var anim = def.Ranged ? (def.Caster || def.Sprite.Contains("mage") ? "cast" : "shoot") : "swing";

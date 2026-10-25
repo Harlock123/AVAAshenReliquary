@@ -100,6 +100,9 @@ public sealed partial class GameWorld
                 m.Creature.TakeDamage(m.Creature.HitPoints);
             return landed;
         }
+        // The Burning God: the god's fire in him takes a share of every blow.
+        if (m.Definition.Boss is { } boss && damage > 0 && boss.Phases[m.BossPhase].DamageTakenScale is var scale and < 1)
+            damage = Math.Max(1, (int)Math.Round(damage * scale));
         if (m.Definition.Boss is not null && damage > 0)
             m.Threat[_dealer ?? Hero] = m.Threat.GetValueOrDefault(_dealer ?? Hero) + damage;
         if (m.Ward > 0 && damage > 0)

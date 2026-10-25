@@ -267,12 +267,13 @@ public sealed partial class GameWorld
         HeroStrike(attacker, BasicAbility, aura?.Ability.ExtraDiceAt(Hero.Character.Level) ?? 0);
     }
 
-    /// <summary>The Taint meter fills; at 100 the whispers take the hero's feet.</summary>
-    private void AddTaint(double amount)
+    /// <summary>The Taint meter fills; at 100 the whispers take the hero's feet. True when they did.</summary>
+    private bool AddTaint(double amount)
     {
         if (amount <= 0 || !Hero.Character.Taint.Add(amount))
-            return;
+            return false;
         Say("The whispers take hold: your feet are not your own.");
         Float(Hero, "WHISPERS", FloatingTextKind.Critical, 1.0);
+        return true;
     }
 }

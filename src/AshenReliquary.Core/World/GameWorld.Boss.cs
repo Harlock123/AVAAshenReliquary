@@ -53,6 +53,7 @@ public sealed partial class GameWorld
         CallAllies(m, boss);
         CallEchoes(m, phase, dt);
         UpdateChoir(m, boss, phase, dt);
+        UpdateBurning(m, phase, dt);
 
         if (phase.PoolEverySeconds > 0)
         {
@@ -240,6 +241,7 @@ public sealed partial class GameWorld
         m.SwoopIn = phase.SwoopEverySeconds / 2;
         m.LandedUntil = 0;
         m.CrumbleIn = 2;
+        EnterBurning(m, phase);
         if (phase.Banner is { } banner)
         {
             // The standard goes up beside the boss's home; it rallies the legion until it is broken.
@@ -332,6 +334,7 @@ public sealed partial class GameWorld
             m.ChargeIn = m.Definition.Boss.Phases[0].ChargeEverySeconds;
             ResetChoir(m);
             ResetWyrm(m);
+            ResetBurning(m);
             m.AlliesCalled = false;
             m.CallEchoIn = m.Definition.Boss.Phases[0].CallsEchoEverySeconds;
             _monsters.RemoveAll(x => x.SummonedBy == m);
@@ -403,9 +406,10 @@ public sealed partial class GameWorld
             Say($"The {m.Name.ToLowerInvariant()} breaks apart into ash.");
             return;
         }
-        // Malachar: his court falls with him.
+        // Malachar: his court falls with him, and the god's fire goes out.
         if (boss.Court)
         {
+            ResetBurning(m);
             foreach (var other in _monsters.Where(x => x != m && !x.IsDead).ToList())
             {
                 other.Creature.TakeDamage(other.Creature.HitPoints);

@@ -269,8 +269,12 @@ M5, the Epilogue, has begun. Its step 1 is the **Cinder Throne**, down the Reliq
 Ashen Prophet, holds court there with his Inquisitors, his Taint pooling under you. Round his dais stand the Echoes of
 every Herald whose relic you left undealt with, as figures of ash that he calls into the fight one at a time, fainter than
 in the Reliquary. If you lit the Order's beacon at the Ember Gate, two of its knights come in to fight beside you; if you
-kept it dark, the Order's hidden way takes you round his honour guard. When he falls, his court falls with him. His later
-phases, his daughter's story and the endings are still to come.
+kept it dark, the Order's hidden way takes you round his honour guard. When he falls, his court falls with him.
+Step 2 brought his second phase, **the Burning God**: below three-fifths of his health the Taint rises in you, faster and
+faster, until it boils over and burns; pale lantern lights drift over the glass, and standing in one washes the Taint
+out; rings of burning ash spread from the Throne, to be Stepped through (Shift) as they reach you; and Malachar, full of
+the god, shrugs off a share of every blow and strikes with fire and void. His last phase, his daughter's story and the
+endings are still to come.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

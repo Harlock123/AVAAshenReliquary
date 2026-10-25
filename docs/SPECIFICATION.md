@@ -686,7 +686,7 @@ The build order proves the rules engine and one playable act before widening con
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary; step 10 done: the campaign through all four acts and beginning at an act; the exit test waits on the user's play of Acts 2–4).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
-6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
+6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** *Planned (`docs/M6_PLAN.md`, which adds Mythic tiers past level 20 and the Ashen Depths).* Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
 ### MVP (first playable)
@@ -2076,6 +2076,33 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   most). At level 20 Echoes, the worst case cost up to 113 deaths: each fall makes Malachar whole again.
 - **Tests:** `ThroneTests` (the zone, the Echoes by flag and faint, dormant until called, the knights and the hidden
   way, the court falling with him), `ThroneUiTests` (the court in ash, the knights, an Echo called).
+
+### The Burning God (M5 step 2)
+
+- **Malachar's second phase**, below 60% of his health (`GameWorld.Burning.cs`, phase fields on `BossPhase`). The
+  court thins (one Inquisitor every 30 s, at most two) and his Taint pools stop; he still calls an Echo every 12 s.
+- **The Taint rises** (`taintRise` 2.5 a second, growing by `taintRiseGrowth` 0.1 each second of the phase, at most
+  `taintRiseMax` 8): in the hero, through the Taint meter's own rate (Ashborn and Constitution slow it). When it reaches
+  100 the whispers reverse the hero's feet as ever, and the god's fire burns through them (`whispersDamage` 6d6 fire).
+- **Lantern lights** (`lights` 3, `LanternLight`): pools of pale light 1.6 tiles across that kindle round the arena and
+  drift over the glass (0.7 tiles a second, to a new open spot each time one arrives). In one, the Taint stops rising
+  and washes out (`lightCleanse` 30 a second). They light the dark round them.
+- **Ash novas** (`novaEverySeconds` 7, `AshNova`): a ring of burning ash spreads from the Throne (the boss's home) at 3.5
+  tiles a second to 4 tiles past the arena's edge. Whoever it crosses takes 6d6 fire against a basic Reflex save, once
+  a nova; a Step under way passes through it ("stepped through"). Allies take half.
+- **Channelling the god:** he takes 0.9 of every blow (`damageTakenScale`), and his strikes are fire and void in turn
+  (`strikeTypes`; `Creature.StrikeDamageType` set as each attack begins). The god's fire lights him.
+- **Ends** when the hero falls (Malachar whole again, in his first phase) or when he does: the lights and novas go out.
+- **The bots** (`BalanceReport`): Step in toward the Throne through a nova about to reach them, and go to the nearest
+  light when the Taint passes 60, waiting there until it is under 15. The report now names the boss's phase where the
+  hero fell.
+- **Balance** (`Cinder_Throne_at_level_20`, one run each): with every relic dealt with and the beacon lit, 0–1 deaths in
+  1–2.5 minutes; with every relic left undealt with, 0–18 deaths in 1–14 minutes (the Sniper the most, then the
+  Pyromancer and the Plaguebringer). With Malachar taking only three-quarters of each blow, the phase ran so long that
+  the gunslingers died 42–88 times a run in the worst case (each fall makes him whole); 0.9 fixed it.
+- **Tests:** `BurningGodTests` (the phase and its lights, the Taint rising faster and a light cleansing it, the god's
+  burn at the whispers, a nova once and a Step through it, the damage share and fire and void, all of it gone on a fall
+  or his death); `ThroneUiTests` photographs the lights and a nova.
 
 ### The in-game guide (after M4)
 

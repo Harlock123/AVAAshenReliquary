@@ -230,6 +230,59 @@ public sealed partial class WorldView
         }
     }
 
+    /// <summary>The Burning God's lantern lights: a pool of pale light on the glass, a soft rim, a flame-mote at the heart.</summary>
+    private void DrawLanternLights(SKCanvas canvas, GameWorld world)
+    {
+        foreach (var l in world.LanternLights)
+        {
+            var pulse = (float)(0.5 + 0.5 * Math.Sin(world.Time * 2.7 + l.X));
+            using var path = Ellipse(l.X, l.Y, l.Radius);
+            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(205, 228, 255, (byte)(55 + 30 * pulse)) };
+            canvas.DrawPath(path, fill);
+            using var rim = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2f, Color = new SKColor(225, 240, 255, 170) };
+            canvas.DrawPath(path, rim);
+            var heart = ToScreen(l.X, l.Y);
+            using var mote = new SKPaint { IsAntialias = true, Color = new SKColor(245, 250, 255, 220) };
+            canvas.DrawCircle(heart.X, heart.Y - 18 - 4 * pulse, 3.5f, mote);
+        }
+    }
+
+    /// <summary>An ash nova: a ring of burning ash spreading over the ground, dimming as it nears its end.</summary>
+    private void DrawNovas(SKCanvas canvas, GameWorld world)
+    {
+        foreach (var n in world.Novas)
+        {
+            var r = n.RadiusAt(world.Time);
+            var fade = (float)Math.Clamp(1 - (r - (n.Reach - GameWorld.NovaOverrun)) / GameWorld.NovaOverrun, 0.2, 1);
+            using var outer = Ellipse(n.X, n.Y, r + AshNova.Thickness / 2);
+            using var inner = Ellipse(n.X, n.Y, Math.Max(0.05, r - AshNova.Thickness / 2));
+            using var band = outer.Op(inner, SKPathOp.Difference);
+            if (band is null)
+                continue;
+            using var fill = new SKPaint { IsAntialias = true, Color = new SKColor(255, 110, 40, (byte)(170 * fade)) };
+            canvas.DrawPath(band, fill);
+            using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 2f, Color = new SKColor(70, 50, 45, (byte)(220 * fade)) };
+            canvas.DrawPath(outer, edge);
+        }
+    }
+
+    /// <summary>A circle on the ground, round (x, y), as the isometric view draws it.</summary>
+    private SKPath Ellipse(double x, double y, double radius)
+    {
+        var path = new SKPath();
+        for (var i = 0; i <= 48; i++)
+        {
+            var a = i * Math.PI / 24;
+            var p = ToScreen(x + Math.Cos(a) * radius, y + Math.Sin(a) * radius);
+            if (i == 0)
+                path.MoveTo(p);
+            else
+                path.LineTo(p);
+        }
+        path.Close();
+        return path;
+    }
+
     /// <summary>The ashen world beyond the map's edge: rock spires here and there on the ash.</summary>
     private static int? OutsideSpire(int x, int y) =>
         Hash01(x * 7919 + y * 104729) < 0.35 ? new[] { 144, 145, 146, 147, 148, 149, 153 }[(int)(Hash01(x * 31 + y * 17) * 7) % 7] : null;

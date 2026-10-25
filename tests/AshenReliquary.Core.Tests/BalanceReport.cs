@@ -775,6 +775,10 @@ public class BalanceReport(ITestOutputHelper output)
             return breath;
         if (pool is null && StepOffCrumbling(world, ref nextDodge) is { } rock)
             return rock;
+        if (pool is null && StepThroughNova(world) is { } nova)
+            return nova;
+        if (pool is null && SeekLanternLight(world, ref nextDodge) is { } light)
+            return light;
         if (pool is null || world.Time < nextDodge)
             return pool;
         var (dx, dy) = (world.Hero.X - pool.X, world.Hero.Y - pool.Y);
@@ -818,6 +822,54 @@ public class BalanceReport(ITestOutputHelper output)
             return stand;
         }
         return null;
+    }
+
+    /// <summary>
+    /// An ash nova about to reach the hero (the Burning God): a Step in toward its heart, through the ring. Returns a
+    /// stand-in hazard for the Step's moment.
+    /// </summary>
+    internal static Hazard? StepThroughNova(GameWorld world)
+    {
+        var hero = world.Hero;
+        foreach (var n in world.Novas)
+        {
+            var gap = hero.DistanceTo(n.X, n.Y) - n.RadiusAt(world.Time) - AshNova.Thickness / 2;
+            if (gap < 0 || gap > n.Speed * 0.15 + 0.2 || world.DodgeCooldownRemaining > 0)
+                continue;
+            if (world.Dodge(n.X, n.Y))
+                return new Hazard(hero.X, hero.Y, 1, world.Time, world.Time, new Rules.Dice(0, 1), 0);
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The Taint running high in the Burning God's phase: into the nearest lantern light, and wait there until it is
+    /// cleansed. Returns a stand-in hazard while the hero goes to the light or waits in it.
+    /// </summary>
+    internal static Hazard? SeekLanternLight(GameWorld world, ref double nextDodge)
+    {
+        var hero = world.Hero;
+        var taint = hero.Character.Taint.Value;
+        if (world.LanternLights.Count == 0 || taint < (world.InLanternLight ? 15 : 60))
+            return null;
+        var light = world.LanternLights.MinBy(l => l.DistanceTo(hero.X, hero.Y))!;
+        var stand = new Hazard(hero.X, hero.Y, 1, world.Time, world.Time, new Rules.Dice(0, 1), 0);
+        if (world.InLanternLight)
+        {
+            // Keep to the light's heart as it drifts.
+            if (light.DistanceTo(hero.X, hero.Y) > light.Radius * 0.5 && world.Time >= nextDodge)
+            {
+                world.MoveTo(light.X, light.Y);
+                nextDodge = world.Time + 0.4;
+            }
+            return stand;
+        }
+        if (world.Time >= nextDodge)
+        {
+            world.MoveTo(light.X, light.Y);
+            nextDodge = world.Time + 0.5;
+        }
+        return stand;
     }
 
     /// <summary>A platform cracking under the hero (Vorthrax's last phase): off it, onto the nearest firm rock.</summary>
@@ -1130,6 +1182,9 @@ public class BalanceReport(ITestOutputHelper output)
             .Select(g => $"{g.Count()} {g.Key}")
             .Concat(world.Allies.Where(a => a.IsTurned(world.Time)).GroupBy(a => a.Definition.Id).Select(g => $"{g.Count()} turned {g.Key}"));
         var said = string.Join(" + ", near);
+        // A boss past its first phase (idle already, as the hero falls): which phase it fell in.
+        if (world.Monsters.FirstOrDefault(m => m.Definition.Boss is not null && !m.IsDead && !m.IsEcho && m.BossPhase > 0) is { } boss)
+            said += $" [{boss.Definition.Boss!.Phases[boss.BossPhase].Name}]";
         return said.Length > 0 ? said : "nothing near";
     }
 

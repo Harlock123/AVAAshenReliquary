@@ -1325,6 +1325,8 @@ public sealed partial class WorldView : Control
         DrawChargeLanes(canvas, world);
         DrawBreaths(canvas, world);
         DrawCrumbling(canvas, world);
+        DrawLanternLights(canvas, world);
+        DrawNovas(canvas, world);
         DrawBursts(canvas, world);
         DrawTraps(canvas, world);
         Stats.Mark("ground");
@@ -2640,6 +2642,21 @@ public sealed partial class WorldView : Control
             // Vorthrax burns: the wyrm lights his own cavern, on the ground or in the air.
             else if (m.Definition.Boss is not null && m.Definition.DamageType == Core.Combat.DamageType.Fire && !m.IsDead)
                 lights.Add((ToScreen(m.X, m.Y), m.Aloft ? 7f : 5.5f, new SKColor(255, 140, 60, 70)));
+            // Malachar channelling the Burning God: the god's fire round him.
+            else if (m.Definition.Boss is { } boss && !m.IsDead && boss.Phases[m.BossPhase].StrikeTypes is { Count: > 0 })
+                lights.Add((ToScreen(m.X, m.Y), 5f + (float)Math.Sin(time * 4.3) * 0.4f, new SKColor(255, 120, 50, 75)));
+        }
+        // The Order's lanterns drifting over the glass, and the ash novas' burning rings.
+        foreach (var l in world.LanternLights)
+            lights.Add((ToScreen(l.X, l.Y), (float)l.Radius + 2.2f + (float)Math.Sin(time * 2.7 + l.X) * 0.15f, new SKColor(200, 225, 255, 70)));
+        foreach (var n in world.Novas)
+        {
+            var r = n.RadiusAt(world.Time);
+            for (var i = 0; i < 12; i++)
+            {
+                var a = i * Math.PI / 6;
+                lights.Add((ToScreen(n.X + Math.Cos(a) * r, n.Y + Math.Sin(a) * r), 2.0f, new SKColor(255, 130, 60, 45)));
+            }
         }
         foreach (var gate in world.Zone.Gates ?? [])
         {

@@ -89,7 +89,7 @@ public sealed class Creature(
     public string Name { get; } = name;
     public CreatureStats Stats { get; } = stats;
     public Dice StrikeDamage { get; } = strikeDamage;
-    public DamageType StrikeDamageType { get; } = strikeDamageType;
+    public DamageType StrikeDamageType { get; internal set; } = strikeDamageType;
     public double AttacksPerSecond { get; } = attacksPerSecond;
     public DamageProfile Defenses { get; } = defenses ?? new DamageProfile();
     public ConditionSet Conditions { get; } = new(isBoss: stats.Rank is CreatureRank.Herald or CreatureRank.Prophet);

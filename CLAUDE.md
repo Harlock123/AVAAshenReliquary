@@ -177,7 +177,11 @@ implementation decisions made so far). `README.md` has the run commands and cont
   lit; `WorldView.DrawAlly` draws avatar allies), phase `callsEchoEverySeconds`); Echoes as pack options `echoHealth`/
   `echoPhases`/`dormant` (`MonsterActor.Dormant`, `WaitsToBeCalled`: ash until called, back to ash when the hero falls),
   at level 16 here; the `hidden_way` gate with the beacon dark; `ThroneTests`, `ThroneUiTests`,
-  `BalanceReport.Cinder_Throne_at_level_20`. Next: step 2, the Burning God.
+  `BalanceReport.Cinder_Throne_at_level_20`. Step 2 done: the Burning God, Malachar's phase 2
+  (`GameWorld.Burning.cs`; phase `taintRise`/`taintRiseGrowth`/`taintRiseMax`/`whispersDamage`, `lights` (`LanternLight`,
+  `InLanternLight`), `nova*` (`AshNova`), `damageTakenScale`, `strikeTypes` (`Creature.StrikeDamageType` is settable);
+  the bots' `StepThroughNova`/`SeekLanternLight`; the report tags deaths with the boss's phase; `BurningGodTests`).
+  Next: step 3, the Heart's Pull and Malachar's Daughter.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

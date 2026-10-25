@@ -453,6 +453,12 @@ public sealed class MonsterActor : Actor
     internal double LandedUntil { get; set; }
     internal double CrumbleIn { get; set; }
 
+    /// <summary>When its present phase began (the Burning God's Taint rises faster as it goes on), its next ash nova, and
+    /// how many strikes it has made (a phase's <see cref="BossPhase.StrikeTypes"/> take turns).</summary>
+    internal double PhaseStartedAt { get; set; }
+    internal double NovaIn { get; set; }
+    internal int StrikesMade { get; set; }
+
     /// <summary>A corpse that will stand again unless it is destroyed.</summary>
     public bool IsRising => IsDead && RisesIn > 0;
 

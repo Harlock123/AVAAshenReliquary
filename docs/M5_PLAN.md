@@ -48,6 +48,9 @@ undealt with) cost up to 113 deaths a run.*
 
 ### 2. The Burning God (phase 2)
 
+*Done (2026-10-25): spec section 16, "The Burning God". Below 60% of his health. Harder to hurt is 0.9 of each blow: at
+0.75 the phase ran so long that the worst case cost the gunslingers 42–88 deaths a run.*
+
 - **The Taint rises:** it builds over the whole arena, faster and faster.
 - **Lantern lights:** pools of pale light drift across the floor; standing in one cleanses the Taint.
 - **Ash novas:** rings that spread from the Throne, to Step through.

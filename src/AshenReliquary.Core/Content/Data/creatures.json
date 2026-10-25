@@ -1595,6 +1595,31 @@
      "poolRadius": 1.6,
      "poolSeconds": 8,
      "callsEchoEverySeconds": 8
+    },
+    {
+     "below": 0.6,
+     "name": "The Burning God",
+     "summonEverySeconds": 30,
+     "summons": "inquisitor",
+     "summonCount": 1,
+     "summonCap": 2,
+     "callsEchoEverySeconds": 12,
+     "taintRise": 2.5,
+     "taintRiseGrowth": 0.1,
+     "taintRiseMax": 8,
+     "whispersDamage": "6d6",
+     "lights": 3,
+     "lightRadius": 1.6,
+     "lightSpeed": 0.7,
+     "lightCleanse": 30,
+     "novaEverySeconds": 7,
+     "novaSpeed": 3.5,
+     "novaDamage": "6d6",
+     "damageTakenScale": 0.9,
+     "strikeTypes": [
+      "Fire",
+      "Void"
+     ]
     }
    ]
   }

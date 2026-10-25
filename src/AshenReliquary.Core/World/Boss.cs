@@ -58,6 +58,15 @@ public sealed record BossDefinition(
 /// <see cref="CrumbleWarning"/> seconds, sinks into the lava, <see cref="CrumbleDamage"/> to anyone left on it.</item>
 /// <item>Malachar's court (M5): every <see cref="CallsEchoEverySeconds"/>, once the last has fallen, it calls the next
 /// dormant Echo of the zone into the fight, one at a time.</item>
+/// <item>The Burning God (M5 step 2): the Taint rises in the hero by <see cref="TaintRise"/> a second, growing by
+/// <see cref="TaintRiseGrowth"/> each second of the phase to at most <see cref="TaintRiseMax"/>; when it boils over (the
+/// whispers) it also burns for <see cref="WhispersDamage"/>. <see cref="Lights"/> pale lantern lights
+/// (<see cref="LanternLight"/>) of <see cref="LightRadius"/> drift over the arena at <see cref="LightSpeed"/>; standing in
+/// one stops the rise and cleanses <see cref="LightCleanse"/> a second. Every <see cref="NovaEverySeconds"/> a ring of ash
+/// (<see cref="AshNova"/>) spreads from the boss's home at <see cref="NovaSpeed"/> to the arena's edge and beyond, burning
+/// whoever it crosses for <see cref="NovaDamage"/> against a basic Reflex save (a Step under way passes through it). The
+/// boss takes <see cref="DamageTakenScale"/> of every blow, and its strikes take each of <see cref="StrikeTypes"/> in
+/// turn.</item>
 /// </list>
 /// </summary>
 public sealed record BossPhase(
@@ -107,7 +116,53 @@ public sealed record BossPhase(
     double CrumbleEverySeconds = 0,
     double CrumbleWarning = 2.5,
     string CrumbleDamage = "6d6",
-    double CallsEchoEverySeconds = 0);
+    double CallsEchoEverySeconds = 0,
+    double TaintRise = 0,
+    double TaintRiseGrowth = 0,
+    double TaintRiseMax = 10,
+    string? WhispersDamage = null,
+    int Lights = 0,
+    double LightRadius = 1.6,
+    double LightSpeed = 0.8,
+    double LightCleanse = 30,
+    double NovaEverySeconds = 0,
+    double NovaSpeed = 4,
+    string NovaDamage = "6d6",
+    double DamageTakenScale = 1.0,
+    IReadOnlyList<Combat.DamageType>? StrikeTypes = null);
+
+/// <summary>A pale lantern light drifting over the Burning God's arena toward (<see cref="ToX"/>, <see cref="ToY"/>).</summary>
+public sealed class LanternLight(double x, double y, double radius)
+{
+    public double X { get; internal set; } = x;
+    public double Y { get; internal set; } = y;
+    public double Radius { get; } = radius;
+    internal double ToX { get; set; } = x;
+    internal double ToY { get; set; } = y;
+
+    public bool Covers(double px, double py) => (px - X) * (px - X) + (py - Y) * (py - Y) <= Radius * Radius;
+
+    public double DistanceTo(double x, double y) => Math.Sqrt((X - x) * (X - x) + (Y - y) * (Y - y));
+}
+
+/// <summary>A ring of ash spreading from (<see cref="X"/>, <see cref="Y"/>) since <see cref="StartedAt"/>.</summary>
+public sealed class AshNova(double x, double y, double startedAt, double speed, double reach)
+{
+    /// <summary>How thick the ring is drawn, in tiles.</summary>
+    public const double Thickness = 0.7;
+
+    public double X { get; } = x;
+    public double Y { get; } = y;
+    public double StartedAt { get; } = startedAt;
+    public double Speed { get; } = speed;
+    public double Reach { get; } = reach;
+    internal double LastRadius { get; set; }
+    internal HashSet<object> Struck { get; } = [];
+
+    public double RadiusAt(double now) => Math.Max(0, now - StartedAt) * Speed;
+
+    public bool Done(double now) => RadiusAt(now) > Reach;
+}
 
 /// <summary>A boss's breath: the cone it marked toward the hero, burning from <see cref="BurnAt"/>.</summary>
 public sealed class BossBreath(double x, double y, double direction, double arc, double range, double burnAt)
