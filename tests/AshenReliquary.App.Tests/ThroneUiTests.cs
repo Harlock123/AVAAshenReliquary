@@ -1,4 +1,6 @@
+using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
+using Avalonia.Input;
 using AshenReliquary.Core.World;
 
 namespace AshenReliquary.App.Tests;
@@ -6,7 +8,9 @@ namespace AshenReliquary.App.Tests;
 /// <summary>
 /// The Cinder Throne on screen (M5 step 1): the Echoes standing as grey figures of ash round the dais until Malachar
 /// calls one, and the Order's knights, drawn from the avatar layers, fighting beside the hero when the beacon was lit;
-/// then the Burning God (M5 step 2): the lantern lights drifting on the glass and the ash novas spreading from the Throne.
+/// then the Burning God (M5 step 2): the lantern lights drifting on the glass and the ash novas spreading from the Throne;
+/// then the Heart's Pull (M5 step 3): its meter, Space pressing it and the window not pausing, the parley his daughter's
+/// toy opens, Malachar spared by the Throne, and the toy glinting where it lies on the Gallows Road.
 /// </summary>
 public class ThroneUiTests
 {
@@ -67,5 +71,80 @@ public class ThroneUiTests
         kit.Play(0.5);
         Assert.True(world.InLanternLight);
         kit.Capture(Shot("throne-lantern-light"));
+    }
+
+    private static void Space(TestKit kit)
+    {
+        kit.Window.KeyPress(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+        kit.Window.KeyRelease(Key.Space, RawInputModifiers.None, PhysicalKey.Space, " ");
+        kit.Pump();
+    }
+
+    [AvaloniaFact]
+    public void In_the_heart_s_pull_space_holds_on_and_does_not_pause()
+    {
+        var kit = TestKit.Open("fighter", zoneId: "cinder_throne");
+        var world = kit.World;
+        world.TrainTo(20);
+        world.Hero.Character.CannotFall = true;
+        var malachar = world.Monsters.Single(m => m.Definition.Id == "malachar");
+        foreach (var m in world.Monsters.Where(m => m != malachar).ToList())
+            TestHooks.Slay(world, m);
+        TestHooks.Place(world, malachar.X, malachar.Y + 4);
+        kit.Play(1.0);
+        malachar.Creature.SetHitPoints((int)(malachar.Creature.Stats.HitPoints * 0.2));
+        kit.PlayUntil(() => world.Pull is not null, 4);
+        Assert.NotNull(world.Pull);
+        Space(kit);
+        Space(kit);
+        Space(kit);
+        Assert.False(kit.Window.Paused);
+        Assert.Equal(3, world.Pull!.Presses);
+        kit.Capture(Shot("throne-hearts-pull"));
+    }
+
+    [AvaloniaFact]
+    public void Shown_the_lantern_bird_malachar_lays_down_the_fire()
+    {
+        var kit = TestKit.Open("wizard", zoneId: "cinder_throne");
+        var world = kit.World;
+        world.TrainTo(20);
+        world.Hero.Character.CannotFall = true;
+        foreach (var (flag, value) in new[] { ("daughter.toy", "carried"), ("daughter.ironhold", "found"), ("daughter.oriel", "found"),
+                     ("daughter.ember_gate", "found"), ("daughter.journal", "found"), ("daughter.memories", "4") })
+            world.SetFlag(flag, value);
+        var malachar = world.Monsters.Single(m => m.Definition.Id == "malachar");
+        foreach (var m in world.Monsters.Where(m => m.Y > 30).ToList())
+            TestHooks.Slay(world, m);
+        TestHooks.Place(world, malachar.X, malachar.Y + 4);
+        kit.Play(1.0);
+        malachar.Creature.SetHitPoints((int)(malachar.Creature.Stats.HitPoints * 0.2));
+        kit.PlayUntil(() => world.Dialogue is not null, 3);
+        Assert.True(world.Parleying);
+        kit.Play(0.5);
+        kit.Capture(Shot("throne-parley"));
+        world.Choose(0);
+        Assert.Equal("spared", world.Flag("act5.malachar"));
+        kit.Play(0.5);
+        kit.Capture(Shot("throne-spared"));
+        world.Choose(0);
+        kit.Play(1.5);
+        Assert.Contains(world.Interactives, i => i.Id == "malachar_spared");
+        kit.Capture(Shot("throne-malachar-kneels"));
+    }
+
+    [AvaloniaFact]
+    public void The_lantern_bird_glints_in_the_refugee_camp()
+    {
+        var kit = TestKit.Open("fighter", zoneId: "gallows_road");
+        var world = kit.World;
+        var toy = world.Interactives.Single(i => i.Id == "daughter_toy");
+        TestHooks.Place(world, toy.X - 1.5, toy.Y + 1.5);
+        kit.Play(0.5);
+        kit.Capture(Shot("gallows-lantern-bird"));
+        world.Interact(toy);
+        kit.Play(0.3);
+        Assert.NotNull(world.Dialogue);
+        kit.Capture(Shot("gallows-lantern-bird-found"));
     }
 }

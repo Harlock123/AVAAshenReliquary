@@ -105,6 +105,9 @@ zone = {
     "interactables": [
         {"id": "stash", "name": "Stash", "at": open_cell(rows, cx + 4, 25), "tile": 1264, "action": "stash"},
         {"id": "altar", "name": "Lantern altar", "at": open_cell(rows, cx + 5, 14), "tile": 1293, "dialogue": "ember_altar"},
+        # Malachar's Daughter (M5 step 3): a child's grave under the beacon.
+        {"id": "daughter_ember_gate", "name": "A small grave", "at": open_cell(rows, bx - 3, by + 3), "dialogue": "daughter_ember_gate",
+         "action": "keepsake", "blocks": False},
         {"id": "beacon", "name": "The beacon", "at": beacon, "tile": 1295, "action": "beacon", "dialogue": "ember_beacon"},
     ],
     "vendors": [

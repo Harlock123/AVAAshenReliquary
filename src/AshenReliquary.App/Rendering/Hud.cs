@@ -288,6 +288,8 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         var below = boss is not null ? 66f + _bossBarTop - 30 : 0f;
         if (target is { IsDead: false } t && t != boss)
             DrawTarget(canvas, size, t, below);
+        if (world.Pull is { } pull)
+            DrawPull(canvas, size, pull, world);
 
         // Latest message, fading after 5 s.
         if (world.LastMessage is { } message && world.Time - world.LastMessageAt < 5)
@@ -1007,6 +1009,49 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         using var urgent = new SKPaint { IsAntialias = true, Color = boss.EnrageLeft is { } l && l < 10 ? new SKColor(255, 120, 90) : Dim };
         canvas.DrawText(line, bar.MidX, bar.Bottom + 17, SKTextAlign.Center, small, urgent);
         _blocked.Add(SKRect.Inflate(bar, 6, 22));
+    }
+
+    /// <summary>
+    /// The Heart's Pull: a tug of war across the middle of the screen, the Heart's gold against Malachar's ash, the marker
+    /// where the pull stands, a call to press Space, and the presses counted toward the next check.
+    /// </summary>
+    private void DrawPull(SKCanvas canvas, SKSize size, HeartsPull pull, GameWorld world)
+    {
+        using var title = new SKFont(WorldOverlay.Serif, 20);
+        using var small = new SKFont(WorldOverlay.Serif, 13);
+        var width = Math.Min(420, size.Width - 60);
+        var bar = SKRect.Create(size.Width / 2 - width / 2, size.Height * 0.58f, width, 18);
+        var pulse = (float)(0.5 + 0.5 * Math.Sin(world.Time * 9));
+        using var back = new SKPaint { Color = new SKColor(16, 14, 12, 235) };
+        canvas.DrawRoundRect(SKRect.Inflate(bar, 14, 40), 6, 6, back);
+        using var ash = new SKPaint { Color = new SKColor(110, 60, 120) };
+        using var heart = new SKPaint
+        {
+            Shader = SKShader.CreateLinearGradient(new SKPoint(bar.Left, 0), new SKPoint(bar.Right, 0),
+                [new SKColor(255, 150, 60), new SKColor(255, 220, 130)], SKShaderTileMode.Clamp),
+        };
+        canvas.DrawRect(bar, ash);
+        canvas.DrawRect(SKRect.Create(bar.Left, bar.Top, bar.Width * (float)(pull.Meter / 100), bar.Height), heart);
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, Color = new SKColor(200, 160, 90) };
+        canvas.DrawRect(SKRect.Inflate(bar, 2, 2), edge);
+        var x = bar.Left + bar.Width * (float)(pull.Meter / 100);
+        using var marker = new SKPaint { IsAntialias = true, Color = new SKColor(255, 245, 220) };
+        canvas.DrawRect(SKRect.Create(x - 2, bar.Top - 5, 4, bar.Height + 10), marker);
+        using var ink = new SKPaint { IsAntialias = true, Color = new SKColor(255, (byte)(200 + 40 * pulse), (byte)(120 + 60 * pulse)) };
+        canvas.DrawText("THE HEART'S PULL  ·  PRESS SPACE!", bar.MidX, bar.Top - 14, SKTextAlign.Center, title, ink);
+        using var dim = new SKPaint { IsAntialias = true, Color = Dim };
+        canvas.DrawText("Malachar", bar.Left, bar.Bottom + 18, SKTextAlign.Left, small, dim);
+        canvas.DrawText("the Heart holds", bar.Right, bar.Bottom + 18, SKTextAlign.Right, small, dim);
+        var last = pull.Last switch
+        {
+            Core.Rules.DegreeOfSuccess.CriticalSuccess => "you wrench it back",
+            Core.Rules.DegreeOfSuccess.Success => "you hold",
+            Core.Rules.DegreeOfSuccess.Failure => "it slips",
+            Core.Rules.DegreeOfSuccess.CriticalFailure => "it tears",
+            _ => "Fortitude",
+        };
+        canvas.DrawText($"{last}  ·  +{pull.Presses}", bar.MidX, bar.Bottom + 18, SKTextAlign.Center, small, dim);
+        _blocked.Add(SKRect.Inflate(bar, 14, 40));
     }
 
     /// <summary>The zone name's right edge, and the tops of the Herald's bar and the target's frame, as last drawn.</summary>

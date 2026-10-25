@@ -35,11 +35,12 @@ public sealed record SkillCheckDefinition(string Skill, int Dc, string Success, 
 /// (an item base id, common, at the hero's level). <see cref="PayPerLevel"/> charges that much gold per hero level
 /// first (an answer the hero can't afford does nothing; "{cost}" in its text shows the price); <see cref="Respec"/>
 /// lets every level from 2 be chosen again. <see cref="Dust"/> and <see cref="Fragments"/> give crafting materials (a
-/// machine scrapped for parts).
+/// machine scrapped for parts). <see cref="Spare"/> ends a boss's parley with the boss spared (Malachar, shown his
+/// daughter's toy).
 /// </summary>
 public sealed record DialogueEffect(string? Flag = null, string? Value = null, JournalEntryDefinition? Journal = null,
     int Xp = 0, int Gold = 0, string? Item = null, int PayPerLevel = 0, bool Respec = false, string? Boon = null, string? TakeItem = null,
-    int Dust = 0, int Fragments = 0);
+    int Dust = 0, int Fragments = 0, bool Spare = false);
 
 /// <summary>A journal entry: <see cref="Kind"/> is "main" or "side". Writing the same id again replaces the text.</summary>
 public sealed record JournalEntryDefinition(string Id, string Title, string Text, string Kind = "side");

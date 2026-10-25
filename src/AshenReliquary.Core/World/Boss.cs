@@ -7,7 +7,9 @@ namespace AshenReliquary.Core.World;
 /// it. <see cref="BarName"/> names the HUD's boss bar when it isn't the boss's own name. <see cref="Allies"/>: when the
 /// fight begins, <see cref="AlliesCount"/> of that creature come to fight for the hero, if the flags in
 /// <see cref="AlliesIf"/> hold (the Order's knights at the Cinder Throne, the beacon lit). <see cref="Court"/>: its fall
-/// brings down every monster still standing in the zone (Malachar's court).
+/// brings down every monster still standing in the zone (Malachar's court). <see cref="Parley"/>: as a pulling phase
+/// begins, if the flags in <see cref="ParleyIf"/> hold, the fight stops and that dialogue opens (Malachar's Daughter): a
+/// <c>spare</c> effect in it ends the fight with the boss spared; leaving it any other way lets the fight go on.
 /// </summary>
 public sealed record BossDefinition(
     IReadOnlyList<BossPhase> Phases,
@@ -21,7 +23,34 @@ public sealed record BossDefinition(
     string? Allies = null,
     int AlliesCount = 0,
     IReadOnlyDictionary<string, string>? AlliesIf = null,
-    bool Court = false);
+    bool Court = false,
+    string? Parley = null,
+    IReadOnlyDictionary<string, string>? ParleyIf = null);
+
+/// <summary>
+/// The Heart's Pull under way: <see cref="Meter"/> from 0 (the Heart torn out) to 100 (the hero holds), starting at 50;
+/// the presses of the pull key since the last check, and the last check's degree.
+/// </summary>
+public sealed class HeartsPull(MonsterActor puller, double firstCheckAt)
+{
+    public const double Start = 50;
+
+    public MonsterActor Puller { get; } = puller;
+    public double Meter { get; internal set; } = Start;
+    public int Presses { get; internal set; }
+    public double LastPressAt { get; internal set; } = double.NegativeInfinity;
+    public double NextCheckAt { get; internal set; } = firstCheckAt;
+    public Rules.DegreeOfSuccess? Last { get; internal set; }
+
+    /// <summary>How far each degree moves the pull toward the hero (negative: toward the boss).</summary>
+    public static double Shift(Rules.DegreeOfSuccess degree) => degree switch
+    {
+        Rules.DegreeOfSuccess.CriticalSuccess => 25,
+        Rules.DegreeOfSuccess.Success => 12,
+        Rules.DegreeOfSuccess.Failure => -10,
+        _ => -20,
+    };
+}
 
 /// <summary>
 /// One phase, entered when health falls to <see cref="Below"/> of the maximum (the first phase is 1.0):
@@ -67,6 +96,11 @@ public sealed record BossDefinition(
 /// whoever it crosses for <see cref="NovaDamage"/> against a basic Reflex save (a Step under way passes through it). The
 /// boss takes <see cref="DamageTakenScale"/> of every blow, and its strikes take each of <see cref="StrikeTypes"/> in
 /// turn.</item>
+/// <item>The Heart's Pull (M5 step 3): with <see cref="Pull"/>, the boss tears at the Ember Heart in the hero's chest
+/// (<see cref="HeartsPull"/>): the hero is held while the pull lasts, and every <see cref="PullCheckSeconds"/> a Fortitude
+/// check against the boss's DC moves the pull (each press of the pull key since the last check adds 1, at most
+/// <see cref="PullPressCap"/>). Won, the boss staggers for <see cref="PullStaggerSeconds"/> and tries again
+/// <see cref="PullEverySeconds"/> after; lost, the hero falls.</item>
 /// </list>
 /// </summary>
 public sealed record BossPhase(
@@ -129,7 +163,12 @@ public sealed record BossPhase(
     double NovaSpeed = 4,
     string NovaDamage = "6d6",
     double DamageTakenScale = 1.0,
-    IReadOnlyList<Combat.DamageType>? StrikeTypes = null);
+    IReadOnlyList<Combat.DamageType>? StrikeTypes = null,
+    bool Pull = false,
+    double PullCheckSeconds = 1.5,
+    double PullEverySeconds = 12,
+    double PullStaggerSeconds = 4,
+    int PullPressCap = 10);
 
 /// <summary>A pale lantern light drifting over the Burning God's arena toward (<see cref="ToX"/>, <see cref="ToY"/>).</summary>
 public sealed class LanternLight(double x, double y, double radius)

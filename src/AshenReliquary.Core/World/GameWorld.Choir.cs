@@ -250,9 +250,12 @@ public sealed partial class GameWorld
         return true;
     }
 
-    /// <summary>A command while enthralled does nothing (the hero is told why).</summary>
+    /// <summary>A command while enthralled, in the Heart's Pull or at a parley does nothing (enthralled, the hero is told why).</summary>
     private bool HeldBySong()
     {
+        // The Heart's Pull holds the hero as surely, and a parley holds the fight.
+        if (Pull is not null || _parley is not null)
+            return true;
         if (!Enthralled)
             return false;
         if (Time - _songToldAt > 0.6)

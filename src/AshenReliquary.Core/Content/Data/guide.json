@@ -36,7 +36,7 @@
         },
         {
           "heading": "Panels",
-          "text": "I or Tab opens the inventory, C the character sheet, J the journal, L the level-up screen when a level is waiting. Escape opens the menu (save, return to the title, quit), Space pauses, F5 saves, F6 saves a copy of your game as a save of its own. The mouse wheel zooms."
+          "text": "I or Tab opens the inventory, C the character sheet, J the journal, L the level-up screen when a level is waiting. Escape opens the menu (save, return to the title, quit), Space (or P) pauses, except in the Heart's Pull, where each press of Space helps you hold on; F5 saves, F6 saves a copy of your game as a save of its own. The mouse wheel zooms."
         },
         {
           "heading": "The screen",

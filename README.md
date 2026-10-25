@@ -71,7 +71,7 @@ common gear, **L** the level-up screen (when a level is waiting), **Shift** step
 shows on the title screen as a save of its own, numbered: Elirk-2, Elirk-3; Save a copy in the Escape menu does the
 same),
 **Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
-**Space** pauses, the mouse wheel (or a touchpad's two-finger scroll) zooms through five steps and the game remembers the step, the monster you are attacking has an ember-red ring with turning brackets on the ground under it (the one under the pointer a thin pale ring), **F3** shows the frame rate, render timings and the GPU's texture cache (`ASHEN_STATS=1` starts with it shown and
+**Space** (or **P**) pauses (in the Heart's Pull, at the Cinder Throne, Space is pressed to hold on to the Ember Heart instead), the mouse wheel (or a touchpad's two-finger scroll) zooms through five steps and the game remembers the step, the monster you are attacking has an ember-red ring with turning brackets on the ground under it (the one under the pointer a thin pale ring), **F3** shows the frame rate, render timings and the GPU's texture cache (`ASHEN_STATS=1` starts with it shown and
 also prints it to the terminal every 60 frames). You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,
 through the refugee camp, to the gate of
@@ -273,8 +273,15 @@ kept it dark, the Order's hidden way takes you round his honour guard. When he f
 Step 2 brought his second phase, **the Burning God**: below three-fifths of his health the Taint rises in you, faster and
 faster, until it boils over and burns; pale lantern lights drift over the glass, and standing in one washes the Taint
 out; rings of burning ash spread from the Throne, to be Stepped through (Shift) as they reach you; and Malachar, full of
-the god, shrugs off a share of every blow and strikes with fire and void. His last phase, his daughter's story and the
+the god, shrugs off a share of every blow and strikes with fire and void. The
 endings are still to come.
+Step 3 brought his last phase, **the Heart's Pull**: below a quarter of his health he goes back to the Throne and reaches
+into your chest for the Ember Heart, and while he pulls you can do nothing but hold on. Press **Space** as fast as you
+can: every press strengthens your next Fortitude save in the tug of war across the screen. Hold, and he staggers; lose,
+and you fall. And step 3 brought **Malachar's Daughter**: Wren's carved lantern-bird glints in the ash of the refugee
+camp at the north end of the Gallows Road, and memories of her wait in Ironhold, Saint Oriel's Rest, the Ember Gate camp
+and the Reliquary's Sanctum. Carry the bird into his last phase and he stops to ask where you found it; the more of her
+story you know, the likelier he is to listen. Moved, he lays down the fire and is spared.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

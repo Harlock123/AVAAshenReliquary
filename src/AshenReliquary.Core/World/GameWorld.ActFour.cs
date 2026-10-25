@@ -103,7 +103,7 @@ public sealed partial class GameWorld
     /// <summary>Quickened by its leader's war cry.</summary>
     internal bool Cried(MonsterActor m) => Time < m.CriedUntil;
 
-    /// <summary>A leader in a fight cries its pack on: quicker for a while, and a little of their health back.</summary>
+    /// <summary>A leader in a fight cries its pack on: quicker for a while, and a little of their health back (not its own).</summary>
     private void UpdateLeader(MonsterActor m, double dt)
     {
         if (!m.IsLeader || m.State == MonsterState.Idle)
@@ -112,7 +112,7 @@ public sealed partial class GameWorld
         if (m.CryIn > 0)
             return;
         m.CryIn = LeaderCryEverySeconds;
-        var led = _monsters.Where(o => !o.IsDead && o.Leader == m && o.DistanceTo(m) <= LeaderTiles).ToList();
+        var led = _monsters.Where(o => o != m && !o.IsDead && o.Leader == m && o.DistanceTo(m) <= LeaderTiles).ToList();
         if (led.Count == 0)
             return;
         foreach (var o in led)

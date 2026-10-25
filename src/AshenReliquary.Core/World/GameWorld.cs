@@ -1153,6 +1153,13 @@ public sealed partial class GameWorld
             return;
         if (UpdateEnthralled(dt))
             return;
+        // In the Heart's Pull the hero holds on, and does nothing else.
+        if (Pull is { } pull)
+        {
+            hero.Face(pull.Puller.X, pull.Puller.Y);
+            hero.Play("block");
+            return;
+        }
 
         if (hero.Action is { } action)
         {
@@ -2035,6 +2042,12 @@ public sealed partial class GameWorld
         var hero = Hero;
         var def = m.Definition;
         var distance = m.DistanceTo(hero);
+        // A parley holds the whole fight (the boss's own turn says so, through UpdatePull).
+        if (_parley is not null && _parley != m)
+        {
+            m.Play("stance");
+            return;
+        }
 
         if (m.State == MonsterState.Idle)
         {

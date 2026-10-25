@@ -438,6 +438,17 @@
    ],
    "tile": 1293,
    "dialogue": "ironhold_altar"
+  },
+  {
+   "id": "daughter_ironhold",
+   "name": "A physicians' ledger",
+   "at": [
+    13,
+    25
+   ],
+   "dialogue": "daughter_ironhold",
+   "action": "keepsake",
+   "blocks": false
   }
  ],
  "vendors": [

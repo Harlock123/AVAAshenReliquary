@@ -196,6 +196,7 @@ public class ActFourTests
         (world.Hero.X, world.Hero.Y) = (captain.X - 4, captain.Y);
         Run(world, GameWorld.LeaderCryEverySeconds);
         Assert.Contains(led, m => m.CriedUntil > 0);
+        Assert.Equal(0, captain.CriedUntil);                                       // its cry heals its pack, not itself
         world.Slay(captain);
         Assert.All(led.Where(m => !m.IsDead), m =>
         {

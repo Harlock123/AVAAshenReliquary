@@ -181,7 +181,12 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (`GameWorld.Burning.cs`; phase `taintRise`/`taintRiseGrowth`/`taintRiseMax`/`whispersDamage`, `lights` (`LanternLight`,
   `InLanternLight`), `nova*` (`AshNova`), `damageTakenScale`, `strikeTypes` (`Creature.StrikeDamageType` is settable);
   the bots' `StepThroughNova`/`SeekLanternLight`; the report tags deaths with the boss's phase; `BurningGodTests`).
-  Next: step 3, the Heart's Pull and Malachar's Daughter.
+  Step 3 done: the Heart's Pull and Malachar's Daughter (`GameWorld.HeartsPull.cs`: phase `pull*`, `HeartsPull`,
+  `GameWorld.Pull`/`PullHarder` (Space in `MainWindow`, P still pauses), the HUD's `DrawPull`; boss `parley`/`parleyIf`,
+  `Parleying` holds every monster and ally, dialogue effect `spare` (`SpareParley`, the NPC `malachar_spared`); keepsake
+  interactables (`action: keepsake`, a glint until `daughter.<place>` is set; `CountMemories` keeps `daughter.memories`);
+  Wren's `lantern_bird` (icon `bird`); a leader's cry no longer heals the leader (Malachar healed himself through steps
+  1-2); the bots mash at `Tactics.PullPresses`; `HeartsPullTests`). Next: step 4, the choice and the endings.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

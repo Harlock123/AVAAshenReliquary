@@ -2099,6 +2099,33 @@ public sealed partial class WorldView : Control
         }
         if (World?.CandleColour(who) is { } flame)
             DrawCandleFlame(canvas, ToScreen(who.X, who.Y), flame, time);
+        // A keepsake of Malachar's daughter glints where it lies until it is found (daughter_toy: the flag daughter.toy).
+        if (who.Thing?.Action == "keepsake" && World?.Flag(who.Id.Replace("daughter_", GameWorld.DaughterFlag)) is null)
+            DrawGlint(canvas, ToScreen(who.X, who.Y), time + who.X);
+    }
+
+    /// <summary>A small glint on the ground: a soft glow and a four-pointed star that turns and twinkles.</summary>
+    private void DrawGlint(SKCanvas canvas, SKPoint foot, double time)
+    {
+        var z = (float)Zoom;
+        var at = new SKPoint(foot.X, foot.Y - 6 * z);
+        var twinkle = (float)(0.55 + 0.45 * Math.Sin(time * 3.3));
+        using var halo = new SKPaint { IsAntialias = true, Shader = SKShader.CreateRadialGradient(at, 16 * z,
+            [new SKColor(255, 235, 190, (byte)(110 * twinkle)), new SKColor(255, 235, 190, 0)], SKShaderTileMode.Clamp) };
+        canvas.DrawCircle(at, 16 * z, halo);
+        using var star = new SKPaint { IsAntialias = true, Color = new SKColor(255, 248, 225, (byte)(150 + 100 * twinkle)) };
+        var (r, w) = (9 * z * (0.7f + 0.3f * twinkle), 1.6f * z);
+        using var path = new SKPath();
+        path.MoveTo(at.X, at.Y - r);
+        path.LineTo(at.X + w, at.Y - w);
+        path.LineTo(at.X + r, at.Y);
+        path.LineTo(at.X + w, at.Y + w);
+        path.LineTo(at.X, at.Y + r);
+        path.LineTo(at.X - w, at.Y + w);
+        path.LineTo(at.X - r, at.Y);
+        path.LineTo(at.X - w, at.Y - w);
+        path.Close();
+        canvas.DrawPath(path, star);
     }
 
     /// <summary>A pack leader's chevron over its head: gold while it has a pack to drive, grey once it stands alone.</summary>

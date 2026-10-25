@@ -322,6 +322,17 @@
    "dialogue": "ember_altar"
   },
   {
+   "id": "daughter_ember_gate",
+   "name": "A small grave",
+   "at": [
+    29,
+    17
+   ],
+   "dialogue": "daughter_ember_gate",
+   "action": "keepsake",
+   "blocks": false
+  },
+  {
    "id": "beacon",
    "name": "The beacon",
    "at": [

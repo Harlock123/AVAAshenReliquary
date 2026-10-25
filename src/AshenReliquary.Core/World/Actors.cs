@@ -459,6 +459,10 @@ public sealed class MonsterActor : Actor
     internal double NovaIn { get; set; }
     internal int StrikesMade { get; set; }
 
+    /// <summary>The Heart's Pull: when it next pulls, and until when it staggers from a pull lost.</summary>
+    internal double PullIn { get; set; }
+    public double StaggeredUntil { get; internal set; }
+
     /// <summary>A corpse that will stand again unless it is destroyed.</summary>
     public bool IsRising => IsDead && RisesIn > 0;
 

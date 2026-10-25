@@ -336,6 +336,9 @@ public class CampaignReport(ITestOutputHelper output)
             if (Hero.HitPoints < Hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                 _potions++;
             Tactics.Upkeep(world);
+            // Malachar's parley (his daughter's toy): show it to him.
+            if (world.Parleying && world.Dialogue is not null)
+                world.Choose(0);
             if (BalanceReport.StepOutOfPool(world, ref _nextDodge) is not null)
             {
                 _route = null;

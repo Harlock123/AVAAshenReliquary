@@ -103,7 +103,8 @@ ECHO_LEVEL = 16
 FAINT = {"echo": True, "echoHealth": 0.4, "echoPhases": 1, "dormant": True}
 spawns = [
     # Malachar first: the HUD's bar follows the first boss awake.
-    pack(("malachar", P, 1, None, LEADS), (INQ, N, 2), (ZEAL, N, 2), at=[throne[0], throne[1]], radius=2.5, level=20),
+    pack(("malachar", P, 1, None, LEADS), (INQ, N, 2), (ZEAL, N, 2), at=[throne[0], throne[1]], radius=2.5, level=20,
+         unless={"act5.malachar": "spared"}),
     # The Echoes of the relics left undealt with, round the dais.
     pack(("mother_sallow", B, 1, None, FAINT), at=[throne[0] - 8, throne[1] + 1], radius=0, level=ECHO_LEVEL,
          unless={"act1.sallow_relic": "destroyed"}),
@@ -142,6 +143,12 @@ zone = {
     "exits": [
         {"id": "stair", "label": "The Reliquary", "at": [cx, H - 2], "radius": 1.5, "to": "reliquary", "toExit": "throne",
          "arrive": start},
+    ],
+    # Malachar spared (shown his daughter's toy, M5 step 3) sits on the Throne's step.
+    "npcs": [
+        {"id": "malachar_spared", "name": "Malachar Vane", "title": "Spared", "at": [throne[0], throne[1] - 2], "facing": 2, "still": True,
+         "dialogue": "malachar_spared", "requires": {"act5.malachar": "spared"},
+         "look": {"head": "mage_hood", "chest": "mage_vest", "hands": "mage_sleeves", "legs": "mage_skirt", "feet": "mage_boots"}},
     ],
     "interactables": [
         {"id": "throne", "name": "The Cinder Throne", "at": [throne_at[0], throne_at[1] + 1], "dialogue": "cinder_throne_seat", "blocks": False},

@@ -54,6 +54,8 @@ public sealed partial class GameWorld
         CallEchoes(m, phase, dt);
         UpdateChoir(m, boss, phase, dt);
         UpdateBurning(m, phase, dt);
+        if (UpdatePull(m, phase, dt))
+            return true;
 
         if (phase.PoolEverySeconds > 0)
         {
@@ -242,6 +244,8 @@ public sealed partial class GameWorld
         m.LandedUntil = 0;
         m.CrumbleIn = 2;
         EnterBurning(m, phase);
+        m.PullIn = 1.5;
+        BeginParley(m, phase);
         if (phase.Banner is { } banner)
         {
             // The standard goes up beside the boss's home; it rallies the legion until it is broken.
@@ -335,6 +339,7 @@ public sealed partial class GameWorld
             ResetChoir(m);
             ResetWyrm(m);
             ResetBurning(m);
+            ResetPull(m);
             m.AlliesCalled = false;
             m.CallEchoIn = m.Definition.Boss.Phases[0].CallsEchoEverySeconds;
             _monsters.RemoveAll(x => x.SummonedBy == m);
@@ -410,6 +415,7 @@ public sealed partial class GameWorld
         if (boss.Court)
         {
             ResetBurning(m);
+            ResetPull(m);
             foreach (var other in _monsters.Where(x => x != m && !x.IsDead).ToList())
             {
                 other.Creature.TakeDamage(other.Creature.HitPoints);

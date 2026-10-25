@@ -82,9 +82,14 @@ public partial class MainWindow : Window
         settings.Save();
     }
 
-    /// <summary>Alt held shows every loot label, filtered or not; Ctrl held turns clicks into attacks on the nearest monster.</summary>
+    /// <summary>
+    /// Alt held shows every loot label, filtered or not; Ctrl held turns clicks into attacks on the nearest monster. Space
+    /// let go may press the Heart's Pull again.
+    /// </summary>
     private void OnKeyUp(object? sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Space)
+            _spaceHeld = false;
         if (e.Key is Key.LeftAlt or Key.RightAlt)
             World.ShowAllLoot = false;
         if (e.Key is Key.LeftCtrl or Key.RightCtrl)
@@ -96,6 +101,9 @@ public partial class MainWindow : Window
     public TitleView TitleScreen => TitlePage;
     public bool MenuOpen => GameMenu.IsVisible;
     public bool Paused { get; private set; }
+
+    /// <summary>Space is down: in the Heart's Pull each press counts once (a key held and repeating doesn't).</summary>
+    private bool _spaceHeld;
 
     public GameSession? Session
     {
@@ -334,6 +342,12 @@ public partial class MainWindow : Window
                 break;
             case Key.Q or Key.H:
                 world.DrinkPotion();
+                break;
+            // In the Heart's Pull, Space holds on to the Heart (P still pauses).
+            case Key.Space when world.Pull is not null || _spaceHeld:
+                if (!_spaceHeld)
+                    world.PullHarder();
+                _spaceHeld = true;
                 break;
             case Key.Space or Key.P:
                 Paused = !Paused;

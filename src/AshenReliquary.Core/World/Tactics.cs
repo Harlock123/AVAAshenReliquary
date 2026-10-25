@@ -28,12 +28,18 @@ namespace AshenReliquary.Core.World;
 /// </summary>
 public static class Tactics
 {
-    /// <summary>What to see to between fights as well as in them: poison gets an antidote.</summary>
+    /// <summary>What to see to between fights as well as in them: poison gets an antidote, the Heart's Pull its presses.</summary>
     public static void Upkeep(GameWorld world)
     {
         if (world.Hero.Character.Persistent.DiceFor(DamageType.Poison) is not null && Belt(world, "antidote") is { } antidote)
             world.UseBelt(antidote, null);
+        // In the Heart's Pull: Space pressed at a person's pace.
+        if (world.Pull is { } pull && world.Time - pull.LastPressAt >= 1 / PullPresses)
+            world.PullHarder();
     }
+
+    /// <summary>How often a bot presses Space in the Heart's Pull, a second (a person mashing a key manages 6 to 8).</summary>
+    public const double PullPresses = 6;
 
     /// <summary>How many tries a bot gives a trap before it walks round it.</summary>
     public const int DisarmTries = 3;
@@ -201,7 +207,7 @@ public static class Tactics
                 ("assassinate", distance < 1.8 && tough, target, null),
                 ("caltrops", Within(2.5) >= 2, null, null),
                 ("killshot", tough && distance < 10, target, null),
-                ("hunt_as_one", tough && world.Allies.Any(a => !a.IsDead), target, null),
+                ("hunt_as_one", tough && distance < 9 && world.Allies.Any(a => !a.IsDead), target, null),
                 ("meteor", distance < 10 && Near(target, 3.5) >= 2, target, null),
                 ("ball_lightning", distance < 9 && Near(target, 2.5) >= 2, target, null),
                 ("one_shot_one_kill", tough && distance < 13, target, null),
@@ -338,7 +344,8 @@ public static class Tactics
                 world.UseAbility(slot, null);
             else if (Ready("corpse_explosion", out slot) && world.Monsters.Count(m => !m.IsDead && m.DistanceTo(target) < 2.2) >= 2)
                 world.UseAbility(slot, target);
-            else if (Ready("bone_rush", out slot) && standing >= 2 && target.Creature.Stats.Rank >= CreatureRank.Champion)
+            // Bone Rush reaches 10 tiles (a boss rooted beyond it, Malachar at his Throne, is walked to instead).
+            else if (Ready("bone_rush", out slot) && standing >= 2 && target.Creature.Stats.Rank >= CreatureRank.Champion && distance <= 10)
                 world.UseAbility(slot, target);
             else if (Ready("siphon_life", out slot) && c.HitPoints < c.MaxHitPoints * 0.7)
                 world.UseAbility(slot, target);

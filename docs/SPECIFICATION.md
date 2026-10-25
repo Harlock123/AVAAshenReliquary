@@ -686,7 +686,7 @@ The build order proves the rules engine and one playable act before widening con
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
 5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones; step 9 done: Vorthrax the Cinderwyrm, so Act 4 is whole to the Reliquary; step 10 done: the campaign through all four acts and beginning at an act; the exit test waits on the user's play of Acts 2–4).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
-6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
+6. **M5 — Climax and endings.** *In progress (plan: `docs/M5_PLAN.md`; step 1 done: the Cinder Throne and Malachar's court; step 2 done: the Burning God; step 3 done: the Heart's Pull and Malachar's Daughter).* Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** *Planned (`docs/M6_PLAN.md`, which adds Mythic tiers past level 20 and the Ashen Depths).* Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
 ### MVP (first playable)
@@ -2103,6 +2103,49 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 - **Tests:** `BurningGodTests` (the phase and its lights, the Taint rising faster and a light cleansing it, the god's
   burn at the whispers, a nova once and a Step through it, the damage share and fire and void, all of it gone on a fall
   or his death); `ThroneUiTests` photographs the lights and a nova.
+
+### The Heart's Pull and Malachar's Daughter (M5 step 3)
+
+- **Malachar's last phase**, below a quarter of his health (`GameWorld.HeartsPull.cs`, phase `pull`): he goes back to the
+  Throne and roots there (`fuses`), and every 12 s (`pullEverySeconds`; the first 1.5 s into the phase) he reaches for
+  the Ember Heart.
+- **The pull** (`HeartsPull`, `GameWorld.Pull`): a meter from 0 to 100, starting at 50. The hero is held while it lasts
+  (no moving, Stepping, striking or casting; `HeldBySong` refuses commands, and the hero's update stands them still). Every
+  1.5 s a Fortitude save against Malachar's DC moves it: a critical success +25, a success +12, a failure −10, a critical
+  failure −20. Each press of **Space** since the last check adds 1 to it, at most 10 (`PullHarder`; a held key that
+  repeats counts once, and P still pauses). At 100 the Heart holds: Malachar staggers for 4 s (no attacks) and pulls again
+  12 s later. At 0 he tears it half out and the hero falls. He and his court go on striking while he pulls.
+- **The HUD:** a tug of war across the middle of the screen, the Heart's gold against his ash, "press Space!", the last
+  check's word and the presses counted toward the next.
+- **Malachar's Daughter** (decision 4), a side story told in five pieces, each a `keepsake` interactable that glints where
+  it lies until it is found:
+  - **the toy:** Wren's carved lantern-bird (`lantern_bird`, a key item with a swallow glyph), in the refugee camp at the
+    Gallows Road's north end (`daughter.toy` = carried);
+  - **four memories** (`daughter.<place>` = found; their count is `daughter.memories`, kept by `CountMemories`): a
+    physicians' ledger in Ironhold's refugee yard (the city turned them away at the gate), the hospice register at Saint
+    Oriel's Rest (the sisters gave her to "the Lantern's mercy"), her grave under the Ember Gate's beacon, and Malachar's
+    journal on a bier in the Reliquary's Sanctum (he is building the god a body to ask it for her back).
+  - Each writes its own journal entry. The zones' layouts are unchanged (no revision bumps).
+- **The parley** (boss `parley`, `parleyIf`): carrying the toy into the last phase, with no parley tried before
+  (`act5.parley` unset), the fight stops (`Parleying`: every monster and ally holds) and Malachar's dialogue opens,
+  however far off the hero stands. Showing him the bird is a Diplomacy check that the memories make easier: DC 44 with
+  none, 40, 36, 32, and no check with all four. Moved, he is spared (dialogue effect `spare`): his court falls to ash, he
+  leaves the fight and sits on the Throne's step (the NPC `malachar_spared`, there while `act5.malachar` = spared), and
+  his pack never stands again (`unless`). Refused, or turned from, the pull begins. Either way he keeps the bird.
+- **A bug found on the way:** a pack leader's war cry healed the leader too (it counted itself among those it led), a
+  tenth of its health every 10 s. Malachar leads his court, so he had been healing himself through steps 1 and 2; that,
+  not his phases, was what kept the worst case so long. Leaders now heal only their pack (every Act 4 captain too), and
+  Malachar's health went up to compensate (`hitPointsScale` 0.1 to 0.16).
+- **The bots** press Space six times a second in the pull (`Tactics.Upkeep`, `Tactics.PullPresses`), show Malachar the
+  bird at a parley, send their allies only within reach (Bone Rush within 10 tiles, Hunt as One within 9: a boss rooted
+  beyond them left the necromancer and Beastmaster waiting forever).
+- **Balance** (`Cinder_Throne_at_level_20`, one run each, the whole zone with the starting kit at 20): with every relic
+  dealt with and the beacon lit, 0–2 deaths in 1.2–3.8 minutes; with every relic left undealt with, 0–15 deaths in
+  1.4–11 minutes (the Stormcaller, Trickster and Sniper the most; the Champions and the Bonelord none).
+- **Tests:** `HeartsPullTests` (rooted and holding, presses and the stagger, falling at 0, the shift by degree, the
+  parley sparing him with every memory, turning from it, no parley without the toy, the five keepsakes reachable and
+  counted); `ThroneUiTests` (Space pressing the pull without pausing, the parley and the spared Malachar, the toy's glint);
+  `ActFourTests` (a leader's cry doesn't heal itself).
 
 ### The in-game guide (after M4)
 

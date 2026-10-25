@@ -2199,5 +2199,15 @@
   "weight": 0,
   "minLevel": 2,
   "description": "Fired from a gun: a spread of shot, a Strike at the target and up to three more in front of you. Cast from black powder and lead shot at a forge."
+ },
+ {
+  "id": "lantern_bird",
+  "name": "Carved lantern-bird",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "gem",
+  "glyph": "bird",
+  "description": "A child's toy: a little bird whittled from pale wood, a lantern painted on each wing, worn smooth by small hands. WREN is cut under its tail."
  }
 ]

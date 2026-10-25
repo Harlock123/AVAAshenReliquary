@@ -58,6 +58,10 @@ undealt with) cost up to 113 deaths a run.*
 
 ### 3. The Heart's Pull (phase 3) and Malachar's Daughter
 
+*Done (2026-10-25): spec section 16, "The Heart's Pull and Malachar's Daughter". The daughter is Wren (the Rest already
+has an Abbess Ilse); the toy is on the Gallows Road's north end, the refugee camp outside Fort Gallowmere. A leader's cry
+had been healing Malachar himself; fixed for every leader, and his health raised to 0.16.*
+
 - **The Heart's Pull:** Malachar tries to tear the Ember Heart out. It is a tug of war of Fortitude checks, and pressing
   Space quickly improves each degree; at the same time he still attacks, and losing the pull means falling.
 - **Malachar's Daughter (Act 4's hidden story):** a child's toy found in Act 1, and a memory of her in each act after.

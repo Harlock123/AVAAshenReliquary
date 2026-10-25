@@ -315,7 +315,10 @@
      "count": 2
     }
    ],
-   "level": 20
+   "level": 20,
+   "unless": {
+    "act5.malachar": "spared"
+   }
   },
   {
    "at": [
@@ -506,6 +509,30 @@
     26,
     59
    ]
+  }
+ ],
+ "npcs": [
+  {
+   "id": "malachar_spared",
+   "name": "Malachar Vane",
+   "title": "Spared",
+   "at": [
+    26,
+    15
+   ],
+   "facing": 2,
+   "still": true,
+   "dialogue": "malachar_spared",
+   "requires": {
+    "act5.malachar": "spared"
+   },
+   "look": {
+    "head": "mage_hood",
+    "chest": "mage_vest",
+    "hands": "mage_sleeves",
+    "legs": "mage_skirt",
+    "feet": "mage_boots"
+   }
   }
  ],
  "interactables": [

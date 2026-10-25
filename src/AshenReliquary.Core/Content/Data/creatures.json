@@ -1537,7 +1537,7 @@
   "caster": true,
   "scale": 1.15,
   "tint": "#f0d8c8",
-  "hitPointsScale": 0.1,
+  "hitPointsScale": 0.16,
   "named": true,
   "rareDrop": true,
   "voice": "cultist",
@@ -1620,8 +1620,23 @@
       "Fire",
       "Void"
      ]
+    },
+    {
+     "below": 0.25,
+     "name": "The Heart's Pull",
+     "fuses": true,
+     "pull": true,
+     "pullCheckSeconds": 1.5,
+     "pullEverySeconds": 12,
+     "pullStaggerSeconds": 4,
+     "pullPressCap": 10
     }
-   ]
+   ],
+   "parley": "malachar_parley",
+   "parleyIf": {
+    "daughter.toy": "carried",
+    "act5.parley": ""
+   }
   }
  },
  {

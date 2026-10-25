@@ -929,6 +929,19 @@
    "facing": 1
   }
  ],
+ "interactables": [
+  {
+   "id": "daughter_toy",
+   "name": "A child's toy",
+   "at": [
+    38,
+    10
+   ],
+   "dialogue": "daughter_toy",
+   "action": "keepsake",
+   "blocks": false
+  }
+ ],
  "npcs": [
   {
    "id": "scarecrow",

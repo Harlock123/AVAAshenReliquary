@@ -177,6 +177,12 @@ public sealed partial class GameWorld
         ally.Advance(dt);
         if (ally.HitFlinch > 0)
             ally.HitFlinch -= dt;
+        // A parley holds the fight: the hero's allies lower their blades too.
+        if (_parley is not null && !ally.IsDead)
+        {
+            ally.Play("stance");
+            return;
+        }
         if (ally.IsDead)
         {
             if (ally.IsMinion)

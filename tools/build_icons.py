@@ -85,6 +85,8 @@ ICONS = {
     "perfect_shot": "delapouite/crosshair",
     # Act 4's key item: the Wyrm's Egg; and the drakeling, the pet that hatches from it
     "egg": "lorc/dinosaur-egg", "pet": "lorc/egg-clutch",
+    # The Epilogue's key item (M5 step 3): Malachar's daughter's carved lantern-bird
+    "bird": "delapouite/swallow",
 }
 
 AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll",

@@ -80,7 +80,7 @@ public sealed partial class GameWorld
     {
         if (Hero.InteractTarget is { } who && who.DistanceTo(Hero.X, Hero.Y) <= TalkRadius)
             StartDialogue(who);
-        if (_speaker is { } speaker && speaker.DistanceTo(Hero.X, Hero.Y) > TalkRadius + 2.5)
+        if (_speaker is { } speaker && speaker.DistanceTo(Hero.X, Hero.Y) > TalkRadius + 2.5 && _parley is null)
             EndDialogue();
         if (StashOpenAt is { } chest && chest.DistanceTo(Hero.X, Hero.Y) > TalkRadius + 2.5)
             CloseStash();
@@ -150,6 +150,7 @@ public sealed partial class GameWorld
         _node = null;
         _speaker = null;
         Dialogue = null;
+        EndParley();
         // A conversation may have settled someone's fate: whoever is there only while flags hold leaves.
         _interactives.RemoveAll(i => i.Npc is { Requires: not null } npc && !Holds(npc.Requires));
     }
@@ -258,6 +259,8 @@ public sealed partial class GameWorld
             SetFlag(flag, effect.Value ?? "true");
             if (flag.StartsWith(LibraryPageFlag, StringComparison.Ordinal))
                 ReadLibraryPage();
+            if (flag.StartsWith(DaughterFlag, StringComparison.Ordinal))
+                CountMemories();
         }
         if (effect.Journal is { } entry)
             WriteJournal(entry);
@@ -293,6 +296,8 @@ public sealed partial class GameWorld
             if (index >= 0)
                 Hero.Equipment.TakeFromBag(index);
         }
+        if (effect.Spare)
+            SpareParley();
         if (effect.Boon is { } boon && Hero.Character.Content?.Feats.GetValueOrDefault(boon) is { } feat)
         {
             SetFlag(BoonFlag(boon), "granted");

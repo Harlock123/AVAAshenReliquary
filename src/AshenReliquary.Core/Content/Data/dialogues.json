@@ -3352,6 +3352,12 @@
         "requires": {
           "act5.malachar": "slain"
         }
+      },
+      {
+        "node": "empty",
+        "requires": {
+          "act5.malachar": "spared"
+        }
       }
     ],
     "nodes": {
@@ -3360,6 +3366,321 @@
       },
       "empty": {
         "text": "The Throne stands empty, and the bones behind it are cold. The shard in your chest is not: it pulls toward them, gently, like a tide. Whatever is to be decided here will be decided by you. (The endings are still being written.)"
+      }
+    }
+  },
+  {
+    "id": "daughter_toy",
+    "start": "start",
+    "openings": [
+      {
+        "node": "gone",
+        "requires": {
+          "daughter.toy": "carried"
+        }
+      },
+      {
+        "node": "gone",
+        "requires": {
+          "daughter.toy": "shown"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "In the ash of a burnt-out tent, half buried, a little bird whittled from pale wood, a lantern painted on each wing. An old woman by the fire watches you pick it up. \"That's Wren Vane's. Was. The lantern priest's girl, years back, before he went up the mountain and came down calling himself a prophet. She took the grey rot the summer the well went bad. He carried her north to find a cure, and he never brought her back.\" She looks away. \"Nobody here will take it. Nobody wants his luck.\"",
+        "choices": [
+          {
+            "text": "Take the bird.",
+            "to": "take"
+          },
+          {
+            "text": "Leave it in the ash."
+          }
+        ]
+      },
+      "take": {
+        "text": "It is lighter than it looks. WREN is cut under its tail, in a child's careful letters.",
+        "effects": [
+          {
+            "flag": "daughter.toy",
+            "value": "carried"
+          },
+          {
+            "item": "lantern_bird"
+          },
+          {
+            "journal": {
+              "id": "daughter_toy",
+              "title": "Malachar's Daughter: the lantern-bird",
+              "kind": "side",
+              "text": "In the refugee camp at Fort Gallowmere I found a child's toy, a lantern-bird carved from pale wood. It was Wren Vane's: Malachar Vane's daughter, before he was the Ashen Prophet. She took the grey rot; he carried her north to find a cure, and never brought her back."
+            }
+          }
+        ]
+      },
+      "gone": {
+        "text": "Only ash, where the tent stood."
+      }
+    }
+  },
+  {
+    "id": "daughter_ironhold",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "daughter.ironhold": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A ledger left out in the rain by the refugee yard's well, its last pages still legible. In a physician's hand: \"Brother Malachar Vane, of Gallowmere, with his daughter Wren, nine years. The grey rot, advanced. Refused at the gate by order of the Lantern: no plague past the wall.\" Under it, in another hand, pressed so hard the nib tore the page: \"She is NINE.\"",
+        "effects": [
+          {
+            "flag": "daughter.ironhold",
+            "value": "found"
+          },
+          {
+            "journal": {
+              "id": "daughter_ironhold",
+              "title": "Malachar's Daughter: Ironhold",
+              "kind": "side",
+              "text": "In Ironhold, a physicians' ledger: the city turned Malachar and Wren away at the gate, by order of the Lantern. No plague past the wall. She was nine."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "You have read it already. You remember every word."
+      }
+    }
+  },
+  {
+    "id": "daughter_oriel",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "daughter.oriel": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "The cloister's hospice register lies open on its stand by the well, as if someone had come back to read it. \"Wren Vane, nine. The grey rot. Given to the Lantern's mercy.\" In the margin someone has written, and someone else has tried to scrape away: \"He begged us to try the fire in the mountain. We would not. It is forbidden.\"",
+        "effects": [
+          {
+            "flag": "daughter.oriel",
+            "value": "found"
+          },
+          {
+            "journal": {
+              "id": "daughter_oriel",
+              "title": "Malachar's Daughter: Saint Oriel's Rest",
+              "kind": "side",
+              "text": "At Saint Oriel's Rest, the hospice register: the sisters gave Wren to 'the Lantern's mercy'. Malachar begged them to try the mountain's fire, and they would not."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "You have read it already. You remember every word."
+      }
+    }
+  },
+  {
+    "id": "daughter_ember_gate",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "daughter.ember_gate": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A grave no longer than your arm, under the beacon, marked by a stone with a lantern scratched on it. Someone has kept it clear of ash. On the stone: WREN. And below, newer, cut deep: I WILL BRING YOU BACK.",
+        "effects": [
+          {
+            "flag": "daughter.ember_gate",
+            "value": "found"
+          },
+          {
+            "journal": {
+              "id": "daughter_ember_gate",
+              "title": "Malachar's Daughter: the Ember Gate camp",
+              "kind": "side",
+              "text": "At the Ember Gate, under the Order's beacon, a child's grave: WREN. Below, cut newer and deeper: I WILL BRING YOU BACK."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "You have read it already. You remember every word."
+      }
+    }
+  },
+  {
+    "id": "daughter_journal",
+    "start": "start",
+    "openings": [
+      {
+        "node": "again",
+        "requires": {
+          "daughter.journal": "found"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A journal left open on an empty bier, the writing neat at first and then not. \"The god's body is nearly whole. When it stands, it will owe me one thing, and I will ask for her. The Heart is the last piece. The one who carries it will understand, I think. They were dead too, once, on the gallows.\" The last page is a child's drawing of a bird, folded small, kept for years.",
+        "effects": [
+          {
+            "flag": "daughter.journal",
+            "value": "found"
+          },
+          {
+            "journal": {
+              "id": "daughter_journal",
+              "title": "Malachar's Daughter: the Sanctum",
+              "kind": "side",
+              "text": "In the Reliquary's Sanctum, Malachar's journal: he is building Ashur a body so that the god, standing, will give him back his daughter. The Ember Heart in my chest is the last piece."
+            }
+          }
+        ]
+      },
+      "again": {
+        "text": "You have read it already. You remember every word."
+      }
+    }
+  },
+  {
+    "id": "malachar_parley",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "Malachar's hand stops a finger's breadth from your chest. He is not looking at the Heart. He is looking at the little wooden bird at your belt. \"Where did you get that?\" The fire round him gutters. \"Where did you get that?\"",
+        "choices": [
+          {
+            "text": "Hold out the lantern-bird. \"You know what she would say.\"",
+            "to": "moved",
+            "requires": {
+              "daughter.memories": "4"
+            }
+          },
+          {
+            "text": "Hold out the lantern-bird. \"Ironhold shut its gate on her. Oriel let her die. Her grave says you'll bring her back. Will this?\"",
+            "requires": {
+              "daughter.memories": "3"
+            },
+            "check": {
+              "skill": "Diplomacy",
+              "dc": 32,
+              "success": "moved",
+              "failure": "refused"
+            }
+          },
+          {
+            "text": "Hold out the lantern-bird. \"Wren wouldn't want a god for a father.\"",
+            "requires": {
+              "daughter.memories": "2"
+            },
+            "check": {
+              "skill": "Diplomacy",
+              "dc": 36,
+              "success": "moved",
+              "failure": "refused"
+            }
+          },
+          {
+            "text": "Hold out the lantern-bird. \"It's Wren's. She'd want it back from you, not from him.\"",
+            "requires": {
+              "daughter.memories": "1"
+            },
+            "check": {
+              "skill": "Diplomacy",
+              "dc": 40,
+              "success": "moved",
+              "failure": "refused"
+            }
+          },
+          {
+            "text": "Hold out the lantern-bird. \"Is this what you're building him for?\"",
+            "requires": {
+              "daughter.memories": "0"
+            },
+            "check": {
+              "skill": "Diplomacy",
+              "dc": 44,
+              "success": "moved",
+              "failure": "refused"
+            }
+          },
+          {
+            "text": "Say nothing, and raise your weapon."
+          }
+        ]
+      },
+      "moved": {
+        "text": "He takes the bird from your hand as if it might break, and turns it over, and finds the letters under its tail with his thumb. For a long moment the only sound is the lava. \"She carved the wings too thin,\" he says. \"I told her they'd snap.\" Behind him the god's bones go dark, one by one, like lamps put out down a long hall. Malachar Vane sits down on the step of his Throne, the bird in both hands, and does not get up.",
+        "effects": [
+          {
+            "takeItem": "lantern_bird"
+          },
+          {
+            "flag": "daughter.toy",
+            "value": "shown"
+          },
+          {
+            "flag": "act5.parley",
+            "value": "spared"
+          },
+          {
+            "xp": 4000
+          },
+          {
+            "journal": {
+              "id": "act5_throne",
+              "title": "The Cinder Throne",
+              "kind": "main",
+              "text": "Under the Reliquary, in a cavern of black glass, Malachar Vane was building Ashur a body out of his own bones, to ask the god, once it stood, for his daughter back. I showed him Wren's lantern-bird. He put down the fire. He kneels by the Throne now, and the bones behind it are dark. The Heart is still mine."
+            }
+          },
+          {
+            "spare": true
+          }
+        ]
+      },
+      "refused": {
+        "text": "He closes his hand round the bird and takes it, and for a moment you think you have reached him. Then he puts it inside his robe, over his heart. \"She is in the fire now,\" he says. \"She is waiting. And you are the last thing between us.\" He reaches for the Heart.",
+        "effects": [
+          {
+            "takeItem": "lantern_bird"
+          },
+          {
+            "flag": "daughter.toy",
+            "value": "shown"
+          },
+          {
+            "flag": "act5.parley",
+            "value": "refused"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "malachar_spared",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "Malachar sits on the step of the Throne with Wren's bird in his hands. He does not look up. \"Whatever you mean to do with it,\" he says, \"do it. I am done asking gods for things.\""
       }
     }
   }

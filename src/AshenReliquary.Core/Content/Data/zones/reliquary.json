@@ -948,6 +948,17 @@
     172
    ],
    "dialogue": "reliquary_biers"
+  },
+  {
+   "id": "daughter_journal",
+   "name": "Malachar's journal",
+   "at": [
+    34,
+    172
+   ],
+   "dialogue": "daughter_journal",
+   "action": "keepsake",
+   "blocks": false
   }
  ]
 }

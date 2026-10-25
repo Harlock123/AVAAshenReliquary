@@ -689,6 +689,9 @@ public class BalanceReport(ITestOutputHelper output)
                 if (hero.HitPoints < hero.MaxHitPoints * 0.45 && world.Hero.HealRemaining <= 0 && world.DrinkPotion())
                     potions++;
                 Tactics.Upkeep(world);
+                // Malachar's parley (his daughter's toy): show it to him.
+                if (world.Parleying && world.Dialogue is not null)
+                    world.Choose(0);
                 var target = world.Monsters
                     .Where(m => world.CanTarget(m) && (m.State != MonsterState.Idle || m.DistanceTo(world.Hero) < 5))
                     .MinBy(m => m.DistanceTo(world.Hero));

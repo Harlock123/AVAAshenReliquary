@@ -444,6 +444,17 @@
    ],
    "tile": 1293,
    "dialogue": "oriel_altar"
+  },
+  {
+   "id": "daughter_oriel",
+   "name": "The hospice register",
+   "at": [
+    28,
+    17
+   ],
+   "dialogue": "daughter_oriel",
+   "action": "keepsake",
+   "blocks": false
   }
  ],
  "vendors": [

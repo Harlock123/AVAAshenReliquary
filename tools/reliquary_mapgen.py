@@ -181,6 +181,8 @@ zone = {
     ],
     "interactables": [
         {"id": "biers", "name": "The empty biers", "at": [cx, 172], "dialogue": "reliquary_biers"},
+        # Malachar's Daughter (M5 step 3): his journal, left open on a bier.
+        {"id": "daughter_journal", "name": "Malachar's journal", "at": open_cell(rows, cx + 6, 172), "dialogue": "daughter_journal", "action": "keepsake", "blocks": False},
     ],
 }
 write(zone, sys.argv[1])

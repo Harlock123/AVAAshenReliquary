@@ -10,6 +10,7 @@
 #
 # Deterministic. Bump REVISION whenever the layout changes.
 import json, sys
+from cinder_common import open_cell
 
 REVISION = 1
 W, H = 40, 38
@@ -141,6 +142,9 @@ zone = {
     "interactables": [
         {"id": "stash", "name": "Stash", "at": [cx - 3, my + 1], "tile": 76, "action": "stash"},
         {"id": "altar", "name": "Founders' altar", "at": [cx - 9, my - 4], "tile": 1293, "dialogue": "ironhold_altar"},
+        # Malachar's Daughter (M5 step 3): a physicians' ledger by the refugee yard's well.
+        {"id": "daughter_ironhold", "name": "A physicians' ledger", "at": open_cell(rows, x0 + 9, my + 8, ok=".,="), "dialogue": "daughter_ironhold",
+         "action": "keepsake", "blocks": False},
     ],
     "vendors": [
         {"id": "hilde", "name": "Hilde", "title": "Smith", "at": [cx + 8, my + 5], "facing": 5, "stockSize": 12,
