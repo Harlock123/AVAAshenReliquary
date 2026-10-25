@@ -125,6 +125,9 @@ public sealed class HeroActor : Actor
     /// <summary>Cold exposure, 0 to 100 (a cold zone's: chilled at half, freezing at full).</summary>
     public double Cold { get; internal set; }
 
+    /// <summary>When the embers underfoot next burn (Act 4's lava fields).</summary>
+    internal double BurnIn { get; set; }
+
     /// <summary>True during a Step dodge: monsters' blows pass through.</summary>
     public bool IsDodging => DodgeRemaining > 0;
     internal double FlourishReadyAt { get; set; }
@@ -248,6 +251,9 @@ public sealed class AllyActor : Actor
 
     /// <summary>A Necromancer's skeleton: it doesn't come back once it falls, and it crumbles when the hero does.</summary>
     public bool IsMinion { get; init; }
+
+    /// <summary>A pet the hero keeps beside any companion (the drakeling hatched at the Ember Gate): it comes back as one does.</summary>
+    public bool IsPet { get; init; }
 
     /// <summary>When a summoned ally goes (game time; Call of the Pack's wolves), or never.</summary>
     public double ExpiresAt { get; init; } = double.PositiveInfinity;
@@ -404,6 +410,23 @@ public sealed class MonsterActor : Actor
 
     /// <summary>A boss phase's late arrival (Brother Caddoc) has come.</summary>
     internal bool Joined { get; set; }
+
+    /// <summary>Act 4's pack leader that drives this one (null without one); a leader leads itself.</summary>
+    public MonsterActor? Leader { get; internal set; }
+
+    /// <summary>It leads its pack: it drives the others while it stands, and cries them on.</summary>
+    public bool IsLeader { get; internal set; }
+
+    /// <summary>When its leader's war cry quickens it until.</summary>
+    public double CriedUntil { get; internal set; }
+
+    internal double CryIn { get; set; }
+
+    /// <summary>A Herald's Echo (the Reliquary): weaker, without its last phase, its death nothing of the Herald's own.</summary>
+    public bool IsEcho { get; internal set; }
+
+    /// <summary>An Echo whose sisters stay away (the Choir half laid to rest).</summary>
+    public bool EchoAlone { get; internal set; }
 
     /// <summary>A corpse that will stand again unless it is destroyed.</summary>
     public bool IsRising => IsDead && RisesIn > 0;

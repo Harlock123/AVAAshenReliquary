@@ -166,7 +166,7 @@ internal sealed class Minimap
         for (var y = 0; y < map.Height; y++)
         for (var x = 0; x < map.Width; x++)
         {
-            if (!world.IsExplored(x, y) || (dungeon ? DungeonColour(map, x, y) : CellColour(map, x, y, world.Zone.Snowy)) is not { } colour)
+            if (!world.IsExplored(x, y) || (world.Zone.Ashen ? AshenColour(map, x, y) : dungeon ? DungeonColour(map, x, y) : CellColour(map, x, y, world.Zone.Snowy)) is not { } colour)
                 continue;
             paint.Color = colour;
             var c = At(x + 0.5, y + 0.5);
@@ -194,6 +194,22 @@ internal sealed class Minimap
         if (map.BlocksSight(x, y) && map.Ground(x, y) < 0)
             return new SKColor(128, 116, 98);
         return map.IsBlocked(x, y) ? new SKColor(92, 84, 72) : new SKColor(58, 52, 46);
+    }
+
+    /// <summary>Act 4's: grey ash, glowing lava, dark red embers, pale stone walls, flagstones.</summary>
+    private static SKColor? AshenColour(TileMap map, int x, int y)
+    {
+        if (map.Ground(x, y) < 0 && map.Objects(x, y).Count == 0)
+            return null;
+        if (map.IsLava(x, y))
+            return map.IsBlocked(x, y) ? new SKColor(214, 92, 30) : new SKColor(130, 96, 70);
+        if (map.IsEmbers(x, y))
+            return new SKColor(120, 46, 26);
+        if (map.IsGate(x, y))
+            return new SKColor(255, 190, 110);
+        if (map.IsBlocked(x, y))
+            return map.BlocksSight(x, y) ? new SKColor(128, 120, 112) : new SKColor(92, 86, 80);
+        return map.Ground(x, y) >= 1000 ? new SKColor(84, 80, 76) : new SKColor(64, 60, 58);
     }
 
     private static SKColor? CellColour(TileMap map, int x, int y, bool snowy = false)

@@ -135,6 +135,12 @@ public enum AbilityKind
 /// of <see cref="DamageType"/>, its <see cref="Dice"/> of vitality against the undead when <see cref="Holy"/>, or a
 /// spread at <see cref="Targets"/> enemies within <see cref="Arc"/>). A gun's Strike at more than one target is a
 /// spread of shot, not a sweep.</item>
+/// <item>The level-16 capstones (M4 step 8) are auras that change the hero while they last: <see cref="AttackRate"/>
+/// times as many blows (Unstoppable), <see cref="Steadfast"/> (no stun, hold, slow, fear, fall or song takes them),
+/// <see cref="RegenShare"/> of their HP back a pulse (Avatar of the Lantern), allies dealing <see cref="MinionDamage"/>
+/// more (Lich Form), every monster within <see cref="Radius"/> their prey (<see cref="AllPrey"/>: Hunter's Apex), the next
+/// Strike that hits a critical hit (<see cref="SureCritical"/>: Death Mark, which it ends), and guns that never empty
+/// (<see cref="FreeReloads"/>).</item>
 /// </list>
 /// </summary>
 public sealed record AbilityDefinition(
@@ -206,7 +212,14 @@ public sealed record AbilityDefinition(
     bool NeedsFirearm = false,
     bool Reloads = false,
     bool SpendLoad = false,
-    bool Round = false)
+    bool Round = false,
+    double AttackRate = 1.0,
+    bool Steadfast = false,
+    double RegenShare = 0,
+    double MinionDamage = 0,
+    bool AllPrey = false,
+    bool SureCritical = false,
+    bool FreeReloads = false)
 {
     public bool Has(string trait) => Traits?.Contains(trait, StringComparer.OrdinalIgnoreCase) == true;
 

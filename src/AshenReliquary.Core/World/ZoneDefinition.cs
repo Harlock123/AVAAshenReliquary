@@ -12,10 +12,11 @@ namespace AshenReliquary.Core.World;
 /// what kind of ground it is ("bog" for flooded flagstones). <see cref="Light"/> makes the cell a light (a torch, a
 /// brazier, a shaft of moonlight) of that radius in tiles, in <see cref="LightColor"/>. <see cref="Cover"/>: a low
 /// wall, a cart or a barricade, seen over but not shot through cleanly: a ranged attack across it at someone close behind
-/// it is against cover (see <see cref="TileMap.InCover"/>).
+/// it is against cover (see <see cref="TileMap.InCover"/>). <see cref="Bridge"/>: lava ground ("lava") that can be
+/// walked, a walkway laid over it.
 /// </summary>
 public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = null, bool Blocks = false, bool BlocksSight = false, bool Stack = false,
-    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null, bool Cover = false);
+    IReadOnlyList<int>? Tiles = null, double Light = 0, string? LightColor = null, bool Cover = false, bool Bridge = false);
 
 /// <summary>
 /// A condition a monster's hits lay on the hero (a crowd-control caster's): <see cref="Condition"/> of
@@ -23,17 +24,33 @@ public sealed record LegendEntry(string Ground, IReadOnlyList<int>? Objects = nu
 /// </summary>
 public sealed record InflictDefinition(ConditionKind Condition, int Value = 1, double Seconds = 3, StatisticKind Save = StatisticKind.Will);
 
-/// <summary>One monster in a pack: a creature id, its rank and any monster affixes ("vengeful").</summary>
-public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null);
+/// <summary>
+/// One monster in a pack: a creature id, its rank and any monster affixes ("vengeful"). <see cref="Leads"/>: Act 4's
+/// pack leader, who drives the rest of its pack (the AI's fourth behaviour, <see cref="GameWorld.LeaderTiles"/>).
+/// <see cref="Echo"/>: a Herald's Echo (the Reliquary's gauntlet): a Herald come back at
+/// <see cref="GameWorld.EchoHealth"/> of its health, without its last phase, its death setting no flag of its own;
+/// <see cref="Alone"/>: one whose sisters stay away (the Choir's, half laid to rest).
+/// </summary>
+public sealed record PackMember(string Creature, CreatureRank Rank = CreatureRank.Normal, int Count = 1, IReadOnlyList<string>? Affixes = null,
+    bool Leads = false, bool Echo = false, bool Alone = false);
 
 /// <summary>
 /// A pack placed on the map. Members scatter within <see cref="Radius"/> tiles of <see cref="At"/>. <see cref="Level"/>
 /// sets the pack's level where it differs from the zone's (the Fens run from 2 to 3). When the whole pack has fallen,
 /// world flag <see cref="Flag"/> is set to <see cref="Value"/> (a side story's "clear the camp"), and <see cref="Says"/>
-/// goes up as a message (the Hollow Abbot's fall clears the stair to the Bell Tower).
+/// goes up as a message (the Hollow Abbot's fall clears the stair to the Bell Tower). A pack comes only while the world
+/// flags in <see cref="Requires"/> hold ("" for unset) and those in <see cref="Unless"/> don't all hold (a Herald's Echo,
+/// unless its relic was destroyed); one that doesn't come counts as fallen, its flag set (if no other pack sets it).
 /// </summary>
 public sealed record SpawnDefinition(int[] At, IReadOnlyList<PackMember> Pack, double Radius = 2.0, int? Level = null,
-    string? Flag = null, string? Value = null, string? Says = null);
+    string? Flag = null, string? Value = null, string? Says = null, IReadOnlyDictionary<string, string>? Requires = null,
+    IReadOnlyDictionary<string, string>? Unless = null);
+
+/// <summary>
+/// A ward across a passage (the Reliquary's): its <see cref="Cells"/> can't be crossed or seen through until the world
+/// flags in <see cref="Requires"/> hold; then it burns out for good. <see cref="Name"/> is what hovering it says.
+/// </summary>
+public sealed record GateDefinition(string Id, string Name, IReadOnlyList<int[]> Cells, IReadOnlyDictionary<string, string> Requires);
 
 /// <summary>A shrine: checkpoint, respawn point, potion refill and Taint cleanse.</summary>
 public sealed record ShrineDefinition(string Id, string Name, int[] At);
@@ -76,17 +93,24 @@ public sealed record ZoneDefinition(
     double XpScale = 1.0,
     int Act = 1,
     IReadOnlyList<TrapDefinition>? Traps = null,
-    bool Cold = false)
+    bool Cold = false,
+    bool AshStorms = false,
+    IReadOnlyList<GateDefinition>? Gates = null)
 {
+    // AshStorms: storms of ash blow through now and then (the Ash Wastes), and nothing can be seen far off while they do.
+    // Gates: wards across passages that burn out when their flags hold (the Reliquary).
     // Cold: the hero's cold exposure rises out here, away from fires, faster in a blizzard (the Frostbitten Pass).
     /// <summary>
-    /// Under the open sky (Flare's grassland, Act 2's grassland-and-ruins set, Act 3's snow-and-ruins set): trees fringe
-    /// the map, campfires glow.
+    /// Under the open sky (Flare's grassland, Act 2's grassland-and-ruins set, Act 3's snow-and-ruins set, Act 4's set
+    /// where it isn't dark): trees fringe the map, campfires glow.
     /// </summary>
-    public bool Outdoors => Tileset is "tileset_grassland" or "tileset_ironhold" or "tileset_oriel";
+    public bool Outdoors => Tileset is "tileset_grassland" or "tileset_ironhold" or "tileset_oriel" || Ashen && !IsDark;
 
     /// <summary>Snow underfoot (Act 3's set): its own trees and chests, a paler minimap.</summary>
     public bool Snowy => Tileset == "tileset_oriel";
+
+    /// <summary>Act 4's set (ash, basalt and lava): rock spires beyond the map's edge, the ruins' chests, an ashen minimap.</summary>
+    public bool Ashen => Tileset == "tileset_cinder";
 
     // XpScale: the share of monster XP the zone pays, Act 1's curve tuned so a hero leaves each zone about a level up.
 

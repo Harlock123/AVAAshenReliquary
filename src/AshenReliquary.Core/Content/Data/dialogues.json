@@ -2852,5 +2852,467 @@
         "text": "Caddoc is weeping and smiling at once. \"I heard them stop. I heard Cille stop.\" He gets up stiffly. \"I'll go down and tell the abbess. Someone should hear it from a friend.\""
       }
     }
+  },
+  {
+    "id": "ember_corwen",
+    "start": "start",
+    "openings": [
+      {
+        "node": "egg",
+        "requires": {
+          "act4.egg": "taken"
+        }
+      },
+      {
+        "node": "again",
+        "requires": {
+          "act4.corwen": "met"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "A tall woman in soot-black plate turns from the map she has pinned to the table with a knife. A pale lantern is worked in silver on her breastplate, scratched almost away. \"A rope scar, and the Choir's silence on the wind behind you. Then you are the one Abbess Ilse wrote of.\" She looks at your chest a long moment. \"I am Corwen, Warden of what is left of the Order of the Pale Lantern. Forty knights, a forge and a beacon we dare not light. Welcome to the Ember Gate.\"",
+        "effects": [
+          {
+            "flag": "act4.corwen",
+            "value": "met"
+          },
+          {
+            "journal": {
+              "id": "act4_camp",
+              "title": "The Ember Gate",
+              "kind": "main",
+              "text": "Over the cliffs from the Bell Tower, the road came down to the ash plain under Mount Cindral, where the last knights of the Order of the Pale Lantern hold a burned chapter-house: the Ember Gate camp. Warden Corwen keeps it. Vorthrax the Cinderwyrm, the fourth Herald, nests in the mountain above the Ember Gate, and below the gate lies the Reliquary, where the Order kept Ashur's bones."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "\"What lies up the mountain?\"",
+            "to": "wyrm"
+          },
+          {
+            "text": "\"Tell me about the beacon.\"",
+            "to": "beacon"
+          },
+          {
+            "text": "\"Why do you look at my chest like that?\"",
+            "to": "heart"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "wyrm": {
+        "text": "\"Vorthrax. A drake that has eaten nothing but Ashur's ash for three years, and grown on it until the mountain is his nest. He sleeps above the Ember Gate, and the gate is the only way down into the Reliquary.\" She taps the map: ash, then three red lines, then a black mouth in the mountain. \"The wastes first, then the lava rivers, then the nest. The Prophet's Inquisitors go up and down that road as if they own it. They do.\"",
+        "choices": [
+          {
+            "text": "\"Tell me about the beacon.\"",
+            "to": "beacon"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "beacon": {
+        "text": "\"On the tower in the corner. Light it, and every knight of the Order left alive between here and the sea will see it and come: there are more of us than forty, scattered. The Prophet will see it too, and know where we are.\" She shrugs. \"Keep it dark, and we stay forty, and quiet. The Order built this mountain's halls; we know ways in that the Inquisitors have never found. It is your fight. You choose.\"",
+        "choices": [
+          {
+            "text": "\"What lies up the mountain?\"",
+            "to": "wyrm"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "heart": {
+        "text": "\"Because Ilse wrote that something is in it, and I can feel it from here, like standing near a forge.\" She does not look away. \"The Order killed a god in this mountain. We kept his bones under it for three hundred years. Then a High Lector of ours, Malachar Vane, broke the seals and took them down to the Throne. Whatever is in your chest, he wants it. So be careful how close you let him get.\"",
+        "choices": [
+          {
+            "text": "\"Tell me about the beacon.\"",
+            "to": "beacon"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "again": {
+        "text": "Warden Corwen looks up from her map. \"Still breathing. Good.\"",
+        "choices": [
+          {
+            "text": "\"Tell me of the mountain again.\"",
+            "to": "wyrm"
+          },
+          {
+            "text": "\"Tell me about the beacon.\"",
+            "to": "beacon"
+          },
+          {
+            "text": "Leave."
+          }
+        ]
+      },
+      "egg": {
+        "text": "Corwen's eyes go to the black egg under your arm, and stay there. \"That is his. Vorthrax's.\" She breathes out slowly. \"Brannoc's forge is hot enough to hatch it. Or the anvil is hard enough to end it. Whatever comes out of that shell will be loyal to the first warm thing it sees, if it is young enough. That would be you.\"",
+        "choices": [
+          {
+            "text": "Lay it in Brannoc's forge, and wait.",
+            "to": "hatched"
+          },
+          {
+            "text": "\"Not yet.\""
+          }
+        ]
+      },
+      "hatched": {
+        "text": "The egg cracks in the coals with a sound like a bell, and a drake no longer than your arm climbs out, black and glowing at the seams, and shakes the ash off its wings. It looks at the forge, at Brannoc, at Corwen; then it looks at you, and climbs your leg and settles on your shoulder, hot as a kettle. \"Well,\" says Corwen. \"There is one Herald's get that will not grow up to burn us.\"",
+        "effects": [
+          {
+            "takeItem": "wyrm_egg"
+          },
+          {
+            "flag": "act4.egg",
+            "value": "hatched"
+          },
+          {
+            "boon": "drakeling"
+          },
+          {
+            "xp": 1200
+          },
+          {
+            "journal": {
+              "id": "act4_egg",
+              "title": "The Wyrm's Egg",
+              "kind": "side",
+              "text": "I took Vorthrax's egg from his nest and hatched it in the forge at the Ember Gate. The drakeling follows me now, and fights for me. Corwen thinks it will not grow up to burn us. I hope she is right; I hope its father never learns of it."
+            }
+          }
+        ],
+        "choices": [
+          {
+            "text": "Leave."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "ember_altar",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A stone altar under a hooded lantern, scorched black. Kneeling here, you feel the choices of your road loosen, as if they could be made again.",
+        "choices": [
+          {
+            "text": "Let go of what I have chosen, and choose again (free, once this act).",
+            "requires": {
+              "act4.respec": ""
+            },
+            "effects": [
+              {
+                "respec": true
+              },
+              {
+                "flag": "act4.respec",
+                "value": "used"
+              }
+            ]
+          },
+          {
+            "text": "Let go of what I have chosen, and choose again ({cost} gold).",
+            "requires": {
+              "act4.respec": "used"
+            },
+            "effects": [
+              {
+                "payPerLevel": 20
+              },
+              {
+                "respec": true
+              }
+            ]
+          },
+          {
+            "text": "Rise and leave."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "ember_beacon",
+    "start": "start",
+    "openings": [
+      {
+        "node": "lit",
+        "requires": {
+          "act4.beacon": "lit"
+        }
+      },
+      {
+        "node": "dark",
+        "requires": {
+          "act4.beacon": "dark"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "The Order's beacon: a great iron basket on the tower's top, stacked with pitch-soaked wood and old bones, and a jar of the Pale Lantern's oil beside it. One spark and it would be seen from the sea.",
+        "choices": [
+          {
+            "text": "Light the beacon. Call the Order.",
+            "to": "light"
+          },
+          {
+            "text": "Keep it dark. Go quietly.",
+            "to": "keep"
+          },
+          {
+            "text": "Leave it for now."
+          }
+        ]
+      },
+      "light": {
+        "text": "The oil catches with a white flame, not red, and the pyre goes up pale as moonlight. Far off along the mountains, first one and then another pale light answers. Below you the knights are shouting; Corwen is not. She is looking north, at the mountain, where a red light has opened like an eye.",
+        "effects": [
+          {
+            "flag": "act4.beacon",
+            "value": "lit"
+          },
+          {
+            "boon": "last_lantern"
+          },
+          {
+            "xp": 1200
+          },
+          {
+            "journal": {
+              "id": "act4_lantern",
+              "title": "The Last Lantern",
+              "kind": "side",
+              "text": "I lit the Order's beacon at the Ember Gate. Lights answered along the mountains: the last knights of the Pale Lantern are coming. Corwen says they will go ahead of me into the Reliquary. The Prophet saw it too."
+            }
+          }
+        ]
+      },
+      "keep": {
+        "text": "You leave the oil in its jar. Corwen, watching from the stair, nods once. \"Then we go the old way. The Order built the Reliquary; there is a passage the Inquisitors have never found, round their muster hall. When you are inside, look for a ward on the west wall of the Hall of Vigil. It will know us.\"",
+        "effects": [
+          {
+            "flag": "act4.beacon",
+            "value": "dark"
+          },
+          {
+            "boon": "the_quiet_way"
+          },
+          {
+            "xp": 1200
+          },
+          {
+            "journal": {
+              "id": "act4_lantern",
+              "title": "The Last Lantern",
+              "kind": "side",
+              "text": "I kept the Order's beacon dark. Corwen will not call the scattered knights; instead she told me of the Order's old stealth way in the Reliquary, a passage round the Inquisitors' muster, behind a ward on the west wall of the Hall of Vigil."
+            }
+          }
+        ]
+      },
+      "lit": {
+        "text": "The beacon burns white on the tower, and the answering lights burn along the mountains."
+      },
+      "dark": {
+        "text": "The beacon stands cold. The knights keep their voices low."
+      }
+    }
+  },
+  {
+    "id": "wastes_patrol_note",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A letter in a dead knight's glove, the ink run with sweat. \"Edda: the storms come every hour now. In the ash you cannot see your own hand, and they cannot see you either, which is the only mercy. Stay close to the braziers, the Warden says; the Inquisitors' captains keep their packs tight and fight like one beast, and when a captain falls the rest lose heart. Kill the captain. I would like to tell you we did.\"",
+        "effects": [
+          {
+            "flag": "act4.patrol",
+            "value": "read"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "rivers_foundry_ledger",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A ledger in the Order's hand, its last pages in another: neat, small, cold. \"Received of the foundry: forty chains, cold-forged, Ashur's ash in the iron. To be sent down to the Throne for the binding. The vessel is not yet come. The Prophet is patient. Feed the wyrm.\"",
+        "effects": [
+          {
+            "flag": "act4.ledger",
+            "value": "read"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "nest_vigil_orders",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "Orders pinned to a rock with a dagger, in the same neat hand. \"To the Vigil. The vessel will come up the rivers. Do not kill it. Let it reach the gate; let the wyrm try it. If it is strong enough to pass the wyrm, it is strong enough for what the Prophet intends. Report its coming to the Throne. M.V.\"",
+        "effects": [
+          {
+            "flag": "act4.orders",
+            "value": "read"
+          },
+          {
+            "journal": {
+              "id": "act4_camp",
+              "title": "The Ember Gate",
+              "kind": "main",
+              "text": "Over the cliffs from the Bell Tower, the road came down to the ash plain under Mount Cindral, where the last knights of the Order of the Pale Lantern hold a burned chapter-house: the Ember Gate camp. Warden Corwen keeps it. Vorthrax the Cinderwyrm, the fourth Herald, nests in the mountain above the Ember Gate, and below the gate lies the Reliquary, where the Order kept Ashur's bones. In the Wyrm's Nest I found the Prophet's orders to his Inquisitors, signed M.V.: they are to let me reach the gate. He wants me to come."
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "nest_egg",
+    "start": "start",
+    "openings": [
+      {
+        "node": "gone",
+        "requires": {
+          "act4.egg": "taken"
+        }
+      },
+      {
+        "node": "gone",
+        "requires": {
+          "act4.egg": "hatched"
+        }
+      },
+      {
+        "node": "smashed",
+        "requires": {
+          "act4.egg": "smashed"
+        }
+      }
+    ],
+    "nodes": {
+      "start": {
+        "text": "In a bed of embers lies an egg the size of a knight's helm, black and glossy and too hot to look at for long. Something inside it knocks, twice, and is still. It is Vorthrax's. If the Prophet would bring his Heralds back, this is a way to bring back the wyrm.",
+        "choices": [
+          {
+            "text": "Smash it.",
+            "to": "smash"
+          },
+          {
+            "text": "Wrap it in your cloak and take it.",
+            "to": "take"
+          },
+          {
+            "text": "Leave it."
+          }
+        ]
+      },
+      "smash": {
+        "text": "The shell is like iron, and then it is not. What runs out of it hisses on the embers and is still. Somewhere above you in the mountain, something very large wakes, and roars, and does not stop for a long time.",
+        "effects": [
+          {
+            "flag": "act4.egg",
+            "value": "smashed"
+          },
+          {
+            "boon": "wyrmbane"
+          },
+          {
+            "xp": 1200
+          },
+          {
+            "journal": {
+              "id": "act4_egg",
+              "title": "The Wyrm's Egg",
+              "kind": "side",
+              "text": "I smashed Vorthrax's egg in its nest. If the Prophet meant to bring the wyrm back from it, he cannot now. Vorthrax knows. The whole mountain heard him."
+            }
+          }
+        ]
+      },
+      "take": {
+        "text": "Even through the cloak it burns. It knocks again, against your ribs this time, as if it knows the warmth there.",
+        "effects": [
+          {
+            "flag": "act4.egg",
+            "value": "taken"
+          },
+          {
+            "item": "wyrm_egg"
+          },
+          {
+            "journal": {
+              "id": "act4_egg",
+              "title": "The Wyrm's Egg",
+              "kind": "side",
+              "text": "I took Vorthrax's egg from his nest. It knocks against my ribs. Warden Corwen's forge at the Ember Gate would be warm enough to hatch it, and its anvil hard enough to end it."
+            }
+          }
+        ]
+      },
+      "gone": {
+        "text": "The bed of embers is empty where the egg lay."
+      },
+      "smashed": {
+        "text": "Black shell and a dark stain on the embers. Nothing knocks."
+      }
+    }
+  },
+  {
+    "id": "reliquary_aldren",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "A knight in soot-black plate leans on his sword among dead Inquisitors, breathing hard. \"Ser Aldren, of the Last Lantern. We saw the beacon from the coast road, and came in by the gate behind you. This hall is ours.\" He nods south, where the passage goes down. \"Below are their muster and the vaults. Something walks in the vaults with the faces of the Heralds you killed. We heard them. We did not go in.\"",
+        "effects": [
+          {
+            "flag": "act4.aldren",
+            "value": "met"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "reliquary_biers",
+    "start": "start",
+    "nodes": {
+      "start": {
+        "text": "Three stone biers under a dome black with old smoke. The middle one is longer than any man. Its seals lie broken on the floor, the Order's lantern cut in each, and the bones are gone: taken down the stair beyond, toward the Throne. Ash lies on the empty stone in the shape of what lay there, and it is warm.",
+        "effects": [
+          {
+            "flag": "act4.biers",
+            "value": "seen"
+          },
+          {
+            "journal": {
+              "id": "act4_reliquary",
+              "title": "The Reliquary",
+              "kind": "main",
+              "text": "Under the Ember Gate I came down through the Reliquary, past the Echoes of the Heralds I killed, to the Order's empty biers. Ashur's bones are gone, carried down the stair to the Cinder Throne, where Malachar Vane waits for what is in my chest."
+            }
+          }
+        ]
+      }
+    }
   }
 ]

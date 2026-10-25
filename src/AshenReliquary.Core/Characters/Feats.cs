@@ -31,7 +31,7 @@ public enum FeatType
 /// <item><see cref="IgnoreArmorSpeed"/>: body armour never slows the character.</item>
 /// <item>An <see cref="Ability"/> with any of <see cref="Targets"/>, <see cref="Cost"/>, <see cref="Knockback"/>,
 /// <see cref="Chain"/>, <see cref="Splash"/>, <see cref="Radius"/>, <see cref="OnHitSeconds"/> or
-/// <see cref="WardSeconds"/> set doesn't add the ability: it changes it wherever it is on the bar (the spec's
+/// <see cref="WardSeconds"/>, <see cref="BuffSeconds"/>, <see cref="ExtraDice"/> or <see cref="Cooldown"/> set doesn't add the ability: it changes it wherever it is on the bar (the spec's
 /// "modifier" feats: one more target, 5 less Fury, a longer ward).</item>
 /// <item><see cref="BlockHardness"/>: Shield Block with a shield takes this much more off a blow.
 /// <see cref="BlockCounter"/>: after a Shield Block the hero strikes back at the attacker if it is in reach.</item>
@@ -42,7 +42,8 @@ public enum FeatType
 /// <item>The Ranger's: <see cref="Pierce"/> (on its own: every arrow passes through that many more enemies; on an
 /// <see cref="Ability"/>: that ability's arrows do), <see cref="CritResource"/> back on a critical hit with a bow,
 /// <see cref="WeaponRange"/> more tiles for a bow, <see cref="PreyDice"/> more Hunt Prey dice. <see cref="Companion"/>:
-/// an animal companion (a creature id) fights beside the hero; <see cref="CompanionGrowth"/> makes it stronger.</item>
+/// an animal companion (a creature id) fights beside the hero; <see cref="CompanionGrowth"/> makes it stronger.
+/// <see cref="Pet"/>: a creature that follows any hero as well as a companion (a boon's: the drakeling).</item>
 /// <item>The Champion's: <see cref="UndeadBane"/> vitality damage on Strikes against the undead; <see cref="HealShare"/>:
 /// Lay on Hands heals that share more; <see cref="Light"/> tiles of light round the hero; <see cref="TaintFuel"/>: the
 /// Oathbreaker's hits fill the Taint meter, and its Strikes drain life by how full it is; <see cref="Retribution"/>: the
@@ -106,11 +107,16 @@ public sealed record FeatEffect(
     int Capacity = 0,
     bool CritReload = false,
     int DistantDamage = 0,
-    int RoundsBonus = 0)
+    int RoundsBonus = 0,
+    double BuffSeconds = 0,
+    int ExtraDice = 0,
+    double Cooldown = 0,
+    string? Pet = null)
 {
     /// <summary>Whether this effect changes an ability already on the bar rather than adding one.</summary>
     public bool ModifiesAbility => Ability is not null && (ExtraMissiles != 0 || Targets != 0 || Cost != 0 || Knockback != 0
-        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0 || PersistentDice != 0 || Pierce != 0);
+        || Chain != 0 || Splash != 0 || Radius != 0 || OnHitSeconds != 0 || WardSeconds != 0 || PersistentDice != 0 || Pierce != 0
+        || BuffSeconds != 0 || ExtraDice != 0 || Cooldown != 0);
 }
 
 /// <summary>

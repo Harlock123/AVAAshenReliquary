@@ -412,6 +412,9 @@ public sealed class Character : IDefender
     /// <summary>The animal companion's creature id (the Beastmaster's wolf), or null.</summary>
     public string? Companion { get; private set; }
 
+    /// <summary>A pet's creature id (a boon's), beside any companion.</summary>
+    public string? Pet { get; private set; }
+
     /// <summary>How far feats have grown the companion (Pack Hunter).</summary>
     public int CompanionGrowth { get; private set; }
 
@@ -492,6 +495,9 @@ public sealed class Character : IDefender
                 OnHitSeconds = ability.OnHitSeconds + m.OnHitSeconds,
                 WardSeconds = ability.WardSeconds + m.WardSeconds,
                 Pierce = ability.Pierce + m.Pierce,
+                BuffSeconds = ability.BuffSeconds + m.BuffSeconds,
+                ExtraDice = ability.ExtraDice + m.ExtraDice,
+                Cooldown = Math.Max(0, ability.Cooldown + m.Cooldown),
                 PersistentDice = m.PersistentDice != 0 && ability.PersistentDice is { } text
                     ? (Rules.Dice.Parse(text) is var d ? (d with { Count = d.Count + m.PersistentDice }).ToString() : text)
                     : ability.PersistentDice,
@@ -536,6 +542,7 @@ public sealed class Character : IDefender
         FeatHitPointsPerLevel = FeatSpeedFeet = CritDamageBonus = FuryPerHitBonus = BlockHardnessBonus = SneakDiceBonus = ArrowPierce = PreyDiceBonus = CompanionGrowth = 0;
         UndeadBaneBonus = MinionBonus = MinionGrowth = GraveChargeBonus = ChargesPerCorpseBonus = CapacityBonus = DistantDamage = RoundsBonus = 0;
         Companion = null;
+        Pet = null;
         RecoveryBonus = ResourceRegenBonus = ReachBonus = SpellRangeBonus = CritResourceBonus = WeaponRangeBonus = HealShare = LightBonus = ReloadSpeedBonus = 0;
         IgnoresArmorSpeed = BlockCounter = AmbushCrit = SwiftSneak = TumbleFeint = TaintFuel = Retribution = CritReload = false;
         Taint.ResetRate(_baseTaintRate);
@@ -582,6 +589,7 @@ public sealed class Character : IDefender
             WeaponRangeBonus += e.WeaponRange;
             PreyDiceBonus += e.PreyDice;
             Companion = e.Companion ?? Companion;
+            Pet = e.Pet ?? Pet;
             CompanionGrowth += e.CompanionGrowth;
             UndeadBaneBonus += e.UndeadBane;
             HealShare += e.HealShare;

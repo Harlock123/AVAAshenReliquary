@@ -232,13 +232,28 @@ public sealed partial class GameWorld
         foreach (var spawn in zone.Spawns)
         {
             packId++;
+            // A pack that waits on flags (a Herald's Echo) still takes its spawn indices, so the others keep theirs.
+            var comes = Comes(spawn);
+            var pack = new List<MonsterActor>();
             foreach (var member in spawn.Pack)
             {
                 for (var i = 0; i < member.Count; i++)
-                    SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId, spawn.Level, member.Affixes)
-                        .SpawnIndex = _nextSpawnIndex++;
+                {
+                    if (!comes)
+                    {
+                        _nextSpawnIndex++;
+                        continue;
+                    }
+                    var m = SpawnNear(member.Creature, member.Rank, spawn.At[0] + 0.5, spawn.At[1] + 0.5, spawn.Radius, packId, spawn.Level,
+                        member.Affixes, member);
+                    m.SpawnIndex = _nextSpawnIndex++;
+                    pack.Add(m);
+                }
             }
+            Muster(pack);
         }
+        SettleAbsentPacks(zone);
+        PopulateGates();
 
         if (memory is null || memory.Revision != zone.Revision)
             return;
@@ -1017,6 +1032,9 @@ public sealed partial class GameWorld
         UpdateHidden(dt);
         UpdateTraps();
         UpdateCold(dt);
+        UpdateAshStorm(dt);
+        UpdateEmbers(dt);
+        UpdateGates();
         UpdateAllies(dt);
         Reveal();
         UpdateProjectiles(dt);
@@ -1038,6 +1056,7 @@ public sealed partial class GameWorld
         var c = hero.Character;
         hero.Advance(dt);
         c.Conditions.Update(dt);
+        ShakeOffControl();
         hero.Resource.Update(dt);
 
         if (hero.IsDead)
@@ -1403,7 +1422,8 @@ public sealed partial class GameWorld
 
         var shots = ability.UsesWeapon && WieldsFirearm ? FireRounds(ability) : 0;
         var slowed = c.Conditions.ActionTimeMultiplier;
-        var swing = ActionTiming.AttackInterval(c.Weapon.Definition.AttacksPerSecond, c.Gear.AttackSpeed, slowed) / (TwinPistols ? TwinPistolSpeed : 1);
+        var swing = ActionTiming.AttackInterval(c.Weapon.Definition.AttacksPerSecond, c.Gear.AttackSpeed, slowed) / (TwinPistols ? TwinPistolSpeed : 1)
+            / FormAttackRate;
         var duration = ability.UsesWeapon
             ? Math.Max(swing, ability.Actions > 1 ? ActionTiming.CastTime(ability.Actions, c.Gear.AttackSpeed, slowed) : 0)
             : ActionTiming.CastTime(ability.Actions, ability.Kind == AbilityKind.Burst && !ability.IsSpellBurst ? c.Gear.AttackSpeed : c.Gear.CastSpeed, slowed);
@@ -1700,9 +1720,11 @@ public sealed partial class GameWorld
         var cover = Shoots ? CoverAgainst(Hero.X, Hero.Y, target) : 0;
         var result = Strike.Resolve(c, target.Creature, Hero.Cadence, Time, Random, graze: GrazeEffect.Near,
             attackSpeedBonus: c.Gear.AttackSpeed, extraDice: extraDice, cadenceAttacks: cadenceAttacks,
-            targetAc: offGuard + cover, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit,
-            preyDice: target == Hero.Prey ? c.PreyDice : 0);
+            targetAc: offGuard + cover, precisionDice: sneak, hitIsCritical: fromHiding && c.AmbushCrit || SureCritical,
+            preyDice: IsPrey(target) ? c.PreyDice : 0);
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
+        if (critical && !result.Grazed && SureCritical)
+            SpendSureCritical();
         if (critical && Shoots && c.CritResourceBonus > 0)
             Hero.Resource.Gain(c.CritResourceBonus);
         if (sneak > 0 && result.Damage > 0 && !result.Grazed)
@@ -1790,6 +1812,7 @@ public sealed partial class GameWorld
             DropLoot(monster);
         LayToRise(monster, critical);
         Avenge(monster);
+        LeaderFalls(monster);
         ShatterImages(monster);
         GatherGraveCharge(monster);
         if (monster.Has(MonsterAffix.Tainted))
@@ -1823,12 +1846,17 @@ public sealed partial class GameWorld
     }
 
     /// <summary>A monster's Vengeance: to-hit, damage share and speed share.</summary>
-    /// <remarks>Under a standing standard (Hadric's banner) it also has +2 to hit and a fifth more damage; a boss's phase may quicken it.</remarks>
+    /// <remarks>
+    /// Under a standing standard (Hadric's banner) it also has +2 to hit and a fifth more damage; driven by a pack leader
+    /// near it (Act 4), +1 to hit and a tenth more; a boss's phase may quicken it.
+    /// </remarks>
     private (int Attack, double Damage, double Speed) VengeanceBonus(MonsterActor m)
     {
         var rallied = Rallied(m);
+        var led = Commanded(m);
         var phaseSpeed = m.Definition.Boss is { } b ? b.Phases[m.BossPhase].SpeedScale : 1;
-        return (m.Vengeance + (rallied ? 2 : 0), (1 + 0.1 * m.Vengeance) * (rallied ? 1.2 : 1), (1 + 0.05 * m.Vengeance) * phaseSpeed);
+        return (m.Vengeance + (rallied ? 2 : 0) + (led ? 1 : 0), (1 + 0.1 * m.Vengeance) * (rallied ? 1.2 : 1) * (led ? 1.1 : 1),
+            (1 + 0.05 * m.Vengeance) * phaseSpeed);
     }
 
     /// <summary>
@@ -1987,7 +2015,7 @@ public sealed partial class GameWorld
                 m.VictimIn = 1.0;
             }
             // A hidden hero is noticed only close by (and is then hidden no longer).
-            if (!hero.IsDead && distance <= (hero.IsHidden ? HiddenNoticeTiles : def.AggroRadius) && Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y))
+            if (!hero.IsDead && distance <= Math.Min(SightTiles, hero.IsHidden ? HiddenNoticeTiles : def.AggroRadius) && Map.HasLineOfSight(m.X, m.Y, hero.X, hero.Y))
             {
                 if (hero.IsHidden)
                     Unhide($"The {m.Name} spots you.");
@@ -2013,6 +2041,7 @@ public sealed partial class GameWorld
         if (def.Boss is not null && UpdateBoss(m, dt))
             return;
         UpdateAffixes(m, dt);
+        UpdateLeader(m, dt);
         if (m.IsDead || hero.IsDead)
             return;
         if (!m.Creature.Conditions.CanAct)
@@ -2038,13 +2067,13 @@ public sealed partial class GameWorld
         var victimDistance = m.DistanceTo(victim);
         if (m.AttackElapsed >= 0)
         {
-            var interval = 1.0 / (m.Creature.AttacksPerSecond * BossAttackRate(m));
+            var interval = 1.0 / (m.Creature.AttacksPerSecond * BossAttackRate(m) * (Cried(m) ? HasteAttackRate : 1));
             var windup = Math.Min(0.6, interval * 0.6);
             m.AttackElapsed += dt;
             if (!m.AttackLanded && m.AttackElapsed >= windup * 0.6)
             {
                 m.AttackLanded = true;
-                if (victimDistance <= def.AttackRange + victim.Radius + 0.4)
+                if (victimDistance <= ReachOf(m) + victim.Radius + 0.4)
                 {
                     // An archer's arrow or a caster's bolt flies; its blow lands when it arrives.
                     if (def.Ranged && victimDistance > MeleeReach + victim.Radius)
@@ -2088,7 +2117,7 @@ public sealed partial class GameWorld
             }
         }
 
-        var inRange = victimDistance <= def.AttackRange + victim.Radius
+        var inRange = victimDistance <= ReachOf(m) + victim.Radius
             && (!def.Ranged || Map.HasLineOfSight(m.X, m.Y, victim.X, victim.Y));
         // A flanker in reach but not yet flanking circles round for up to 3 s while an ally holds the hero's attention.
         if (inRange && victim == hero && def.Flanks && m.AttackCooldown <= 0 && !IsFlanking(m) && m.FlankTime < 3 && !def.Stationary
@@ -2155,7 +2184,7 @@ public sealed partial class GameWorld
     private double MonsterSpeed(MonsterActor m)
     {
         var slowed = m.Creature.Conditions.ActionTimeMultiplier;
-        return m.Definition.MoveSpeed * (slowed > 1 ? 1 / slowed : 1) * VengeanceBonus(m).Speed * (m.Has(MonsterAffix.Hasted) ? HasteSpeed : 1);
+        return m.Definition.MoveSpeed * (slowed > 1 ? 1 / slowed : 1) * VengeanceBonus(m).Speed * (m.Has(MonsterAffix.Hasted) || Cried(m) ? HasteSpeed : 1);
     }
 
     private void UpdateSpawner(MonsterActor m, double dt)
@@ -2249,6 +2278,9 @@ public sealed partial class GameWorld
     /// </summary>
     public bool IsLit(double x, double y)
     {
+        // In an ash storm nothing past a few paces can be seen, lit or not.
+        if (LostInTheAsh(x, y))
+            return false;
         if (!Zone.IsDark)
             return true;
         bool Within(double lx, double ly, double r) => (x - lx) * (x - lx) + (y - ly) * (y - ly) <= r * r * 0.64;
@@ -2695,17 +2727,19 @@ public sealed partial class GameWorld
     // ----- Helpers -------------------------------------------------------------------
 
     private MonsterActor SpawnNear(string creatureId, CreatureRank rank, double x, double y, double radius, int packId,
-        int? level = null, IReadOnlyList<string>? affixNames = null)
+        int? level = null, IReadOnlyList<string>? affixNames = null, PackMember? member = null)
     {
         var def = _creatures.TryGetValue(creatureId, out var d) ? d : throw new InvalidDataException($"Unknown creature '{creatureId}'.");
         var stats = CreatureStats.For(level ?? Zone.Level, rank);
-        if (def.HitPointsScale != 1.0)
-            stats = stats with { HitPoints = Math.Max(1, (int)Math.Round(stats.HitPoints * def.HitPointsScale)) };
+        // A Herald's Echo (the Reliquary) has only a share of its health.
+        var scale = def.HitPointsScale * (member?.Echo == true ? EchoHealth : 1);
+        if (scale != 1.0)
+            stats = stats with { HitPoints = Math.Max(1, (int)Math.Round(stats.HitPoints * scale)) };
         var dice = def.Damage is { } text ? Dice.Parse(text) : stats.DefaultStrikeDamage;
         var affixes = (affixNames ?? []).Select(a => Enum.TryParse<MonsterAffix>(a, ignoreCase: true, out var affix)
             ? affix : throw new InvalidDataException($"Unknown monster affix '{a}'.")).ToList();
         var prefix = string.Concat(affixes.Select(a => $"{a} "));
-        var title = def.Named ? def.Name : rank switch
+        var title = member?.Echo == true ? $"Echo of {def.Boss?.BarName ?? def.Name}" : def.Named ? def.Name : rank switch
         {
             CreatureRank.Champion => $"{prefix}{def.Name} Champion",
             CreatureRank.Elite => $"{prefix}{def.Name}, the Elite",
@@ -2733,6 +2767,9 @@ public sealed partial class GameWorld
             Affixes = affixes,
             HomeX = x,
             HomeY = y,
+            IsLeader = member?.Leads == true,
+            IsEcho = member?.Echo == true,
+            EchoAlone = member?.Alone == true,
         };
         if (def.Boss is { } boss)
         {

@@ -106,6 +106,7 @@ public sealed partial class GameWorld
                 Time + ability.BuffSeconds);
             Hero.Character.AddModifier(StatisticKind.ArmorClass, new Modifier(WardSource(ability), shield.Definition.AcBonus, BonusType.Circumstance));
         }
+        ShakeOffControl();
         if (!Hero.IsSwinging && Hero.Path.Count == 0)
             Hero.Play("cast", 1.5, restart: true);
         Sound(SoundCue.Ward, Hero, "spell");
@@ -196,6 +197,7 @@ public sealed partial class GameWorld
             foreach (var ally in _allies.Where(a => !a.IsDead && a.DistanceTo(Hero) <= ability.Radius))
                 ally.Creature.Heal(heal);
         }
+        FormMends(ability);
     }
 
     /// <summary>What the auras take off a monster's blow at the hero, or at an ally within them.</summary>

@@ -236,10 +236,9 @@ zone = {
     "exits": [
         {"id": "catacombs", "label": "The Catacombs of Oriel", "at": [25, 79], "radius": 1.5, "to": "catacombs_of_oriel",
          "toExit": "bell_tower", "arrive": [25, 76]},
-        {"id": "cliff_road", "label": "The Cliff Road", "at": [25, 2], "radius": 1.5,
-         "requires": {"act3.choir": "slain"},
-         "sealedText": "The Choir's song fills the belfry. There is no going on while they sing.",
-         "openText": "The road over the cliffs to Mount Cindral. (Act 4 is still being written.)"},
+        {"id": "cliff_road", "label": "The Ember Gate Camp", "at": [25, 2], "radius": 1.5, "to": "ember_gate", "toExit": "cliff_road",
+         "arrive": [25, 5], "requires": {"act3.choir": "slain"},
+         "sealedText": "The Choir's song fills the belfry. There is no going on while they sing."},
     ],
     "caches": caches,
     "npcs": [

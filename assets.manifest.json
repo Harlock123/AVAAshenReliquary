@@ -228,7 +228,35 @@
         "Flare/images/enemies/minotaur/minotaur_run.png",
         "Flare/images/enemies/minotaur/minotaur_shoot.png",
         "Flare/images/enemies/minotaur/minotaur_stance.png",
-        "Flare/images/enemies/minotaur/minotaur_swing.png"
+        "Flare/images/enemies/minotaur/minotaur_swing.png",
+        "Flare/animations/enemies/fire_ant.txt",
+        "Flare/images/enemies/fire_ant.png",
+        "Flare/animations/enemies/antlion.txt",
+        "Flare/images/enemies/antlion.png",
+        "Flare/animations/enemies/wyvern_fire.txt",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_cast.png",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_dash_attack.png",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_die.png",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_hit.png",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_run.png",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_stance.png",
+        "Flare/images/enemies/wyvern_fire/wyvern_fire_swing.png"
+      ]
+    },
+    {
+      "id": "flare-cinder",
+      "title": "Act 4's tileset (tileset_cinder): Flare's cave tileset recoloured, with generated lava and embers",
+      "url": "https://github.com/flareteam/flare-game",
+      "commit": "af6eee6d339ac98011864bfe89da837fe7769c28",
+      "retrieved": "2026-10-25",
+      "licence": "CC-BY-SA 3.0",
+      "licenceFile": "src/AshenReliquary.App/Assets/Flare/LICENSE.txt",
+      "authors": "The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt",
+      "changes": "tools/build_cinder_tiles.py recolours mods/fantasycore/images/tilesets/tileset_cave.png to ash and basalt (tileset_cinder.png), draws lava and ember ground tiles from noise over its recoloured earth (tileset_cinder_lava.png), and writes tilesetdefs/tileset_cinder.txt: the cave definition, the lava, and the Old Ruins at +1000.",
+      "files": [
+        "Flare/images/tilesets/tileset_cinder.png",
+        "Flare/images/tilesets/tileset_cinder_lava.png",
+        "Flare/tilesetdefs/tileset_cinder.txt"
       ]
     },
     {

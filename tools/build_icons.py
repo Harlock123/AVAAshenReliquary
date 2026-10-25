@@ -74,6 +74,17 @@ ICONS = {
     "one_shot_one_kill": "lorc/reticule", "flintlock": "lorc/blunderbuss", "musket": "skoll/musket",
     "powder": "delapouite/powder-bag", "lead": "delapouite/heavy-bullets", "gears": "lorc/gears",
     "round_fire": "lorc/ember-shot", "round_silver": "delapouite/silver-bullet", "round_scatter": "lorc/hydra-shot",
+    # Levels 16-20 (M4 step 8): a capstone at 16 for each class, a signature at 18 for each subclass.
+    "unstoppable": "lorc/muscle-up", "avatar_of_the_lantern": "lorc/angel-outfit", "death_mark": "lorc/death-note",
+    "hunters_apex": "lorc/hunting-horn", "disintegrate": "lorc/disintegrate", "lich_form": "lorc/crowned-skull",
+    "smoke_and_thunder": "lorc/smoking-finger", "titans_wrath": "lorc/earth-spit", "bastion": "lorc/shield-echoes",
+    "sunburst": "lorc/sun", "ashen_cataclysm": "lorc/fire-ring", "hammer_of_the_just": "lorc/gavel",
+    "thousand_cuts": "lorc/cut-palm", "infernal_device": "lorc/powder", "arrow_storm": "lorc/chained-arrow-heads",
+    "alphas_call": "lorc/werewolf", "meteor_swarm": "lorc/fragmented-meteor", "tempest": "lorc/lightning-storm",
+    "army_of_the_dead": "skoll/raise-zombie", "plague_tide": "lorc/vile-fluid", "lead_storm": "delapouite/revolver",
+    "perfect_shot": "delapouite/crosshair",
+    # Act 4's key item: the Wyrm's Egg; and the drakeling, the pet that hatches from it
+    "egg": "lorc/dinosaur-egg", "pet": "lorc/egg-clutch",
 }
 
 AUTHORS = {"lorc": "Lorc", "delapouite": "Delapouite", "carl-olsen": "Carl Olsen", "sbed": "Sbed", "skoll": "Skoll",

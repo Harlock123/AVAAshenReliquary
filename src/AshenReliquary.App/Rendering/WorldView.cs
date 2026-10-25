@@ -1331,8 +1331,11 @@ public sealed partial class WorldView : Control
         DrawLootBeams(canvas, world);
         Stats.Mark("objects+actors");
         DrawDarkness(canvas, size, world, time);
+        DrawActFour(canvas, world, time);
         canvas.RestoreToCount(shaken);
         Stats.Mark("darkness");
+        if (world.AshStorm)
+            DrawAshStorm(canvas, size, world, time);
         DrawAsh(canvas, size, time);
         if (world.Blizzard)
             DrawBlizzard(canvas, size, time);
@@ -1649,6 +1652,7 @@ public sealed partial class WorldView : Control
         for (var x = x0; x <= x1; x++)
         {
             IReadOnlyList<int> objects = world.Map.InBounds(x, y) ? world.Map.Objects(x, y)
+                : world.Zone.Ashen ? (world.Zone.Outdoors && OutsideSpire(x, y) is { } spire ? [spire] : [])
                 : world.Zone.Outdoors && OutsideTree(x, y) is { } tree ? [world.Zone.Snowy ? tree - 4 : tree] : [];   // snow: dead trees 244-247
             if (objects.Count == 0)
                 continue;
@@ -1782,6 +1786,13 @@ public sealed partial class WorldView : Control
             paint.Color = SKColors.White.WithAlpha((byte)(255 * m.Definition.Alpha));
         if (world.IsUnseen(m))
             paint.Color = SKColors.White.WithAlpha(30);
+        // A Herald's Echo: a ghost of ember and ash, half there.
+        if (m.IsEcho)
+        {
+            var ember = SKColorFilter.CreateLighting(new SKColor(255, 190, 150), new SKColor(70, 25, 0));
+            filter = filter is null ? ember : SKColorFilter.CreateCompose(filter, ember);
+            paint.Color = SKColors.White.WithAlpha(190);
+        }
         // A mirror image: cold and see-through.
         if (m.IsMirrorImage)
         {
@@ -1825,6 +1836,9 @@ public sealed partial class WorldView : Control
         if (!m.IsDead && !world.IsUnseen(m) && (m.State != MonsterState.Idle || hovered) && m.Creature.HitPoints < m.Creature.Stats.HitPoints && world.IsLit(m.X, m.Y))
             WorldOverlay.DrawHealthBar(canvas, foot, (float)Zoom, m.Creature.HitPoints / (float)m.Creature.Stats.HitPoints,
                 m.Creature.Stats.Rank == CreatureRank.Champion);
+        // A pack leader (Act 4) wears a gold chevron over its head, so the player knows whom to kill first.
+        if (m.IsLeader && !m.IsDead && world.IsLit(m.X, m.Y))
+            DrawLeaderMark(canvas, foot, (float)(Zoom * m.Definition.Scale), world.Monsters.Any(o => o.Leader == m && !o.IsDead && o != m));
     }
 
     /// <summary>
@@ -2016,9 +2030,12 @@ public sealed partial class WorldView : Control
         var dungeon = World?.Zone.Tileset == "tileset_dungeon";
         // In the snow, the ruins' chests: wooden ones shut (1264, 1265) and open (1266, 1267), the skull chest at 1384-1387.
         var snowy = World?.Zone.Snowy == true;
+        // In Act 4's ash, the cave set's own: wooden chests shut (160, 161) and open (176, 177), the skull chest at 266-269.
+        var ashen = World?.Zone.Ashen == true;
         var id = cache.Definition.Kind == CacheKind.Reliquary
-            ? (dungeon ? 288 : snowy ? 1384 : 297) + (facing == 0 ? 0 : 2) + (cache.Opened ? 1 : 0)
-            : dungeon ? (cache.Opened ? 160 : 144) + facing : snowy ? (cache.Opened ? 1266 : 1264) + facing : 76 + facing;
+            ? (dungeon ? 288 : snowy ? 1384 : ashen ? 266 : 297) + (facing == 0 ? 0 : 2) + (cache.Opened ? 1 : 0)
+            : dungeon ? (cache.Opened ? 160 : 144) + facing : snowy ? (cache.Opened ? 1266 : 1264) + facing
+            : ashen ? (cache.Opened ? 176 : 160) + facing : 76 + facing;
         if (!tileset.Tiles.TryGetValue(id, out var tile))
             return;
         var hovered = _pointer is { } p && CacheUnder(p) == cache;
@@ -2045,6 +2062,24 @@ public sealed partial class WorldView : Control
         }
         if (World?.CandleColour(who) is { } flame)
             DrawCandleFlame(canvas, ToScreen(who.X, who.Y), flame, time);
+    }
+
+    /// <summary>A pack leader's chevron over its head: gold while it has a pack to drive, grey once it stands alone.</summary>
+    private static void DrawLeaderMark(SKCanvas canvas, SKPoint foot, float z, bool leading)
+    {
+        var top = new SKPoint(foot.X, foot.Y - 132 * z);
+        using var path = new SKPath();
+        path.MoveTo(top.X - 9, top.Y - 6);
+        path.LineTo(top.X, top.Y + 2);
+        path.LineTo(top.X + 9, top.Y - 6);
+        path.LineTo(top.X + 9, top.Y - 1);
+        path.LineTo(top.X, top.Y + 7);
+        path.LineTo(top.X - 9, top.Y - 1);
+        path.Close();
+        using var fill = new SKPaint { IsAntialias = true, Color = leading ? new SKColor(240, 196, 90) : new SKColor(150, 145, 135) };
+        using var edge = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.2f, Color = new SKColor(40, 25, 10, 200) };
+        canvas.DrawPath(path, fill);
+        canvas.DrawPath(path, edge);
     }
 
     /// <summary>A candle that will not go out, on its stand: a still flame in its colour, with a soft glow.</summary>
@@ -2551,7 +2586,8 @@ public sealed partial class WorldView : Control
             lights.Add((ToScreen(l.X, l.Y), (float)l.Radius + flicker, glow));
         }
         // Outdoors, Flare's grassland campfire and shrine tiles give light of themselves (found once per map).
-        foreach (var (x, y, id) in world.Zone.Outdoors ? GlowingObjects(world.Map) : [])
+        // (Act 4's set numbers its tiles as the cave set does: its fires and shrines are lights of the zone's own.)
+        foreach (var (x, y, id) in world.Zone.Outdoors && !world.Zone.Ashen ? GlowingObjects(world.Map) : [])
         {
             if (x < x0 || x > x1 || y < y0 || y > y1)
                 continue;
@@ -2560,6 +2596,17 @@ public sealed partial class WorldView : Control
                 lights.Add((ToScreen(x + 0.5, y + 0.5), 5.5f + flicker, new SKColor(255, 140, 50, 70)));
             else
                 lights.Add((ToScreen(x + 0.5, y + 0.5), 3.5f + flicker * 0.3f, new SKColor(110, 170, 255, 60)));
+        }
+        // A Herald's Echo burns with its own ember light, and a ward across a passage lights it.
+        foreach (var m in world.Monsters)
+        {
+            if (m.IsEcho && !m.IsDead)
+                lights.Add((ToScreen(m.X, m.Y), 4.5f + (float)Math.Sin(time * 3 + m.X) * 0.2f, new SKColor(255, 150, 90, 65)));
+        }
+        foreach (var gate in world.Zone.Gates ?? [])
+        {
+            if (!world.GateOpen(gate))
+                lights.Add((ToScreen(gate.Cells.Average(c => c[0]) + 0.5, gate.Cells.Average(c => c[1]) + 0.5), 3.5f, new SKColor(255, 170, 90, 60)));
         }
         // A faint glint on a shut chest, so it can be found in the dark.
         foreach (var c in world.Caches)

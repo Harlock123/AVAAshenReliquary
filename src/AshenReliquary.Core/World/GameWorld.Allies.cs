@@ -31,7 +31,7 @@ public sealed partial class GameWorld
     public IReadOnlyList<AllyActor> Allies => _allies;
 
     /// <summary>The Beastmaster's companion, or null.</summary>
-    public AllyActor? Companion => _allies.FirstOrDefault(a => !a.IsMinion);
+    public AllyActor? Companion => _allies.FirstOrDefault(a => !a.IsMinion && !a.IsPet);
 
     /// <summary>The Necromancer's skeletons, standing or crumbling.</summary>
     public IEnumerable<AllyActor> Minions => _allies.Where(a => a.IsMinion);
@@ -66,12 +66,12 @@ public sealed partial class GameWorld
         var c = Hero.Character;
         if (c.Companion is not { } id || !_creatures.TryGetValue(id, out var definition))
         {
-            _allies.RemoveAll(a => !a.IsMinion);
+            _allies.RemoveAll(a => !a.IsMinion && !a.IsPet);
             return;
         }
         if (Companion is not { } ally || ally.Definition.Id != id)
         {
-            _allies.RemoveAll(a => !a.IsMinion);
+            _allies.RemoveAll(a => !a.IsMinion && !a.IsPet);
             _allies.Insert(0, new AllyActor(definition, CompanionStats(definition, c.Level, c.CompanionGrowth), c.Level, c.CompanionGrowth));
             PlaceAllies();
             return;
@@ -164,6 +164,7 @@ public sealed partial class GameWorld
     private void UpdateAllies(double dt)
     {
         RefreshCompanion();
+        RefreshPet();
         foreach (var expired in _allies.Where(a => a.IsTimed && !a.IsDead && Time >= a.ExpiresAt).ToList())
             Crumble(expired);
         _allies.RemoveAll(a => a.IsMinion && a.IsDead && a.ReturnIn <= 0);
@@ -340,6 +341,7 @@ public sealed partial class GameWorld
             return;
         }
         var critical = result.Degree == DegreeOfSuccess.CriticalSuccess;
+        damage = (int)Math.Round(damage * AllyDamageScale);
         _dealer = ally;
         damage = DamageMonster(target, damage);
         _dealer = null;

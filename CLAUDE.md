@@ -4,7 +4,7 @@ An isometric action RPG in Grim Dawn's style with Pathfinder 2e Remaster rules, 
 SkiaSharp. The design is `docs/SPECIFICATION.md` (the working copy; section 15 has the milestones, section 16 the
 implementation decisions made so far). `README.md` has the run commands and controls.
 
-## Where things stand (2026-10-24)
+## Where things stand (2026-10-25)
 
 - **M0 (rules core):** done.
 - **M1 (vertical slice):** done (2026-10-17). Built: renderer, Gallows Road, six monsters, abilities, loot and
@@ -151,7 +151,14 @@ implementation decisions made so far). `README.md` has the run commands and cont
   (`songEverySeconds`, `HeroActor.EnthralledUntil`, commands refused by `HeldBySong`), `joins`/`joinsIf` (Caddoc
   banished); Three Candles (interactable `action: candle`, flags `act3.candle.<sister>`, `act3.candles`);
   `BalanceReport.Bell_Tower_at_level_14`, `The_Choir_at_levels_13_and_14`; `CampaignReport.Acts_1_to_3_to_the_Choir`).
-  Act 3 is whole. Next: step 8, levels 16-20 and Act 4.
+  Act 3 is whole. Step 8 done: levels 16-20 and Act 4 (capstones at 16 are auras that change the hero,
+  `GameWorld.Forms.cs`; subclass signatures at 18; feats to 20, with more general/ancestry/skill feats so the picks
+  reach 20; `tileset_cinder` from `tools/build_cinder_tiles.py`: the cave set recoloured, lava `3000 + 4 × corners +
+  parity` shaped by `TileMap.ShapeLava`, embers 3100-3103, the ruins at +1000; `tools/cinder_common.py` for the five
+  generators; `GameWorld.ActFour.cs`: ash storms, embers, pack leaders (`leads`), wards (`gates`), spawn
+  `requires`/`unless` (settled again after a load), Herald Echoes (`echo`, `alone`), the pet (`FeatEffect.Pet`); the
+  Ember Gate camp, Ash Wastes, Lava Rivers, Wyrm's Nest (its Ember Gate waits on `act4.vorthrax`), the Reliquary; the
+  Wyrm Egg and the Last Lantern; `BalanceReport` rows for the four zones). Next: step 9, Vorthrax the Cinderwyrm.
 - **Balance:** `tests/AshenReliquary.Core.Tests/BalanceReport.cs` fights each zone's packs and runs bot play-throughs
   of each zone (starting kit: a worst case) and of Mother Sallow; `CampaignReport.cs` plays all of Act 1 as a player
   would. It does 4 runs

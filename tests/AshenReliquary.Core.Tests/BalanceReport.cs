@@ -465,9 +465,88 @@ public class BalanceReport(ITestOutputHelper output)
     [InlineData("necromancer plaguebringer")]
     public void Bell_Tower_at_level_14(string kit) => ReportZone(kit, "bell_tower", "cliff_road", 14, "the Bell Tower and the Choir of Whispers", runes: 2);
 
-    private void ReportZone(string kit, string zoneId, string exitId, int level, string what, int runes = 1)
+    /// <summary>
+    /// Act 4's zones (M4 step 8), each at its own level in the starting kit with the runes a player would have by then
+    /// (+2 in the wastes and on the rivers, +3 from the nest). The nest's way on waits on Vorthrax (step 9), so its run
+    /// starts with him slain; the Reliquary's with every relic undealt with, so all three Echoes stand in the gauntlet.
+    /// </summary>
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Ash_Wastes_at_level_16(string kit) => ReportZone(kit, "ash_wastes", "rivers", 16, "the Ash Wastes", runes: 2);
+
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Lava_Rivers_at_level_17(string kit) => ReportZone(kit, "lava_rivers", "nest", 17, "the Lava Rivers", runes: 2);
+
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Wyrms_Nest_at_level_18(string kit) => ReportZone(kit, "wyrms_nest", "reliquary", 18, "the Wyrm's Nest", runes: 3,
+        flags: new Dictionary<string, string> { ["act4.vorthrax"] = "slain" });
+
+    [Theory]
+    [InlineData("fighter vanguard")]
+    [InlineData("fighter bulwark")]
+    [InlineData("wizard pyromancer")]
+    [InlineData("wizard stormcaller")]
+    [InlineData("rogue cutthroat")]
+    [InlineData("rogue trickster")]
+    [InlineData("ranger marksman")]
+    [InlineData("ranger beastmaster")]
+    [InlineData("champion lanternbearer")]
+    [InlineData("champion oathbreaker")]
+    [InlineData("champion paladin")]
+    [InlineData("gunslinger pistolero")]
+    [InlineData("gunslinger sniper")]
+    [InlineData("necromancer bonelord")]
+    [InlineData("necromancer plaguebringer")]
+    public void Reliquary_at_level_19(string kit) => ReportZone(kit, "reliquary", "throne", 19, "the Reliquary and the gauntlet of Echoes", runes: 3);
+
+    private void ReportZone(string kit, string zoneId, string exitId, int level, string what, int runes = 1,
+        IReadOnlyDictionary<string, string>? flags = null)
     {
-        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: runes)).ToList();
+        var runs = Enumerable.Range(1, ZoneSeeds).Select(seed => ZoneRun(zoneId, exitId, kit, seed, level, runes: runes, flags: flags)).ToList();
         output.WriteLine($"{kit}: {what}, every pack, {runs.Count} runs");
         foreach (var r in runs)
             output.WriteLine($"  deaths {r.Deaths}  hero points {r.HeroPointsSpent}  potions {r.Potions,2}  {r.Minutes:0.0} min  level {r.Level}  {(r.Reached ? "finished" : "did not finish")}");
@@ -516,7 +595,7 @@ public class BalanceReport(ITestOutputHelper output)
     /// The route is planned here over the whole map, then walked a stretch at a time, as a player clicks ahead.
     /// </summary>
     public static RoadResult ZoneRun(string zoneId, string exitId, string kit, int seed, int level, bool lantern = false,
-        int? monsterLevel = null, int runes = 0)
+        int? monsterLevel = null, int runes = 0, IReadOnlyDictionary<string, string>? flags = null)
     {
         var classId = kit.Split(' ')[0];
         var content = TestCharacters.Content;
@@ -532,6 +611,9 @@ public class BalanceReport(ITestOutputHelper output)
         var world = new GameWorld(zone, content.Creatures, hero, seed, bar, content.Loot, content.Zones, content.Dialogues, content.Abilities);
         Dress(hero, world.Hero.Equipment, kit);
         LevelTo(world, level);
+        // World flags the run starts with (as a load brings them back: the packs and wards that wait on them follow).
+        if (flags is not null)
+            world.RestoreStory(flags, []);
         // Runes a player of that level would have had etched: potency and striking on the weapon, potency and
         // resilient on the body armour, each up to what the item level allows.
         if (runes > 0)

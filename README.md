@@ -235,6 +235,20 @@ voice (a gold ring at her feet). Below a quarter the three sing as one, and ever
 you walk to the singer and can do nothing for a few seconds. In the tower's chapel the **Three Candles** burn on the
 wrong sisters' stands: click one to lift it, another to swap them (the sisters' hymnals in their cells say whose is
 whose), or snuff them all out. Brother Caddoc forgiven sings against the song; sent away, he joins it.
+Step 8 began Act 4. Heroes grow to level 20: a capstone at 16 (Unstoppable, Avatar of the Lantern, Death Mark,
+Hunter's Apex, Disintegrate, Lich Form, Smoke and Thunder), a subclass signature at 18 (Titan's Wrath, Bastion, Sunburst,
+Ashen Cataclysm, Hammer of the Just, A Thousand Cuts, Infernal Device, Arrow Storm, Alpha's Call, Meteor Swarm, Tempest,
+Army of the Dead, Plague Tide, Lead Storm, Perfect Shot), feats at 16, 18 and 20, five more Uniques and the Last
+Lantern's Plate. Past the silent Choir the cliff road comes down to the **Ember Gate camp** under Mount Cindral, where the
+Order of the Pale Lantern's last knights hold out (Warden Corwen, Brannoc the smith, Old Hesk). North lie the **Ash
+Wastes** (levels 16-17), where ash storms shrink the world to a few paces for you and the monsters alike; the **Lava
+Rivers** (17-18), crossed by bridges or by fords of embers that burn; and the dark **Wyrm's Nest** (18-19), whose Ember
+Gate waits on Vorthrax (step 9). Beyond it the **Reliquary** (19-20): packs led by elites, wards of fire across its
+passages, and the **Echoes** of the Heralds you killed, each come back unless you dealt with its relic. Inquisitors fight
+under captains (a gold chevron): their packs fight harder while the captain stands and break when it falls. Two side
+stories: the **Wyrm Egg** (smash it, or hatch a drakeling that follows you) and the **Last Lantern** (light the Order's
+beacon, or keep it dark and go the old stealth way). Act 4's ground is Flare's cave tileset recoloured to ash, with lava
+drawn for it.
 `tools/screenshots.sh` renders frames headlessly from the real window.
 
 On Linux the game takes its HiDPI scale from `GDK_SCALE` (Avalonia's X11 backend otherwise reads only `Xft.dpi`,

@@ -685,7 +685,7 @@ The build order proves the rules engine and one playable act before widening con
 2. **M1 — Vertical slice.** *Done (2026-10-17).* Zone 1.1 Gallows Road; 1 ancestry (Human), 2 classes (Fighter, Wizard), 6 enemy types, Common and Uncommon loot, 1 shrine, HUD, save and load. *Exit:* a 20-minute play session from the gallows to the camp. Done so far: renderer, Gallows Road, the six monsters, abilities, loot and inventory, character creation (all six ancestries, with portraits). Saving and loading, the full HUD, audio and a trader are done too. The exit test and its tuning pass (2026-10-17): the first try reached the gate in 5 minutes and the fighter died far more than the wizard, so the fighter got chain mail and out-of-combat recovery, Gallows Road was lengthened and filled out with side glades, chests and a third shrine, and shrines wake from 5 tiles away. On the new road a wizard reached the gate in 13 minutes of play and a dwarf fighter cleared everything (65 monsters, all 8 chests) in about 10, reaching level 2. The road plays shorter than the 20 minutes once known, which was accepted: the slice proves the real-time conversion of the rules feels good, and Act 1's length is M2's exit test.
 3. **M2 — Act 1 complete.** *Done (2026-10-19; plan: `docs/M2_PLAN.md`).* Built: zone travel, Rift Shrines, flags, dialogue and the journal; the hub's people and the stash; feats, skills, the level-up screen, the Step dodge and respec; the smith's rune work; zone 1.2, the Rotwater Fens; zone 1.3, the Drowned Chapel; zone 1.4, Sallow's Mire, with Mother Sallow and the boss framework; the three side stories; the bots' exit test and tuning; then the arsenal (section 16): grazes and hit-stop, Cleave and Finishing Blow, shields, the Shield cantrip, the belt of bombs and elixirs, the Hasted, Shielded and Tainted affixes, and the optional Prior's Ossuary; then the bag's sorting, junk and drag and drop, numbered save copies, the five-step gliding zoom and the target ring. 4 zones, Fort Gallowmere hub, Mother Sallow, the 3 Act 1 side stories, all 6 ancestries, the feat UI, runes and the smith. *Exit:* Act 1 completed at level 5 in 3–4 hours. *Result:* the user's own play-through (a dwarf fighter) killed Mother Sallow at level 5 after about 74 minutes of play, as the bots predicted; the length was accepted (the plan had already set 2 hours against the spec's 3–4, and Act 1 plays about 1.5). The play-through's fixes (the level-up screen in a narrow window, shrine clicks) went in before closing.
 4. **M3 — All classes and loot.** *In progress (plan: `docs/M3_PLAN.md`; step 1 done: subclasses for the Fighter and the Wizard, feats that modify abilities, bursts and basic saves; step 2 done: choosing the bar, and the Rogue with Cutthroat and Trickster; step 3 done: bows, the Ranger with Marksman and Beastmaster, allies; step 4 done: the Champion with Lanternbearer and Oathbreaker, auras; step 5 done: the Necromancer with Bonelord and Plaguebringer, minions and Grave Charges; step 6 done: multiclass dedications; step 7 done: Uniques, Sets, the drop shares, the Invested limit, the shoulders and cloak; step 8 done: crafting; step 9: balance done, the exit test's bot half passed, the user's play to come).* The other 4 classes, both subclasses each, Rare, Unique and Set tiers, affixes, crafting, multiclass dedications.
-5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
+5. **M4 — Acts 2–4.** *In progress (plan: `docs/M4_PLAN.md`; step 1 done: levels 6–10; step 2 done: Ironhold and the Iron March; step 3 done: the Barrow Fields and the Old Barracks; step 4 done: the Siege Walls and Ser Hadric, so Act 2 is whole; step 5 done: levels 11–15 and Saint Oriel's Rest; step 6 done: the Frostbitten Pass, the Hollow Woods and the Catacombs of Oriel; step 7 done: the Bell Tower and the Choir of Whispers, so Act 3 is whole; step 8 done: levels 16–20 and Act 4's camp and zones, Vorthrax to come in step 9).* 12 more zones, 3 Heralds, 9 side stories, monster affixes and AI escalation.
 6. **M5 — Climax and endings.** Reliquary dungeon, the Cinder Throne fight with Echo logic, the 3 endings plus the dialogue ending, epilogue slides.
 7. **M6 — Polish.** Difficulty modes, Hardcore, New Game+, balance passes, credits generated from the manifest, Help pages.
 
@@ -1895,6 +1895,93 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
     found the belfry too dark for a bow to see the sisters; four more braziers light it.
   - **The campaign** (`CampaignReport.Acts_1_to_3_to_the_Choir`): every subclass silences the Choir, meeting her at
     level 14, in 42–75 minutes of play for the three acts; the tower costs no deaths.
+
+### Levels 16–20 and Act 4 (M4 step 8)
+
+- **The art survey** (decision 3):
+  - **Found** in Flare's fantasycore: the fire wyvern (cinder-drakes; the drakeling; Vorthrax in step 9), the fire ant,
+    the full-size antlion (Tainted antlions), and the cave tileset (walls, spires, boulders, wooden walkways, chests,
+    a shrine circle). Inquisitors are avatar layers in plate and robes, tinted red; ash husks and cinder wraiths are the
+    zombie and skeleton mage recoloured.
+  - **Gaps:** lava and ash ground. `tools/build_cinder_tiles.py` recolours the cave sheet to ash and basalt and draws the
+    lava from noise in the cells' own coordinates, repeating every two cells, so its tiles meet without a seam: a tile
+    for each way a lava pool's corners can fall (`3000 + 4 × corners + parity`), and embers (`3100 + parity`).
+- **The tileset** `tileset_cinder`: the recoloured cave set (its own ids), the lava and embers, and the Old Ruins at +1000
+  (`ZoneDefinition.Ashen`: rock spires beyond the map's edge, the cave set's chests, an ashen minimap). The ground gains
+  `ash`, `lava` (blocked; a legend `bridge` over it can be walked; `TileMap.ShapeLava` picks each cell's banks by its
+  corners, as `ShapeShores` does a pond's) and `embers`. `tools/cinder_common.py` holds what the five generators share,
+  among it the cave walls chosen by the side the floor lies on (Flare's show rock only on the faces toward the camera).
+- **Levels 16–20.** Spell ranks reach 9 at 17 and 10 at 19 (the formula already went there).
+  - **A capstone at 16** for each class (spec section 9's capstone column), each an aura with no reach that changes the
+    hero while it lasts (`GameWorld.Forms.cs`; new ability fields `attackRate`, `steadfast`, `regenShare`, `minionDamage`,
+    `allPrey`, `sureCritical`, `freeReloads`):
+
+    | Class | Capstone |
+    | --- | --- |
+    | Fighter | **Unstoppable**: 10 s, blows half again as fast; no stun, hold, slow, fear, fall or song takes them |
+    | Champion | **Avatar of the Lantern**: 15 s, +2 status to AC and saves, 4% HP back every 2 s, holy light round them |
+    | Rogue | **Death Mark**: the next Strike that hits within 8 s is a critical hit |
+    | Ranger | **Hunter's Apex**: 15 s, every monster within 8 tiles is hunted prey |
+    | Wizard | **Disintegrate**: a force ray, 2d10 + 1d10 a rank above 1 (a spell bolt; the wizards' capstones are their subclasses') |
+    | Necromancer | **Lich Form**: 20 s, allies deal double, +1 to AC and saves |
+    | Gunslinger | **Smoke and Thunder**: 10 s, the guns never empty and fire a third faster |
+  - **A subclass signature at 18:** Titan's Wrath (Vanguard), Bastion (Bulwark), Sunburst (Lanternbearer), Ashen
+    Cataclysm (Oathbreaker), Hammer of the Just (Paladin), A Thousand Cuts (Cutthroat), Infernal Device (Trickster),
+    Arrow Storm (Marksman), Alpha's Call (Beastmaster: the old wolf of the mountain for 30 s), Meteor Swarm (Pyromancer),
+    Tempest (Stormcaller), Army of the Dead (Bonelord: four bone knights for 20 s), Plague Tide (Plaguebringer), Lead
+    Storm (Pistolero), Perfect Shot (Sniper).
+  - **Feats:** two per class at 16, one per subclass at 18 (each sharpening the new abilities; modifier feats can now
+    change an ability's `buffSeconds`, `extraDice` and `cooldown`), one per class at 20. The bots could not reach 20:
+    there were too few general, ancestry and untied skill feats, so a level-17 ancestry feat for each ancestry, four
+    general feats (7, 7, 11, 15) and seven skill feats open to anyone (8 to 20) came too.
+  - **Items to 20:** five Uniques (Emberfall, a fire maul, 16; Drakescale Mail, 17; the Inquisitor's Verdict, a pistol,
+    18; Pyrebrand, a great staff, 19; Ashur's Ember, an amulet, 20) and the **Last Lantern's Plate** (helm, gauntlets and
+    boots at 17: +1 AC and fire resistance at two; HP, saves and Taint resistance at three).
+  - 22 game-icons.net glyphs; the bots use all 22.
+- **The road:** the Bell Tower's cliff road (once the Choir is silent) comes down to **the Ember Gate camp** (level 16,
+  Act 4's hub), then north: **the Ash Wastes** (16-17), **the Lava Rivers** (17-18), **the Wyrm's Nest** (18-19), and
+  through the Ember Gate (a Herald gate on `act4.vorthrax = slain`, step 9) down into **the Reliquary** (19-20), whose
+  stair to the Cinder Throne waits for the Epilogue (M5).
+- **The Ember Gate camp** (`tools/ember_gate_mapgen.py`): a burned chapter-house of the Order on the ash plain. Warden
+  Corwen (the act's story, the Last Lantern, and the egg), Brannoc the smith (runes), Old Hesk (wares and supplies), the
+  stash, the Lantern altar (respec, free once in Act 4), the Ember Gate Shrine, and the beacon on its tower.
+- **The Ash Wastes** (`tools/ash_wastes_mapgen.py`): **ash storms** (`ZoneDefinition.AshStorms`, `GameWorld.ActFour.cs`):
+  every 60 s for 20 s nothing more than 5 tiles off can be seen. `IsLit` is false past it, so the hero can't pick it
+  out; a monster doesn't notice the hero past it, and an archer closes in to shoot. The air greys round the hero and ash
+  drives across the screen. The burned village of Harrowmere, the antlion pits, the fallen patrol, the Inquisitors'
+  muster, the glass flats.
+- **The Lava Rivers** (`tools/lava_rivers_mapgen.py`): three rivers of lava across the road. The first has its bridge;
+  the second's burned, so the road fords it over embers (or goes upstream to a bridge); the third has both. **Embers** burn
+  a hero standing on them, a basic Fortitude save each second against fire (fire resistance counts); walkers keep off
+  them where they can (`TileMap.EmberStepCost`). Some lava cells are lights.
+- **The Wyrm's Nest** (`tools/wyrms_nest_mapgen.py`): dark caves of Flare's cave walls lit by lava and braziers: the
+  Mouth, the Bone Gallery, the Roost, the Inquisitors' Vigil (the Prophet's orders: let the vessel reach the gate), the
+  Clutch with the egg, and the Ember Gate's cavern, a ring of lava round a stone floor where Vorthrax waits (step 9).
+- **Pack leaders** (the AI's fourth behaviour): a pack member with `leads` drives its pack while it stands within 8 tiles
+  (+1 to hit, a tenth more damage); in a fight it cries them on every 10 s (quicker for 4 s, a tenth of their health
+  back); when it falls those it led are frightened for 6 s. A gold chevron marks it; the bots go for it first when it is
+  in reach. Every pack in the Reliquary is led by an elite (Act 4's pack mix).
+- **The Reliquary** (`tools/reliquary_mapgen.py`): ruined vaults in the dark. **Wards** (`ZoneDefinition.Gates`) close
+  passages until their flags hold (blocked, unseen through, drawn as curtains of pale fire). Spawns gain `requires` and
+  `unless` (a pack that doesn't come counts as fallen: its flag is set unless another pack sets it); a load settles them
+  again once the flags are back. **The gauntlet of Herald Echoes** (the spec's Echo rule): a pack member with `echo` is a
+  Herald at 60% of its health that never enters its last phase, glowing like a coal, its death setting only its pack's
+  flag. Mother Sallow's Echo comes unless her relic was destroyed; Ser Hadric's unless his sword went back to his wife's
+  grave; the Choir's whole while the candles were left, alone (`alone`: no sisters) if they were snuffed, not at all if
+  they were set right. Each fall burns out the ward to the next vault. The Order's empty biers in the Sanctum.
+- **Side stories:**
+  - **Wyrm Egg** (Act 4's Herald Remnant): smash it (`act4.egg = smashed`, the Wyrmbane boon, 1,200 XP; Vorthrax's Echo
+    gone, for step 9), or take it to Warden Corwen and hatch it in the forge (`hatched`, a **drakeling** that follows any
+    hero as a **pet** beside a companion: `FeatEffect.Pet`, `AllyActor.IsPet`).
+  - **Last Lantern** (faction): light the beacon (`act4.beacon = lit`: the Order's knights take the Reliquary's Hall of
+    Vigil before you, and one waits there; +1 to every save) or keep it dark (`dark`: the Order's old stealth way round
+    the Inquisitors' muster opens behind a ward; +2 Stealth, +1 Reflex, 5 feet faster). Its larger payoff is the final
+    fight's first phase (M5).
+- **Balance** (`BalanceReport.Ash_Wastes_at_level_16`, `Lava_Rivers_at_level_17`, `Wyrms_Nest_at_level_18` with Vorthrax
+  taken as slain, `Reliquary_at_level_19` with all three Echoes; starting kit, +2 runes, +3 from the nest): every
+  subclass finishes every zone, in 2.1–6.1 bot minutes (the beastmaster 14.8 in the Reliquary), at 0–4 deaths; the
+  Inquisitors' elite captains do most of the killing. The first runs lost the fighters four times at the wastes'
+  muster, where a second pack stood beside the captain's; it is thinner now. Act 4's campaign leg comes with Vorthrax.
 
 ### The Gunslinger (after M4 step 6)
 

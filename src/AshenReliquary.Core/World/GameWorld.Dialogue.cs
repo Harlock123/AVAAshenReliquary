@@ -337,9 +337,10 @@ public sealed partial class GameWorld
             _flags[name] = value;
         _journal.AddRange(journal);
         ApplyBoons();
-        // The zone was set up before its flags came back: who is there (Red Mirella, once her choice is made) and its
-        // traps' states follow them.
+        // The zone was set up before its flags came back: who is there (Red Mirella, once her choice is made), its
+        // traps' states, the packs that wait on flags (the Reliquary's Echoes) and its wards follow them.
         PopulateInteractives(Zone);
         PopulateTraps(Zone);
+        SettleFlaggedPacks();
     }
 }

@@ -1637,6 +1637,16 @@
   "description": "A brass face-plate pierced like a confessional screen. Behind it, a tiny bellows and a reed."
  },
  {
+  "id": "wyrm_egg",
+  "name": "The Wyrm's Egg",
+  "category": "Key",
+  "slot": null,
+  "icon": 0,
+  "loot": "gem",
+  "glyph": "egg",
+  "description": "An egg the size of a helm, black and hot, from Vorthrax's nest. Something inside it knocks. A forge would be warm enough to hatch it."
+ },
+ {
   "id": "hadrics_severed_oath",
   "name": "Hadric's Severed Oath",
   "category": "Weapon",
@@ -1878,6 +1888,234 @@
    "moveSpeed": 0.05
   },
   "description": "Worn up the cliff stair a thousand times, and never down."
+ },
+ {
+  "id": "emberfall",
+  "name": "Emberfall",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 103,
+  "loot": "maul",
+  "gfx": "maul",
+  "damageDie": 12,
+  "damageType": "Fire",
+  "attacksPerSecond": 0.85,
+  "traits": [
+   "TwoHand",
+   "Shove"
+  ],
+  "minLevel": 16,
+  "potency": 3,
+  "striking": 2,
+  "trait": "Banked Coals",
+  "traitText": "+3 damage on every hit, and resistance 10 fire.",
+  "effects": [
+   {
+    "statistic": "Damage",
+    "value": 3
+   },
+   {
+    "resist": "Fire",
+    "value": 10
+   }
+  ],
+  "description": "Its head is a lump of the mountain's own slag, hot enough to boil rain.",
+  "unique": true
+ },
+ {
+  "id": "drakescale_mail",
+  "name": "Drakescale Mail",
+  "category": "Armor",
+  "slot": "Chest",
+  "icon": 161,
+  "loot": "steel_armor",
+  "gfx": "plate_cuirass",
+  "armorCategory": "Heavy",
+  "acBonus": 6,
+  "dexCap": 0,
+  "checkPenalty": -3,
+  "speedPenalty": 10,
+  "strength": 4,
+  "minLevel": 17,
+  "potency": 2,
+  "resilient": 2,
+  "implicit": {
+   "maxHitPoints": 20
+  },
+  "trait": "Cinder-Proof",
+  "traitText": "+1 AC, and resistance 10 fire.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "resist": "Fire",
+    "value": 10
+   }
+  ],
+  "description": "Scales shed by the cinder-drakes of the Nest, riveted on a smith's anvil at the Ember Gate. They never cool.",
+  "unique": true
+ },
+ {
+  "id": "inquisitors_verdict",
+  "name": "The Inquisitor's Verdict",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 0,
+  "loot": "pistol",
+  "gfx": "pistol",
+  "glyph": "flintlock",
+  "minLevel": 18,
+  "weight": 5,
+  "damageDie": 8,
+  "damageType": "Fire",
+  "attacksPerSecond": 1.25,
+  "ranged": true,
+  "range": 9,
+  "fatalDie": 12,
+  "traits": [
+   "Fatal",
+   "Versatile"
+  ],
+  "versatile": "Piercing",
+  "capacity": 3,
+  "reloadSeconds": 1.0,
+  "potency": 3,
+  "striking": 2,
+  "trait": "Sentence Passed",
+  "traitText": "+1 to attack rolls, and 6 more damage on a critical hit.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 1
+   },
+   {
+    "critDamage": 6
+   }
+  ],
+  "description": "The Prophet's Inquisitors carry a pistol each, loaded with ash. This one has passed a great many sentences.",
+  "unique": true
+ },
+ {
+  "id": "pyrebrand_staff",
+  "name": "Pyrebrand",
+  "category": "Weapon",
+  "slot": "MainHand",
+  "icon": 107,
+  "loot": "greatstaff",
+  "gfx": "greatstaff",
+  "damageDie": 6,
+  "damageType": "Fire",
+  "attacksPerSecond": 1.0,
+  "traits": [
+   "TwoHand"
+  ],
+  "casterFocus": true,
+  "implicit": {
+   "castSpeed": 0.12
+  },
+  "minLevel": 19,
+  "trait": "The Burning",
+  "traitText": "+2 to spell attacks and spell DCs, and resistance 5 fire.",
+  "effects": [
+   {
+    "statistic": "SpellAttack",
+    "value": 2
+   },
+   {
+    "statistic": "SpellDc",
+    "value": 2
+   },
+   {
+    "resist": "Fire",
+    "value": 5
+   }
+  ],
+  "description": "A branch from the tree Ashur was burned on, they say at the Ember Gate, and it has not stopped burning since.",
+  "unique": true
+ },
+ {
+  "id": "ashurs_ember",
+  "name": "Ashur's Ember",
+  "category": "Accessory",
+  "slot": "Amulet",
+  "icon": 213,
+  "loot": "gem",
+  "unique": true,
+  "minLevel": 20,
+  "implicit": {
+   "maxHitPoints": 30,
+   "resourceRegen": 0.15
+  },
+  "trait": "The Shepherd's Fire",
+  "traitText": "+3 HP a level, +1 to every save, and the Taint builds in you half as fast.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 3
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "taintRate": 0.5
+   }
+  ],
+  "description": "A coal in a cage of old iron. It is warm in the hand, and it beats, slowly, like a heart."
+ },
+ {
+  "id": "last_lantern_helm",
+  "name": "Last Lantern Helm",
+  "category": "Armor",
+  "slot": "Head",
+  "icon": 160,
+  "loot": "steel_armor",
+  "gfx": "plate_helm",
+  "minLevel": 17,
+  "set": "last_lantern",
+  "implicit": {
+   "maxHitPoints": 14
+  },
+  "description": "Soot-black plate with the Pale Lantern worked in silver, kept by the Order's last knights at the Ember Gate."
+ },
+ {
+  "id": "last_lantern_gauntlets",
+  "name": "Last Lantern Gauntlets",
+  "category": "Armor",
+  "slot": "Hands",
+  "icon": 162,
+  "loot": "steel_armor",
+  "gfx": "plate_gauntlets",
+  "minLevel": 17,
+  "set": "last_lantern",
+  "implicit": {
+   "attackSpeed": 0.06
+  },
+  "description": "Soot-black plate with the Pale Lantern worked in silver, kept by the Order's last knights at the Ember Gate."
+ },
+ {
+  "id": "last_lantern_boots",
+  "name": "Last Lantern Boots",
+  "category": "Armor",
+  "slot": "Feet",
+  "icon": 164,
+  "loot": "steel_armor",
+  "gfx": "plate_boots",
+  "minLevel": 17,
+  "set": "last_lantern",
+  "implicit": {
+   "maxHitPoints": 14
+  },
+  "description": "Soot-black plate with the Pale Lantern worked in silver, kept by the Order's last knights at the Ember Gate."
  },
  {
   "id": "black_powder",

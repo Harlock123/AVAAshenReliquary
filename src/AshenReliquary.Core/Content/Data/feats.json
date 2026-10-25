@@ -335,6 +335,122 @@
   "ancestry": "ashborn"
  },
  {
+  "id": "heroic_presence",
+  "name": "Heroic Presence",
+  "type": "Ancestry",
+  "level": 17,
+  "description": "People rally to you, and you to them: +1 to every save.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ],
+  "ancestry": "human"
+ },
+ {
+  "id": "stone_bones",
+  "name": "Stone Bones",
+  "type": "Ancestry",
+  "level": 17,
+  "description": "Your bones are the mountain's: +2 HP per level, and resistance 5 fire.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 2
+   },
+   {
+    "resist": "Fire",
+    "value": 5
+   }
+  ],
+  "ancestry": "dwarf"
+ },
+ {
+  "id": "elven_grace",
+  "name": "Elven Grace",
+  "type": "Ancestry",
+  "level": 17,
+  "description": "Centuries of poise: +1 AC, and +5 ft speed.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "speedFeet": 5
+   }
+  ],
+  "ancestry": "elf"
+ },
+ {
+  "id": "lucky_star",
+  "name": "Lucky Star",
+  "type": "Ancestry",
+  "level": 17,
+  "description": "Luck has a way of finding you: +1 to every save, and +1 AC.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   }
+  ],
+  "ancestry": "halfling"
+ },
+ {
+  "id": "undying_ferocity",
+  "name": "Undying Ferocity",
+  "type": "Ancestry",
+  "level": 17,
+  "description": "You will not fall: +3 HP per level, and +1 to Fortitude saves.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 3
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   }
+  ],
+  "ancestry": "orc"
+ },
+ {
+  "id": "ember_blooded",
+  "name": "Ember-Blooded",
+  "type": "Ancestry",
+  "level": 17,
+  "description": "Ashur's fire is at home in you: resistance 10 fire, and the Taint builds a quarter more slowly in you.",
+  "effects": [
+   {
+    "resist": "Fire",
+    "value": 10
+   },
+   {
+    "taintRate": 0.25
+   }
+  ],
+  "ancestry": "ashborn"
+ },
+ {
   "id": "intimidating_strike",
   "name": "Intimidating Strike",
   "type": "Class",
@@ -538,6 +654,57 @@
   "effects": [
    {
     "recovery": 0.5
+   }
+  ]
+ },
+ {
+  "id": "diehard",
+  "name": "Diehard",
+  "type": "General",
+  "level": 7,
+  "description": "You are hard to put down: +2 to Fortitude saves.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "quick_reflexes",
+  "name": "Quick Reflexes",
+  "type": "General",
+  "level": 7,
+  "description": "You move before you think: +2 to Reflex saves.",
+  "effects": [
+   {
+    "statistic": "Reflex",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "incredible_initiative",
+  "name": "Incredible Initiative",
+  "type": "General",
+  "level": 11,
+  "description": "You see trouble coming: +2 to Perception.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "robust_health",
+  "name": "Robust Health",
+  "type": "General",
+  "level": 15,
+  "description": "Years of hard roads have toughened you: +2 HP per level.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 2
    }
   ]
  },
@@ -916,6 +1083,124 @@
   "skill": "Survival"
  },
  {
+  "id": "hardened_traveller",
+  "name": "Hardened Traveller",
+  "type": "Skill",
+  "level": 8,
+  "description": "Long roads have taught you to rest well: out-of-combat recovery is a quarter faster, and +1 to Fortitude saves.",
+  "effects": [
+   {
+    "recovery": 0.25
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "keen_eyed",
+  "name": "Keen-Eyed",
+  "type": "Skill",
+  "level": 10,
+  "description": "Little escapes you: +2 to Perception.",
+  "effects": [
+   {
+    "statistic": "Perception",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "unshakable",
+  "name": "Unshakable",
+  "type": "Skill",
+  "level": 12,
+  "description": "You have heard worse whispers: +1 to Will saves, and resistance 3 mental.",
+  "effects": [
+   {
+    "statistic": "Will",
+    "value": 1
+   },
+   {
+    "resist": "Mental",
+    "value": 3
+   }
+  ]
+ },
+ {
+  "id": "ash_lore",
+  "name": "Ash Lore",
+  "type": "Skill",
+  "level": 14,
+  "description": "You have learned the god's ash: +2 to all Lore checks, and resistance 3 fire.",
+  "effects": [
+   {
+    "skill": "Lore",
+    "value": 2
+   },
+   {
+    "resist": "Fire",
+    "value": 3
+   }
+  ]
+ },
+ {
+  "id": "steady_hands",
+  "name": "Steady Hands",
+  "type": "Skill",
+  "level": 16,
+  "description": "Nothing shakes your grip: +1 to Reflex saves and +2 to Crafting checks.",
+  "effects": [
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "skill": "Crafting",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "veterans_instinct",
+  "name": "Veteran's Instinct",
+  "type": "Skill",
+  "level": 18,
+  "description": "You have survived everything so far: +1 to every save.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "living_history",
+  "name": "Living History",
+  "type": "Skill",
+  "level": 20,
+  "description": "Your road is already a story: +2 to all Lore checks, and +1 to Perception.",
+  "effects": [
+   {
+    "skill": "Lore",
+    "value": 2
+   },
+   {
+    "statistic": "Perception",
+    "value": 1
+   }
+  ]
+ },
+ {
   "id": "ember_breaker",
   "name": "Breaker of Embers",
   "type": "Boon",
@@ -984,6 +1269,9 @@
    },
    {
     "ability": "earthsplitter"
+   },
+   {
+    "ability": "titans_wrath"
    }
   ]
  },
@@ -1007,6 +1295,9 @@
    },
    {
     "ability": "shield_rush"
+   },
+   {
+    "ability": "bastion"
    }
   ]
  },
@@ -1030,6 +1321,9 @@
    },
    {
     "ability": "meteor"
+   },
+   {
+    "ability": "meteor_swarm"
    }
   ]
  },
@@ -1057,6 +1351,9 @@
    },
    {
     "ability": "ball_lightning"
+   },
+   {
+    "ability": "tempest"
    }
   ]
  },
@@ -1141,6 +1438,9 @@
    },
    {
     "ability": "assassinate"
+   },
+   {
+    "ability": "thousand_cuts"
    }
   ]
  },
@@ -1163,6 +1463,9 @@
    },
    {
     "ability": "caltrops"
+   },
+   {
+    "ability": "infernal_device"
    }
   ]
  },
@@ -1283,6 +1586,9 @@
    },
    {
     "ability": "killshot"
+   },
+   {
+    "ability": "arrow_storm"
    }
   ]
  },
@@ -1305,6 +1611,9 @@
    },
    {
     "ability": "hunt_as_one"
+   },
+   {
+    "ability": "alphas_call"
    }
   ]
  },
@@ -1430,6 +1739,9 @@
    },
    {
     "ability": "dawnbreak"
+   },
+   {
+    "ability": "sunburst"
    }
   ]
  },
@@ -1452,6 +1764,9 @@
    },
    {
     "ability": "ruinous_blow"
+   },
+   {
+    "ability": "ashen_cataclysm"
    }
   ]
  },
@@ -1478,6 +1793,9 @@
    },
    {
     "ability": "final_judgment"
+   },
+   {
+    "ability": "hammer_of_the_just"
    }
   ]
  },
@@ -1624,6 +1942,9 @@
    },
    {
     "ability": "bone_colossus"
+   },
+   {
+    "ability": "army_of_the_dead"
    }
   ]
  },
@@ -1650,6 +1971,9 @@
    },
    {
     "ability": "blight"
+   },
+   {
+    "ability": "plague_tide"
    }
   ]
  },
@@ -2937,6 +3261,75 @@
   ]
  },
  {
+  "id": "drakeling",
+  "name": "The Drakeling",
+  "type": "Boon",
+  "level": 1,
+  "description": "You hatched the Wyrm's Egg at the Ember Gate's forge. A young cinder-drake follows you and fights at your side, and comes back to you when it falls.",
+  "effects": [
+   {
+    "pet": "drakeling"
+   }
+  ]
+ },
+ {
+  "id": "wyrmbane",
+  "name": "Wyrmbane",
+  "type": "Boon",
+  "level": 1,
+  "description": "You smashed the Wyrm's Egg. Resistance 5 to fire, and 2 more damage on a critical hit.",
+  "effects": [
+   {
+    "resist": "Fire",
+    "value": 5
+   },
+   {
+    "critDamage": 2
+   }
+  ]
+ },
+ {
+  "id": "last_lantern",
+  "name": "The Last Lantern",
+  "type": "Boon",
+  "level": 1,
+  "description": "You lit the beacon at the Ember Gate, and the Order answered. +1 to every save.",
+  "effects": [
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "the_quiet_way",
+  "name": "The Quiet Way",
+  "type": "Boon",
+  "level": 1,
+  "description": "You kept the beacon dark, and Warden Corwen taught you the Order's old stealth ways. +2 to Stealth checks and +1 to Reflex saves, and you move 5 feet faster.",
+  "effects": [
+   {
+    "skill": "Stealth",
+    "value": 2
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "speedFeet": 5
+   }
+  ]
+ },
+ {
   "id": "pistolero",
   "name": "Pistolero",
   "type": "Subclass",
@@ -2957,6 +3350,9 @@
    },
    {
     "ability": "twin_thunder"
+   },
+   {
+    "ability": "lead_storm"
    }
   ]
  },
@@ -2980,6 +3376,9 @@
    },
    {
     "ability": "one_shot_one_kill"
+   },
+   {
+    "ability": "perfect_shot"
    }
   ]
  },
@@ -3267,6 +3666,644 @@
   "effects": [
    {
     "ability": "crack_shot"
+   }
+  ]
+ },
+ {
+  "id": "juggernaut",
+  "name": "Juggernaut",
+  "type": "Class",
+  "level": 16,
+  "class": "fighter",
+  "description": "Unstoppable lasts 4 s longer and costs 10 less Fury.",
+  "effects": [
+   {
+    "ability": "unstoppable",
+    "buffSeconds": 4,
+    "cost": -10
+   }
+  ]
+ },
+ {
+  "id": "weapon_legend",
+  "name": "Weapon Legend",
+  "type": "Class",
+  "level": 16,
+  "class": "fighter",
+  "description": "+1 to attack rolls, and 4 more damage on a critical hit.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 1
+   },
+   {
+    "critDamage": 4
+   }
+  ]
+ },
+ {
+  "id": "radiant_vessel",
+  "name": "Radiant Vessel",
+  "type": "Class",
+  "level": 16,
+  "class": "champion",
+  "description": "Avatar of the Lantern lasts 5 s longer, and its light reaches a tile further.",
+  "effects": [
+   {
+    "ability": "avatar_of_the_lantern",
+    "buffSeconds": 5,
+    "radius": 1
+   }
+  ]
+ },
+ {
+  "id": "bulwark_of_faith",
+  "name": "Bulwark of Faith",
+  "type": "Class",
+  "level": 16,
+  "class": "champion",
+  "description": "+3 HP a level, and resistance 5 to fire.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 3
+   },
+   {
+    "resist": "Fire",
+    "value": 5
+   }
+  ]
+ },
+ {
+  "id": "deaths_herald",
+  "name": "Death's Herald",
+  "type": "Class",
+  "level": 16,
+  "class": "rogue",
+  "description": "Death Mark costs 10 less Momentum and comes round 5 s sooner.",
+  "effects": [
+   {
+    "ability": "death_mark",
+    "cost": -10,
+    "cooldown": -5
+   }
+  ]
+ },
+ {
+  "id": "blade_dancer",
+  "name": "Blade Dancer",
+  "type": "Class",
+  "level": 16,
+  "class": "rogue",
+  "description": "+1 to AC and Reflex saves, and +2 damage on every hit.",
+  "effects": [
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Damage",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "apex_predator",
+  "name": "Apex Predator",
+  "type": "Class",
+  "level": 16,
+  "class": "ranger",
+  "description": "Hunter's Apex lasts 5 s longer, and Hunt Prey deals a die more.",
+  "effects": [
+   {
+    "ability": "hunters_apex",
+    "buffSeconds": 5
+   },
+   {
+    "preyDice": 1
+   }
+  ]
+ },
+ {
+  "id": "wildborn",
+  "name": "Wildborn",
+  "type": "Class",
+  "level": 16,
+  "class": "ranger",
+  "description": "+2 HP a level, and +1 to Fortitude and Reflex saves.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 2
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "unmaking",
+  "name": "Unmaking",
+  "type": "Class",
+  "level": 16,
+  "class": "wizard",
+  "description": "Disintegrate costs 8 less Mana and reaches 2 tiles further.",
+  "effects": [
+   {
+    "ability": "disintegrate",
+    "cost": -8
+   },
+   {
+    "spellRange": 2
+   }
+  ]
+ },
+ {
+  "id": "spell_mastery",
+  "name": "Spell Mastery",
+  "type": "Class",
+  "level": 16,
+  "class": "wizard",
+  "description": "+1 to spell attacks and spell DCs, and +2 HP a level.",
+  "effects": [
+   {
+    "statistic": "SpellAttack",
+    "value": 1
+   },
+   {
+    "statistic": "SpellDc",
+    "value": 1
+   },
+   {
+    "hitPointsPerLevel": 2
+   }
+  ]
+ },
+ {
+  "id": "phylactery",
+  "name": "Phylactery",
+  "type": "Class",
+  "level": 16,
+  "class": "necromancer",
+  "description": "Lich Form lasts 5 s longer and costs 10 less Mana.",
+  "effects": [
+   {
+    "ability": "lich_form",
+    "buffSeconds": 5,
+    "cost": -10
+   }
+  ]
+ },
+ {
+  "id": "grave_master",
+  "name": "Grave Master",
+  "type": "Class",
+  "level": 16,
+  "class": "necromancer",
+  "description": "You hold two more Grave Charges, and your skeletons are sturdier (a step of growth).",
+  "effects": [
+   {
+    "graveCharges": 2
+   },
+   {
+    "minionGrowth": 1
+   }
+  ]
+ },
+ {
+  "id": "powder_and_nerve",
+  "name": "Powder and Nerve",
+  "type": "Class",
+  "level": 16,
+  "class": "gunslinger",
+  "description": "Smoke and Thunder lasts 4 s longer and costs 10 less Grit.",
+  "effects": [
+   {
+    "ability": "smoke_and_thunder",
+    "buffSeconds": 4,
+    "cost": -10
+   }
+  ]
+ },
+ {
+  "id": "gun_legend",
+  "name": "Gun Legend",
+  "type": "Class",
+  "level": 16,
+  "class": "gunslinger",
+  "description": "+1 to attack rolls, and every gun holds a round more.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 1
+   },
+   {
+    "capacity": 1
+   }
+  ]
+ },
+ {
+  "id": "earthbreaker",
+  "name": "Earthbreaker",
+  "type": "Class",
+  "level": 18,
+  "class": "fighter",
+  "description": "Vanguard: Titan's Wrath reaches a tile further and costs 10 less Fury.",
+  "effects": [
+   {
+    "ability": "titans_wrath",
+    "radius": 1,
+    "cost": -10
+   }
+  ],
+  "subclass": "vanguard"
+ },
+ {
+  "id": "immovable",
+  "name": "Immovable",
+  "type": "Class",
+  "level": 18,
+  "class": "fighter",
+  "description": "Bulwark: Bastion lasts 4 s longer, and Shield Block takes 3 more off a blow.",
+  "effects": [
+   {
+    "ability": "bastion",
+    "buffSeconds": 4
+   },
+   {
+    "blockHardness": 3
+   }
+  ],
+  "subclass": "bulwark"
+ },
+ {
+  "id": "dayspring",
+  "name": "Dayspring",
+  "type": "Class",
+  "level": 18,
+  "class": "champion",
+  "description": "Lanternbearer: Sunburst costs 10 less Devotion, and your Strikes against the undead deal 2 more vitality.",
+  "effects": [
+   {
+    "ability": "sunburst",
+    "cost": -10
+   },
+   {
+    "undeadBane": 2
+   }
+  ],
+  "subclass": "lanternbearer"
+ },
+ {
+  "id": "ash_and_ruin",
+  "name": "Ash and Ruin",
+  "type": "Class",
+  "level": 18,
+  "class": "champion",
+  "description": "Oathbreaker: Ashen Cataclysm reaches a tile further and costs 10 less Taint.",
+  "effects": [
+   {
+    "ability": "ashen_cataclysm",
+    "radius": 1,
+    "cost": -10
+   }
+  ],
+  "subclass": "oathbreaker"
+ },
+ {
+  "id": "final_word",
+  "name": "Final Word",
+  "type": "Class",
+  "level": 18,
+  "class": "champion",
+  "description": "Paladin: Hammer of the Just stuns a second longer and costs 10 less Devotion.",
+  "effects": [
+   {
+    "ability": "hammer_of_the_just",
+    "onHitSeconds": 1,
+    "cost": -10
+   }
+  ],
+  "subclass": "paladin"
+ },
+ {
+  "id": "red_harvest",
+  "name": "Red Harvest",
+  "type": "Class",
+  "level": 18,
+  "class": "rogue",
+  "description": "Cutthroat: A Thousand Cuts bleeds a die more, and +1d6 sneak attack.",
+  "effects": [
+   {
+    "ability": "thousand_cuts",
+    "persistentDice": 1
+   },
+   {
+    "sneakDice": 1
+   }
+  ],
+  "subclass": "cutthroat"
+ },
+ {
+  "id": "powder_monkey",
+  "name": "Powder Monkey",
+  "type": "Class",
+  "level": 18,
+  "class": "rogue",
+  "description": "Trickster: Infernal Device bursts a tile wider and stuns half a second longer.",
+  "effects": [
+   {
+    "ability": "infernal_device",
+    "radius": 1,
+    "onHitSeconds": 0.5
+   }
+  ],
+  "subclass": "trickster"
+ },
+ {
+  "id": "blot_out_the_sun",
+  "name": "Blot Out the Sun",
+  "type": "Class",
+  "level": 18,
+  "class": "ranger",
+  "description": "Marksman: Arrow Storm falls a tile wider and costs 10 less Focus.",
+  "effects": [
+   {
+    "ability": "arrow_storm",
+    "radius": 1,
+    "cost": -10
+   }
+  ],
+  "subclass": "marksman"
+ },
+ {
+  "id": "old_wolf",
+  "name": "The Old Wolf",
+  "type": "Class",
+  "level": 18,
+  "class": "ranger",
+  "description": "Beastmaster: the old wolf stays 10 s longer, and your wolf grows again.",
+  "effects": [
+   {
+    "ability": "alphas_call",
+    "buffSeconds": 10
+   },
+   {
+    "companionGrowth": 1
+   }
+  ],
+  "subclass": "beastmaster"
+ },
+ {
+  "id": "starfall",
+  "name": "Starfall",
+  "type": "Class",
+  "level": 18,
+  "class": "wizard",
+  "description": "Pyromancer: Meteor Swarm falls a tile wider and costs 8 less Mana.",
+  "effects": [
+   {
+    "ability": "meteor_swarm",
+    "radius": 1,
+    "cost": -8
+   }
+  ],
+  "subclass": "pyromancer"
+ },
+ {
+  "id": "eye_of_the_storm",
+  "name": "Eye of the Storm",
+  "type": "Class",
+  "level": 18,
+  "class": "wizard",
+  "description": "Stormcaller: Tempest reaches a tile further and costs 8 less Mana.",
+  "effects": [
+   {
+    "ability": "tempest",
+    "radius": 1,
+    "cost": -8
+   }
+  ],
+  "subclass": "stormcaller"
+ },
+ {
+  "id": "legion_of_bone",
+  "name": "Legion of Bone",
+  "type": "Class",
+  "level": 18,
+  "class": "necromancer",
+  "description": "Bonelord: the Army of the Dead stands 8 s longer, and you hold one more skeleton.",
+  "effects": [
+   {
+    "ability": "army_of_the_dead",
+    "buffSeconds": 8
+   },
+   {
+    "minions": 1
+   }
+  ],
+  "subclass": "bonelord"
+ },
+ {
+  "id": "black_death",
+  "name": "Black Death",
+  "type": "Class",
+  "level": 18,
+  "class": "necromancer",
+  "description": "Plaguebringer: Plague Tide spreads a tile wider and its rot bleeds a die more.",
+  "effects": [
+   {
+    "ability": "plague_tide",
+    "radius": 1,
+    "persistentDice": 1
+   }
+  ],
+  "subclass": "plaguebringer"
+ },
+ {
+  "id": "hell_and_high_water",
+  "name": "Hell and High Water",
+  "type": "Class",
+  "level": 18,
+  "class": "gunslinger",
+  "description": "Pistolero: Lead Storm finds two more targets and costs 10 less Grit.",
+  "effects": [
+   {
+    "ability": "lead_storm",
+    "targets": 2,
+    "cost": -10
+   }
+  ],
+  "subclass": "pistolero"
+ },
+ {
+  "id": "one_mile_out",
+  "name": "One Mile Out",
+  "type": "Class",
+  "level": 18,
+  "class": "gunslinger",
+  "description": "Sniper: Perfect Shot costs 10 less Grit, and your Strikes at a target 6 tiles off or more deal 3 more damage.",
+  "effects": [
+   {
+    "ability": "perfect_shot",
+    "cost": -10
+   },
+   {
+    "distantDamage": 3
+   }
+  ],
+  "subclass": "sniper"
+ },
+ {
+  "id": "living_legend",
+  "name": "Living Legend",
+  "type": "Class",
+  "level": 20,
+  "class": "fighter",
+  "description": "+5 HP a level, +1 AC and +1 to every save.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 5
+   },
+   {
+    "statistic": "ArmorClass",
+    "value": 1
+   },
+   {
+    "statistic": "Fortitude",
+    "value": 1
+   },
+   {
+    "statistic": "Reflex",
+    "value": 1
+   },
+   {
+    "statistic": "Will",
+    "value": 1
+   }
+  ]
+ },
+ {
+  "id": "saints_heart",
+  "name": "Saint's Heart",
+  "type": "Class",
+  "level": 20,
+  "class": "champion",
+  "description": "+4 HP a level, Lay on Hands heals half again as much, and the Taint builds a quarter more slowly in you.",
+  "effects": [
+   {
+    "hitPointsPerLevel": 4
+   },
+   {
+    "healShare": 0.5
+   },
+   {
+    "taintRate": 0.25
+   }
+  ]
+ },
+ {
+  "id": "unseen_hand",
+  "name": "The Unseen Hand",
+  "type": "Class",
+  "level": 20,
+  "class": "rogue",
+  "description": "+2d6 sneak attack, and +2 to attack rolls.",
+  "effects": [
+   {
+    "sneakDice": 2
+   },
+   {
+    "statistic": "Attack",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "hunt_eternal",
+  "name": "The Eternal Hunt",
+  "type": "Class",
+  "level": 20,
+  "class": "ranger",
+  "description": "+2 to attack rolls, Hunt Prey deals a die more, and your bows reach 2 tiles further.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 2
+   },
+   {
+    "preyDice": 1
+   },
+   {
+    "weaponRange": 2
+   }
+  ]
+ },
+ {
+  "id": "archmage",
+  "name": "Archmage",
+  "type": "Class",
+  "level": 20,
+  "class": "wizard",
+  "description": "+2 to spell attacks and spell DCs, and your Mana returns half again as fast.",
+  "effects": [
+   {
+    "statistic": "SpellAttack",
+    "value": 2
+   },
+   {
+    "statistic": "SpellDc",
+    "value": 2
+   },
+   {
+    "resourceRegen": 0.5
+   }
+  ]
+ },
+ {
+  "id": "master_of_the_grave",
+  "name": "Master of the Grave",
+  "type": "Class",
+  "level": 20,
+  "class": "necromancer",
+  "description": "You hold one more skeleton, they are sturdier (two steps of growth), and +2 to spell DCs.",
+  "effects": [
+   {
+    "minions": 1
+   },
+   {
+    "minionGrowth": 2
+   },
+   {
+    "statistic": "SpellDc",
+    "value": 2
+   }
+  ]
+ },
+ {
+  "id": "last_gunslinger",
+  "name": "The Last Gunslinger",
+  "type": "Class",
+  "level": 20,
+  "class": "gunslinger",
+  "description": "+2 to attack rolls, your hits build 3 more Grit, and your guns load a quarter faster.",
+  "effects": [
+   {
+    "statistic": "Attack",
+    "value": 2
+   },
+   {
+    "furyPerHit": 3
+   },
+   {
+    "reloadSpeed": 0.25
    }
   ]
  }

@@ -44,7 +44,8 @@ public sealed partial class GameWorld
     /// </summary>
     private void UpdateChoir(MonsterActor m, BossDefinition boss, BossPhase phase, double dt)
     {
-        if (boss.Sisters is { Count: > 0 } sisters)
+        // A Choir Echo half laid to rest (the candles snuffed) comes without her sisters.
+        if (boss.Sisters is { Count: > 0 } sisters && !m.EchoAlone)
         {
             var standing = _monsters.Where(x => x.SharesWith == m && !x.IsReflection && !x.IsDead && x.Definition.Id != phase.Joins).ToList();
             if (phase.Withdraw && standing.Count > 0)
@@ -202,6 +203,11 @@ public sealed partial class GameWorld
         var singer = _monsters.Where(x => (x == m || x.SharesWith == m) && !x.IsDead && !x.IsReflection).MinBy(x => x.DistanceTo(Hero)) ?? m;
         Float(singer, "THE SONG", FloatingTextKind.Critical, 0.9);
         Sound(SoundCue.WitchCast, singer);
+        if (Steadfast)
+        {
+            Float(Hero, "unmoved", FloatingTextKind.Miss, 0.6);
+            return;
+        }
         var bonus = Flag("act3.penitent") == "forgiven" ? CounterSongBonus : 0;
         var degree = Check.Roll(Random, Hero.Character.Save(StatisticKind.Will).Total + bonus, m.Creature.Stats.SaveDc).Degree;
         if (degree >= DegreeOfSuccess.Success)

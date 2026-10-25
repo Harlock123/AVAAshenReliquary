@@ -42,7 +42,8 @@ public sealed partial class GameWorld
     {
         var boss = m.Definition.Boss!;
         var share = (double)m.Creature.HitPoints / m.Creature.Stats.HitPoints;
-        while (m.BossPhase + 1 < boss.Phases.Count && share <= boss.Phases[m.BossPhase + 1].Below)
+        // An Echo never reaches its Herald's last phase.
+        while (m.BossPhase < LastPhase(m) && share <= boss.Phases[m.BossPhase + 1].Below)
         {
             m.BossPhase++;
             EnterPhase(m, boss.Phases[m.BossPhase]);
@@ -304,6 +305,13 @@ public sealed partial class GameWorld
             add.Play("die", restart: true);
         }
         ClearBossAftermath();
+        // An Echo's fall is only its own: no Herald's flag, journal or line (its pack's flag opens the next ward).
+        if (m.IsEcho)
+        {
+            Arrival = new Banner($"{m.Name} fades", "Another of the Prophet's Heralds is laid to rest.", Time);
+            Say($"The {m.Name.ToLowerInvariant()} breaks apart into ash.");
+            return;
+        }
         if (boss.DeathFlag is { } flag)
             SetFlag(flag, boss.DeathValue ?? "slain");
         if (boss.Journal is { } entry)

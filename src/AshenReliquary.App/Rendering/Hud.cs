@@ -999,7 +999,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             var x = bar.Left + bar.Width * (float)phase.Below;
             canvas.DrawLine(x, bar.Top - 3, x, bar.Bottom + 3, notch);
         }
-        canvas.DrawText($"{(boss.Definition.Boss.BarName ?? boss.Definition.Name).ToUpperInvariant()}  ·  HERALD", bar.MidX, bar.Top - 8, SKTextAlign.Center, title, ink);
+        canvas.DrawText($"{(boss.IsEcho ? boss.Name : boss.Definition.Boss.BarName ?? boss.Definition.Name).ToUpperInvariant()}  ·  {(boss.IsEcho ? "ECHO" : "HERALD")}", bar.MidX, bar.Top - 8, SKTextAlign.Center, title, ink);
         var phaseName = boss.Definition.Boss.Phases[boss.BossPhase].Name;
         var line = boss.EnrageLeft is { } left
             ? left > 0 ? $"{phaseName}  ·  the cauldron boils over in {left:0} s" : $"{phaseName}  ·  the deluge!"

@@ -125,7 +125,9 @@ public sealed partial class GameWorld
         }
         var shots = ability.SpendLoad ? Math.Max(1, Hero.Loaded) : ability.StrikeCount;
         shots = Math.Max(1, Math.Min(shots, Math.Max(1, Hero.Loaded)));
-        Hero.Loaded = Math.Max(0, Hero.Loaded - shots);
+        // Smoke and Thunder: the gun never empties.
+        if (!FreeReloads)
+            Hero.Loaded = Math.Max(0, Hero.Loaded - shots);
         return shots;
     }
 

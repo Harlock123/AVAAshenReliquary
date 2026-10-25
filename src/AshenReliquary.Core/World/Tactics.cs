@@ -23,7 +23,8 @@ namespace AshenReliquary.Core.World;
 /// a champion, siphons life when hurt and otherwise casts Grave Bolt. The gunslinger keeps its distance as the ranger
 /// does (Hit the Dirt! out of melee, loading the gun as it lands), fires Risky Reload when its gun is empty, Headshots
 /// anything tough, fans the hammer with two rounds or more loaded, scatters shot into a crowd and Crack Shots with Grit
-/// to spare. Every class goes for the Choir's true voice once it is heard among her reflections.
+/// to spare. Every class goes for the Choir's true voice once it is heard among her reflections, and for a pack's leader
+/// when it is within reach (Act 4). From level 16 each class raises its capstone form when a fight is worth it.
 /// </summary>
 public static class Tactics
 {
@@ -100,6 +101,10 @@ public static class Tactics
         // Among the Choir's reflections, the true voice once heard (anything else may be a reflection).
         if (world.Monsters.FirstOrDefault(m => !m.IsDead && world.Time < m.TrueVoiceUntil) is { } voice)
             target = voice;
+        // Act 4's packs: their leader first, when it is near enough to reach (the pack breaks when it falls).
+        else if (target.Leader is { IsDead: false } leader && leader != target && world.CanTarget(leader) && world.IsLit(leader.X, leader.Y)
+                 && leader.DistanceTo(hero) < 6)
+            target = leader;
         var resource = hero.Resource;
         // Abilities by id, on the bar or waiting in the list (a player would put them on the bar).
         bool Ready(string id, out string slot)
@@ -165,6 +170,29 @@ public static class Tactics
             }
             (string Id, bool When, MonsterActor? At, (double X, double Y)? Toward)[] signatures =
             [
+                // Levels 16 and 18 (M4 step 8): the capstone forms when a fight is worth one, then the last signatures.
+                ("unstoppable", (tough || Within(3) >= 3) && distance < 3 && !AuraUp("unstoppable"), null, null),
+                ("avatar_of_the_lantern", (tough || Within(4) >= 2 || health < 0.6) && distance < 4 && !AuraUp("avatar_of_the_lantern"), null, null),
+                ("death_mark", tough && distance < 2.5 && !AuraUp("death_mark"), null, null),
+                ("hunters_apex", (tough || Within(8) >= 3) && !AuraUp("hunters_apex"), null, null),
+                ("lich_form", world.Allies.Count(a => !a.IsDead) >= 2 && (tough || Within(8) >= 3) && !AuraUp("lich_form"), null, null),
+                ("smoke_and_thunder", (tough || Within(8) >= 3) && !AuraUp("smoke_and_thunder"), null, null),
+                ("titans_wrath", Within(3) >= 2 && world.WieldsTwoHanded, null, null),
+                ("bastion", distance < 2.5 && !AuraUp("bastion") && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true }, null, null),
+                ("sunburst", Within(5) >= 2 || (health < 0.5 && Within(5) >= 1), null, null),
+                ("ashen_cataclysm", Within(4) >= 2 || (tough && Within(4) >= 1), null, null),
+                ("hammer_of_the_just", distance < 1.8 && tough, target, null),
+                ("thousand_cuts", distance < 1.8 && tough, target, null),
+                ("infernal_device", Within(3) >= 2, null, null),
+                ("arrow_storm", distance < 12 && Near(target, 3.5) >= 2, target, null),
+                ("alphas_call", tough || Within(8) >= 3, null, null),
+                ("meteor_swarm", distance < 12 && Near(target, 4.5) >= 2, target, null),
+                ("tempest", Within(5) >= 2, null, null),
+                ("army_of_the_dead", tough || Within(8) >= 3, null, null),
+                ("plague_tide", distance < 10 && Near(target, 4.5) >= 2, target, null),
+                ("lead_storm", Within(6) >= 2 || tough, target, null),
+                ("perfect_shot", tough && distance < 13, target, null),
+                ("disintegrate", target.Creature.Stats.Rank >= CreatureRank.Normal && distance < 10, target, null),
                 ("earthsplitter", Within(3.5) >= 2 && world.WieldsTwoHanded, target, null),
                 ("shield_rush", distance > 2.5 && distance < 7 && hero.Equipment.In(EquipSlot.OffHand) is { Definition.IsShield: true }, target, null),
                 ("dawnbreak", Within(4) >= 2 || (health < 0.5 && Within(4) >= 1), null, null),

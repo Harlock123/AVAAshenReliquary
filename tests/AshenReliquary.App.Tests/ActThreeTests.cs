@@ -56,7 +56,7 @@ public class ActThreeTests
             TestHooks.Slay(world, m);
         var spawn = typeof(GameWorld).GetMethod("SpawnNear", BindingFlags.NonPublic | BindingFlags.Instance)!;
         var champion = (MonsterActor)spawn.Invoke(world, ["legionary", Core.Creatures.CreatureRank.Champion, world.Hero.X + 4, world.Hero.Y - 2, 0.0, 999,
-            (int?)8, new[] { "mirrored", "hasted" }])!;
+            (int?)8, new[] { "mirrored", "hasted" }, null])!;
         var hurt = typeof(GameWorld).GetMethod("DamageMonster", BindingFlags.NonPublic | BindingFlags.Instance)!;
         hurt.Invoke(world, [champion, champion.Creature.Stats.HitPoints * 6 / 10]);
         kit.Play(0.6);
@@ -69,7 +69,7 @@ public class ActThreeTests
     {
         var spawn = typeof(GameWorld).GetMethod("SpawnNear", BindingFlags.NonPublic | BindingFlags.Instance)!;
         return (MonsterActor)spawn.Invoke(world, [creature, Core.Creatures.CreatureRank.Normal, world.Hero.X + dx, world.Hero.Y + dy, 0.0, 999,
-            (int?)level, Array.Empty<string>()])!;
+            (int?)level, Array.Empty<string>(), null])!;
     }
 
     private static void Clear(GameWorld world)

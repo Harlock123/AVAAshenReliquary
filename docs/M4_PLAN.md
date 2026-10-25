@@ -152,7 +152,7 @@ saves enthralling the hero); Three Candles (set right, or snuffed); the Penitent
 the song, banished joins the Choir). The campaign plays Acts 1–3 to the Choir with every subclass. Act 3 is whole. See
 the spec, section 16, "The Bell Tower and the Choir of Whispers".
 
-### 8. Levels 16–20 and Act 4
+### 8. Levels 16–20 and Act 4 (done)
 
 - **Levels:** the rest of the class kits, spell ranks 9–10, the Act 4 Uniques and Set.
 - **The Ember Gate camp.**
@@ -163,6 +163,14 @@ the spec, section 16, "The Bell Tower and the Choir of Whispers".
   - The Reliquary (a dungeon): elite-only packs, and a gauntlet of Herald Echoes on the Echo rule.
 - **The AI's fourth behaviour:** packs a leader buffs.
 - **Side stories:** Wyrm Egg and Last Lantern.
+
+*Done (2026-10-25):* a capstone at 16 for each class (forms: Unstoppable, Avatar of the Lantern, Death Mark, Hunter's
+Apex, Lich Form, Smoke and Thunder; the wizard's Disintegrate), a subclass signature at 18, feats at 16, 18 and 20 (and
+enough general, ancestry and skill feats for the picks to 20), five Uniques and the Last Lantern's Plate; Act 4's tileset
+(Flare's cave set recoloured, generated lava and embers, the ruins); the Ember Gate camp, the Ash Wastes (ash storms),
+the Lava Rivers (lava, bridges, embers), the Wyrm's Nest (Vorthrax's cavern empty until step 9) and the Reliquary
+(wards, elite-led packs, the gauntlet of Herald Echoes); pack leaders; the Wyrm's Egg (a drakeling pet) and the Last
+Lantern. See the spec, section 16, "Levels 16–20 and Act 4".
 
 ### 9. Vorthrax the Cinderwyrm
 

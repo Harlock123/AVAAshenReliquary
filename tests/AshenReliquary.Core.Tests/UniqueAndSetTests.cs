@@ -17,16 +17,17 @@ public class UniqueAndSetTests
     private static Item Make(string id) => LootGenerator.Make(Content.Item(id), 3);
 
     [Fact]
-    public void Uniques_for_levels_one_to_fifteen_each_with_a_trait_and_a_set_an_act()
+    public void Uniques_for_levels_one_to_twenty_each_with_a_trait_and_a_set_an_act()
     {
         var uniques = Content.Items.Values.Where(i => i.Unique).ToList();
-        // Act 1's thirteen, Act 2's five (M4 step 1) and Hadric's Severed Oath (step 3), Act 3's five (step 5).
-        Assert.InRange(uniques.Count, 24, 26);
+        // Act 1's thirteen, Act 2's five (M4 step 1) and Hadric's Severed Oath (step 3), Act 3's five (step 5), Act 4's
+        // five (step 8).
+        Assert.InRange(uniques.Count, 29, 31);
         Assert.All(uniques, u => Assert.False(string.IsNullOrEmpty(u.Trait), u.Id));
         Assert.All(uniques, u => Assert.NotEmpty(u.Effects!));
-        Assert.All(uniques, u => Assert.InRange(u.MinLevel, 1, 15));
+        Assert.All(uniques, u => Assert.InRange(u.MinLevel, 1, 20));
         Assert.Equal(["ferrymans_knot", "hadrics_severed_oath", "weeping_soulgem", "ysoldes_phial"], uniques.Where(u => u.Story).Select(u => u.Id).Order());
-        Assert.Equal(5, Content.Sets.Count);
+        Assert.Equal(6, Content.Sets.Count);
         foreach (var set in Content.Sets.Values)
         {
             var pieces = Content.Items.Values.Count(i => i.Set == set.Id);

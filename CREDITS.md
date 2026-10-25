@@ -8,7 +8,15 @@ Generated from `assets.manifest.json` by `tools/build_credits.py`. Every third-p
 - Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
 - Authors: The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt
 - Changes: None. Files are copied unmodified from mods/fantasycore/ (images, animation and tileset definitions, hero_layers.txt, tileset_config.txt, icons.txt), and the skeleton knight (Centurion Varro) from mods/empyrean_campaign/.
-- Files: 218 (listed in `assets.manifest.json`)
+- Files: 230 (listed in `assets.manifest.json`)
+
+## Act 4's tileset (tileset_cinder): Flare's cave tileset recoloured, with generated lava and embers
+
+- Source: [https://github.com/flareteam/flare-game](https://github.com/flareteam/flare-game) at commit `af6eee6d339a` (retrieved 2026-10-25)
+- Licence: CC-BY-SA 3.0 (`src/AshenReliquary.App/Assets/Flare/LICENSE.txt`)
+- Authors: The Flare art team, led by Clint Bellanger (https://clintbellanger.net); full list in Assets/Flare/CREDITS.txt
+- Changes: tools/build_cinder_tiles.py recolours mods/fantasycore/images/tilesets/tileset_cave.png to ash and basalt (tileset_cinder.png), draws lava and ember ground tiles from noise over its recoloured earth (tileset_cinder_lava.png), and writes tilesetdefs/tileset_cinder.txt: the cave definition, the lava, and the Old Ruins at +1000.
+- Files: 3 (listed in `assets.manifest.json`)
 
 ## Flare character portraits (mods/fantasycore/images/portraits)
 

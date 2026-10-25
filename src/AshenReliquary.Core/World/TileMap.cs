@@ -15,6 +15,11 @@ public sealed class TileMap
         // The Fens' bog: grass the renderer darkens to wet, rotten olive (Flare's water sits a level down, so it can't
         // lie flat among the ground tiles).
         ["bog"] = Enumerable.Range(16, 16).ToArray(),
+        // Act 4's (tileset_cinder): ash is the cave set's earth recoloured; lava and embers are drawn by ShapeLava and by
+        // the cell's parity, so these ids are only a fallback.
+        ["ash"] = Enumerable.Range(16, 16).ToArray(),
+        ["lava"] = [LavaTile + 4 * 15],
+        ["embers"] = [EmberTile],
         ["none"] = [],
     };
 
@@ -26,6 +31,18 @@ public sealed class TileMap
     private readonly bool[,] _bog;
     private readonly bool[,] _cover;
     private readonly bool[,] _avoid;
+    private readonly bool[,] _lava;
+    private readonly bool[,] _gate;
+    private readonly bool[,] _embers;
+
+    /// <summary>Act 4's lava tiles: <see cref="LavaTile"/> + 4 x the corners that are lava + the cell's parity.</summary>
+    public const int LavaTile = 3000;
+
+    /// <summary>Act 4's embers: a walkable crust that burns, by the cell's parity.</summary>
+    public const int EmberTile = 3100;
+
+    /// <summary>What a step onto embers costs the pathfinder: walkers keep to cool ground where they can.</summary>
+    public const double EmberStepCost = 4.0;
 
     /// <summary>What a step onto a bog cell costs the pathfinder: walkers go round a pool when the way round is short.</summary>
     public const double BogStepCost = 3.0;
@@ -42,6 +59,9 @@ public sealed class TileMap
         _bog = new bool[Width, Height];
         _cover = new bool[Width, Height];
         _avoid = new bool[Width, Height];
+        _lava = new bool[Width, Height];
+        _gate = new bool[Width, Height];
+        _embers = new bool[Width, Height];
 
         for (var y = 0; y < Height; y++)
         {
@@ -58,7 +78,12 @@ public sealed class TileMap
                     _objects[x, y] = entry.Stack ? [.. objects] : [objects[Hash(x, y, 1) % objects.Count]];
                 _water[x, y] = entry.Ground == "water";
                 _bog[x, y] = entry.Ground == "bog";
-                _blocked[x, y] = entry.Blocks || _water[x, y];
+                _lava[x, y] = entry.Ground == "lava";
+                _embers[x, y] = entry.Ground == "embers";
+                if (_embers[x, y] && entry.Tiles is not { Count: > 0 })
+                    _ground[x, y] = EmberTile + (x & 1) + 2 * (y & 1);
+                // Lava can't be walked, but a bridge over it can.
+                _blocked[x, y] = entry.Blocks || _water[x, y] || _lava[x, y] && !entry.Bridge;
                 _blocksSight[x, y] = entry.BlocksSight;
                 _cover[x, y] = entry.Cover;
                 if (entry.Light > 0)
@@ -66,6 +91,7 @@ public sealed class TileMap
             }
         }
         ShapeShores();
+        ShapeLava();
         // Traders and chests stand on their tile: walk round them, not through.
         foreach (var at in (zone.Vendors ?? []).Select(v => v.At).Concat((zone.Caches ?? []).Select(c => c.At))
                      .Concat((zone.Npcs ?? []).Select(n => n.At)).Concat((zone.Interactables ?? []).Where(i => i.Blocks).Select(i => i.At)))
@@ -90,10 +116,20 @@ public sealed class TileMap
 
     public IReadOnlyList<int> Objects(int x, int y) => InBounds(x, y) ? _objects[x, y] ?? [] : [];
 
-    public bool IsBlocked(int x, int y) => !InBounds(x, y) || _blocked[x, y];
+    public bool IsBlocked(int x, int y) => !InBounds(x, y) || _blocked[x, y] || _gate[x, y];
 
-    /// <summary>True for a cell nothing can be seen through (a wall, solid rock, a tree trunk).</summary>
-    public bool BlocksSight(int x, int y) => !InBounds(x, y) || _blocksSight[x, y];
+    /// <summary>True for a cell nothing can be seen through (a wall, solid rock, a tree trunk, a ward still burning).</summary>
+    public bool BlocksSight(int x, int y) => !InBounds(x, y) || _blocksSight[x, y] || _gate[x, y];
+
+    /// <summary>True for a cell a ward still closes (the Reliquary's).</summary>
+    public bool IsGate(int x, int y) => InBounds(x, y) && _gate[x, y];
+
+    /// <summary>Closes a cell with a ward, or opens it.</summary>
+    internal void SetGate(int x, int y, bool closed)
+    {
+        if (InBounds(x, y))
+            _gate[x, y] = closed;
+    }
 
     /// <summary>True for a cell the zone file marks as water (its edge cells show a shore).</summary>
     public bool IsWater(int x, int y) => InBounds(x, y) && _water[x, y];
@@ -121,7 +157,36 @@ public sealed class TileMap
     }
 
     /// <summary>The pathfinder's cost multiplier for stepping onto a cell.</summary>
-    public double StepCost(int x, int y) => InBounds(x, y) && _avoid[x, y] ? AvoidStepCost : IsBog(x, y) ? BogStepCost : 1.0;
+    public double StepCost(int x, int y) => InBounds(x, y) && _avoid[x, y] ? AvoidStepCost : IsBog(x, y) ? BogStepCost
+        : IsEmbers(x, y) ? EmberStepCost : 1.0;
+
+    /// <summary>True for a lava cell (a bridge over lava too).</summary>
+    public bool IsLava(int x, int y) => InBounds(x, y) && _lava[x, y];
+
+    /// <summary>True for embers: walkable, and it burns.</summary>
+    public bool IsEmbers(int x, int y) => InBounds(x, y) && _embers[x, y];
+
+    public bool IsEmbers(double x, double y) => IsEmbers((int)Math.Floor(x), (int)Math.Floor(y));
+
+    /// <summary>
+    /// Lava's banks, as <see cref="ShapeShores"/> does a pond's, but with Act 4's own tiles, which lie level with the
+    /// ground: a grid point is lava when the four cells round it are, and each lava cell shows the tile for which of its
+    /// corners are (1 top, 2 right, 4 bottom, 8 left), in the variant its parity picks, so the lava runs on unbroken
+    /// from tile to tile. A lava cell with no lava corner (a lone one) shows its bank's lip as a pool of embers.
+    /// </summary>
+    private void ShapeLava()
+    {
+        bool LavaPoint(int px, int py) => IsLava(px - 1, py - 1) && IsLava(px, py - 1) && IsLava(px - 1, py) && IsLava(px, py);
+        for (var y = 0; y < Height; y++)
+        for (var x = 0; x < Width; x++)
+        {
+            if (!_lava[x, y])
+                continue;
+            var corners = (LavaPoint(x, y) ? 1 : 0) | (LavaPoint(x + 1, y) ? 2 : 0) | (LavaPoint(x + 1, y + 1) ? 4 : 0) | (LavaPoint(x, y + 1) ? 8 : 0);
+            var parity = (x & 1) + 2 * (y & 1);
+            _ground[x, y] = corners == 0 ? EmberTile + parity : LavaTile + 4 * corners + parity;
+        }
+    }
 
     /// <summary>
     /// Flare's water lies a level below the ground, so a pond needs its banks: cliff tiles whose grass top covers the
@@ -183,7 +248,7 @@ public sealed class TileMap
         {
             var t = (double)i / steps;
             int cx = (int)Math.Floor(x0 + (x1 - x0) * t), cy = (int)Math.Floor(y0 + (y1 - y0) * t);
-            if (!InBounds(cx, cy) || _blocksSight[cx, cy])
+            if (!InBounds(cx, cy) || _blocksSight[cx, cy] || _gate[cx, cy])
                 return false;
         }
         return true;
