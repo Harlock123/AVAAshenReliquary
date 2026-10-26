@@ -554,6 +554,10 @@ public sealed partial class GameWorld
     /// </summary>
     public void Attack(MonsterActor monster) => Use(Bar.GetValueOrDefault("lmb") ?? BasicAbility, monster);
 
+    /// <summary>The nearest monster the hero can target within <paramref name="tiles"/>, in the light (a bar button's aim).</summary>
+    public MonsterActor? NearestFoe(double tiles) =>
+        _monsters.Where(m => CanTarget(m) && m.DistanceTo(Hero) <= tiles && IsLit(m.X, m.Y)).MinBy(m => m.DistanceTo(Hero));
+
     /// <summary>
     /// Uses the ability in a bar slot on a monster (right click, keys 1 to 6); <paramref name="toward"/> is the point a
     /// Tumble rolls to (the pointer). False when the slot is empty.

@@ -38,6 +38,29 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
 
     /// <summary>Where a bar slot is on screen, as last drawn (tests click it).</summary>
     public SKRect SlotRect(string slot) => _slotRects.GetValueOrDefault(slot);
+
+    private readonly SKRect[] _beltRects = new SKRect[GameWorld.BeltSize];
+    private SKRect _flaskRect;
+
+    /// <summary>Where a belt slot is on screen, as last drawn.</summary>
+    public SKRect BeltRect(int index) => _beltRects[index];
+
+    /// <summary>Where the healing flasks are on screen, as last drawn.</summary>
+    public SKRect FlaskRect => _flaskRect;
+
+    /// <summary>
+    /// The button under a point, as last drawn: a bar slot's id ("lmb", "1" ...), "belt0" to "belt3", or "flask"; null
+    /// when none. A click on one uses it, as its key would.
+    /// </summary>
+    public string? ButtonAt(SKPoint p)
+    {
+        if (SlotAt(p) is { } slot)
+            return slot;
+        for (var i = 0; i < _beltRects.Length; i++)
+            if (_beltRects[i].Contains(p))
+                return "belt" + i;
+        return _flaskRect.Contains(p) ? "flask" : null;
+    }
     private readonly List<(SKRect Rect, Func<IReadOnlyList<TipLine>> Tip, SKColor Edge)> _regions = [];
 
     private static readonly SKColor Ink = Palette.Ink, Dim = Palette.Dim, Gold = new(240, 200, 90), Good = new(130, 210, 120), Bad = new(232, 105, 94);
@@ -117,10 +140,11 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
             using var spare = new SKPaint { IsAntialias = true, Color = new SKColor(230, 120, 105) };
             canvas.DrawText($"+{c.Potion.Spares}", flaskLeft + HealingPotion.MaxCharges * 22 - 6, rowBase - 26, SKTextAlign.Right, small, spare);
         }
-        Region(SKRect.Create(flaskLeft - 4, rowBase - 68, 70, 46), () =>
+        _flaskRect = SKRect.Create(flaskLeft - 4, rowBase - 68, 70, 46);
+        Region(_flaskRect, () =>
         [
             new("Healing potion", Ink, $"{c.Potion.Charges} / {HealingPotion.MaxCharges}", true),
-            new($"Q: heals 1d8 + {2 * c.Level} over 2 s; 8 s cooldown.", Dim),
+            new($"Q or a click: heals 1d8 + {2 * c.Level} over 2 s; 8 s cooldown.", Dim),
             new("Flasks refill at shrines; a healing draught fills one.", Dim),
             new($"Draught case: {c.Potion.Spares} / {HealingPotion.CaseCapacity} spares. Draughts found with the flasks", Dim),
             new("full go in the case; out of combat it refills empty flasks.", Dim),
@@ -699,7 +723,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
                 if (ability.Id == active)
                     frame.Color = new SKColor(255, 210, 120);
                 var a = ability;
-                Region(rect, () => [.. AbilityTip(world, a, label), new("Right-click to choose what this slot does.", Dim)], AbilityTint(a));
+                Region(rect, () => [.. AbilityTip(world, a, label), new("Click to use it; right-click to choose what this slot does.", Dim)], AbilityTint(a));
             }
             else
                 Region(rect, () => [new($"{label}: empty", Gold, null, true), new("Right-click to choose what this slot does.", Dim)], Gold);
@@ -809,6 +833,7 @@ internal sealed class Hud(IconStore icons, Action<SKCanvas, Core.Items.ItemDefin
         for (var i = 0; i < GameWorld.BeltSize; i++)
         {
             var rect = SKRect.Create(left + i * (slot + gap), top, slot, slot);
+            _beltRects[i] = rect;
             canvas.DrawRect(rect, back);
             if (world.Belt[i] is { } item && world.BeltAbility(i) is { } ability)
             {

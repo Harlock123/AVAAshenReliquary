@@ -122,6 +122,28 @@ public class NecromancerTests
     }
 
     [Fact]
+    public void A_skeleton_whose_foe_falls_turns_on_one_fighting_another_skeleton_not_back_to_the_necromancer()
+    {
+        // The fight is 10 tiles off, past the 7 an ally looks round the hero: the necromancer stands back.
+        var world = World(TestCharacters.Necromancer(), At(13, 6), At(13, 10));
+        world.Hero.Character.CannotFall = true;
+        world.UseSlot("rmb", null);
+        Run(world, 1.1);
+        world.UseSlot("rmb", null);
+        var (first, second) = (world.Minions.First(), world.Minions.Last());
+        (first.X, first.Y) = (12, 5);
+        (second.X, second.Y) = (12, 7);
+        var (a, b) = (world.Monsters.MinBy(m => m.Y)!, world.Monsters.MaxBy(m => m.Y)!);
+        a.State = b.State = MonsterState.Chase;
+        Run(world, 0.5);
+        Assert.Same(second, b.Victim);                                 // b fights the nearer skeleton
+        world.Slay(a);
+        Run(world, 1);
+        Assert.Same(b, first.Target);                                  // the other goes to its help
+        Assert.True(first.DistanceTo(world.Hero) > GameWorld.AllyEngageTiles, "it went back to the necromancer");
+    }
+
+    [Fact]
     public void Siphon_life_heals_half_its_damage()
     {
         var world = World(TestCharacters.Necromancer(), At(13, 8, rank: CreatureRank.Elite));

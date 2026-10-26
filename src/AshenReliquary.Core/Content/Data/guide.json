@@ -28,7 +28,7 @@
       "sections": [
         {
           "heading": "Moving and fighting",
-          "text": "Left-click the ground to walk; hold the button to keep walking. Left-click a monster for your basic attack, right-click it for your right-mouse ability. Keys 1 to 6 use the other slots on your bar against the monster under the cursor. Hold Ctrl and click to attack the monster nearest the cursor without walking. Shift is the Step: a quick dodge toward the pointer, untouchable for a moment, on a short cooldown."
+          "text": "Left-click the ground to walk; hold the button to keep walking. Left-click a monster for your basic attack, right-click it for your right-mouse ability. Keys 1 to 6 use the other slots on your bar against the monster under the cursor. Clicking a slot on the bar, the belt or the flasks uses it too, on your target or else the nearest monster in sight. Hold Ctrl and click to attack the monster nearest the cursor without walking. Shift is the Step: a quick dodge toward the pointer, untouchable for a moment, on a short cooldown."
         },
         {
           "heading": "The bar",

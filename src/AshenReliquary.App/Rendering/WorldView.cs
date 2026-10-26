@@ -97,6 +97,12 @@ public sealed partial class WorldView : Control
 
     public Point BarSlot(string slot) => HudLayer.SlotRect(slot) is var r ? new Point(r.MidX, r.MidY) : default;
 
+    /// <summary>The centre of a belt slot on screen (tests click it).</summary>
+    public Point BeltSlot(int index) => HudLayer.BeltRect(index) is var r ? new Point(r.MidX, r.MidY) : default;
+
+    /// <summary>The centre of the healing flasks on screen (tests click them).</summary>
+    public Point Flasks => HudLayer.FlaskRect is var r ? new Point(r.MidX, r.MidY) : default;
+
     /// <summary>Where an ability's row in the Abilities panel is, as last drawn (tests click it).</summary>
     public Point AbilityRow(string id) => AbilitiesView.RowRect(id) is var r ? new Point(r.MidX, r.MidY) : default;
 
@@ -600,6 +606,13 @@ public sealed partial class WorldView : Control
             InvalidateVisual();
             return;
         }
+        // A click on a bar slot, a belt slot or the flasks uses it, as its key would.
+        if (props.IsLeftButtonPressed && HudLayer.ButtonAt(sp) is { } button)
+        {
+            PressButton(button, world);
+            e.Handled = true;
+            return;
+        }
         // Clicks on the HUD, the minimap or the character sheet never walk the hero there.
         if (HudLayer.Contains(sp))
         {
@@ -884,6 +897,27 @@ public sealed partial class WorldView : Control
             target = CorpseUnder(q);
         world.UseSlot(slot, target, point is { } aim ? ToMap(aim) : null);
     }
+
+    /// <summary>
+    /// A click on a HUD button (<see cref="Hud.ButtonAt"/>): a bar or belt slot is used on the hero's target, else the
+    /// nearest monster in sight (the pointer is on the bar, not on a foe); the flasks are drunk.
+    /// </summary>
+    public void PressButton(string button, GameWorld world)
+    {
+        if (button == "flask")
+        {
+            world.DrinkPotion();
+            return;
+        }
+        var target = Targeted ?? world.NearestFoe(AimTiles);
+        if (button.StartsWith("belt", StringComparison.Ordinal))
+            world.UseBelt(button[4] - '0', target);
+        else
+            world.UseSlot(button, target, target is not null ? (target.X, target.Y) : null);
+    }
+
+    /// <summary>How far from the hero a bar click looks for a foe when nothing is targeted.</summary>
+    public const double AimTiles = 10;
 
     /// <summary>Throws or drinks belt slot <paramref name="slot"/> (keys 7 to 0), a bomb at the monster under the pointer.</summary>
     public void UseBelt(int slot)

@@ -316,7 +316,9 @@ public sealed partial class GameWorld
 
     /// <summary>
     /// What an ally fights: the hero's own target if it is near the hero, else the nearest monster fighting within
-    /// <see cref="AllyEngageTiles"/> of the hero (an ally doesn't wake sleeping packs on its own).
+    /// <see cref="AllyEngageTiles"/> of the hero, of the ally itself, or fighting another of the hero's allies (so a
+    /// pack of skeletons stays in the fight together instead of wandering back to a caster standing off), never past the
+    /// leash. An ally doesn't wake sleeping packs on its own.
     /// </summary>
     private MonsterActor? ChooseAllyTarget(AllyActor ally)
     {
@@ -325,7 +327,8 @@ public sealed partial class GameWorld
             return theirs;
         if (ally.Target is { IsDead: false } current && current.State != MonsterState.Idle && current.DistanceTo(Hero) <= AllyEngageTiles + 3)
             return current;
-        bool Fighting(MonsterActor m) => m.State != MonsterState.Idle && m.DistanceTo(Hero) <= AllyEngageTiles && IsLit(m.X, m.Y);
+        bool Fighting(MonsterActor m) => m.State != MonsterState.Idle && IsLit(m.X, m.Y) && m.DistanceTo(Hero) <= AllyLeashTiles - 2
+            && (m.DistanceTo(Hero) <= AllyEngageTiles || m.DistanceTo(ally) <= AllyEngageTiles || m.Victim is AllyActor);
         return _monsters.Where(m => CanTarget(m) && !m.Aloft && (Fighting(m) || m.Victim == ally)).MinBy(m => m.DistanceTo(ally));
     }
 

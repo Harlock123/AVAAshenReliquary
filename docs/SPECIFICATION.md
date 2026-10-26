@@ -2213,6 +2213,17 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 - **The bag's tooltip** beside a trader or the stash goes to the bag's left, over that panel: it is now drawn after the
   panels (`InventoryPanel.DrawTooltip`), where it used to be drawn under the trader's table.
 
+### The HUD's buttons and the skeletons' fight (after M5 step 5)
+
+- **A click on a HUD button uses it**, as its key would (`Hud.ButtonAt`, `WorldView.PressButton`): a bar slot (LMB,
+  RMB, 1 to 6), a belt slot or the healing flasks. The pointer is on the bar, not on a foe, so a slot or a bomb goes at
+  the hero's target, else the nearest monster in sight within 10 tiles (`GameWorld.NearestFoe`). With the Abilities
+  panel open a click on a slot still places an ability; a right click still opens the slot's menu.
+- **Allies stay in the fight:** an ally used to take a new foe only within 7 tiles of the hero, so a necromancer
+  standing back saw its skeletons finish one monster and walk home while another beat on the last skeleton. Now an ally
+  takes any awake monster within 7 tiles of the hero or of itself, or fighting another of the hero's allies, inside the
+  leash (`ChooseAllyTarget`). It still doesn't wake sleeping packs.
+
 ### The in-game guide (after M4)
 
 - **Where:** a Guide button on the title screen, on the creation screen (open at the class being made; Back returns to
