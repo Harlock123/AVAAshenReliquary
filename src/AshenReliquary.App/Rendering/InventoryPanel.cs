@@ -296,20 +296,31 @@ internal sealed class InventoryPanel
             : world.StashOpen ? "Left-click wear · right-click stash · Ctrl-click junk/lock · drag to move or stash"
             : "Left-click wear · right-click drop · Ctrl-click junk/lock · drag to move or drop", Bounds.MidX, Bounds.Bottom - 8, SKTextAlign.Center, small, dim);
 
-        // Tooltip, outside the panel so it never covers the slots being compared.
+        // Tooltip, outside the panel so it never covers the slots being compared; drawn by DrawTooltip once the trader's
+        // or the stash's panel beside the bag is drawn, so that panel doesn't cover it.
+        _tooltip = null;
         if (pointer is { } p)
         {
             if (hoveredBagItem is { } bagItem)
             {
                 var worn = targetSlot is { } t ? gear.In(t) : null;
                 var where = trading && Bench is null ? $"In your bag · sells for {Pricing.SellPrice(bagItem)} gold" : "In your bag";
-                Tooltip(canvas, size, p, bagItem, worn, where, gear.PreviewEquip(bagItem), "If you wear it:", Bounds, gear);
+                _tooltip = c => Tooltip(c, size, p, bagItem, worn, where, gear.PreviewEquip(bagItem), "If you wear it:", Bounds, gear);
             }
             else if (hoverSlot is { } s && gear.In(s) is { } wornItem)
             {
-                Tooltip(canvas, size, p, wornItem, null, $"Worn · {s}", gear.PreviewUnequip(s), "If you take it off:", Bounds, gear);
+                _tooltip = c => Tooltip(c, size, p, wornItem, null, $"Worn · {s}", gear.PreviewUnequip(s), "If you take it off:", Bounds, gear);
             }
         }
+    }
+
+    private Action<SKCanvas>? _tooltip;
+
+    /// <summary>The hovered item's tooltip from the last <see cref="Draw"/>, drawn over every panel.</summary>
+    public void DrawTooltip(SKCanvas canvas)
+    {
+        _tooltip?.Invoke(canvas);
+        _tooltip = null;
     }
 
     /// <summary>A bag cell's verdict: a red wash over gear the class can't use well, a green ▲ for an upgrade, a red ▼ for a downgrade.</summary>

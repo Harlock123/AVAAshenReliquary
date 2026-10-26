@@ -70,7 +70,7 @@ common gear, **L** the level-up screen (when a level is waiting), **Shift** step
 (a quick dodge toward the pointer), **F5** saves (over your character's save), **F6** saves a copy (a snapshot that
 shows on the title screen as a save of its own, numbered: Elirk-2, Elirk-3; Save a copy in the Escape menu does the
 same),
-**Escape** opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
+**Escape** closes every open panel at once (the bag, the character sheet, a trader, the journal ...); with none open it opens the menu (resume, save, return to the title, save and quit, or just quit without saving),
 **Space** (or **P**) pauses (in the Heart's Pull, at the Cinder Throne, Space is pressed to hold on to the Ember Heart instead), the mouse wheel (or a touchpad's two-finger scroll) zooms through five steps and the game remembers the step, the monster you are attacking has an ember-red ring with turning brackets on the ground under it (the one under the pointer a thin pale ring), **F3** shows the frame rate, render timings and the GPU's texture cache (`ASHEN_STATS=1` starts with it shown and
 also prints it to the terminal every 60 frames). You start as a level-1 Human Fighter beneath the gallows on Gallows Road;
 fight north past the graveyard, the Hangman's Wood, the ruined farmstead, the drowned fields and the barrow field,

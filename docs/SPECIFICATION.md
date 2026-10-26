@@ -2205,6 +2205,14 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
 - **The exit test** (proposed in the plan): the bots' runs pass for every subclass (above); the user plays the Cinder
   Throne and one ending, from a finished Act 4 save or with `--act 4`.
 
+### Escape and the panels' tooltips (after M5 step 5)
+
+- **Escape** closes every panel that is open in one press (the bag, the character sheet, a trader, the stash, the
+  journal, the abilities and level-up screens, a dialogue, the Rift, the bar's menu: `MainWindow.ClosePanels`); only
+  with none open does it open the menu. It used to close one at a time and left the bag and character sheet open.
+- **The bag's tooltip** beside a trader or the stash goes to the bag's left, over that panel: it is now drawn after the
+  panels (`InventoryPanel.DrawTooltip`), where it used to be drawn under the trader's table.
+
 ### The in-game guide (after M4)
 
 - **Where:** a Guide button on the title screen, on the creation screen (open at the class being made; Back returns to

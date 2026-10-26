@@ -1189,6 +1189,8 @@ public sealed partial class WorldView : Control
             Trade.Draw(canvas, panelSize, world, panelPointer);
         if (world.StashOpen)
             StashView.Draw(canvas, panelSize, world, panelPointer);
+        if (InventoryOpen)
+            Inventory.DrawTooltip(canvas);
         canvas.RestoreToCount(unscaled);
         if (InventoryOpen)
             hud.Block(ScreenRect(Inventory.Bounds));

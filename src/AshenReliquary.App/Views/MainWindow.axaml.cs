@@ -346,15 +346,7 @@ public partial class MainWindow : Window
         if (e.Key == Key.Escape)
         {
             if (GameMenu.IsVisible) CloseMenu();
-            else if (World.BindMenuSlot is not null) World.CloseBindMenu();
-            else if (World.LevelUpOpen) World.LevelUpOpen = false;
-            else if (World.AbilitiesOpen) World.AbilitiesOpen = false;
-            else if (world.Dialogue is not null) world.EndDialogue();
-            else if (World.JournalOpen) World.JournalOpen = false;
-            else if (world.OpenVendor is not null) world.CloseVendor();
-            else if (world.OpenShrine is not null) world.CloseRift();
-            else if (world.StashOpen) world.CloseStash();
-            else OpenMenu();
+            else if (!ClosePanels(world)) OpenMenu();
             e.Handled = true;
             return;
         }
@@ -436,4 +428,30 @@ public partial class MainWindow : Window
         }
         e.Handled = true;
     }
+
+    /// <summary>
+    /// Escape: closes every panel that is open (the bag, the character sheet, a trader, the stash, the journal, a dialogue
+    /// ...) at once. False when none was, and Escape opens the menu instead.
+    /// </summary>
+    private bool ClosePanels(Core.World.GameWorld world)
+    {
+        var open = World.BindMenuSlot is not null || World.LevelUpOpen || World.AbilitiesOpen || world.Dialogue is not null
+            || World.JournalOpen || world.OpenVendor is not null || world.OpenShrine is not null || world.StashOpen
+            || World.InventoryOpen || World.CharacterSheetOpen;
+        if (World.BindMenuSlot is not null)
+            World.CloseBindMenu();
+        World.LevelUpOpen = false;
+        World.AbilitiesOpen = false;
+        if (world.Dialogue is not null)
+            world.EndDialogue();
+        World.JournalOpen = false;
+        world.CloseVendor();
+        if (world.OpenShrine is not null)
+            world.CloseRift();
+        world.CloseStash();
+        World.InventoryOpen = false;
+        World.CharacterSheetOpen = false;
+        return open;
+    }
+
 }

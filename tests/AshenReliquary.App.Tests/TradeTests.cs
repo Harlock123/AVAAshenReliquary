@@ -3,6 +3,8 @@ using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Controls;
 using Avalonia.Input;
+using System.Runtime.InteropServices;
+using Avalonia.Media.Imaging;
 
 namespace AshenReliquary.App.Tests;
 
@@ -194,5 +196,82 @@ public class TradeTests
         view.InventoryOpen = true;
         kit.Play(0.1);
         Assert.Equal(1f, view.PanelScale);
+    }
+    [AvaloniaFact]
+    public void A_bag_items_tooltip_is_drawn_over_the_traders_table_not_under_it()
+    {
+        var kit = TestKit.Open(seed: 21, width: 1312, height: 824, zoneId: "fort_gallowmere");
+        var world = kit.World;
+        var vendor = world.Vendors.Single(v => v.Definition.Id == "wenna");
+        TestHooks.Place(world, vendor.X + 1, vendor.Y + 1);
+        world.TalkTo(vendor);
+        kit.PlayUntil(() => world.OpenVendor is not null, 6);
+        var knife = Core.Items.LootGenerator.Make(Core.Content.ContentDatabase.Embedded.Item("whisperknife"), 3);
+        Assert.True(world.Hero.Equipment.TryAdd(knife));
+        kit.Play(0.1);
+        var view = kit.Window.View;
+        var index = world.Hero.Equipment.Bag.ToList().IndexOf(knife);
+        var cell = view.BagCell(index);
+
+        // The tooltip goes to the bag's left, over the trader's table: hovered, the table's right edge is covered by it.
+        kit.Window.MouseMove(new Point(cell.X, view.Bounds.Height - 20));
+        kit.Play(0.05);
+        var bare = kit.Capture();
+        kit.Window.MouseMove(cell);
+        kit.Play(0.05);
+        var hovered = kit.Capture(Shot("trade-bag-tooltip"));
+        var left = (int)((16 + AshenReliquary.App.Rendering.VendorPanel.Width - 50) * view.PanelScale);
+        var changed = Changed(bare, hovered, left, left + 40, (int)cell.Y, (int)cell.Y + 60);
+        Assert.True(changed > 400, $"only {changed} pixels of the tooltip show over the trader's table");
+    }
+
+    private static int Changed(WriteableBitmap a, WriteableBitmap b, int x0, int x1, int y0, int y1)
+    {
+        using var la = a.Lock();
+        using var lb = b.Lock();
+        var ra = new byte[la.RowBytes];
+        var rb = new byte[lb.RowBytes];
+        var count = 0;
+        for (var y = y0; y < y1; y++)
+        {
+            Marshal.Copy(la.Address + y * la.RowBytes, ra, 0, ra.Length);
+            Marshal.Copy(lb.Address + y * lb.RowBytes, rb, 0, rb.Length);
+            for (var x = x0; x < x1; x++)
+                if (Math.Abs(ra[x * 4] - rb[x * 4]) + Math.Abs(ra[x * 4 + 1] - rb[x * 4 + 1]) + Math.Abs(ra[x * 4 + 2] - rb[x * 4 + 2]) > 30)
+                    count++;
+        }
+        return count;
+    }
+    [AvaloniaFact]
+    public void Escape_closes_every_open_panel_at_once_and_only_then_opens_the_menu()
+    {
+        var kit = TestKit.Open(seed: 21, width: 1312, height: 824, zoneId: "fort_gallowmere");
+        var view = kit.Window.View;
+        var menu = kit.Window.FindControl<Control>("GameMenu")!;
+        void Escape()
+        {
+            kit.Window.KeyPress(Key.Escape, RawInputModifiers.None, PhysicalKey.Escape, null);
+            kit.Play(0.05);
+        }
+
+        // The bag alone: Escape closes it, not opening the menu.
+        view.InventoryOpen = true;
+        kit.Play(0.05);
+        Escape();
+        Assert.False(view.InventoryOpen);
+        Assert.False(menu.IsVisible);
+
+        // The bag, the character sheet and the journal together: one Escape closes them all.
+        view.InventoryOpen = view.CharacterSheetOpen = view.JournalOpen = true;
+        kit.Play(0.05);
+        Escape();
+        Assert.False(view.InventoryOpen || view.CharacterSheetOpen || view.JournalOpen);
+        Assert.False(menu.IsVisible);
+
+        // Nothing open: the menu.
+        Escape();
+        Assert.True(menu.IsVisible);
+        Escape();
+        Assert.False(menu.IsVisible);
     }
 }
