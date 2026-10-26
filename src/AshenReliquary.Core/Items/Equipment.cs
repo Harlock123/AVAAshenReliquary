@@ -13,7 +13,7 @@ namespace AshenReliquary.Core.Items;
 /// </summary>
 public sealed class Equipment
 {
-    public const int BagColumns = 10;
+    public const int BagColumns = 14;
     public const int BagRows = 6;
     public const int BagSize = BagColumns * BagRows;
     public const int InvestedLimit = 10;

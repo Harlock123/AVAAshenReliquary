@@ -767,10 +767,12 @@ public sealed class Character : IDefender
     /// A skill: its attribute + proficiency rank (<see cref="SkillRank"/>) + the armour's check penalty for Strength
     /// and Dexterity skills + feats' circumstance bonuses (the best one counts).
     /// </summary>
-    public ModifierTotal Skill(string skill)
+    public ModifierTotal Skill(string skill) => SkillAt(skill, SkillRank(skill));
+
+    /// <summary>A skill as it would be at <paramref name="rank"/> (the level-up screen's preview of an increase).</summary>
+    public ModifierTotal SkillAt(string skill, ProficiencyRank rank)
     {
         var attribute = Skills.AttributeFor(skill);
-        var rank = SkillRank(skill);
         var penalty = attribute is AttributeKind.Strength or AttributeKind.Dexterity
             ? Armor.CheckPenalty(Attributes[AttributeKind.Strength]) : 0;
         var bonuses = _skillBonuses

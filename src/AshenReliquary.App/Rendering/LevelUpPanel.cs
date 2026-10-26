@@ -27,6 +27,8 @@ internal sealed class LevelUpPanel
     private string? _skill;
     private readonly List<AttributeKind> _boosts = [];
     private readonly List<(SKRect Rect, Action Pick, string Title, string Text)> _hits = [];
+    /// <summary>The skill increase's rows, for the hover that shows what each would do.</summary>
+    private readonly List<(SKRect Rect, string Skill)> _skillHits = [];
     private SKRect _confirm;
 
     private static readonly (LevelGain Gain, FeatType Type, string Title)[] FeatGains =
@@ -65,6 +67,7 @@ internal sealed class LevelUpPanel
         var width = Math.Min(Width, size.Width - 16);
         Bounds = SKRect.Create((size.Width - width) / 2, 16, width, Math.Max(420, size.Height - 32 - 150));
         _hits.Clear();
+        _skillHits.Clear();
 
         using var back = new SKPaint { Color = Palette.Panel.WithAlpha(255) };   // a full-screen sheet: nothing should show through
         using var frame = new SKPaint { Color = Palette.Frame, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
@@ -143,8 +146,11 @@ internal sealed class LevelUpPanel
             {
                 var s = skill;
                 var rank = c.SkillRank(skill);
+                var rowTop = sy;
                 Option(sx, ref sy, $"{skill}  {rank} → {rank + 1}", _skill == skill, () => _skill = s,
-                    skill, $"Raise {skill} from {rank.ToString().ToLowerInvariant()} to {(rank + 1).ToString().ToLowerInvariant()}: +2 to its checks.", describe: false);
+                    skill, $"Raise {skill} from {rank.ToString().ToLowerInvariant()} to {(rank + 1).ToString().ToLowerInvariant()}: "
+                    + $"{c.Skill(skill).Total:+0;-0;+0} → {c.SkillAt(skill, rank + 1).Total:+0;-0;+0} to its checks.", describe: false);
+                _skillHits.Add((SKRect.Create(sx, rowTop, ColumnWidth - 12, sy - rowTop - 4), s));
             }
             sy += 14;
         }
@@ -199,6 +205,33 @@ internal sealed class LevelUpPanel
             for (var i = 0; i < lines.Count; i++)
                 canvas.DrawText(lines[i], Bounds.Left + Pad, _confirm.MidY + 5 - (lines.Count - 1 - i) * 15, SKTextAlign.Left, small, gold);
         }
+
+        // Hovering a skill shows what the increase would do: its checks before and after, and where the game rolls it.
+        // Beside the row rather than over the skills under it.
+        var row = pointer is { } at ? _skillHits.FirstOrDefault(h => h.Rect.Contains(at)) : default;
+        Tip = row.Skill is { } hovered ? SkillTip(c, hovered, small) : null;
+        if (Tip is not null)
+            TooltipBox.Draw(canvas, size, new SKPoint(row.Rect.Right - 12, row.Rect.Bottom), Tip, Palette.Gold);
+    }
+
+    /// <summary>The skill tooltip as last drawn, or null (tests read it).</summary>
+    public IReadOnlyList<TipLine>? Tip { get; private set; }
+
+    /// <summary>The hover over a skill increase: <see cref="SkillIncrease.Preview"/>, wrapped to the tooltip.</summary>
+    private static List<TipLine> SkillTip(Character c, string skill, SKFont font)
+    {
+        var content = Core.Content.ContentDatabase.Embedded;
+        var rank = c.SkillRank(skill);
+        var tip = new List<TipLine> { new($"{skill}: {rank} → {rank + 1}", Palette.Gold, null, true) };
+        foreach (var line in SkillIncrease.Preview(c, skill, content.Dialogues.Values, content.Feats.Values))
+        {
+            var color = line.Better ? InventoryPanel.Better : Palette.Dim;
+            if (line.Right is not null)
+                tip.Add(new(line.Text, color, line.Right));
+            else
+                tip.AddRange(Wrap(line.Text, font, 390).Select((w, i) => new TipLine(i == 0 ? w : "  " + w, color)));
+        }
+        return tip;
     }
 
     /// <summary>

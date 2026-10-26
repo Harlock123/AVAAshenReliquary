@@ -186,6 +186,32 @@ public class CreationTests
     }
 
     [AvaloniaFact]
+    public void Hovering_a_skill_increase_shows_its_checks_before_and_after_and_what_it_opens()
+    {
+        var kit = TestKit.Open();
+        var world = kit.World;
+        TestHooks.GainXp(world, 2000);                                    // to level 3, which brings a skill increase
+        world.ChooseLevel(2, new AshenReliquary.Core.Characters.LevelChoice(ClassFeat: "lunge", SkillFeat: "titan_wrestler"));
+        kit.Window.View.LevelUpOpen = true;
+        kit.Play(0.1);
+        var panel = kit.Window.View.LevelUp;
+        var character = world.Hero.Character;
+        Assert.Equal(AshenReliquary.Core.Rules.ProficiencyRank.Untrained, character.SkillRank("Thievery"));
+        var (rect, _) = panel.Options.First(o => o.Title == "Thievery");
+        kit.Window.MouseMove(new Point(rect.MidX, rect.MidY));
+        kit.Play(0.05);
+        kit.Capture(Shot("level-up-skill-tip"));
+        var tip = panel.Tip!.Select(l => l.Text + (l.Right is { } r ? " " + r : "")).ToList();
+        Assert.Equal("Thievery: Untrained → Trained", tip[0]);
+        Assert.Contains($"Thievery checks {character.Skill("Thievery").Total:+0;-0;+0} → {character.SkillAt("Thievery", AshenReliquary.Core.Rules.ProficiencyRank.Trained).Total:+0;-0;+0}", tip);
+        Assert.Contains(tip, l => l.Contains("disarm traps"));
+        Assert.Contains(tip, l => l.Contains("Quick Lockpick"));
+        kit.Window.MouseMove(new Point(4, 4));
+        kit.Play(0.05);
+        Assert.Null(panel.Tip);
+    }
+
+    [AvaloniaFact]
     public void Respec_at_the_lantern_altar_closes_the_conversation_and_opens_the_level_up_screen()
     {
         var kit = TestKit.Open(zoneId: "fort_gallowmere");

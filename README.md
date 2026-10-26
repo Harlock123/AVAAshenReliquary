@@ -66,7 +66,7 @@ items (right-click bag items to stash them), **J** the journal, in the bag **Sor
 tint gear your class can't use well), **Ctrl-click** marks an item junk then locked, **Drop junk** / **Sell junk** clears
 the junk in one go, **Shift-click** sends an item to the open stash or trader, and items can be dragged between the bag,
 your gear, the stash, a trader's table and the ground; **Alt** shows every loot label when the menu's loot filter hides
-common gear, **L** the level-up screen (when a level is waiting), **Shift** steps
+common gear, **L** the level-up screen (when a level is waiting; hover a skill there to see what raising it does), **Shift** steps
 (a quick dodge toward the pointer), **F5** saves (over your character's save), **F6** saves a copy (a snapshot that
 shows on the title screen as a save of its own, numbered: Elirk-2, Elirk-3; Save a copy in the Escape menu does the
 same),

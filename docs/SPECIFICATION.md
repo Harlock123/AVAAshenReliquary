@@ -2224,6 +2224,17 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   takes any awake monster within 7 tiles of the hero or of itself, or fighting another of the hero's allies, inside the
   leash (`ChooseAllyTarget`). It still doesn't wake sleeping packs.
 
+### The level-up screen's skill hover and a wider bag (after M5 step 5)
+
+- **Hovering a skill increase** on the level-up screen shows what it does (`SkillIncrease.Preview`,
+  `Character.SkillAt`), beside the row: the skill's checks before and after (untrained to trained adds the level + 2;
+  each rank after, 2 more), what the game rolls it for outside talk (Thievery disarms traps, only when trained;
+  Crafting at the forge, with the odds against an item of the hero's level; Stealth for Hide in Shadows), each DC the
+  road's conversations roll it against with the chance of success before and after, and from untrained the skill feats
+  it opens. A skill nothing rolls says so.
+- **The bag** is 14 columns by 6 rows (84 slots; it was 10 by 6), filling the inventory panel's width; its cells are
+  sized by the room both ways. Saves load into it as before (the bag is refilled in order).
+
 ### The in-game guide (after M4)
 
 - **Where:** a Guide button on the title screen, on the creation screen (open at the class being made; Back returns to

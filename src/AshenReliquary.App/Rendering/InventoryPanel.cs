@@ -76,7 +76,8 @@ internal sealed class InventoryPanel
         Bounds = SKRect.Create(size.Width - Width - 16, 16, Width, height);
         _bagTop = WornBottom + 34;
         var room = Bounds.Bottom - 26 - _bagTop;
-        _cell = Math.Clamp(room / Equipment.BagRows - Gap, 26, 48);
+        // As tall as the room under the worn section allows, and no wider than the panel's width holds.
+        _cell = Math.Clamp(Math.Min(room / Equipment.BagRows, (Width - 40) / Equipment.BagColumns) - Gap, 26, 48);
     }
 
     /// <summary>
