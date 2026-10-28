@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # Ashen Reliquary — notes for Claude
 
 An isometric action RPG in Grim Dawn's style with Pathfinder 2e Remaster rules, in .NET 10 + Avalonia 12 +
