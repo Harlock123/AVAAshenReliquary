@@ -351,8 +351,10 @@ ASHEN_SHOTS=/tmp/shots dotnet test tests/AshenReliquary.App.Tests --filter ActFo
 | `ASHEN_CAMPAIGN_SEED=<n>` | Tests: the campaign report plays only that seed (to replay one run that went wrong) |
 | `ASHEN_SHOTS=<folder>` | Tests: the App tests save their screenshots there as PNGs (none are saved without it) |
 
-GitHub Actions (`.github/workflows/build.yml`) builds and tests every push. Publishing and releases are
-added with the App project in M1.
+GitHub Actions (`.github/workflows/build.yml`) builds and tests every push and pull request, then publishes
+the App as a self-contained single-file program for Windows, macOS and Linux on Intel/AMD and ARM (x86 too
+on Windows). The builds are attached to each workflow run; pushes to `main` also refresh the `latest`
+pre-release, and a `v*` tag (e.g. `v0.1.0`) makes a proper release.
 
 ## Licence
 
