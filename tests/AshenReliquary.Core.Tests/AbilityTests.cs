@@ -70,6 +70,16 @@ public class AbilityTests
     }
 
     [Fact]
+    public void Mana_comes_back_slower_than_focus()
+    {
+        var focus = new ClassResource(TestCharacters.Ranger());
+        Assert.Equal(ResourceKind.Focus, focus.Kind);
+        var c = TestCharacters.Ranger();
+        Assert.Equal(1 + 0.25 * c.Attributes[AttributeKind.Dexterity] + 0.1 * c.Level, focus.RegenPerSecond, 6);
+        Assert.True(ClassResource.ManaRegenScale < 1);
+    }
+
+    [Fact]
     public void Mana_starts_full_and_regenerates_with_int_and_level()
     {
         var mana = new ClassResource(TestCharacters.Wizard()); // INT +4, level 1
@@ -77,9 +87,9 @@ public class AbilityTests
         Assert.Equal(20 + 5 + 16, mana.Max);
         Assert.Equal(mana.Max, mana.Current);
         Assert.True(mana.TrySpend(12));
-        Assert.Equal(1 + 1.0 + 0.1, mana.RegenPerSecond, 6);
+        Assert.Equal((1 + 1.0 + 0.1) * ClassResource.ManaRegenScale, mana.RegenPerSecond, 6);
         mana.Update(2);
-        Assert.Equal(mana.Max - 12 + 2 * 2.1, mana.Current, 6);
+        Assert.Equal(mana.Max - 12 + 2 * 2.1 * ClassResource.ManaRegenScale, mana.Current, 6);
     }
 
     [Fact]
@@ -142,7 +152,7 @@ public class AbilityTests
         world.UseSlot("rmb", grave);
         Run(world, 0.7);
         Assert.Equal(2, world.Projectiles.Count(p => p.Ability.Id == "force_bolt"));
-        Assert.True(world.Hero.Resource.Current < mana - 12 + 2.1 * 0.8); // 12 spent, ~2 Mana a second back
+        Assert.True(world.Hero.Resource.Current < mana - 12 + 2.1 * 0.8); // 12 spent, under 2 Mana a second back
         Run(world, 1.5);
         Assert.True(grave.Creature.HitPoints < grave.Creature.Stats.HitPoints);
     }

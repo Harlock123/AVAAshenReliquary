@@ -762,7 +762,7 @@ Building the rules core and the vertical slice settled these. Where a number her
 | Wizard | 1 | Staff Strike | Melee fallback |
 
 - **Fury** (Fighter): 0–100, starts empty; +12 per hit, +20 per critical, +6 when hit (plus gear "Fury per hit"); drains 8 per second after 4 s out of combat.
-- **Mana** (casters): maximum 20 + 5 × level + 4 × key attribute; regenerates (1 + key/4 + level/10) per second, × (1 + gear regeneration).
+- **Mana** (casters): maximum 20 + 5 × level + 4 × key attribute; regenerates 0.7 × (1 + key/4 + level/10) per second, × (1 + gear regeneration) (the 0.7, `ClassResource.ManaRegenScale`, came in after M5 so costly spells are felt).
 - **Flourish** abilities lock out other Flourish abilities for 3 s. Spell rank = level ÷ 2, rounded up.
 - Out of range or out of sight: the hero walks in first. Can't afford it or on cooldown: a message, and the hero carries on with the basic attack.
 
@@ -1150,7 +1150,7 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   is no Earthshaker weapon. Sneak attack works with a bow.
 - **The class** (section 7): DEX, 10 HP a level, light and medium armour, trained in Nature and Survival. Starts with
   a shortbow and leathers; quick start `--ranger` (a Marksman), `--marksman`, `--beastmaster`.
-- **Focus** works as Mana: starts full, 20 + 5 × level + 4 × DEX, regenerates.
+- **Focus** works as Mana: starts full, 20 + 5 × level + 4 × DEX, regenerates (at the full rate: Mana's 0.7 doesn't apply).
 - **Hunt Prey** (class feature and ability): mark one monster within 12 tiles, at once (1 s cooldown); every Strike
   against it, melee or arrow, deals 1d8 more precision damage (2d8 at 11, 3d8 at 19, as Pathfinder's precision edge),
   doubled on a critical hit. Drawn as four green arrowheads round its feet; the mark lasts until it dies or another is
@@ -2234,6 +2234,13 @@ stays the Step dodge. `--fighter` and `--wizard` skip character creation. `--bat
   it opens. A skill nothing rolls says so.
 - **The bag** is 14 columns by 6 rows (84 slots; it was 10 by 6), filling the inventory panel's width; its cells are
   sized by the room both ways. Saves load into it as before (the bag is refilled in order).
+
+### Slower Mana (after M5)
+
+Casting cantrips is free, so Mana only moves for the costly spells, and at about 2 a second back for a level-1 wizard it
+was full again before the player noticed. Mana now regenerates at `ClassResource.ManaRegenScale` (0.7) of the old rate
+(the HUD's orb tooltip shows the new figure); dedications' half-size pools take the same 0.7 on top of their half rate.
+Focus (the Ranger's) is unchanged.
 
 ### The in-game guide (after M4)
 

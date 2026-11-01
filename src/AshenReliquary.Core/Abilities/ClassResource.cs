@@ -101,10 +101,16 @@ public sealed class ClassResource
         _ => (20 + 5 * _character.Level + 4 * Math.Max(0, _character.Attributes[_key])) * (IsDedication ? 0.5 : 1),
     };
 
-    /// <summary>Mana or Focus per second: 1 + a quarter per point of the key attribute + a tenth per level.</summary>
+    /// <summary>How much slower Mana comes back than Focus, so a caster's costly spells are felt.</summary>
+    public const double ManaRegenScale = 0.7;
+
+    /// <summary>
+    /// Mana or Focus per second: 1 + a quarter per point of the key attribute + a tenth per level; Mana at
+    /// <see cref="ManaRegenScale"/> of that.
+    /// </summary>
     public double RegenPerSecond => StartsEmpty ? 0
         : (1 + 0.25 * Math.Max(0, _character.Attributes[_key]) + 0.1 * _character.Level) * (1 + _character.Gear.ResourceRegen + _character.ResourceRegenBonus)
-          * (IsDedication ? 0.5 : 1);
+          * (Kind == ResourceKind.Mana ? ManaRegenScale : 1) * (IsDedication ? 0.5 : 1);
 
     public bool CanSpend(double amount) => Current + 1e-9 >= amount;
 
